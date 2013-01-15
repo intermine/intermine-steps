@@ -6,11 +6,11 @@ module.exports = class CompareListsToolView extends Chaplin.View
     containerMethod: 'html'
     autoRender:      true
 
-    # Begin at this internal step.
-    step: 1
-
     initialize: ->
         super
+
+        # Set the step.
+        @step = @options.step or 1
 
         # Set on Model.
         @model.set 'description', 'Compares <em>n</em> lists.'
@@ -31,7 +31,7 @@ module.exports = class CompareListsToolView extends Chaplin.View
     # Submit list upload, ask for next step.
     submit: ->
         # Create a step in a history by emitting a message.
-        Chaplin.mediator.publish 'history', 'add', @model
+        Chaplin.mediator.publish 'history:add', @model
 
         # Change the step and re-render.
         @step += 1

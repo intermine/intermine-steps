@@ -24,4 +24,4 @@ module.exports = class AppView extends Chaplin.View
         )
         
         # Send a message (to HistoryView).
-        Chaplin.mediator.publish 'history', 'toggle'
+        Chaplin.mediator.publish 'history:toggle'

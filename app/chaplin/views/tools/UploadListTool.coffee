@@ -6,11 +6,11 @@ module.exports = class UploadListToolView extends Chaplin.View
     containerMethod: 'html'
     autoRender:      true
 
-    # Begin at this internal step.
-    step: 1
-
     initialize: ->
         super
+
+        # Set the step.
+        @step = @options.step or 1
 
         # Set on Model.
         @model.set 'description', 'Produces a list.'
@@ -25,19 +25,13 @@ module.exports = class UploadListToolView extends Chaplin.View
     afterRender: ->
         super
 
-        switch @step
-            when 1
-                # Handle submit clicks.
-                @delegate 'click', '#submit', @submit
-            when 2
+        # Handle submit clicks.
+        @delegate 'click', '#submit', @submit
 
         @
 
-    # Submit list upload, ask for next step.
+    # Submit list upload.
     submit: ->
         # Create a step in a history by emitting a message.
-        Chaplin.mediator.publish 'history', 'add', @model
-
-        # Change the step and re-render.
-        @step += 1
-        @render()
+        Chaplin.mediator.publish 'history:add', @model
+        Chaplin.mediator.publish 'app:changeTool', 'UploadList', 2

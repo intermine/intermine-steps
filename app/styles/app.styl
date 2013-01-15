@@ -162,12 +162,16 @@ div#history
         a.button
             float: right
 
-    ul#steps
-        overflow-x: hidden
+    #tools
         margin: 0
         padding: 0
+        overflow-x: auto
+        overflow-y: hidden
 
-        li.step
+        div.inner
+            width: 100%
+
+        div.step
             display: inline-block
             margin: 5px 20px
             position: relative
@@ -176,14 +180,8 @@ div#history
             &.orange .box
                 background: #FDDDA0
 
-                // .io.output .circle
-                //     border-color: #FDDDA0
-
             &.green .box
                 background: #BBE19C
-
-                // .io.output .circle
-                //     border-color: #BBE19C
 
             &.dark .box
                 background: #000
@@ -192,42 +190,6 @@ div#history
             em.ago
                 float: right
                 font-size: 11px
-
-            // .io
-            //     position: absolute
-
-            //     span
-            //         text-align: right
-            //         font-size: 11px
-
-            //     &.input
-            //         top: 50px
-            //         left: -25px
-            //         height: 60px
-            //         width: 40px
-
-            //         .circle
-            //             right: 5px
-            //             border-color: #F6FAFB
-
-            //     &.output
-            //         top: 50px
-            //         right: -25px
-            //         cursor: pointer
-            //         z-index: 999
-
-            //         .circle
-            //             left: -15px
-
-            //     .relative
-            //         position: relative
-
-            //     .circle
-            //         border-radius: 20px
-            //         border: solid 10px #CEF2FB
-            //         width: 20px
-            //         height: 20px
-            //         position: absolute
 
             .box
                 background: #CEF2FB

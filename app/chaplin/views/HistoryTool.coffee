@@ -4,7 +4,6 @@ module.exports = class HistoryToolView extends Chaplin.View
 
     'containerMethod': 'html'
     'autoRender':      true
-    'tagName':         'li'
 
     getTemplateFunction: -> require 'chaplin/templates/history-tool'
 
@@ -15,12 +14,6 @@ module.exports = class HistoryToolView extends Chaplin.View
 
         # Add class and add order, 0-indexed!
         $(@el).attr('class', "step #{@model.get('type')}").attr('data-id', @model.id)
-
-        # Events on buttons.
-        @delegate 'click', '.button[data-action="step-remove"]', ->
-            Chaplin.mediator.publish 'history', 'remove', @model
-        # @delegate 'click', '.button[data-action="step-view"]', ->
-        #     Chaplin.mediator.publish 'app', 'view', @model
 
         # Init "time ago" updater.
         @updateTime()

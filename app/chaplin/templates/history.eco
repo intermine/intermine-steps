@@ -5,6 +5,8 @@
             <p class="message">Steps you have taken will be populated here as you work with this app.</p>
         </div>
 
-        <ul id="steps"></ul>
+        <div id="tools">
+            <div class="inner"></div>
+        </div>
     </div>
 </div>

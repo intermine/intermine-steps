@@ -27,7 +27,7 @@ module.exports = class InterMineSteps
         # Listen to traffic trying to change the tool.
         Chaplin.mediator.subscribe 'app:changeTool', @changeTool
 
-    changeTool: (tool) =>
+    changeTool: (tool, step=1) =>
         assert tool in @tools, "Unknown tool `#{tool}`"
 
         # Cleanup previous.
@@ -45,7 +45,9 @@ module.exports = class InterMineSteps
         
         # ...and the actual tool.
         Clazz = require "chaplin/views/tools/#{tool}Tool"
-        @views.push new Clazz 'model': new Tool('name': tool)
+        @views.push new Clazz
+            'model': new Tool('name': tool)
+            'step': step
 
     # Landing page.
     landing: =>

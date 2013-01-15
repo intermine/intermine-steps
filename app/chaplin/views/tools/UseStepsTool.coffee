@@ -5,12 +5,11 @@ module.exports = class UseStepsToolView extends Chaplin.View
     container:       'div#widget'
     containerMethod: 'html'
     autoRender:      true
-
-    # Begin at this internal step.
-    step: 1
-
     initialize: ->
         super
+
+        # Set the step.
+        @step = @options.step or 1
 
         # Set on Model.
         @model.set 'description', 'Saved Steps.'
@@ -30,13 +29,14 @@ module.exports = class UseStepsToolView extends Chaplin.View
                 # Handle clicks.
                 @delegate 'click', 'ol.list a', @select
             when 2
+                1+1
 
         @
 
     # Select Steps, ask for next step.
     select: ->
         # Create a step in a history by emitting a message.
-        Chaplin.mediator.publish 'history', 'add', @model
+        Chaplin.mediator.publish 'history:add', @model
 
         # Change the step and re-render.
         @step += 1
