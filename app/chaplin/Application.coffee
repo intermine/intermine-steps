@@ -2,7 +2,7 @@ Chaplin = require 'chaplin'
 
 module.exports = class FluxMine extends Chaplin.Application
 
-    title: 'Flux:Mine'
+    title: 'InterMine Steps'
 
     initialize: ->
         super
