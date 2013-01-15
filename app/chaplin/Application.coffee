@@ -1,24 +1,45 @@
 Chaplin = require 'chaplin'
 
-module.exports = class FluxMine extends Chaplin.Application
+LandingView = require 'chaplin/views/Landing'
+AppView = require 'chaplin/views/App'
+LeftSidebarView = require 'chaplin/views/LeftSidebar'
+ToolView = require 'chaplin/views/Tool'
+HistoryView = require 'chaplin/views/History'
 
-    title: 'InterMine Steps'
+History = require 'chaplin/models/History'
+Tool = require 'chaplin/models/Tool'
 
-    initialize: ->
-        super
+module.exports = class InterMineSteps
 
-        # Initialize core components.
-        @initDispatcher
-            'controllerPath':   'chaplin/controllers/'
-            'controllerSuffix': ''
+    # Whitelist of tools we can use.
+    tools: [ 'UploadList', 'CompareLists', 'UseSteps' ]
 
-        # So that nice Controller switching works...
-        @layout = new Chaplin.Layout {@title}
+    constructor: ->
+        # Which page are we serving?
+        [ ctrl, action ] = window.location.pathname.split('/')[1...]
 
-        # Register all routes and start routing.
-        @initRouter (match) ->
-            match '',           'flux#index'
-            match 'tool/:name', 'flux#tool'
+        # An individual tool?
+        if action and ctrl is 'tool'
+            # Get the tool name.
+            tool = ( ( p[0].toUpperCase() + p[1...] if p ) for p in action.split('-') ).join('')
+            assert tool in @tools, "Unknown tool `#{tool}`"
 
-        # Freeze the application instance to prevent further changes.
-        Object.freeze? @
+            # Create the main app view.
+            new AppView()
+
+            # Init the history view.
+            new HistoryView 'collection': window.History
+
+            # A specific tool, show the sidebar.
+            new LeftSidebarView()
+
+            # ...and the actual tool.
+            new ToolView 'model': new Tool('name': tool)
+
+        # Landing page.
+        else
+            # Create the landing page view.
+            new LandingView()
+
+            # Reset the history.
+            window.History.reset()
