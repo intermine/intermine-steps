@@ -3,7 +3,6 @@ Chaplin = require 'chaplin'
 LandingView = require 'chaplin/views/Landing'
 AppView = require 'chaplin/views/App'
 LeftSidebarView = require 'chaplin/views/LeftSidebar'
-ToolView = require 'chaplin/views/Tool'
 HistoryView = require 'chaplin/views/History'
 
 History = require 'chaplin/models/History'
@@ -14,32 +13,42 @@ module.exports = class InterMineSteps
     # Whitelist of tools we can use.
     tools: [ 'UploadList', 'CompareLists', 'UseSteps' ]
 
+    # Cleanup views here.
+    views: []
+
     constructor: ->
         # Which page are we serving?
-        [ ctrl, action ] = window.location.pathname.split('/')[1...]
+        [ action, name ] = window.location.pathname.split('/')[1...]
 
-        # An individual tool?
-        if action and ctrl is 'tool'
-            # Get the tool name.
-            tool = ( ( p[0].toUpperCase() + p[1...] if p ) for p in action.split('-') ).join('')
-            assert tool in @tools, "Unknown tool `#{tool}`"
+        if action is 'tool' and name then @changeTool name
+        else @landing()
 
-            # Create the main app view.
-            new AppView()
+        # Listen to traffic trying to change the tool.
+        Chaplin.mediator.subscribe 'app:changeTool', @changeTool
 
-            # Init the history view.
-            new HistoryView 'collection': window.History
+    changeTool: (tool) =>
+        assert tool in @tools, "Unknown tool `#{tool}`"
 
-            # A specific tool, show the sidebar.
-            new LeftSidebarView()
+        # Cleanup previous.
+        ( view.dispose() for view in @views )
 
-            # ...and the actual tool.
-            new ToolView 'model': new Tool('name': tool)
+        # Create the main app view.
+        @appView ?= new AppView()
 
-        # Landing page.
-        else
-            # Create the landing page view.
-            new LandingView()
+        # Init the history view.
+        @historyView ?= new HistoryView 'collection': window.History
 
-            # Reset the history.
-            window.History.reset()
+        # A specific tool, show the sidebar.
+        @sidebarView ?= new LeftSidebarView()
+
+        # ...and the actual tool.
+        Clazz = require "chaplin/views/tools/#{tool}Tool"
+        @views.push new Clazz 'model': new Tool('name': tool)
+
+    # Landing page.
+    landing: =>
+        # Create the landing page view.
+        @views.push new LandingView()
+
+        # Reset the history.
+        window.History.reset()

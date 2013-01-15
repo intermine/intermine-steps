@@ -33,21 +33,6 @@ module.exports = class HistoryView extends Chaplin.View
         # On window resize, update height again.
         $(window).resize height
 
-        # Make the history grid sortable.
-        # steps.sortable
-        #     'stop': (event, ui) =>
-        #         # Get the element that has just moved.
-        #         item = $(ui.item)
-        #         # What is the item to the left of me (to determine new position).
-        #         next = item.next()
-        #         # Move it in the Collection.
-        #         if next.length is 0
-        #             @collection.move item.attr('data-id')
-        #         else
-        #             @collection.move item.attr('data-id'), next.attr('data-id')
-        #         # Update view.
-        #         @updateView()
-
         # Listen to messages.
         Chaplin.mediator.subscribe 'history', (action, tool) =>
             # Which action?
@@ -86,14 +71,3 @@ module.exports = class HistoryView extends Chaplin.View
         @collection.each (model) =>
             @views.push step = new StepView 'model': model
             steps.append step.el
-
-        # Make the history I/O droppable/draggable.
-        # steps.find('.step .io.output').draggable
-        #     'helper': 'clone'
-        # steps.find('.step .io.input').droppable
-        #     'hoverClass': 'over'
-        #     'drop': (event, ui) =>
-        #         # Get the source and target.
-        #         a = $(ui.draggable).closest('.step').attr('data-id')
-        #         b = $(event.target).closest('.step').attr('data-id')
-        #         console.log a, b
