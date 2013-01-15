@@ -3,6 +3,7 @@ Chaplin = require 'chaplin'
 LandingView = require 'chaplin/views/Landing'
 AppView = require 'chaplin/views/App'
 LeftSidebarView = require 'chaplin/views/LeftSidebar'
+RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
 
 History = require 'chaplin/models/History'
@@ -38,9 +39,10 @@ module.exports = class InterMineSteps
         # Init the history view.
         @historyView ?= new HistoryView 'collection': window.History
 
-        # A specific tool, show the sidebar.
-        @sidebarView ?= new LeftSidebarView()
-
+        # A specific tool, show the sidebars.
+        @leftSidebarView ?= new LeftSidebarView()
+        @rightSidebarView ?= new RightSidebarView()
+        
         # ...and the actual tool.
         Clazz = require "chaplin/views/tools/#{tool}Tool"
         @views.push new Clazz 'model': new Tool('name': tool)

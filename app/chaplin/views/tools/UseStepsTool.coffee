@@ -1,7 +1,5 @@
 Chaplin = require 'chaplin'
 
-RightSidebarView = require 'chaplin/views/RightSidebar'
-
 module.exports = class UseStepsToolView extends Chaplin.View
 
     container:       'div#widget'
@@ -32,11 +30,6 @@ module.exports = class UseStepsToolView extends Chaplin.View
                 # Handle clicks.
                 @delegate 'click', 'ol.list a', @select
             when 2
-                # Show next steps.
-                sidebar = new RightSidebarView 'template': 'chaplin/templates/tools/upload-done-next'
-                # Attach events.
-                sidebar.delegate 'click', 'a', (e) ->
-                    console.log $(e.target).attr('data-step')
 
         @
 

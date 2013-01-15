@@ -6,4 +6,4 @@ module.exports = class RightSidebarView extends Chaplin.View
     containerMethod: 'html'
     autoRender:      true
 
-    getTemplateFunction: -> require @options.template
+    getTemplateFunction: -> require 'chaplin/templates/sidebar-right'
