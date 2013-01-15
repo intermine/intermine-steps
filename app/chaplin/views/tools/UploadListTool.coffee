@@ -11,6 +11,13 @@ module.exports = class UploadListToolView extends Chaplin.View
     # Begin at this internal step.
     step: 1
 
+    initialize: ->
+        super
+
+        # Set on Model.
+        @model.set 'description', 'Produces a list.'
+        @model.set 'type', 'green'
+
     # Render a specific template on each step.
     getTemplateFunction: ->
         switch @step

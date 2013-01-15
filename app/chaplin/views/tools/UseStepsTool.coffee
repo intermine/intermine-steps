@@ -11,6 +11,13 @@ module.exports = class UseStepsToolView extends Chaplin.View
     # Begin at this internal step.
     step: 1
 
+    initialize: ->
+        super
+
+        # Set on Model.
+        @model.set 'description', 'Saved Steps.'
+        @model.set 'type', 'dark'
+
     # Render a specific template on each step.
     getTemplateFunction: ->
         switch @step

@@ -9,6 +9,13 @@ module.exports = class CompareListsToolView extends Chaplin.View
     # Begin at this internal step.
     step: 1
 
+    initialize: ->
+        super
+
+        # Set on Model.
+        @model.set 'description', 'Compares <em>n</em> lists.'
+        @model.set 'type', 'orange'
+
     getTemplateFunction: ->
         switch @step
             when 1 then require 'chaplin/templates/tools/compare-input'

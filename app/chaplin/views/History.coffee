@@ -1,6 +1,6 @@
 Chaplin = require 'chaplin'
 
-StepView = require 'chaplin/views/Step'
+HistoryToolView = require 'chaplin/views/HistoryTool'
 
 module.exports = class HistoryView extends Chaplin.View
 
@@ -69,5 +69,5 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Populate with separate step views, on order they have set.
         @collection.each (model) =>
-            @views.push step = new StepView 'model': model
+            @views.push step = new HistoryToolView 'model': model
             steps.append step.el

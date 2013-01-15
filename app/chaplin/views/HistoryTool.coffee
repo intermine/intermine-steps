@@ -1,12 +1,12 @@
 Chaplin = require 'chaplin'
 
-module.exports = class StepView extends Chaplin.View
+module.exports = class HistoryToolView extends Chaplin.View
 
     'containerMethod': 'html'
     'autoRender':      true
     'tagName':         'li'
 
-    getTemplateFunction: -> require 'chaplin/templates/step'
+    getTemplateFunction: -> require 'chaplin/templates/history-tool'
 
     getTemplateData: -> @model.toJSON()
 
