@@ -12,7 +12,7 @@ Tool = require 'chaplin/models/Tool'
 module.exports = class InterMineSteps
 
     # Whitelist of tools we can use.
-    tools: [ 'UploadList', 'CompareLists', 'UseSteps' ]
+    tools: [ 'UploadListTool', 'CompareListsTool', 'UseStepsTool' ]
 
     # Cleanup views here.
     views: []
@@ -44,7 +44,7 @@ module.exports = class InterMineSteps
         @rightSidebarView ?= new RightSidebarView()
         
         # ...and the actual tool.
-        Clazz = require "chaplin/views/tools/#{tool}Tool"
+        Clazz = require "chaplin/views/tools/#{tool}"
         @views.push new Clazz
             'model': new Tool('name': tool)
             'step': step

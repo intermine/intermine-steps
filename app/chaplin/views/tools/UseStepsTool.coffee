@@ -1,43 +1,24 @@
-Chaplin = require 'chaplin'
+ToolView = require 'chaplin/views/Tool'
 
-module.exports = class UseStepsToolView extends Chaplin.View
+module.exports = class UseStepsToolView extends ToolView
+    
+    name: 'UseStepsTool'
 
-    container:       'div#widget'
-    containerMethod: 'html'
-    autoRender:      true
     initialize: ->
         super
-
-        # Set the step.
-        @step = @options.step or 1
 
         # Set on Model.
         @model.set 'description', 'Saved Steps.'
         @model.set 'type', 'dark'
 
-    # Render a specific template on each step.
-    getTemplateFunction: ->
-        switch @step
-            when 1 then require 'chaplin/templates/tools/steps-select'
-            when 2 then require 'chaplin/templates/tools/steps-view'
-
     afterRender: ->
         super
-
-        switch @step
-            when 1
-                # Handle clicks.
-                @delegate 'click', 'ol.list a', @select
-            when 2
-                1+1
+        
+        @delegate 'click', 'ol.list a', @select
 
         @
 
     # Select Steps, ask for next step.
     select: ->
-        # Create a step in a history by emitting a message.
-        Chaplin.mediator.publish 'history:add', @model
-
-        # Change the step and re-render.
-        @step += 1
-        @render()
+        @addHistory()
+        @nextStep()

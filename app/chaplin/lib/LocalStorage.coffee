@@ -32,7 +32,7 @@ class window.LocalStorage
     # Save the local `@keys` into localStorage.
     save: -> window.localStorage.setItem @name, @keys.join(',')
 
-    # Remove the model.
+    # Remove the Model.
     remove: (model) ->
         # Object.
         window.localStorage.removeItem @name + '-' + model.id

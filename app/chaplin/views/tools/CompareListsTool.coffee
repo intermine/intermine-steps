@@ -1,25 +1,15 @@
-Chaplin = require 'chaplin'
+ToolView = require 'chaplin/views/Tool'
 
-module.exports = class CompareListsToolView extends Chaplin.View
+module.exports = class CompareListsToolView extends ToolView
 
-    container:       'div#widget'
-    containerMethod: 'html'
-    autoRender:      true
+    name: 'CompareListsTool'
 
     initialize: ->
         super
 
-        # Set the step.
-        @step = @options.step or 1
-
         # Set on Model.
         @model.set 'description', 'Compares lists.'
         @model.set 'type', 'orange'
-
-    getTemplateFunction: ->
-        switch @step
-            when 1 then require 'chaplin/templates/tools/compare-input'
-            when 2 then require 'chaplin/templates/tools/compare-done'
 
     afterRender: ->
         super
@@ -28,11 +18,7 @@ module.exports = class CompareListsToolView extends Chaplin.View
 
         @
 
-    # Submit list upload, ask for next step.
+    # Submit list comparison, ask for next step.
     submit: ->
-        # Create a step in a history by emitting a message.
-        Chaplin.mediator.publish 'history:add', @model
-
-        # Change the step and re-render.
-        @step += 1
-        @render()
+        @addHistory()
+        @nextStep()

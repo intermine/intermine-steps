@@ -13,8 +13,8 @@
             <div class="four columns">
                 <h2>Popular Tools</h2>
                 <ul>
-                    <li><a href="/tool/UploadList">Upload List</a></li>
-                    <li><a href="/tool/CompareLists">Compare Lists</a></li>
+                    <li><a href="/tool/UploadListTool">Upload List</a></li>
+                    <li><a href="/tool/CompareListsTool">Compare Lists</a></li>
                     <li>Use a Saved Steps</li>
                 </ul>
             </div>
