@@ -37,6 +37,7 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Toggle the view.
         Chaplin.mediator.subscribe 'history:toggle', =>
+            $('div#whiteout').toggle()
             $(@el).parent().slideToggle()
             @updateView()
 
