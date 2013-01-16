@@ -1,14 +1,11 @@
-<div class="wrap sidebar">
-    <div class="container">
-        <div class="row">
-            <div class="twelve columns">
-                <h1>Use Saved Steps - Step #1</h1>
-                <p>Select from among the saved Steps from your history.</p>
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <p>Select from among the saved Steps from your history:</p>
 
-                <ol class="list">
-                    <li><a>Me doing something interesting</a></li>
-                </ol>
-            </div>
+            <ol class="list">
+                <li><a>Me doing something interesting</a></li>
+            </ol>
         </div>
     </div>
 </div>

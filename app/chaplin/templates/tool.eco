@@ -1,0 +1,23 @@
+<div class="wrap sidebar">
+
+    <h1><%= @name %></h1>
+
+    <% if @steps.length isnt 0: %>
+        <ul class="accordion">
+            <% for i, title of @steps: %>
+                <% i = parseInt(i) + 1 %>
+                <li <% if i is @step: %>class="active"<% end %> data-step="<%= i %>">
+                    <div class="title">
+                        <h5>#<%= i %>: <%= title %></h5>
+                    </div>
+                    <div class="content">Dummy</div>
+                </li>
+            <% end %>
+        </ul>
+    <% else: %>
+        <div class="alert-box alert">
+            No Tool Steps defined.
+        </div>
+    <% end %>
+
+</div>

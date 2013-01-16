@@ -16,8 +16,8 @@ module.exports = class HistoryView extends Chaplin.View
     afterRender: ->
         super
 
-        # Hide by default and set width to how much space we have on screen.
-        $(@el).css('width', $(window).width() - $('footer#bottom').outerWidth())
+        # Hide by default and set width to how much space we have on screen. Add a class.
+        $(@el).css('width', $(window).width() - $('footer#bottom').outerWidth()).addClass('container')
 
         tools = $(@el).find('#tools')
 
@@ -36,7 +36,7 @@ module.exports = class HistoryView extends Chaplin.View
             @updateView()
 
         # Toggle the view.
-        Chaplin.mediator.subscribe 'history:toggle', => $(@el).parent().toggle()
+        Chaplin.mediator.subscribe 'history:toggle', => $(@el).parent().slideToggle()
 
         # Call initial view update.
         @updateView()

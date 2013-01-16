@@ -9,6 +9,20 @@ module.exports = class ToolView extends Chaplin.View
     # Need to be replaced with a name of the actual tool name.
     name: 'Dummy'
 
+    # Step names.
+    steps: []
+
+    # Accordion template.
+    getTemplateFunction: -> require "chaplin/templates/tool"
+
+    getTemplateData: ->
+        # Split our name into a 'nice' form.
+        'name': @name.replace /([A-Z])/g, ' $1'
+        # Names so we can populate the tabs.
+        'steps': @steps
+        # Current step.
+        'step': @step
+
     initialize: ->
         super
 
@@ -18,18 +32,18 @@ module.exports = class ToolView extends Chaplin.View
     afterRender: ->
         super
 
+        # Render a specific step into our accordion template.
+        $(@el).find("ul.accordion li(data-step='<%= @step %>') div.content").html require "chaplin/templates/tools/#{@name}/step-#{@step}"
+
         # Do we have next steps to show by any chance? Otherwise go default.
         try
             tml = require "chaplin/templates/tools/#{@name}/step-#{@step}-next"
         catch err
             tml = require "chaplin/templates/sidebar-right"
-
+        
         $('aside#right').html tml()
 
         @
-
-    # Render a specific template on each step.
-    getTemplateFunction: -> require "chaplin/templates/tools/#{@name}/step-#{@step}"
 
     # Call to emit a message changing a tool step.
     nextStep: -> Chaplin.mediator.publish 'app:changeTool', @name, @step + 1

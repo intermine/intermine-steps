@@ -10,3 +10,13 @@ $ npm start
 ```
 
 Visit ``127.0.0.1:9034``
+
+## Features
+
+1. Automatic compilation of source files into target JavaScript files (Chaplin on Brunch).
+1. Use of mediator to move between tools and steps of these tools.
+1. Dynamically loading an appropriate tool and its sidebar template.
+1. Serialization of steps taken into `localStorage`.
+1. Automatic sizing of History view.
+1. Automatic update of time since last use of a tool.
+1. Tools are ready to be reordered and/or removed.

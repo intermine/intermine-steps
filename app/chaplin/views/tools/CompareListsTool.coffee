@@ -4,6 +4,11 @@ module.exports = class CompareListsToolView extends ToolView
 
     name: 'CompareListsTool'
 
+    steps: [
+        'Choose Lists to Compare'
+        'See Comparison'
+    ]
+
     initialize: ->
         super
 

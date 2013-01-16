@@ -4,6 +4,11 @@ module.exports = class UploadListToolView extends ToolView
 
     name: 'UploadListTool'
 
+    steps: [
+        'Input Identifiers'
+        'See Result'
+    ]
+
     initialize: ->
         super
 

@@ -4,6 +4,11 @@ module.exports = class UseStepsToolView extends ToolView
     
     name: 'UseStepsTool'
 
+    steps: [
+        'Choose Steps from History'
+        'See Steps'
+    ]
+
     initialize: ->
         super
 
