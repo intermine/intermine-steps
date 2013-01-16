@@ -30,6 +30,9 @@ module.exports = class InterMineSteps
     changeTool: (tool, step=1) =>
         assert tool in @tools, "Unknown tool `#{tool}`"
 
+        # Update pushState.
+        window.history.pushState {}, null, tool
+
         # Cleanup previous.
         ( view.dispose() for view in @views )
 
