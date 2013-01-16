@@ -13,7 +13,7 @@ module.exports = class CompareListsToolView extends Chaplin.View
         @step = @options.step or 1
 
         # Set on Model.
-        @model.set 'description', 'Compares <em>n</em> lists.'
+        @model.set 'description', 'Compares lists.'
         @model.set 'type', 'orange'
 
     getTemplateFunction: ->

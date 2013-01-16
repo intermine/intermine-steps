@@ -22,7 +22,7 @@ module.exports = class HistoryView extends Chaplin.View
         tools = $(@el).find('#tools')
 
         # Set the height of the tools based on the height of the viewport.
-        do height = -> tools.css 'height', ($(window).height() / 2) - 91
+        do height = -> tools.css 'height', ($(window).height() / 2) - 52
 
         # On window resize, update height again.
         $(window).resize height
@@ -49,10 +49,12 @@ module.exports = class HistoryView extends Chaplin.View
         $(@el).find('p.message').hide @collection.length is 0
         # Remove any and all step views.
         ( view.dispose() for view in @views )
-        # Clear all of the tools inside.
-        (tools = $(@el).find('#tools div.inner')).html('')
+        # Clear all of the tools inside and reset width.
+        (tools = $(@el).find('#tools div.inner')).html('').css('width', 0)
 
         # Populate with separate step views, on order they have set.
         @collection.each (model) =>
             @views.push step = new HistoryToolView 'model': model
             tools.append step.el
+            # Update the width of the container.
+            tools.css 'width', $(step.el).width() + tools.width()
