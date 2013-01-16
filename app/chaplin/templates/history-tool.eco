@@ -1,5 +1,4 @@
 <div class="wrap">
-    <em class="ago"></em> <%= @order + 1 %>.
     <div class="box">
         <h3><%= @name %></h3>
         <% if @description.length > 22: %>

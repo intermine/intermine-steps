@@ -49,4 +49,8 @@ module.exports = class ToolView extends Chaplin.View
     nextStep: -> Chaplin.mediator.publish 'app:changeTool', @name, @step + 1
 
     # Add this tool to a history.
-    addHistory: -> Chaplin.mediator.publish 'history:add', @model
+    addHistory: ->
+        # First update our model by serializing any form we find in our step.
+
+        # Now send a message to save the model.
+        Chaplin.mediator.publish 'history:add', @model

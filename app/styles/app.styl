@@ -248,14 +248,24 @@ div#history
         overflow-x: auto
         overflow-y: hidden
 
+        // table based system
+        table.inner
+            border: 0
+            margin: 0
+            padding: 0
+
+            td
+                padding: 0
+
+        // div based system
         div.step
             display: inline-block
-            width: 200px
+            width: 180px
+            margin: 10px 0
 
             div.wrap
                 width: 160px
                 margin: 0 auto
-                margin-top: 10px
 
             &.orange .box
                 background: #FDDDA0
@@ -274,7 +284,6 @@ div#history
             div.box
                 background: #CEF2FB
                 padding: 10px 20px
-                margin-top: 10px
                 height: 60px
                 overflow: hidden
 

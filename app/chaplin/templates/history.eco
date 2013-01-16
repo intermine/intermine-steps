@@ -4,5 +4,5 @@
 </div>
 
 <div id="tools">
-    <div class="inner"></div>
+    <table class="inner"></table>
 </div>

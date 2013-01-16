@@ -9,11 +9,19 @@ module.exports = class History extends Chaplin.Collection
     initialize: ->
         super
 
-        # Get the localStorage data.
-        @store = new window.LocalStorage 'History'
-        for record in @store.findAll()
-            # Add it only in memory, we already have it in localStorage.
-            @add new Tool record, false
+        # # Get the localStorage data.
+        # @store = new window.LocalStorage 'History'
+        # for record in @store.findAll()
+        #     # Add it only in memory, we already have it in localStorage.
+        #     @add new Tool record, false
+
+        # @
+
+        # Fake tools just to work out the positioning.
+        @add new Tool 'row': 1, 'col': 1, 'name': 'R1C1', 'description': 'Start here', 'type': 'green'
+        @add new Tool 'row': 1, 'col': 2, 'name': 'R1C2', 'description': 'First try'
+        @add new Tool 'row': 1, 'col': 3, 'name': 'R1C3', 'description': 'Endpoint', 'type': 'orange'
+        @add new Tool 'row': 2, 'col': 2, 'name': 'R2C2', 'description': 'Alternate reality'
 
         @
 
@@ -23,7 +31,7 @@ module.exports = class History extends Chaplin.Collection
     # Reset the history.
     reset: ->
         # In localStorage.
-        @store.reset()
+        # @store.reset()
 
         # Destroy locally.
         super
@@ -34,40 +42,40 @@ module.exports = class History extends Chaplin.Collection
         super
 
         # In localStorage.
-        if localStorage? then @store.add model
+        # if localStorage? then @store.add model
 
     # Remove a model from a Collection.
     remove: (model) ->
-        # Get the order to update all elements after it.
-        order = model.get 'order'
-        @each (item) =>
-            iOrder = item.get 'order'
-            if iOrder > order
-                item.set 'order', iOrder - 1
-                @store.add item
+        # # Get the order to update all elements after it.
+        # order = model.get 'order'
+        # @each (item) =>
+        #     iOrder = item.get 'order'
+        #     if iOrder > order
+        #         item.set 'order', iOrder - 1
+        #         @store.add item
 
-        # In localStorage.
-        @store.remove model
+        # # In localStorage.
+        # @store.remove model
 
         # Locally.
         super
 
     # Move a tool in its position in the history.
     move: (a, b) ->
-        assert a, 'The `id` of the element needs to be provided'
+        # assert a, 'The `id` of the element needs to be provided'
 
-        # Traverse the current state wo/ us.
-        arr = [] ; @each (item) -> arr.push(item.id) unless item.id is a
+        # # Traverse the current state wo/ us.
+        # arr = [] ; @each (item) -> arr.push(item.id) unless item.id is a
 
-        # Add to the end.
-        unless b then arr.push a
-        # Inject.
-        else arr.splice(arr.indexOf(b), 0, a)
+        # # Add to the end.
+        # unless b then arr.push a
+        # # Inject.
+        # else arr.splice(arr.indexOf(b), 0, a)
 
-        # Save the new order.
-        @each (item) =>
-            item.set 'order', arr.indexOf item.id
-            @store.add item
+        # # Save the new order.
+        # @each (item) =>
+        #     item.set 'order', arr.indexOf item.id
+        #     @store.add item
 
-        # Sort.
-        @sort()
+        # # Sort.
+        # @sort()
