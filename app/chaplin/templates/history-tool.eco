@@ -1,3 +1,4 @@
+<em class="ago"></em>
 <div class="wrap">
     <div class="box">
         <h3><%= @name %></h3>

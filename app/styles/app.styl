@@ -137,8 +137,20 @@ section#middle
         ul.list
             list-style-type: none
 
-        h1
-            font-size: 22px
+        div.head
+
+            h1
+                font-size: 22px
+                float: left
+
+            em.ago
+                float: left
+                margin: 23px 0 0 15px
+
+            &:after
+                content: ""
+                display: block
+                clear: both
 
         h2
             font-size: 18px
@@ -267,18 +279,42 @@ div#history
                 width: 160px
                 margin: 0 auto
 
-            &.orange .box
-                background: #FDDDA0
-
-            &.green .box
-                background: #BBE19C
-
-            &.dark .box
-                background: #000
+            &.terracotta .box
+                background: #e2674a
+                color: #FFF
+            &.goldentainoi .box
+                background: #FFCC66
+            &.curiousblue .box
+                background: #3399CC
+                color: #FFF
+            &.turquoise .box
+                background: #33CCCC
+            &.strikemaster .box
+                background: #996699
+                color: #FFF
+            &.crail .box
+                background: #C24747
+            &.deyork .box
+                background: #99CC99
+            &.patina .box
+                background: #669999
+                color: #FFF
+            &.hopbush .box
+                background: #CC6699
+                color: #FFF
+            &.seagreen .box
+                background: #339966
+                color: #FFF
+            &.kimberly .box
+                background: #666699
                 color: #FFF
 
+            &.active .box > *
+                opacity: 1
+
             em.ago
-                float: right
+                text-align: center
+                display: block
                 font-size: 11px
 
             div.box
@@ -286,6 +322,10 @@ div#history
                 padding: 10px 20px
                 height: 60px
                 overflow: hidden
+                cursor: pointer
+
+                > *
+                    opacity: 0.3
 
                 h3
                     font-size: 16px

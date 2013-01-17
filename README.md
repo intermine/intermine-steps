@@ -2,6 +2,8 @@
 
 InterMine 2.0 Prototype preserving history of Steps
 
+![image](https://raw.github.com/radekstepan/intermine-steps/master/example.png)
+
 ## Getting Started
 
 ```bash
@@ -21,3 +23,4 @@ Visit ``127.0.0.1:9034``
 1. Automatic update of time since last use of a tool.
 1. Tools are ready to be reordered and/or removed.
 1. A grid for History steps is being dynamically built, updated and populated with tools.
+1. Multiple streams of History supported, being able to move between their Tool steps.

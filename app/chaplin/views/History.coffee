@@ -21,7 +21,7 @@ module.exports = class HistoryView extends Chaplin.View
     # Current state we are in.
     current:
         'row': 0
-        'col': 0
+        'col': -1 # we are 'nowhere'
 
     getTemplateFunction: -> require 'chaplin/templates/history'
 
@@ -44,15 +44,15 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Add a tool.
         Chaplin.mediator.subscribe 'history:add', (tool) =>
+            # Move to a future current state.
+            @current.col += 1
+
             # Set the col and row for this tool.
             tool.set @current
 
             # Save on Collection.
             @collection.add tool
             @addTool tool
-            
-            # Move to a future current state.
-            @current.col += 1
 
         # Toggle the view.
         Chaplin.mediator.subscribe 'history:toggle', =>
@@ -60,17 +60,6 @@ module.exports = class HistoryView extends Chaplin.View
             $(@el).parent().slideToggle()
 
         @
-
-    # # Scroll to the last tool.
-    # scrollToLast: =>
-    #     assert @tools, 'We do not have #tools captured'
-
-    #     # Only when we are visible.
-    #     if @tools.is(':visible')
-    #         # Scroll to the new point.
-    #         @tools.animate
-    #             'scrollLeft': @tools.find('div.inner').width()
-    #         , 0
 
     # Add a row in DOM (with appropriate number of columns) so we can inject content.
     addRow: ->

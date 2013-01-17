@@ -14,7 +14,7 @@ module.exports = class UseStepsToolView extends ToolView
 
         # Set on Model.
         @model.set 'description', 'Saved Steps.'
-        @model.set 'type', 'dark'
+        @model.set 'type', 'hopbush'
 
     afterRender: ->
         super

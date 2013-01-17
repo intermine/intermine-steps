@@ -14,7 +14,7 @@ module.exports = class UploadListToolView extends ToolView
 
         # Set on Model.
         @model.set 'description', 'Produces a list.'
-        @model.set 'type', 'green'
+        @model.set 'type', 'deyork'
 
     afterRender: ->
         super

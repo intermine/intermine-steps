@@ -14,7 +14,7 @@ module.exports = class CompareListsToolView extends ToolView
 
         # Set on Model.
         @model.set 'description', 'Compares lists.'
-        @model.set 'type', 'orange'
+        @model.set 'type', 'goldentainoi'
 
     afterRender: ->
         super

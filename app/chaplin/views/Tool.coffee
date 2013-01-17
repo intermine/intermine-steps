@@ -1,6 +1,8 @@
 Chaplin = require 'chaplin'
 
-module.exports = class ToolView extends Chaplin.View
+GenericToolView = require 'chaplin/views/GenericTool'
+
+module.exports = class ToolView extends GenericToolView
 
     container:       'div#widget'
     containerMethod: 'html'
@@ -43,10 +45,13 @@ module.exports = class ToolView extends Chaplin.View
         
         $('aside#right').html tml()
 
+        # Init "time ago" updater.
+        @updateTime()
+
         @
 
     # Call to emit a message changing a tool step.
-    nextStep: -> Chaplin.mediator.publish 'app:changeTool', @name, @step + 1
+    nextStep: -> Chaplin.mediator.publish 'app:newTool', @model, @step + 1
 
     # Add this tool to a history.
     addHistory: ->

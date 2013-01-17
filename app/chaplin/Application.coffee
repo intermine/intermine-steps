@@ -21,14 +21,17 @@ module.exports = class InterMineSteps
         # Which page are we serving?
         [ action, name ] = window.location.pathname.split('/')[1...]
 
-        if action is 'tool' and name then @changeTool name
+        if action is 'tool' and name
+            model = new Tool 'name': name
+            @newTool model
         else @landing()
 
         # Listen to traffic trying to change the tool.
-        Chaplin.mediator.subscribe 'app:changeTool', @changeTool
+        Chaplin.mediator.subscribe 'app:newTool', @newTool
+        Chaplin.mediator.subscribe 'app:oldTool', @oldTool
 
-    changeTool: (tool, step=1) =>
-        assert tool in @tools, "Unknown tool `#{tool}`"
+    newTool: (model, step=1) =>
+        tool = model.get('name')
 
         # Update pushState.
         window.history.pushState {}, null, tool
@@ -49,8 +52,11 @@ module.exports = class InterMineSteps
         # ...and the actual tool.
         Clazz = require "chaplin/views/tools/#{tool}"
         @views.push new Clazz
-            'model': new Tool('name': tool)
+            'model': model
             'step': step
+
+        # Make us active.
+        Chaplin.mediator.publish 'step:activate', model.cid
 
     # Landing page.
     landing: =>
@@ -59,3 +65,25 @@ module.exports = class InterMineSteps
 
         # Reset the history.
         window.History.reset()
+
+    # Show a tool from a history.
+    oldTool: (model, step=1) =>
+        tool = model.get('name')
+
+        # Reset active status of all steps.
+        Chaplin.mediator.publish 'step:inactivate'
+
+        # Update pushState.
+        window.history.pushState {}, null, tool
+
+        # Cleanup previous.
+        ( view.dispose() for view in @views )
+
+        # Init the actual tool.
+        Clazz = require "chaplin/views/tools/#{tool}"
+        @views.push new Clazz
+            'model': model
+            'step': step
+
+        # Make us active.
+        Chaplin.mediator.publish 'step:activate', model.cid
