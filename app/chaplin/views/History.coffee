@@ -18,6 +18,11 @@ module.exports = class HistoryView extends Chaplin.View
     # Store the table grid DOM here for easy append of elements.
     grid: []
 
+    # Current state we are in.
+    current:
+        'row': 0
+        'col': 0
+
     getTemplateFunction: -> require 'chaplin/templates/history'
 
     afterRender: ->
@@ -39,11 +44,15 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Add a tool.
         Chaplin.mediator.subscribe 'history:add', (tool) =>
-            # Update the tool's order (push on stack).
-            tool.set 'order', @collection.length
+            # Set the col and row for this tool.
+            tool.set @current
+
             # Save on Collection.
             @collection.add tool
             @addTool tool
+            
+            # Move to a future current state.
+            @current.col += 1
 
         # Toggle the view.
         Chaplin.mediator.subscribe 'history:toggle', =>
