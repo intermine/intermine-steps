@@ -20,3 +20,4 @@ Visit ``127.0.0.1:9034``
 1. Automatic sizing of History view.
 1. Automatic update of time since last use of a tool.
 1. Tools are ready to be reordered and/or removed.
+1. A grid for History steps is being dynamically built, updated and populated with tools.

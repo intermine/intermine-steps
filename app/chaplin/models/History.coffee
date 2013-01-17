@@ -18,10 +18,10 @@ module.exports = class History extends Chaplin.Collection
         # @
 
         # Fake tools just to work out the positioning.
-        @add new Tool 'row': 1, 'col': 1, 'name': 'R1C1', 'description': 'Start here', 'type': 'green'
-        @add new Tool 'row': 1, 'col': 2, 'name': 'R1C2', 'description': 'First try'
-        @add new Tool 'row': 1, 'col': 3, 'name': 'R1C3', 'description': 'Endpoint', 'type': 'orange'
-        @add new Tool 'row': 2, 'col': 2, 'name': 'R2C2', 'description': 'Alternate reality'
+        @add new Tool 'row': 0, 'col': 0, 'name': 'R0C0', 'description': 'Start here', 'type': 'green'
+        @add new Tool 'row': 0, 'col': 1, 'name': 'R0C1', 'description': 'First try'
+        @add new Tool 'row': 0, 'col': 2, 'name': 'R0C2', 'description': 'Endpoint', 'type': 'orange'
+        @add new Tool 'row': 1, 'col': 1, 'name': 'R1C1', 'description': 'Alternate reality'
 
         @
 
