@@ -61,9 +61,6 @@ module.exports = class ToolView extends GenericToolView
     addHistory: ->
         # TODO: First update our model by serializing any form we find in our step if we are not locked!.
 
-        # Start with 'us' by default.
-        model = @model
-
         # Are we a locked tool?
         if @model.get('locked')
             # Duplicate
@@ -74,11 +71,19 @@ module.exports = class ToolView extends GenericToolView
             model.created = Date.now()
             # Change the description.
             model.description = 'Autogen baby!'
+
             # Create from Class.
             model = new Tool model
 
-        # Set the model back on us.
-        @model = model
+            # Now send a message to save the model.
+            Chaplin.mediator.publish 'history:branch', model
 
-        # Now send a message to save the model.
-        Chaplin.mediator.publish 'history:add', model
+        # We are continuing a chain.
+        else
+            model = @model
+            
+            # Now send a message to save the model.
+            Chaplin.mediator.publish 'history:continue', model
+
+        # Activate the tool.
+        Chaplin.mediator.publish 'step:activate', model

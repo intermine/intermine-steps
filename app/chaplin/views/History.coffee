@@ -20,8 +20,8 @@ module.exports = class HistoryView extends Chaplin.View
 
     # Current state we are in.
     current:
-        'row': 0
-        'col': -1 # we are 'nowhere'
+        'row': null
+        'col': null
 
     getTemplateFunction: -> require 'chaplin/templates/history'
 
@@ -34,7 +34,7 @@ module.exports = class HistoryView extends Chaplin.View
         @tools = $(@el).find('#tools')
 
         # Set the height of the tools based on the height of the viewport.
-        do height = => @tools.css 'height', ($(window).height() * .8) - 81
+        do height = => @tools.css 'height', ($(window).height() * .8) - 67
 
         # On window resize, update height again.
         $(window).resize height
@@ -42,39 +42,42 @@ module.exports = class HistoryView extends Chaplin.View
         # Render the table.
         @renderTable()
 
+        # Branch from a currently active tool.
+        Chaplin.mediator.subscribe 'history:branch', (model) =>
+            # Change our row to the first available (new).
+            model.set 'row', @rows
+            # Save on Collection.
+            @collection.add model
+            @addTool model
+
         # Add a tool.
-        Chaplin.mediator.subscribe 'history:add', (tool) =>
-            # Make sure we actually operate on Models not say JSON objects.
-            assert tool.cid, 'Need to pass in a Model'
+        Chaplin.mediator.subscribe 'history:continue', (model) =>
+            assert @current.col and @current.col >= 0 and @current.row and @current.row >= 0, 'We are continuing from no active point'
 
-            # Is the next column taken? Check on DOM.
-            if @grid[@current.col + 1] and @grid[@current.col + 1][@current.row].children().length isnt 0
-                @current.row = @rows # rows are 0 indexed!
-            else
-                @current.col += 1
+            # Shift the column index by 1.
+            model.set 'row': @current.row, 'col': @current.col + 1
 
-            # Set the col and row for this tool.
-            tool.set @current
+            # Set the parent.
+            model.set 'parent': @current
 
             # Save on Collection.
-            @collection.add tool
-            @addTool tool
+            @collection.add model
+            @addTool model
+
+        # Listen to step activations to update where we are.
+        Chaplin.mediator.subscribe 'step:activate', (model) =>
+            @current.col = model.get('col')
+            @current.row = model.get('row')
 
         # Toggle the view.
         Chaplin.mediator.subscribe 'history:toggle', =>
             $('div#whiteout').toggle()
             $(@el).parent().slideToggle()
 
-        # Update our current position.
-        Chaplin.mediator.subscribe 'step:activate', (model) =>
-            @current.row = model.get('row') or @current.row
-            @current.col = model.get('col') or @current.col
-
         @
 
     # Add a row in DOM (with appropriate number of columns) so we can inject content.
     addRow: ->
-        # console.log 'Add row'
         table = $(@el).find('table.grid')
 
         # First the row.
@@ -95,7 +98,6 @@ module.exports = class HistoryView extends Chaplin.View
 
     # Add a column in DOM (into all existing rows) so we can inject content.
     addCol: ->
-        # console.log 'Add col'
         table = $(@el).find('table.grid')
 
         # For each row (0 indexed)...
@@ -126,8 +128,6 @@ module.exports = class HistoryView extends Chaplin.View
         @views.push step = new HistoryToolView 'model': model
         # Where do we go?
         row = model.get('row') ; col = model.get('col')
-
-        # console.log 'Add:', row, col
 
         # Add rows if need be.
         dist = 1 + row - @rows # 0 indexed

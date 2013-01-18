@@ -21,11 +21,14 @@ module.exports = class HistoryToolView extends GenericToolView
         @updateTime()
 
         # Capture onclick if we want to visit a step in a history.
-        @delegate 'click', '', -> Chaplin.mediator.publish 'app:oldTool', @model
+        @delegate 'click', '', ->
+            Chaplin.mediator.publish 'app:oldTool', @model
+            # Activate the element.
+            Chaplin.mediator.publish 'step:activate', @model
 
         # Reset active status of this step.
         Chaplin.mediator.subscribe 'step:activate', (model) =>
-            if model.cid is @model.cid then $(@el).addClass('active')
+            if @model.cid is model.cid then $(@el).addClass('active')
             else $(@el).removeClass('active')
 
         @
