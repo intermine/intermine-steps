@@ -44,6 +44,9 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Add a tool.
         Chaplin.mediator.subscribe 'history:add', (tool) =>
+            # Make sure we actually operate on Models not say JSON objects.
+            assert tool.cid, 'Need to pass in a Model'
+
             # Is the next column taken? Check on DOM.
             if @grid[@current.col + 1] and @grid[@current.col + 1][@current.row].children().length isnt 0
                 @current.row = @rows # rows are 0 indexed!

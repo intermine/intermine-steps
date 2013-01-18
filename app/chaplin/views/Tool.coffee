@@ -2,6 +2,8 @@ Chaplin = require 'chaplin'
 
 GenericToolView = require 'chaplin/views/GenericTool'
 
+Tool = require 'chaplin/models/Tool'
+
 module.exports = class ToolView extends GenericToolView
 
     container:       'div#widget'
@@ -57,7 +59,23 @@ module.exports = class ToolView extends GenericToolView
 
     # Add this tool to a history.
     addHistory: ->
-        # First update our model by serializing any form we find in our step.
+        # TODO: First update our model by serializing any form we find in our step if we are not locked!.
+
+        # Start with 'us' by default.
+        model = @model
+
+        # Are we a locked tool?
+        if @model.get('locked')
+            # Duplicate
+            model = @model.toJSON()
+            # Remove the lock status.
+            model.locked = false
+            # Remove the creation date so it can be autogen.
+            delete model.created
+            # Change the description.
+            model.description = 'Autogen baby!'
+            # Create from Class.
+            model = new Tool model
 
         # Now send a message to save the model.
-        Chaplin.mediator.publish 'history:add', @model
+        Chaplin.mediator.publish 'history:add', model
