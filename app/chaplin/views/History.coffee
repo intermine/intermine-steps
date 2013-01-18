@@ -34,7 +34,7 @@ module.exports = class HistoryView extends Chaplin.View
         @tools = $(@el).find('#tools')
 
         # Set the height of the tools based on the height of the viewport.
-        do height = => @tools.css 'height', ($(window).height() / 2) - 52
+        do height = => @tools.css 'height', ($(window).height() * .8) - 81
 
         # On window resize, update height again.
         $(window).resize height
@@ -44,8 +44,11 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Add a tool.
         Chaplin.mediator.subscribe 'history:add', (tool) =>
-            # Move to a future current state.
-            @current.col += 1
+            # Is the next column taken? Check on DOM.
+            if @grid[@current.col + 1] and @grid[@current.col + 1][@current.row].children().length isnt 0
+                @current.row = @rows # rows are 0 indexed!
+            else
+                @current.col += 1
 
             # Set the col and row for this tool.
             tool.set @current
@@ -59,17 +62,28 @@ module.exports = class HistoryView extends Chaplin.View
             $('div#whiteout').toggle()
             $(@el).parent().slideToggle()
 
+        # Update our current position.
+        Chaplin.mediator.subscribe 'step:activate', (model) =>
+            @current.row = model.get('row') or @current.row
+            @current.col = model.get('col') or @current.col
+
         @
 
     # Add a row in DOM (with appropriate number of columns) so we can inject content.
     addRow: ->
+        console.log 'Add row'
         table = $(@el).find('table.grid')
 
         # First the row.
         row = $ '<tr/>', 'data-row': @rows
         # Now for the columns.
         for i in [0...@cols]
-            row.append $ '<td/>', 'data-row': @rows, 'data-col': @cols
+            # ...append to the row.
+            row.append el = $ '<td/>', 'data-row': @rows, 'data-col': i
+            # Save the el into grid.
+            @grid[i] ?= [] # init column?
+            @grid[i][@rows] = el
+        
         # Finally append to table.
         table.append row
 
@@ -78,6 +92,7 @@ module.exports = class HistoryView extends Chaplin.View
 
     # Add a column in DOM (into all existing rows) so we can inject content.
     addCol: ->
+        console.log 'Add col'
         table = $(@el).find('table.grid')
 
         # For each row (0 indexed)...
@@ -109,11 +124,13 @@ module.exports = class HistoryView extends Chaplin.View
         # Where do we go?
         row = model.get('row') ; col = model.get('col')
 
+        console.log 'Add:', row, col
+
         # Add rows if need be.
-        dist = row - @rows + 1 # 0 indexed
+        dist = 1 + row - @rows # 0 indexed
         if dist > 0 then ( @addRow() for i in [0...dist] )
         # Add columns if need be.
-        dist = col - @cols + 1 # 0 indexed
+        dist = 1 + col - @cols # 0 indexed
         if dist > 0 then ( @addCol() for i in [0...dist] )
 
         # Finally add the element.

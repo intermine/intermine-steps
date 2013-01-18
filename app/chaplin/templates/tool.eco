@@ -1,7 +1,10 @@
 <div class="wrap sidebar">
 
     <div class="head">
-        <h1><%= @name %></h1> <em class="ago"></em> 
+        <% if @locked: %>
+            <div class="entypo backintime" title="A step in your history"></div>
+        <% end %>
+        <h1><%= @name %></h1> <em class="ago"></em>
     </div>
 
     <% if @steps.length isnt 0: %>

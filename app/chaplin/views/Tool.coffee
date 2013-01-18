@@ -24,6 +24,8 @@ module.exports = class ToolView extends GenericToolView
         'steps': @steps
         # Current step.
         'step': @step
+        # Are we locked?
+        'locked': @model.get('locked')
 
     initialize: ->
         super

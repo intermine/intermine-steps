@@ -56,7 +56,7 @@ module.exports = class InterMineSteps
             'step': step
 
         # Make us active.
-        Chaplin.mediator.publish 'step:activate', model.cid
+        Chaplin.mediator.publish 'step:activate', model
 
     # Landing page.
     landing: =>
@@ -79,6 +79,9 @@ module.exports = class InterMineSteps
         # Cleanup previous.
         ( view.dispose() for view in @views )
 
+        # Set the model as 'locked' as we are looking at a historical state.
+        model.set 'locked', true
+
         # Init the actual tool.
         Clazz = require "chaplin/views/tools/#{tool}"
         @views.push new Clazz
@@ -86,4 +89,4 @@ module.exports = class InterMineSteps
             'step': step
 
         # Make us active.
-        Chaplin.mediator.publish 'step:activate', model.cid
+        Chaplin.mediator.publish 'step:activate', model

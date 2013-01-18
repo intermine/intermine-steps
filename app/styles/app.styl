@@ -1,14 +1,20 @@
 @font-face {
-  font-family: 'Lato';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Lato Bold'), local('Lato-Bold'), url('../fonts/LatoBold.woff') format('woff');
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 700;
+    src: local('Lato Bold'), local('Lato-Bold'), url('../fonts/LatoBold.woff') format('woff');
 }
 @font-face {
-  font-family: 'Lato';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Lato Regular'), local('Lato-Regular'), url('../fonts/LatoRegular.woff') format('woff');
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Lato Regular'), local('Lato-Regular'), url('../fonts/LatoRegular.woff') format('woff');
+}
+@font-face {
+    font-family: 'Entypo';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Entypo'), url('../fonts/Entypo.woff') format('woff');
 }
 
 body, html
@@ -139,6 +145,10 @@ section#middle
 
         div.head
 
+            .backintime
+                float: right
+                margin: 22px 16px 0 0
+
             h1
                 font-size: 22px
                 float: left
@@ -230,7 +240,7 @@ div#history
     position: absolute
     bottom: 0
     left: 250px // width of the sidebar
-    height: 50% // take up half the screen
+    height: 80% // take up 80% of the screen
     display: none
     background: #FFF
 
@@ -258,7 +268,7 @@ div#history
         margin: 0
         padding: 0
         overflow-x: auto
-        overflow-y: hidden
+        overflow-y: auto
 
         // table based system
         table.grid
@@ -363,3 +373,11 @@ footer
 
     &:active
         top: 1px
+
+.entypo
+    font-family: "Entypo"
+    
+    &.lock:before
+        content: "\1f512"
+    &.backintime:before
+        content: "\e771"

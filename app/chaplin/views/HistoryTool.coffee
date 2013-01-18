@@ -24,8 +24,8 @@ module.exports = class HistoryToolView extends GenericToolView
         @delegate 'click', '', -> Chaplin.mediator.publish 'app:oldTool', @model
 
         # Reset active status of this step.
-        Chaplin.mediator.subscribe 'step:activate', (modelCid) =>
-            if modelCid is @model.cid then $(@el).addClass('active')
+        Chaplin.mediator.subscribe 'step:activate', (model) =>
+            if model.cid is @model.cid then $(@el).addClass('active')
             else $(@el).removeClass('active')
 
         @
