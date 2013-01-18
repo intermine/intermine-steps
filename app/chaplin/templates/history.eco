@@ -4,5 +4,6 @@
 </div>
 
 <div id="tools">
+    <svg class="canvas"></svg>
     <table class="grid"></table>
 </div>

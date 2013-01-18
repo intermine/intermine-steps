@@ -74,7 +74,7 @@ module.exports = class HistoryView extends Chaplin.View
 
     # Add a row in DOM (with appropriate number of columns) so we can inject content.
     addRow: ->
-        console.log 'Add row'
+        # console.log 'Add row'
         table = $(@el).find('table.grid')
 
         # First the row.
@@ -95,7 +95,7 @@ module.exports = class HistoryView extends Chaplin.View
 
     # Add a column in DOM (into all existing rows) so we can inject content.
     addCol: ->
-        console.log 'Add col'
+        # console.log 'Add col'
         table = $(@el).find('table.grid')
 
         # For each row (0 indexed)...
@@ -127,7 +127,7 @@ module.exports = class HistoryView extends Chaplin.View
         # Where do we go?
         row = model.get('row') ; col = model.get('col')
 
-        console.log 'Add:', row, col
+        # console.log 'Add:', row, col
 
         # Add rows if need be.
         dist = 1 + row - @rows # 0 indexed
@@ -142,3 +142,34 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Update the width of the table.
         $(@el).find('#tools table.grid').css('width', 180 * @cols)
+
+        # Draw connector.
+        @drawConnector model.get('parent'), { 'col': col, 'row': row }
+
+    # Draw a connector line between a parent and its child.
+    drawConnector: (a, b) ->
+        # Box dimensions (history el is hidden so cannot get dimensions live).
+        width = 180 ; height = 98
+
+        # Skip very first element.
+        return unless a
+
+        # Calculate centre point of any grid element.
+        pos = (col, row) ->
+            x = ( (col + 1) * width ) - (width / 2) # from left
+            y = ( (row + 1) * height ) - (height / 2) + 10 # from top
+            [ x, y ]
+
+        [ x1, y1 ] = pos a.col, a.row
+        [ x2, y2 ] = pos b.col, b.row
+
+        # Select the canvas.
+        svg = d3.select $(@el).find('svg.canvas')[0]
+
+        # Add the line.
+        svg.append('svg:line')
+        .attr('class', 'connector')
+        .attr('x1', x1)
+        .attr('x2', x2)
+        .attr('y1', y1)
+        .attr('y2', y2)

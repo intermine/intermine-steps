@@ -12,7 +12,8 @@ module.exports = class GenericToolView extends Chaplin.View
         # The creation date.
         created = new Date @model.get 'created'
 
-        assert created, 'Creation date for Tool not set'
+        # Skip on new tools that we are using now.
+        # if not created or isNaN(created.getTime())
 
         # Previous time.
         c = null

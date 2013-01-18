@@ -1,21 +1,20 @@
-@font-face {
-    font-family: 'Lato';
-    font-style: normal;
-    font-weight: 700;
-    src: local('Lato Bold'), local('Lato-Bold'), url('../fonts/LatoBold.woff') format('woff');
-}
-@font-face {
-    font-family: 'Lato';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Lato Regular'), local('Lato-Regular'), url('../fonts/LatoRegular.woff') format('woff');
-}
-@font-face {
-    font-family: 'Entypo';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Entypo'), url('../fonts/Entypo.woff') format('woff');
-}
+@font-face
+    font-family: 'Lato'
+    font-style: normal
+    font-weight: 700
+    src: local('Lato Bold'), local('Lato-Bold'), url('../fonts/LatoBold.woff') format('woff')
+
+@font-face
+    font-family: 'Lato'
+    font-style: normal
+    font-weight: 400
+    src: local('Lato Regular'), local('Lato-Regular'), url('../fonts/LatoRegular.woff') format('woff')
+
+@font-face
+    font-family: 'Entypo'
+    font-style: normal
+    font-weight: 400
+    src: local('Entypo'), url('../fonts/Entypo.woff') format('woff')
 
 body, html
     height: 100%
@@ -145,17 +144,17 @@ section#middle
 
         div.head
 
-            .backintime
-                float: right
-                margin: 22px 16px 0 0
-
             h1
                 font-size: 22px
                 float: left
 
+            .entypo
+                float: left
+                margin: 24px 0 0 20px
+
             em.ago
                 float: left
-                margin: 23px 0 0 15px
+                margin: 23px 0 0 5px
 
             &:after
                 content: ""
@@ -269,12 +268,32 @@ div#history
         padding: 0
         overflow-x: auto
         overflow-y: auto
+        position: relative
+
+        // canvas for connectors
+        svg.canvas
+            position: absolute
+            top: 0
+            left: 0
+
+            line.connector
+                stroke: lighten(#000, 80%)
+                stroke-width: 1px
 
         // table based system
         table.grid
+            position: absolute
+            top: 0
+            left: 0
+            z-index: 2 // over svg
+            border-collapse: collapse
             border: 0
             margin: 0
             padding: 0
+            background: transparent
+
+            tr
+                background: transparent // no alt bg bullshit
 
             td
                 padding: 0
@@ -381,3 +400,5 @@ footer
         content: "\1f512"
     &.backintime:before
         content: "\e771"
+    &.lightup:before
+        content: "\1f506"

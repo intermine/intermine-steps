@@ -70,12 +70,15 @@ module.exports = class ToolView extends GenericToolView
             model = @model.toJSON()
             # Remove the lock status.
             model.locked = false
-            # Remove the creation date so it can be autogen.
-            delete model.created
+            # Set the creation date to now.
+            model.created = Date.now()
             # Change the description.
             model.description = 'Autogen baby!'
             # Create from Class.
             model = new Tool model
+
+        # Set the model back on us.
+        @model = model
 
         # Now send a message to save the model.
         Chaplin.mediator.publish 'history:add', model
