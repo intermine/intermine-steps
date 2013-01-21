@@ -1,33 +1,23 @@
 Chaplin = require 'chaplin'
 
-GenericToolView = require 'chaplin/views/GenericTool'
-
 Tool = require 'chaplin/models/Tool'
 
-module.exports = class ToolView extends GenericToolView
+module.exports = class ToolView extends Chaplin.View
 
     container:       'div#widget'
     containerMethod: 'html'
     autoRender:      true
 
-    # Need to be replaced with a name of the actual tool name.
-    name: 'Dummy'
-
-    # Step names.
-    steps: []
-
     # Accordion template.
-    getTemplateFunction: -> require "chaplin/templates/tool"
+    getTemplateFunction: -> require 'chaplin/templates/tool'
 
+    # Extend Model by the step.
     getTemplateData: ->
-        # Split our name into a 'nice' form.
-        'name': @name.replace /([A-Z])/g, ' $1'
-        # Names so we can populate the tabs.
-        'steps': @steps
-        # Current step.
-        'step': @step
-        # Are we locked?
-        'locked': @model.get('locked')
+        o = _.extend @model.toJSON(), 'step': @step
+        # Do we have extra params?
+        if @options.params then o = _.extend o, 'params': @options.params
+        # Done.
+        o
 
     initialize: ->
         super
@@ -38,52 +28,66 @@ module.exports = class ToolView extends GenericToolView
     afterRender: ->
         super
 
+        name = @model.constructor.name
+        assert name, 'Name of the tool is not provided'
+
         # Render a specific step into our accordion template.
-        $(@el).find("ul.accordion li(data-step='<%= @step %>') div.content").html require "chaplin/templates/tools/#{@name}/step-#{@step}"
-
-        # Do we have next steps to show by any chance? Otherwise go default.
-        try
-            tml = require "chaplin/templates/tools/#{@name}/step-#{@step}-next"
-        catch err
-            tml = require "chaplin/templates/sidebar-right"
+        $(@el).find("ul.accordion li(data-step='<%= @step %>') div.content").html (require("chaplin/templates/tools/#{name}/step-#{@step}"))(@getTemplateData())
         
-        $('aside#right').html tml()
+        # Render next steps wrapper.
+        (aside = $('aside#right')).html do require("chaplin/templates/sidebar-right")
 
-        # Init "time ago" updater.
-        @updateTime()
+        ul = aside.find('ul')
+        # Any next steps for this tool & step?
+        model = @model.toJSON()
+        if model.output
+            for k, v of model.output
+                if v.step is @step
+                    # Remove placeholder.
+                    aside.find('p').remove()
+                    # Append the link.
+                    ul.append li = $ '<li/>'
+                    li.append a = $ '<a/>', 'data-tool': k, 'text': v.text
+                    # Register onclick event.
+                    a.click => Chaplin.mediator.publish 'router:route', k, null, @serialize()
 
         @
 
+    serialize: -> assert false, 'Override with custom logic for this tool'
+
+    # Get DOM for current step.
+    getDOM: -> $(@el).find('ul.accordion li.active div.content')
+
     # Call to emit a message changing a tool step.
-    nextStep: -> Chaplin.mediator.publish 'app:newTool', @model, @step + 1
+    # nextStep: -> Chaplin.mediator.publish 'app:newTool', @model, @step + 1
 
-    # Add this tool to a history.
-    addHistory: ->
-        # TODO: First update our model by serializing any form we find in our step if we are not locked!.
+    # # Add this tool to a history.
+    # addHistory: ->
+    #     # TODO: First update our model by serializing any form we find in our step if we are not locked!.
 
-        # Are we a locked tool?
-        if @model.get('locked')
-            # Duplicate
-            model = @model.toJSON()
-            # Remove the lock status.
-            model.locked = false
-            # Set the creation date to now.
-            model.created = Date.now()
-            # Change the description.
-            model.description = 'Autogen baby!'
+    #     # Are we a locked tool?
+    #     if @model.get('locked')
+    #         # Duplicate
+    #         model = @model.toJSON()
+    #         # Remove the lock status.
+    #         model.locked = false
+    #         # Set the creation date to now.
+    #         model.created = Date.now()
+    #         # Change the description.
+    #         model.description = 'Autogen baby!'
 
-            # Create from Class.
-            model = new Tool model
+    #         # Create from Class.
+    #         model = new Tool model
 
-            # Now send a message to save the model.
-            Chaplin.mediator.publish 'history:branch', model
+    #         # Now send a message to save the model.
+    #         Chaplin.mediator.publish 'history:branch', model
 
-        # We are continuing a chain.
-        else
-            model = @model
+    #     # We are continuing a chain.
+    #     else
+    #         model = @model
             
-            # Now send a message to save the model.
-            Chaplin.mediator.publish 'history:continue', model
+    #         # Now send a message to save the model.
+    #         Chaplin.mediator.publish 'history:continue', model
 
-        # Activate the tool.
-        Chaplin.mediator.publish 'step:activate', model
+    #     # Activate the tool.
+    #     Chaplin.mediator.publish 'step:activate', model

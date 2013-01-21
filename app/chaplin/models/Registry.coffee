@@ -1,10 +1,9 @@
-Chaplin = require 'chaplin'
-
 module.exports =
     # Show templates in the system.
     'QueriesTool':
+        'name': 'QueriesTool'
         'title': 'Queries Tool aka Templates'
-        'description': 'Chooses a template'
+        'description': 'Choose a template'
         'type': 'seagreen'
         # Our internal steps.
         'steps': [ 'Choose a template', 'See Template' ]
@@ -12,15 +11,19 @@ module.exports =
         'output':
             # Show in a Results Table
             'ResultsTableTool':
+                # Show in a second step...
+                'step': 2
+                # ...with this text
                 'text': 'Show in a table'
     
     # A Results Table.
     'ResultsTableTool':
+        'name': 'ResultsTableTool'
         'title': 'Results Table'
-        'description': 'Shows a table of results'
+        'description': 'Show a table of results'
         'type': 'curiousblue'
         # Our internal steps.
-        'steps': [ 'Choose a query to begin with', 'See Table' ]
+        'steps': [ 'See Table' ]
         # How can we get here?
         'input':
             # From a queries listing.
@@ -28,9 +31,12 @@ module.exports =
                 'text': 'Choose an input query'
                 # Pass these parameters in.
                 'params': [ 'pathQuery' ]
+        # You cannot see me unless you go from a diff step.
+        'hidden': true
 
     # Upload a list.
     'UploadListTool':
+        'name': 'UploadListTool'
         'title': 'Upload a List'
         'description': 'Upload a list of identifiers'
         'type': 'deyork'
@@ -40,4 +46,7 @@ module.exports =
         'output':
             # Show in a Results Table
             'ResultsTableTool':
+                # Show in a second step...
+                'step': 2
+                # ...with this text
                 'text': 'Show in a table'

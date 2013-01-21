@@ -6,15 +6,7 @@
     </ul>
 
     <div class="head">
-        <h1><%= @name %></h1>
-        <!--
-        <% if @locked: %>
-            <div class="entypo backintime" title="A step in your history"></div>
-        <% else: %>
-            <div class="entypo lightup" title="A current step"></div>
-        <% end %>
-        <em class="ago"></em>
-        -->
+        <h1><%= @title %></h1>
     </div>
 
     <% if @steps.length isnt 0: %>

@@ -1,8 +1,8 @@
 <div class="wrap">
     <h3>Tools</h3>
     <ul>
-        <li><a href="/tool/UploadListTool">Upload a list of identifiers</a></li>
-        <li><a href="/tool/ResultsTableTool">Shows a table of results</a></li>
-        <li><a href="/tool/QueriesTool">Chooses a template</a></li>
+        <% for k, v of @registry when not v.hidden: %>
+            <li><a data-tool="<%= k %>"><%= v.description %></a></li>
+        <% end %>
     </ul>
 </div>

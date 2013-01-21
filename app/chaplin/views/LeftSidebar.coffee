@@ -1,6 +1,7 @@
 Chaplin = require 'chaplin'
 
 Tool = require 'chaplin/models/Tool'
+Registry = require 'chaplin/models/Registry'
 
 module.exports = class LeftSidebarView extends Chaplin.View
 
@@ -10,13 +11,13 @@ module.exports = class LeftSidebarView extends Chaplin.View
 
     getTemplateFunction: -> require 'chaplin/templates/sidebar-left'
 
+    getTemplateData: -> 'registry': Registry
+
     afterRender: ->
         super
 
-        # Handle sidebar clicks, they start a new history.
         @delegate 'click', 'a', (e) ->
             name = $(e.target).attr('data-tool')
-            model = new Tool 'name': name
-            Chaplin.mediator.publish 'app:newTool', model
+            Chaplin.mediator.publish 'router:route', name
 
         @

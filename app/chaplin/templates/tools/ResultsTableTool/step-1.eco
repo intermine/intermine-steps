@@ -1,0 +1,44 @@
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <p>You are seeing a table for: <% for identifier in @params: %><span class="label"><%= identifier %></span>&nbsp;<% end%></p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Table Header</th>
+                        <th>Table Header</th>
+                        <th>Table Header</th>
+                        <th>Table Header</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td>Content</td>
+                        <td>This is longer content</td>
+                        <td>Content</td>
+                        <td>Content</td>
+                    </tr>
+                    <tr>
+                        <td>Content</td>
+                        <td>This is longer content</td>
+                        <td>Content</td>
+                        <td>Content</td>
+                    </tr>
+                    <tr>
+                        <td>Content</td>
+                        <td>This is longer content</td>
+                        <td>Content</td>
+                        <td>Content</td>
+                    </tr>
+                    <tr>
+                        <td>Content</td>
+                        <td>This is longer content</td>
+                        <td>Content</td>
+                        <td>Content</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
