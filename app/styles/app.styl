@@ -2,19 +2,24 @@
     font-family: 'Lato'
     font-style: normal
     font-weight: 700
-    src: local('Lato Bold'), local('Lato-Bold'), url('../fonts/LatoBold.woff') format('woff')
+    src: url('../fonts/LatoBold.woff') format('woff'),
+    url('../fonts/LatoBold.ttf') format('truetype')
 
 @font-face
     font-family: 'Lato'
     font-style: normal
     font-weight: 400
-    src: local('Lato Regular'), local('Lato-Regular'), url('../fonts/LatoRegular.woff') format('woff')
+    src: url('../fonts/LatoRegular.woff') format('woff'),
+    url('../fonts/LatoRegular.ttf') format('truetype')
 
 @font-face
     font-family: 'Entypo'
     font-style: normal
     font-weight: 400
-    src: local('Entypo'), url('../fonts/Entypo.woff') format('woff')
+    src: url('../fonts/Entypo.woff') format('woff'),
+    url('../fonts/Entypo.eot') format('eot'),
+    url('../fonts/Entypo.ttf') format('truetype'),
+    url('../fonts/Entypo.svg') format('svg')
 
 body, html
     height: 100%
@@ -35,6 +40,7 @@ label
 
 .row
     width: auto
+    min-width: auto
 
 div#wrapper
     width: 100%
@@ -142,6 +148,18 @@ section#middle
         ul.list
             list-style-type: none
 
+        ul.breadcrumb
+            list-style-type: none
+            display: block
+            margin: 0
+
+            li
+                display: inline-block
+
+                a
+                    cursor: pointer
+                    padding: 4px 10px
+
         div.head
 
             h1
@@ -239,7 +257,7 @@ div#history
     position: absolute
     bottom: 0
     left: 250px // width of the sidebar
-    height: 80% // take up this much of the screen
+    height: 50% // take up this much of the screen
     display: none
     background: #FFF
 
@@ -403,3 +421,5 @@ footer
         content: "\e771"
     &.lightup:before
         content: "\1f506"
+    &.rightopen:before
+        content: "\e762"

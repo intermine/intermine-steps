@@ -1,16 +1,8 @@
 <div class="wrap">
-    <h3>Data Loaders</h3>
-    <ul>
-        <li><a data-tool="UploadListTool">Upload List</a></li>
-    </ul>
-
     <h3>Tools</h3>
     <ul>
-        <li><a data-tool="CompareListsTool">Compare Lists</a></li>
-    </ul>
-
-    <h3>Steps</h3>
-    <ul>
-        <li><a data-tool="UseStepsTool">Use Saved Steps</a></li>
+        <li><a href="/tool/UploadListTool">Upload a list of identifiers</a></li>
+        <li><a href="/tool/ResultsTableTool">Shows a table of results</a></li>
+        <li><a href="/tool/QueriesTool">Chooses a template</a></li>
     </ul>
 </div>

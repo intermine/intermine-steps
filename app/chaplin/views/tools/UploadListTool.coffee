@@ -4,18 +4,6 @@ module.exports = class UploadListToolView extends ToolView
 
     name: 'UploadListTool'
 
-    steps: [
-        'Input Identifiers'
-        'See Result'
-    ]
-
-    initialize: ->
-        super
-
-        # Set on Model.
-        @model.set 'description', 'Produces a list.'
-        @model.set 'type', 'deyork'
-
     afterRender: ->
         super
 

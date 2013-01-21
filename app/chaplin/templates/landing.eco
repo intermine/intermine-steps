@@ -13,9 +13,9 @@
             <div class="four columns">
                 <h2>Popular Tools</h2>
                 <ul>
-                    <li><a href="/tool/UploadListTool">Upload List</a></li>
-                    <li><a href="/tool/CompareListsTool">Compare Lists</a></li>
-                    <li>Use a Saved Steps</li>
+                    <li><a href="/tool/UploadListTool">Upload a list of identifiers</a></li>
+                    <li><a href="/tool/ResultsTableTool">Shows a table of results</a></li>
+                    <li><a href="/tool/QueriesTool">Chooses a template</a></li>
                 </ul>
             </div>
             <div class="four columns">

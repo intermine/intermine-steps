@@ -1,13 +1,20 @@
 <div class="wrap sidebar">
 
+    <ul class="breadcrumb">
+        <li class="entypo rightopen"><a>Previous step</a></li>
+        <li class="entypo rightopen"><a>Following step</a></li>
+    </ul>
+
     <div class="head">
         <h1><%= @name %></h1>
+        <!--
         <% if @locked: %>
             <div class="entypo backintime" title="A step in your history"></div>
         <% else: %>
             <div class="entypo lightup" title="A current step"></div>
         <% end %>
         <em class="ago"></em>
+        -->
     </div>
 
     <% if @steps.length isnt 0: %>
