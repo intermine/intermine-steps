@@ -28,6 +28,6 @@
 <!-- history toggler fixed to bottom -->
 <footer id="bottom">
     <div class="wrap">
-        <a class="disabled button" data-action="history-toggle">Show history</a>
+        <a class="button" data-action="history-toggle">Show history</a>
     </div>
 </footer>

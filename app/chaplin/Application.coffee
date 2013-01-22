@@ -6,6 +6,8 @@ LeftSidebarView = require 'chaplin/views/LeftSidebar'
 RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
 
+PushState = window.History
+
 History = require 'chaplin/models/History'
 Tool = require 'chaplin/models/Tool'
 Registry = require 'chaplin/models/Registry'
@@ -16,6 +18,15 @@ module.exports = class InterMineSteps
     views: []
 
     constructor: ->
+        # Handle URL changes.
+        PushState.Adapter.bind window, 'statechange', ->
+            State = PushState.getState()
+            # Log the new state.
+            console.log State.data, State.title, State.url        
+
+        # Change the URL to the welcome page.
+        PushState.replaceState {}, 'Welcome', '/welcome'
+
         # Show the landing page.
         @views.push new LandingView()
 
@@ -54,5 +65,8 @@ module.exports = class InterMineSteps
             # Require the View.
             Clazz = require "tools/views/#{objOrName.name}"
         
+        # Change the URL to that of the tool's name and log this state.
+        PushState.replaceState model, name = model.get('name'), '/tool/' + name.replace(/([A-Z])/g, '-$1').toLowerCase()[1...]
+
         # Load it.
         @views.push view = new Clazz 'model': model, 'step': step, 'params': params

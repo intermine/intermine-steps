@@ -9,7 +9,11 @@
     <form class="row custom">
         <div class="six columns">
             <label>List of identifiers</label>
-            <textarea>PPARG ZEN MAD</textarea>
+            <% if @form: %>
+                <textarea><% for i, id of @form: %><%= id %><% if parseInt(i) isnt @form.length - 1: %> <% end %><% end %></textarea>
+            <% else: %>
+                <textarea>PPARG ZEN MAD</textarea>
+            <% end %>
         </div>
         <div class="six columns">
             <label>Identifier type</label>

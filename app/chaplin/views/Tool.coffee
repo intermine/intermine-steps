@@ -57,37 +57,3 @@ module.exports = class ToolView extends Chaplin.View
 
     # Get DOM for current step.
     getDOM: -> $(@el).find('ul.accordion li.active div.content')
-
-    # Call to emit a message changing a tool step.
-    # nextStep: -> Chaplin.mediator.publish 'app:newTool', @model, @step + 1
-
-    # # Add this tool to a history.
-    # addHistory: ->
-    #     # TODO: First update our model by serializing any form we find in our step if we are not locked!.
-
-    #     # Are we a locked tool?
-    #     if @model.get('locked')
-    #         # Duplicate
-    #         model = @model.toJSON()
-    #         # Remove the lock status.
-    #         model.locked = false
-    #         # Set the creation date to now.
-    #         model.created = Date.now()
-    #         # Change the description.
-    #         model.description = 'Autogen baby!'
-
-    #         # Create from Class.
-    #         model = new Tool model
-
-    #         # Now send a message to save the model.
-    #         Chaplin.mediator.publish 'history:branch', model
-
-    #     # We are continuing a chain.
-    #     else
-    #         model = @model
-            
-    #         # Now send a message to save the model.
-    #         Chaplin.mediator.publish 'history:continue', model
-
-    #     # Activate the tool.
-    #     Chaplin.mediator.publish 'step:activate', model

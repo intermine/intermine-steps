@@ -10,6 +10,8 @@ module.exports = class UploadListToolView extends ToolView
         @delegate 'click', '#submit', ->
             # Serialize form.
             @model.set 'form', @getDOM().find('form textarea').val().split(' ')
+            # Update the history.
+            Chaplin.mediator.publish 'history:add', @model
             # Change route passing our serialized model.
             Chaplin.mediator.publish 'router:route', @model.toJSON(), 2
 
