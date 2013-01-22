@@ -39,20 +39,20 @@ module.exports = class InterMineSteps
             data = Registry[objOrName]
 
             # Require the Model.
-            Clazz = require "chaplin/models/tools/#{objOrName}"
+            Clazz = require "tools/models/#{objOrName}"
             # Load it.
             model = new Clazz data
 
             # Require the View.
-            Clazz = require "chaplin/views/tools/#{objOrName}"
+            Clazz = require "tools/views/#{objOrName}"
         
         else
-            Clazz = require "chaplin/models/tools/#{objOrName.name}"
+            Clazz = require "tools/models/#{objOrName.name}"
             # Load it.
             model = new Clazz objOrName
 
             # Require the View.
-            Clazz = require "chaplin/views/tools/#{objOrName.name}"
+            Clazz = require "tools/views/#{objOrName.name}"
         
         # Load it.
         @views.push view = new Clazz 'model': model, 'step': step, 'params': params

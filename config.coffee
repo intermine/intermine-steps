@@ -2,7 +2,7 @@ exports.config =
     files:
         javascripts:
             joinTo:
-                'js/app.js': /^app\/chaplin/
+                'js/app.js': /^app\/(chaplin|tools)/
                 'js/vendor.js': /^vendor\/js/
             order:
                 before: [

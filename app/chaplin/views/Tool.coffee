@@ -32,7 +32,7 @@ module.exports = class ToolView extends Chaplin.View
         assert name, 'Name of the tool is not provided'
 
         # Render a specific step into our accordion template.
-        $(@el).find("ul.accordion li(data-step='<%= @step %>') div.content").html (require("chaplin/templates/tools/#{name}/step-#{@step}"))(@getTemplateData())
+        $(@el).find("ul.accordion li(data-step='<%= @step %>') div.content").html (require("tools/templates/#{name}/step-#{@step}"))(@getTemplateData())
         
         # Render next steps wrapper.
         (aside = $('aside#right')).html do require("chaplin/templates/sidebar-right")
