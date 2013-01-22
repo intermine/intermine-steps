@@ -24,13 +24,6 @@ module.exports =
         'type': 'curiousblue'
         # Our internal steps.
         'steps': [ 'See Table' ]
-        # How can we get here?
-        'input':
-            # From a queries listing.
-            'QueriesTool':
-                'text': 'Choose an input query'
-                # Pass these parameters in.
-                'params': [ 'pathQuery' ]
         # You cannot see me unless you go from a diff step.
         'hidden': true
 

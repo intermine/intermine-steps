@@ -28,7 +28,7 @@ module.exports = class ToolView extends Chaplin.View
     afterRender: ->
         super
 
-        name = @model.constructor.name
+        name = @model.get('name')
         assert name, 'Name of the tool is not provided'
 
         # Render a specific step into our accordion template.
