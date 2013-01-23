@@ -1,0 +1,12 @@
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <p>Select the list you want to enrich.</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            <a id="submit" class="button">Enrich this list</span></a>
+        </div>
+    </div>
+</div>

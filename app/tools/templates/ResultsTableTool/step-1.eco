@@ -1,42 +1,24 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <p>You are seeing a table for: <% for identifier in @params: %><span class="label"><%= identifier %></span>&nbsp;<% end%></p>
-
             <table>
                 <thead>
                     <tr>
-                        <th>Table Header</th>
-                        <th>Table Header</th>
-                        <th>Table Header</th>
-                        <th>Table Header</th>
+                        <th>Identifier</th>
+                        <th>Attr 1</th>
+                        <th>Attr 2</th>
+                        <th>Attr 3</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                    <td>Content</td>
-                        <td>This is longer content</td>
-                        <td>Content</td>
-                        <td>Content</td>
-                    </tr>
-                    <tr>
-                        <td>Content</td>
-                        <td>This is longer content</td>
-                        <td>Content</td>
-                        <td>Content</td>
-                    </tr>
-                    <tr>
-                        <td>Content</td>
-                        <td>This is longer content</td>
-                        <td>Content</td>
-                        <td>Content</td>
-                    </tr>
-                    <tr>
-                        <td>Content</td>
-                        <td>This is longer content</td>
-                        <td>Content</td>
-                        <td>Content</td>
-                    </tr>
+                    <% for identifier in @params: %>
+                        <tr>
+                            <td><%= identifier %></td>
+                            <td>Дмитрий Фролов</td>
+                            <td>Егор Мальцев</td>
+                            <td>Станислав Тарасов</td>
+                        </tr>
+                    <% end %>
                 </tbody>
             </table>
         </div>

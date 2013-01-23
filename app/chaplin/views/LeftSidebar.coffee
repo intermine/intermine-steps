@@ -1,7 +1,7 @@
 Chaplin = require 'chaplin'
 
 Tool = require 'chaplin/models/Tool'
-Registry = require 'chaplin/models/Registry'
+Registry = require 'tools/Registry'
 
 module.exports = class LeftSidebarView extends Chaplin.View
 

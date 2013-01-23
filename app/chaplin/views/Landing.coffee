@@ -1,6 +1,6 @@
 Chaplin = require 'chaplin'
 
-Registry = require 'chaplin/models/Registry'
+Registry = require 'tools/Registry'
 
 module.exports = class LandingView extends Chaplin.View
 

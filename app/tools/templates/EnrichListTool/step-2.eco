@@ -1,0 +1,8 @@
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <h2><%= @list %></h2>
+            <p>A chart would be shown here.</p>
+        </div>
+    </div>
+</div>

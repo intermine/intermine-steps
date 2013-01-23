@@ -2,8 +2,8 @@
 <div class="wrap">
     <div class="box">
         <h3><%= @name %></h3>
-        <% if @description.length > 22: %>
-            <p title="<%= @description %>"><%- @description[0...22] %> &hellip;</p>
+        <% if @description.length > 15: %>
+            <p title="<%= @description %>"><%- @description[0...15] %> &hellip;</p>
         <% else: %>
             <p><%- @description %></p>
         <% end %>

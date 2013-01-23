@@ -10,7 +10,7 @@ PushState = window.History
 
 History = require 'chaplin/models/History'
 Tool = require 'chaplin/models/Tool'
-Registry = require 'chaplin/models/Registry'
+Registry = require 'tools/Registry'
 
 module.exports = class InterMineSteps
 

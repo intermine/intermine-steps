@@ -40,8 +40,8 @@ module.exports = class ToolView extends Chaplin.View
         ul = aside.find('ul')
         # Any next steps for this tool & step?
         model = @model.toJSON()
-        if model.output
-            for k, v of model.output
+        if model.next
+            for k, v of model.next
                 if v.step is @step
                     # Remove placeholder.
                     aside.find('p').remove()

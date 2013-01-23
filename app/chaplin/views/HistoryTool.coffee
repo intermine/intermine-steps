@@ -25,6 +25,10 @@ module.exports = class HistoryToolView extends GenericToolView
             Chaplin.mediator.publish 'app:oldTool', @model
             # Activate the element.
             Chaplin.mediator.publish 'step:activate', @model
+            # Lock the model.
+            @model.set 'locked', true
+            # But also route to it.
+            Chaplin.mediator.publish 'router:route', @model.toJSON()
 
         # Reset active status of this step.
         Chaplin.mediator.subscribe 'step:activate', (model) =>

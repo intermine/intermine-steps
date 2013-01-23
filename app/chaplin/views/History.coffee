@@ -44,14 +44,20 @@ module.exports = class HistoryView extends Chaplin.View
         # Render the table.
         @renderTable()
 
+        # Add a step to the history, we need to resolve its position in the grid.
         Chaplin.mediator.subscribe 'history:add', (model) =>
             # Link to parent.
             parent = null
             if @current.row and @current.col then parent = @current
             model.set 'parent': parent
 
-            # Set our position (all one history).
-            model.set 'row': @current.row or 0, 'col': @current.col + 1 or 0
+            # Is the current model locked?
+            if model.get 'locked'
+                # Set us "underneath" the parent (the first available row).
+                model.set 'row': @rows, 'col': @current.col
+            else
+                # Continue in the same row.
+                model.set 'row': @current.row or 0, 'col': @current.col + 1 or 0
 
             # Add to collection.
             @collection.add model
@@ -59,12 +65,13 @@ module.exports = class HistoryView extends Chaplin.View
             # Add to view.
             @addTool model
 
+            # Activate.
+            Chaplin.mediator.publish 'step:activate', model
+
         # Listen to step activations to update where we are.
         Chaplin.mediator.subscribe 'step:activate', (model) =>
             @current.col = model.get('col')
             @current.row = model.get('row')
-            # Change the app view passing this model.
-            Chaplin.mediator.publish 'router:route', model.toJSON()
 
         # Toggle the view.
         Chaplin.mediator.subscribe 'history:toggle', =>
