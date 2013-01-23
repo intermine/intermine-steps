@@ -48,8 +48,20 @@ module.exports = class HistoryView extends Chaplin.View
         Chaplin.mediator.subscribe 'history:add', (model) =>
             # Is the current model locked?
             if model.get 'locked'
+                # Reset the whole shebang.
+                @resetTable()
+
+                # For all models underneath us, set push them off by 1 row.
+                @collection.each (model) =>
+                    # Is the row below us?
+                    if (row = model.get('row')) > @current.row
+                        # Off by 1.
+                        model.set 'row', row + 1
+                    # Render it back.
+                    @addTool model
+
                 # Set us "underneath" the parent (the first available row).
-                model.set 'row': @rows, 'col': @current.col
+                model.set 'row': @current.row + 1, 'col': @current.col
             else
                 # Continue in the same row.
                 model.set 'row': @current.row, 'col': @current.col + 1
@@ -88,6 +100,12 @@ module.exports = class HistoryView extends Chaplin.View
             $(@el).parent().slideToggle()
 
         @
+
+    # Reset the history view.
+    resetTable: =>
+        @rows = 0 ; @cols = 0
+        d3.select($(@el).find('svg.canvas')[0]).selectAll('*').remove()
+        $(@el).find('table.grid').html('')
 
     # Render the table grid populating it with tools.
     renderTable: ->
