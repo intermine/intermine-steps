@@ -57,6 +57,13 @@ module.exports = class HistoryView extends Chaplin.View
                     if (row = model.get('row')) > @current.row
                         # Off by 1.
                         model.set 'row', row + 1
+                    
+                    # Need to move parent as well?
+                    parent = model.get('parent')
+                    if parent and parent.row > @current.row
+                        parent.row += 1
+                        model.set 'parent', parent
+                    
                     # Render it back.
                     @addTool model
 
@@ -204,3 +211,11 @@ module.exports = class HistoryView extends Chaplin.View
         .attr('x2', x2)
         .attr('y1', y1)
         .attr('y2', y2)
+
+        # Get the higher of the two.
+        a = y1
+        if y2 > y1 then a = y2
+
+        # Update the height?
+        if (b = parseInt(svg.attr('height'))) < a or !b
+            svg.attr('height', a + 'px')
