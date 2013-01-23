@@ -22,8 +22,8 @@ module.exports = class HistoryView extends Chaplin.View
 
     # Current state we are in.
     current:
-        'row': null
-        'col': null
+        'row': 0
+        'col': -1
 
     getTemplateFunction: -> require 'chaplin/templates/history'
 
@@ -46,18 +46,21 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Add a step to the history, we need to resolve its position in the grid.
         Chaplin.mediator.subscribe 'history:add', (model) =>
-            # Link to parent.
-            parent = null
-            if @current.row and @current.col then parent = @current
-            model.set 'parent': parent
-
             # Is the current model locked?
             if model.get 'locked'
                 # Set us "underneath" the parent (the first available row).
                 model.set 'row': @rows, 'col': @current.col
             else
                 # Continue in the same row.
-                model.set 'row': @current.row or 0, 'col': @current.col + 1 or 0
+                model.set 'row': @current.row, 'col': @current.col + 1
+                # Link to parent?
+                if @current.col >= 0
+                    # Get the model @ the current step.
+                    current = (@collection.where(@current)).pop()
+                    assert current, 'We do not have a current step'
+                    model.set 'parent':
+                        'col': current.get('col')
+                        'row': current.get('row')
 
             # Add to collection.
             @collection.add model
@@ -72,6 +75,12 @@ module.exports = class HistoryView extends Chaplin.View
         Chaplin.mediator.subscribe 'step:activate', (model) =>
             @current.col = model.get('col')
             @current.row = model.get('row')
+
+        # Deactivate the currently active step.
+        Chaplin.mediator.subscribe 'step:deactivate', =>
+            @current =
+                'row': @rows
+                'col': -1
 
         # Toggle the view.
         Chaplin.mediator.subscribe 'history:toggle', =>
