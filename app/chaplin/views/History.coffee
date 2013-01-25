@@ -1,10 +1,14 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/lib/Mediator'
+
+View = require 'chaplin/lib/View'
+
 HistoryToolView = require 'chaplin/views/HistoryTool'
 
 Tool = require 'chaplin/models/Tool'
 
-module.exports = class HistoryView extends Chaplin.View
+module.exports = class HistoryView extends View
 
     'container':       '#history'
     'containerMethod': 'html'
@@ -27,25 +31,13 @@ module.exports = class HistoryView extends Chaplin.View
 
     getTemplateFunction: -> require 'chaplin/templates/history'
 
-    afterRender: ->
+    initialize: ->
         super
 
-        # Hide by default and set width to how much space we have on screen. Add a class.
-        $(@el).css('width', $(window).width() - $('footer#bottom').outerWidth()).addClass('container')
-
-        @tools = $(@el).find('#tools')
-
-        # Set the height of the tools based on the height of the viewport.
-        do height = => @tools.css 'height', ($(window).height() * .5) - 67
-
-        # On window resize, update height again.
-        $(window).resize height
-
-        # Add any tools if they exist.
-        @collection.each @addTool
-
         # Add a step to the history, we need to resolve its position in the grid.
-        Chaplin.mediator.subscribe 'history:add', (model) =>
+        Mediator.subscribe 'history:add', (model) =>
+            assert @collection, "Do not have a `window.History` collection on view `#{@cid}`"
+
             # Is the current model locked?
             if model.get 'locked'
                 # Reset the whole shebang.
@@ -88,23 +80,40 @@ module.exports = class HistoryView extends Chaplin.View
             @addTool model
 
             # Activate.
-            Chaplin.mediator.publish 'step:activate', model
+            Mediator.publish 'step:activate', model
 
         # Listen to step activations to update where we are.
-        Chaplin.mediator.subscribe 'step:activate', (model) =>
+        Mediator.subscribe 'step:activate', (model) =>
             @current.col = model.get('col')
             @current.row = model.get('row')
 
         # Deactivate the currently active step.
-        Chaplin.mediator.subscribe 'step:deactivate', =>
+        Mediator.subscribe 'step:deactivate', =>
             @current =
                 'row': @rows
                 'col': -1
 
         # Toggle the view.
-        Chaplin.mediator.subscribe 'history:toggle', =>
+        Mediator.subscribe 'history:toggle', =>
             $('div#whiteout').toggle()
             $(@el).parent().slideToggle()
+
+    afterRender: ->
+        super
+
+        # Hide by default and set width to how much space we have on screen. Add a class.
+        $(@el).css('width', $(window).width() - $('footer#bottom').outerWidth()).addClass('container')
+
+        @tools = $(@el).find('#tools')
+
+        # Set the height of the tools based on the height of the viewport.
+        do height = => @tools.css 'height', ($(window).height() * .5) - 67
+
+        # On window resize, update height again.
+        $(window).resize height
+
+        # Add any tools if they exist.
+        @collection.each @addTool
 
         @
 

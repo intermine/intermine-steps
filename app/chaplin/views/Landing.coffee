@@ -1,8 +1,11 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/lib/Mediator'
+View = require 'chaplin/lib/View'
+
 Registry = require 'tools/Registry'
 
-module.exports = class LandingView extends Chaplin.View
+module.exports = class LandingView extends View
 
     container:       'body'
     containerMethod: 'html'
@@ -18,6 +21,6 @@ module.exports = class LandingView extends Chaplin.View
         # Handle sidebar clicks, they start a new history.
         @delegate 'click', 'a', (e) ->
             name = $(e.target).attr('data-tool')
-            Chaplin.mediator.publish 'router:route', name
+            Mediator.publish 'router:route', name
 
         @

@@ -1,4 +1,3 @@
-# Both exposed on window.
 require 'chaplin/lib/AssertException'
 require 'chaplin/lib/LocalStorage'
 

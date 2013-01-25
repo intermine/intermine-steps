@@ -1,7 +1,7 @@
 <div class="wrap sidebar">
 
     <!-- dynamically populated with event handling -->
-    <ul class="breadcrumb"></ul>
+    <ul class="breadcrumbs"></ul>
 
     <div class="head">
         <h1><%= @title %></h1>

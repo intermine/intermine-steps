@@ -1,7 +1,9 @@
 Chaplin = require 'chaplin'
 
+View = require 'chaplin/lib/View'
+
 # Be it in the main View or in the History, store generic functionality here.
-module.exports = class GenericToolView extends Chaplin.View
+module.exports = class GenericToolView extends View
 
     # Update our "time ago" and call again if we change often.
     updateTime: (el) =>

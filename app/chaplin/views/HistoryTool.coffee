@@ -1,5 +1,7 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/lib/Mediator'
+
 GenericToolView = require 'chaplin/views/GenericTool'
 
 module.exports = class HistoryToolView extends GenericToolView
@@ -22,16 +24,16 @@ module.exports = class HistoryToolView extends GenericToolView
 
         # Capture onclick if we want to visit a step in a history.
         @delegate 'click', '', ->
-            Chaplin.mediator.publish 'app:oldTool', @model
+            Mediator.publish 'app:oldTool', @model
             # Activate the element.
-            Chaplin.mediator.publish 'step:activate', @model
+            Mediator.publish 'step:activate', @model
             # Lock the model.
             @model.set 'locked', true
             # But also route to it.
-            Chaplin.mediator.publish 'router:route', @model.toJSON()
+            Mediator.publish 'router:route', @model.toJSON()
 
         # Reset active status of this step.
-        Chaplin.mediator.subscribe 'step:activate', (model) =>
+        Mediator.subscribe 'step:activate', (model) =>
             if @model.cid is model.cid then $(@el).addClass('active')
             else $(@el).removeClass('active')
 

@@ -1,5 +1,7 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/lib/Mediator'
+
 ToolView = require 'chaplin/views/Tool'
 
 module.exports = class EnrichListToolView extends ToolView
@@ -26,6 +28,6 @@ module.exports = class EnrichListToolView extends ToolView
         # Set on model.
         @model.set 'list', list
         # Update the history.
-        Chaplin.mediator.publish 'history:add', @model
+        Mediator.publish 'history:add', @model
         # Change route passing our serialized model.
-        Chaplin.mediator.publish 'router:route', @model.toJSON(), 2
+        Mediator.publish 'router:route', @model.toJSON(), 2

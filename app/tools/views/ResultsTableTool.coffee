@@ -1,5 +1,7 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/lib/Mediator'
+
 ToolView = require 'chaplin/views/Tool'
 
 module.exports = class ResultsTableTool extends ToolView

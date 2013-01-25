@@ -1,6 +1,10 @@
 Chaplin = require 'chaplin'
 
-module.exports = class AppView extends Chaplin.View
+Mediator = require 'chaplin/lib/Mediator'
+
+View = require 'chaplin/lib/View'
+
+module.exports = class AppView extends View
 
     container:       'body'
     containerMethod: 'html'
@@ -11,7 +15,12 @@ module.exports = class AppView extends Chaplin.View
     afterRender: ->
         super
 
+        # Toggle history.
         @delegate 'click', '.button[data-action="history-toggle"]', @historyToggle
+
+        # Show landing page.
+        @delegate 'click', 'header#top h1', -> Mediator.publish 'router:landing'
+
 
         @
 
@@ -24,4 +33,4 @@ module.exports = class AppView extends Chaplin.View
         )
         
         # Send a message (to HistoryView).
-        Chaplin.mediator.publish 'history:toggle'
+        Mediator.publish 'history:toggle'

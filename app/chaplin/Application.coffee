@@ -1,5 +1,7 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/lib/Mediator'
+
 LandingView = require 'chaplin/views/Landing'
 AppView = require 'chaplin/views/App'
 LeftSidebarView = require 'chaplin/views/LeftSidebar'
@@ -15,35 +17,44 @@ Registry = require 'tools/Registry'
 
 module.exports = class InterMineSteps
 
-    # Cleanup views here.
-    views: []
-
     constructor: ->
         # Handle URL changes.
         PushState.Adapter.bind window, 'statechange', ->
             State = PushState.getState()
             # Log the new state.
-            # console.log State.data, State.title, State.url        
-
-        # Change the URL to the welcome page, always.
-        PushState.replaceState {}, 'Welcome', '/welcome'
-
-        # Show the landing page.
-        @views.push new LandingView()
+            # console.log State.data, State.title, State.url
 
         # Listen to router requests.
-        Chaplin.mediator.subscribe 'router:route', @route
+        Mediator.subscribe 'router:route',   @route
+        Mediator.subscribe 'router:landing', @landing
+
+        # Go on the landing page.
+        Mediator.publish 'router:landing'
+
+    # Show a landing page.
+    landing: =>        
+        # Dispose the original views.
+        @view?.dispose()
+
+        # Remove the Chrome.
+        @appView?.dispose() ; @historyView?.dispose() ; @leftSidebarView?.dispose() ; @rightSidebarView?.dispose()
+        @appView = null     ; @historyView = null     ; @leftSidebarView = null     ; @rightSidebarView = null
+
+        # Show the landing page.
+        @view = new LandingView()
+
+        # Change the URL to the welcome page.
+        PushState.replaceState {}, 'Welcome', '/welcome'
 
     # Route based on tool name.
     route: (objOrName, step=1, params={}) =>
-        # Create the main app view if it does not exist already.
         @appView ?= new AppView()
         @historyView ?= new HistoryView 'collection': window.History
         @leftSidebarView ?= new LeftSidebarView()
         @rightSidebarView ?= new RightSidebarView()
 
-        # Cleanup previous "pages".
-        ( view.dispose() for view in @views )
+        # Dispose of the tool view?
+        @view?.dispose()
 
         # Passing Model JSON or string name?
         if typeof objOrName is 'string'
@@ -69,4 +80,4 @@ module.exports = class InterMineSteps
         PushState.replaceState model, name = model.get('name'), '/tool/' + name.replace(/([A-Z])/g, '-$1').toLowerCase()[1...]
 
         # Load it.
-        @views.push view = new Clazz 'model': model, 'step': step, 'params': params
+        @view = new Clazz 'model': model, 'step': step, 'params': params

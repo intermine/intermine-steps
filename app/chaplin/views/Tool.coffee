@@ -1,5 +1,7 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/lib/Mediator'
+
 Tool = require 'chaplin/models/Tool'
 
 GenericToolView = require 'chaplin/views/GenericTool'
@@ -53,13 +55,15 @@ module.exports = class ToolView extends GenericToolView
                     ul.append li = $ '<li/>'
                     li.append a = $ '<a/>', 'data-tool': k, 'text': v.text
                     # Register onclick event.
-                    a.click => Chaplin.mediator.publish 'router:route', k, null, @serialize()
+                    a.click => Mediator.publish 'router:route', k, null, @serialize()
 
         # Do we have breadcrumbs to show?
         if window.History.length > 1
-            crumbs = $(@el).find('ul.breadcrumb')
+            crumbs = $(@el).find('ul.breadcrumbs')
             # Get the two Models before the last one.
             for crumb in window.History.models[-3...-1] then do (crumb) ->
+                # Show them.
+                crumbs.show()
                 # Add the list item.
                 li = $ '<li/>', 'class': 'entypo rightopen'
                 # Add the link.
@@ -71,7 +75,7 @@ module.exports = class ToolView extends GenericToolView
                     # Lock the model.
                     crumb.set 'locked', true
                     # Reroute.
-                    Chaplin.mediator.publish 'router:route', crumb.toJSON()
+                    Mediator.publish 'router:route', crumb.toJSON()
 
             # Trailing arrow.
             crumbs.append $ '<li/>', 'class': 'entypo rightopen', 'html': '&nbsp;'

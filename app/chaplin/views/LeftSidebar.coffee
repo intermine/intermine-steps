@@ -1,9 +1,12 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/lib/Mediator'
+View = require 'chaplin/lib/View'
+
 Tool = require 'chaplin/models/Tool'
 Registry = require 'tools/Registry'
 
-module.exports = class LeftSidebarView extends Chaplin.View
+module.exports = class LeftSidebarView extends View
 
     container:       'aside#left'
     containerMethod: 'html'
@@ -18,9 +21,9 @@ module.exports = class LeftSidebarView extends Chaplin.View
 
         @delegate 'click', 'a', (e) ->
             # Reset the currently active step, we start anew.
-            Chaplin.mediator.publish 'step:deactivate'
+            Mediator.publish 'step:deactivate'
             # Set the new route.
             name = $(e.target).attr('data-tool')
-            Chaplin.mediator.publish 'router:route', name
+            Mediator.publish 'router:route', name
 
         @
