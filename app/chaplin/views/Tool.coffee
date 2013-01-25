@@ -2,7 +2,9 @@ Chaplin = require 'chaplin'
 
 Tool = require 'chaplin/models/Tool'
 
-module.exports = class ToolView extends Chaplin.View
+GenericToolView = require 'chaplin/views/GenericTool'
+
+module.exports = class ToolView extends GenericToolView
 
     container:       'div#widget'
     containerMethod: 'html'
@@ -65,10 +67,17 @@ module.exports = class ToolView extends Chaplin.View
                 # Append it.
                 crumbs.append li
                 # Add the event handling.
-                a.click -> Chaplin.mediator.publish 'router:route', crumb.toJSON()
+                a.click ->
+                    # Lock the model.
+                    crumb.set 'locked', true
+                    # Reroute.
+                    Chaplin.mediator.publish 'router:route', crumb.toJSON()
 
             # Trailing arrow.
             crumbs.append $ '<li/>', 'class': 'entypo rightopen', 'html': '&nbsp;'
+
+        # If this tool is locked (= historical), show the time ago.
+        if @model.get('locked')? then @updateTime $(@el).find('em.ago')
 
         @
 

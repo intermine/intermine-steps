@@ -4,11 +4,9 @@ Chaplin = require 'chaplin'
 module.exports = class GenericToolView extends Chaplin.View
 
     # Update our "time ago" and call again if we change often.
-    updateTime: =>
+    updateTime: (el) =>
         assert @model, 'Model is not set'
 
-        # Element to update.
-        el = $(@el).find('em.ago')
         # The creation date.
         created = new Date @model.get 'created'
 
@@ -21,6 +19,9 @@ module.exports = class GenericToolView extends Chaplin.View
         [a, b] = [0, 1]
         # Run this now for the first time.
         do queue = ->
+            # If we do not exist anymore, fold...
+
+            # What is the time difference?
             d = moment(created).fromNow()
             # Call again?
             if c isnt d

@@ -18,7 +18,7 @@ module.exports = class HistoryToolView extends GenericToolView
         $(@el).attr('class', "#{@model.get('type')} step").attr('data-id', @model.id)
 
         # Init "time ago" updater.
-        @updateTime()
+        @updateTime $(@el).find('em.ago')
 
         # Capture onclick if we want to visit a step in a history.
         @delegate 'click', '', ->

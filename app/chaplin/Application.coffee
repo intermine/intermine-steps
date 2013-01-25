@@ -23,7 +23,7 @@ module.exports = class InterMineSteps
         PushState.Adapter.bind window, 'statechange', ->
             State = PushState.getState()
             # Log the new state.
-            console.log State.data, State.title, State.url        
+            # console.log State.data, State.title, State.url        
 
         # Change the URL to the welcome page, always.
         PushState.replaceState {}, 'Welcome', '/welcome'

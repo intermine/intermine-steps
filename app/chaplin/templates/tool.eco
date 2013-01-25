@@ -5,6 +5,7 @@
 
     <div class="head">
         <h1><%= @title %></h1>
+        <em class="ago"></em>
     </div>
 
     <% if @steps.length isnt 0: %>

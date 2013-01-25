@@ -41,8 +41,8 @@ module.exports = class HistoryView extends Chaplin.View
         # On window resize, update height again.
         $(window).resize height
 
-        # Render the table.
-        @renderTable()
+        # Add any tools if they exist.
+        @collection.each @addTool
 
         # Add a step to the history, we need to resolve its position in the grid.
         Chaplin.mediator.subscribe 'history:add', (model) =>
@@ -114,17 +114,6 @@ module.exports = class HistoryView extends Chaplin.View
         d3.select($(@el).find('svg.canvas')[0]).selectAll('*').remove()
         $(@el).find('table.grid').html('')
 
-    # Render the table grid populating it with tools.
-    renderTable: ->
-        # Show/hide info message if no tools used.
-        if @collection.length is 0
-            $(@el).find('p.message').show()
-        else
-            $(@el).find('p.message').hide()
-
-        # Add all steps.
-        @collection.each @addTool
-
     # Add a row in DOM (with appropriate number of columns) so we can inject content.
     addRow: ->
         table = $(@el).find('table.grid')
@@ -183,6 +172,9 @@ module.exports = class HistoryView extends Chaplin.View
 
         # Draw connector.
         @drawConnector model.get('parent'), { 'col': col, 'row': row }
+
+        # We have added a tool, hide the info message.
+        $(@el).find('p.message').hide()
 
     # Draw a connector line between a parent and its child.
     drawConnector: (a, b) ->
