@@ -1,9 +1,7 @@
 <div class="wrap sidebar">
 
-    <ul class="breadcrumb">
-        <li class="entypo rightopen"><a>Previous step</a></li>
-        <li class="entypo rightopen"><a>Following step</a></li>
-    </ul>
+    <!-- dynamically populated with event handling -->
+    <ul class="breadcrumb"></ul>
 
     <div class="head">
         <h1><%= @title %></h1>

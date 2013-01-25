@@ -6,6 +6,7 @@ LeftSidebarView = require 'chaplin/views/LeftSidebar'
 RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
 
+# Using History.js
 PushState = window.History
 
 History = require 'chaplin/models/History'
@@ -22,9 +23,9 @@ module.exports = class InterMineSteps
         PushState.Adapter.bind window, 'statechange', ->
             State = PushState.getState()
             # Log the new state.
-            # console.log State.data, State.title, State.url        
+            console.log State.data, State.title, State.url        
 
-        # Change the URL to the welcome page.
+        # Change the URL to the welcome page, always.
         PushState.replaceState {}, 'Welcome', '/welcome'
 
         # Show the landing page.
@@ -35,7 +36,7 @@ module.exports = class InterMineSteps
 
     # Route based on tool name.
     route: (objOrName, step=1, params={}) =>
-        # Create the main app view.
+        # Create the main app view if it does not exist already.
         @appView ?= new AppView()
         @historyView ?= new HistoryView 'collection': window.History
         @leftSidebarView ?= new LeftSidebarView()
@@ -56,7 +57,6 @@ module.exports = class InterMineSteps
 
             # Require the View.
             Clazz = require "tools/views/#{objOrName}"
-        
         else
             Clazz = require "tools/models/#{objOrName.name}"
             # Load it.

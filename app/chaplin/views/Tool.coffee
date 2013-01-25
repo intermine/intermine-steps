@@ -14,8 +14,10 @@ module.exports = class ToolView extends Chaplin.View
     # Extend Model by the step.
     getTemplateData: ->
         o = _.extend @model.toJSON(), 'step': @step
+        
         # Do we have extra params?
         if @options.params then o = _.extend o, 'params': @options.params
+
         # Done.
         o
 
@@ -50,6 +52,23 @@ module.exports = class ToolView extends Chaplin.View
                     li.append a = $ '<a/>', 'data-tool': k, 'text': v.text
                     # Register onclick event.
                     a.click => Chaplin.mediator.publish 'router:route', k, null, @serialize()
+
+        # Do we have breadcrumbs to show?
+        if window.History.length > 1
+            crumbs = $(@el).find('ul.breadcrumb')
+            # Get the two Models before the last one.
+            for crumb in window.History.models[-3...-1] then do (crumb) ->
+                # Add the list item.
+                li = $ '<li/>', 'class': 'entypo rightopen'
+                # Add the link.
+                li.append a = $ '<a/>', 'text': crumb.get('title')
+                # Append it.
+                crumbs.append li
+                # Add the event handling.
+                a.click -> Chaplin.mediator.publish 'router:route', crumb.toJSON()
+
+            # Trailing arrow.
+            crumbs.append $ '<li/>', 'class': 'entypo rightopen', 'html': '&nbsp;'
 
         @
 
