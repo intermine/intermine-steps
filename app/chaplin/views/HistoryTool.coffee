@@ -13,6 +13,17 @@ module.exports = class HistoryToolView extends GenericToolView
 
     getTemplateData: -> @model.toJSON()
 
+    initialize: ->
+        super
+
+        # Reset active status of this step.
+        Mediator.subscribe 'step:activate', (model) =>
+            if @model.cid is model.cid then $(@el).addClass('active')
+            else $(@el).removeClass('active')
+        , @
+
+        @
+
     afterRender: ->
         super
 
@@ -31,10 +42,5 @@ module.exports = class HistoryToolView extends GenericToolView
             @model.set 'locked', true
             # But also route to it.
             Mediator.publish 'router:route', @model.toJSON()
-
-        # Reset active status of this step.
-        Mediator.subscribe 'step:activate', (model) =>
-            if @model.cid is model.cid then $(@el).addClass('active')
-            else $(@el).removeClass('active')
 
         @

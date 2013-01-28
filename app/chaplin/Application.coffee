@@ -22,11 +22,11 @@ module.exports = class InterMineSteps
         PushState.Adapter.bind window, 'statechange', ->
             State = PushState.getState()
             # Log the new state.
-            # console.log State.data, State.title, State.url
+            # console.log State.data, State.title, State.url
 
         # Listen to router requests.
-        Mediator.subscribe 'router:route',   @route
-        Mediator.subscribe 'router:landing', @landing
+        Mediator.subscribe 'router:route',   @route,   @
+        Mediator.subscribe 'router:landing', @landing, @
 
         # Go on the landing page.
         Mediator.publish 'router:landing'
@@ -39,6 +39,9 @@ module.exports = class InterMineSteps
         # Remove the Chrome.
         @appView?.dispose() ; @historyView?.dispose() ; @leftSidebarView?.dispose() ; @rightSidebarView?.dispose()
         @appView = null     ; @historyView = null     ; @leftSidebarView = null     ; @rightSidebarView = null
+
+        # Cleanup the History.
+        window.History.reset()
 
         # Show the landing page.
         @view = new LandingView()

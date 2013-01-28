@@ -14,25 +14,25 @@ module.exports = class HistoryView extends View
     'containerMethod': 'html'
     'autoRender':      true
 
-    # Store all step Views here to garbage dump.
-    views: []
-
-    # Number of rows & columns we have in the table grid.
-    rows: 0
-    cols: 0
-
-    # Store the table grid DOM here for easy append of elements.
-    grid: []
-
-    # Current state we are in.
-    current:
-        'row': 0
-        'col': -1
-
     getTemplateFunction: -> require 'chaplin/templates/history'
 
     initialize: ->
         super
+
+        # Store all step Views here to garbage dump.
+        @views = []
+
+        # Number of rows & columns we have in the table grid.
+        @rows = 0
+        @cols = 0
+
+        # Store the table grid DOM here for easy append of elements.
+        @grid = []
+
+        # Current state we are in.
+        @current =
+            'row': 0
+            'col': -1
 
         # Add a step to the history, we need to resolve its position in the grid.
         Mediator.subscribe 'history:add', (model) =>
@@ -81,22 +81,26 @@ module.exports = class HistoryView extends View
 
             # Activate.
             Mediator.publish 'step:activate', model
+        , @
 
         # Listen to step activations to update where we are.
         Mediator.subscribe 'step:activate', (model) =>
             @current.col = model.get('col')
             @current.row = model.get('row')
+        , @
 
         # Deactivate the currently active step.
         Mediator.subscribe 'step:deactivate', =>
             @current =
                 'row': @rows
                 'col': -1
+        , @
 
         # Toggle the view.
         Mediator.subscribe 'history:toggle', =>
             $('div#whiteout').toggle()
             $(@el).parent().slideToggle()
+        , @
 
     afterRender: ->
         super

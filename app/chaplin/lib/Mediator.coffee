@@ -8,6 +8,7 @@ mediator.publish = (opts...) ->
 mediator.subscribe = (opts...) ->
     Backbone.Events.on opts...
 
+# Assert the existence of the channel (to avoid typos).
 mediator.unsubscribe = (opts...) ->
     # If we have defined channel, check if it exists in callbacks.
     if (channel = opts[0])? then assert Backbone.Events._callbacks[channel]?, "Unknown channel `#{channel}`"
