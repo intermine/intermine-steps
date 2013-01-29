@@ -4,6 +4,9 @@ union    = require 'union'
 connect  = require 'connect'
 send     = require 'send'
 
+# Store all histories here.
+history = []
+
 # Export for Brunch.
 exports.startServer = (port, dir) ->
     app = flatiron.app
@@ -24,6 +27,20 @@ exports.startServer = (port, dir) ->
             else
                 # Go Union!
                 union.errorHandler err, req, res
+
+    app.router.path '/api/history', ->
+        # Add a history tool to the db.
+        @get ->
+            @res.writeHead 200, 'content-type': 'application/json'
+            @res.write JSON.stringify history
+            @res.end()
+
+        # Retrieve all history tools from the db.
+        @put ->
+            history = @req.body
+
+            @res.writeHead 200, 'content-type': 'application/json'
+            @res.end()
 
     app.start port, (err) ->
         throw err if err

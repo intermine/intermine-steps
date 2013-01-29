@@ -5,8 +5,10 @@ InterMineSteps = require 'chaplin/Application'
 History = require 'chaplin/models/History'
 
 $ ->
-    # Init the history (from LocalStorage).
-    window.History = new History()
-    
-    # Start the app.
-    window.App = new InterMineSteps()
+    # Init history.
+    (new History()).fetch
+        'error': (coll, res) -> assert false, response
+        'success': (coll, res) ->
+            window.History = coll
+            # Start the app.
+            window.App = new InterMineSteps()

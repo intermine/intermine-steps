@@ -21,7 +21,7 @@ module.exports = class InterMineSteps
         # Handle URL changes.
         PushState.Adapter.bind window, 'statechange', ->
             State = PushState.getState()
-            # Log the new state.
+            # Update content.
             # console.log State.data, State.title, State.url
 
         # Listen to router requests.
@@ -39,9 +39,6 @@ module.exports = class InterMineSteps
         # Remove the Chrome.
         @appView?.dispose() ; @historyView?.dispose() ; @leftSidebarView?.dispose() ; @rightSidebarView?.dispose()
         @appView = null     ; @historyView = null     ; @leftSidebarView = null     ; @rightSidebarView = null
-
-        # Cleanup the History.
-        window.History.reset()
 
         # Show the landing page.
         @view = new LandingView()

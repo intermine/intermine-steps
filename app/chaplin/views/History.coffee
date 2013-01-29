@@ -76,6 +76,9 @@ module.exports = class HistoryView extends View
             # Add to collection.
             @collection.add model
 
+            # Update the collection on the server.
+            Backbone.sync 'update', @collection
+
             # Add to view.
             @addTool model
 

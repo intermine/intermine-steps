@@ -6,4 +6,4 @@ module.exports = class History extends Chaplin.Collection
 
     'model': Tool
 
-    dispose: -> assert true, 'You cannot kill `History`'
+    'url': '/api/history'
