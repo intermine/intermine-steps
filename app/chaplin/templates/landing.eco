@@ -14,7 +14,7 @@
                 <h2>Tools</h2>
                 <ul>
                     <% for k, v of @registry when not v.hidden: %>
-                        <li><a data-tool="<%= k %>"><%= v.description %></a></li>
+                        <li><a href="/tool/<%= k %>"><%= v.description %></a></li>
                     <% end %>
                 </ul>
             </div>

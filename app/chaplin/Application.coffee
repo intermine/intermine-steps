@@ -1,15 +1,12 @@
 Chaplin = require 'chaplin'
 
-Mediator = require 'chaplin/lib/Mediator'
+Mediator = require 'chaplin/core/Mediator'
 
 LandingView = require 'chaplin/views/Landing'
 AppView = require 'chaplin/views/App'
 LeftSidebarView = require 'chaplin/views/LeftSidebar'
 RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
-
-# Using History.js
-PushState = window.History
 
 History = require 'chaplin/models/History'
 Tool = require 'chaplin/models/Tool'
@@ -18,21 +15,30 @@ Registry = require 'tools/Registry'
 module.exports = class InterMineSteps
 
     constructor: ->
-        # Handle URL changes.
-        PushState.Adapter.bind window, 'statechange', ->
-            State = PushState.getState()
-            # Update content.
-            # console.log State.data, State.title, State.url
-
         # Listen to router requests.
         Mediator.subscribe 'router:route',   @route,   @
         Mediator.subscribe 'router:landing', @landing, @
 
-        # Go on the landing page.
-        Mediator.publish 'router:landing'
+        # Get the URL of the tool we want to see.
+        x = [ slug, row, col ] = window.location.pathname.split('/')[1...]
+        unless slug and row and col
+            # Go on the landing page.
+            Mediator.publish 'router:landing'
+        else
+            # Type.
+            row = parseInt(row) ; col = parseInt(col)
+
+            # Find the appropriate model in our collection.
+            [ model ] = window.History.where { 'slug': slug, 'row': row, 'col': col }
+            assert model, 'A Model for this URL was not found'
+            # Route.
+            Mediator.publish 'router:route', model.toJSON()
+
+            # Activate this model.
+            Mediator.publish 'step:activate', row, col
 
     # Show a landing page.
-    landing: =>        
+    landing: =>
         # Dispose the original views.
         @view?.dispose()
 
@@ -42,9 +48,6 @@ module.exports = class InterMineSteps
 
         # Show the landing page.
         @view = new LandingView()
-
-        # Change the URL to the welcome page.
-        PushState.replaceState {}, 'Welcome', '/welcome'
 
     # Route based on tool name.
     route: (objOrName, step=1, params={}) =>
@@ -75,9 +78,6 @@ module.exports = class InterMineSteps
 
             # Require the View.
             Clazz = require "tools/views/#{objOrName.name}"
-        
-        # Change the URL to that of the tool's name and log this state.
-        PushState.replaceState model, name = model.get('name'), '/tool/' + name.replace(/([A-Z])/g, '-$1').toLowerCase()[1...]
 
         # Load it.
         @view = new Clazz 'model': model, 'step': step, 'params': params

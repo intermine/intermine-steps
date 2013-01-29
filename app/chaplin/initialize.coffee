@@ -1,14 +1,14 @@
-require 'chaplin/lib/AssertException'
-require 'chaplin/lib/LocalStorage'
-
-InterMineSteps = require 'chaplin/Application'
+InterMineSteps = require 'chaplin/core/Application'
 History = require 'chaplin/models/History'
+
+root = this
 
 $ ->
     # Init history.
     (new History()).fetch
         'error': (coll, res) -> assert false, response
         'success': (coll, res) ->
-            window.History = coll
+            root.History = coll
             # Start the app.
-            window.App = new InterMineSteps()
+            root.App = new InterMineSteps()
+            root.App.initialize()

@@ -1,6 +1,6 @@
 Chaplin = require 'chaplin'
 
-Mediator = require 'chaplin/lib/Mediator'
+Mediator = require 'chaplin/core/Mediator'
 
 GenericToolView = require 'chaplin/views/GenericTool'
 
@@ -17,9 +17,11 @@ module.exports = class HistoryToolView extends GenericToolView
         super
 
         # Reset active status of this step.
-        Mediator.subscribe 'step:activate', (model) =>
-            if @model.cid is model.cid then $(@el).addClass('active')
-            else $(@el).removeClass('active')
+        Mediator.subscribe 'step:activate', (row, col) =>
+            if @model.get('row') is row and @model.get('col') is col
+                $(@el).addClass('active')
+            else
+                $(@el).removeClass('active')
         , @
 
         @

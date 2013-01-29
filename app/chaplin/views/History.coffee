@@ -1,6 +1,6 @@
 Chaplin = require 'chaplin'
 
-Mediator = require 'chaplin/lib/Mediator'
+Mediator = require 'chaplin/core/Mediator'
 
 View = require 'chaplin/lib/View'
 
@@ -87,9 +87,9 @@ module.exports = class HistoryView extends View
         , @
 
         # Listen to step activations to update where we are.
-        Mediator.subscribe 'step:activate', (model) =>
-            @current.col = model.get('col')
-            @current.row = model.get('row')
+        Mediator.subscribe 'step:activate', (row, col) =>
+            @current.col = row
+            @current.row = col
         , @
 
         # Deactivate the currently active step.
