@@ -31,6 +31,11 @@ module.exports = class ToolView extends GenericToolView
         # Set the step.
         @step = @options.step or 1
 
+        # Listen to Mediator requesting different pages.
+        Mediator.subscribe 'tool:step', (@step) =>
+            @render()
+        , @
+
     afterRender: ->
         super
 
@@ -53,9 +58,7 @@ module.exports = class ToolView extends GenericToolView
                     aside.find('p').remove()
                     # Append the link.
                     ul.append li = $ '<li/>'
-                    li.append a = $ '<a/>', 'data-tool': k, 'text': v.text
-                    # Register onclick event.
-                    a.click => Mediator.publish 'router:route', k, null, @serialize()
+                    li.append a = $ '<a/>', 'href': '#', 'text': v.text
 
         # Do we have breadcrumbs to show?
         if window.History.length > 1
@@ -67,15 +70,9 @@ module.exports = class ToolView extends GenericToolView
                 # Add the list item.
                 li = $ '<li/>', 'class': 'entypo rightopen'
                 # Add the link.
-                li.append a = $ '<a/>', 'text': crumb.get('title')
+                li.append a = $ '<a/>', 'html': '#', 'text': crumb.get('title')
                 # Append it.
                 crumbs.append li
-                # Add the event handling.
-                a.click ->
-                    # Lock the model.
-                    crumb.set 'locked', true
-                    # Reroute.
-                    Mediator.publish 'router:route', crumb.toJSON()
 
             # Trailing arrow.
             crumbs.append $ '<li/>', 'class': 'entypo rightopen', 'html': '&nbsp;'

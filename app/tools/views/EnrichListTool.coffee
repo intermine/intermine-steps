@@ -31,5 +31,5 @@ module.exports = class EnrichListToolView extends ToolView
         @model.set 'created', new Date()
         # Update the history.
         Mediator.publish 'history:add', @model
-        # Change route passing our serialized model.
-        Mediator.publish 'router:route', @model.toJSON(), 2
+        # Change the step.
+        Mediator.publish 'tool:step', @step += 1

@@ -10,14 +10,14 @@ module.exports = class UploadListToolView extends ToolView
         super
 
         @delegate 'click', '#submit', ->
-            # Serialize form.
+            # Get the DOM data.
             @model.set 'form', @getDOM().find('form textarea').val().split(' ')
             # Set the creation time.
             @model.set 'created', new Date()
             # Update the history.
             Mediator.publish 'history:add', @model
-            # Change route passing our serialized model.
-            Mediator.publish 'router:route', @model.toJSON(), 2
+            # Change the step.
+            Mediator.publish 'tool:step', @step += 1
 
         @
 
