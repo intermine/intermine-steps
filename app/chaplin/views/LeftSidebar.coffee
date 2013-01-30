@@ -1,7 +1,7 @@
 Chaplin = require 'chaplin'
 
 Mediator = require 'chaplin/core/Mediator'
-View = require 'chaplin/lib/View'
+View = require 'chaplin/core/View'
 
 Tool = require 'chaplin/models/Tool'
 Registry = require 'tools/Registry'

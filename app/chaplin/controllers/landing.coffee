@@ -1,10 +1,10 @@
-Chaplin = require 'chaplin'
+Controller = require 'chaplin/core/Controller'
 
 LandingView = require 'chaplin/views/Landing'
 
-module.exports = class LandingController extends Chaplin.Controller
+module.exports = class LandingController extends Controller
 
     historyURL: (params) -> ''
 
     index: (params) ->
-        new LandingView()
+        @views.push new LandingView()

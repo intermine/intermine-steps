@@ -1,6 +1,6 @@
 Chaplin = require 'chaplin'
 
-View = require 'chaplin/lib/View'
+View = require 'chaplin/core/View'
 
 module.exports = class RightSidebarView extends View
 

@@ -5,7 +5,7 @@
             <div class="account right">
                 Monsieur Tout-le-Monde <span>&#8226;</span> <a href="#">Logout</a>
             </div>
-            <h1><strong>InterMine Steps</strong></h1>
+            <a href="/"><h1>InterMine Steps</h1></a>
         </div>
     </header>
 

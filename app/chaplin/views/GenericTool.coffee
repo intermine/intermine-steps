@@ -1,6 +1,6 @@
 Chaplin = require 'chaplin'
 
-View = require 'chaplin/lib/View'
+View = require 'chaplin/core/View'
 
 # Be it in the main View or in the History, store generic functionality here.
 module.exports = class GenericToolView extends View

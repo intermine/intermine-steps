@@ -4,7 +4,7 @@
             <div class="account right">
                 Monsieur Tout-le-Monde <span>&#8226;</span> <a href="#">Logout</a>
             </div>
-            <h1><strong>InterMine Steps</strong></h1>
+            <a href="/"><h1>InterMine Steps</h1></a>
         </div>
     </header>
 
@@ -14,7 +14,7 @@
                 <h2>Tools</h2>
                 <ul>
                     <% for k, v of @registry when not v.hidden: %>
-                        <li><a href="/tool/<%= k %>"><%= v.description %></a></li>
+                        <li><a href="/tool/<%= k %>/new"><%= v.description %></a></li>
                     <% end %>
                 </ul>
             </div>

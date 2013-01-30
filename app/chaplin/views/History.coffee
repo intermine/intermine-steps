@@ -2,7 +2,7 @@ Chaplin = require 'chaplin'
 
 Mediator = require 'chaplin/core/Mediator'
 
-View = require 'chaplin/lib/View'
+View = require 'chaplin/core/View'
 
 HistoryToolView = require 'chaplin/views/HistoryTool'
 
