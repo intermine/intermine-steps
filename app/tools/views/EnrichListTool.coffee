@@ -26,7 +26,7 @@ module.exports = class EnrichListToolView extends ToolView
         assert typeof(list) is 'string', "You need to pass in a list: #{JSON.stringify list}"
 
         # Set on model.
-        @model.set 'list', list
+        @model.set 'data': { 'list': list }
         # Update the history.
         Mediator.publish 'history:add', @model
         # Change the step.

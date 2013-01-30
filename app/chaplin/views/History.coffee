@@ -145,6 +145,8 @@ module.exports = class HistoryView extends View
         [ x1, y1 ] = pos a.col, a.row
         [ x2, y2 ] = pos b.col, b.row
 
+        assert x1 and y1 and x2 and y2, 'We do not have element position for all elements'
+
         # Select the canvas.
         svg = d3.select $(@el).find('svg.canvas')[0]
 

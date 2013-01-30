@@ -6,7 +6,7 @@ module.exports = class Controller extends Chaplin.Controller
     views: []
 
     initialize: ->
-        console.blue @constructor.name
+        # console.blue @constructor.name
         super
 
     # Remove all attached Views.
