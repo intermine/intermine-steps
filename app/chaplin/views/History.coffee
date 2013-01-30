@@ -73,7 +73,7 @@ module.exports = class HistoryView extends View
         # Now for the columns.
         for i in [0...@cols]
             # ...append to the row.
-            row.append el = $ '<td/>', 'data-row': @rows, 'data-col': i
+            row.append el = $ '<td/>', 'data-col': i
             # Save the el into grid.
             @grid[i] ?= [] # init column?
             @grid[i][@rows] = el

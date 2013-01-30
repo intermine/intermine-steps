@@ -13,8 +13,8 @@ module.exports = class ToolsController extends Controller
 
     collection: window.History
 
-    new: ({ slug }) ->
-        # Init the chrome.
+    # Init the chrome.
+    _build: (slug) ->
         @views.push new AppView()
         @views.push new HistoryView 'collection': @collection
         @views.push new LeftSidebarView()
@@ -31,8 +31,23 @@ module.exports = class ToolsController extends Controller
         # Require the View.
         Clazz = require "tools/views/#{spec.name}"
 
+        [ model, Clazz ]
+
+    new: ({ slug }) ->
+        [ model, Clazz ] = @_build slug
+
         # Render the View.
         @views.push new Clazz 'model': model
+
+    cont: ({ slug }) ->
+        [ model, Clazz ] = @_build slug
+
+        previous = @collection.getCurrent()
+        # Did we actually have a previous step?
+        assert previous, "No previous step"
+
+        # Render the View.
+        @views.push new Clazz 'model': model, 'previous': previous.toJSON()
 
     old: ({ slug, row, col }) ->
         console.log 'old', slug, row, col

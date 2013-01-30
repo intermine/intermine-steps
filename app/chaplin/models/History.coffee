@@ -46,6 +46,8 @@ module.exports = class History extends Chaplin.Collection
                 # First row, first column.
                 @current = 'row': 0, 'col': 0
         else
+            # Set the parent.
+            model.set 'parent': @getCurrent()
             # Continue in the same vein.
             @current.col += 1
 

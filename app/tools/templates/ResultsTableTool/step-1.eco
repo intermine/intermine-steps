@@ -11,9 +11,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% for identifier in @params: %>
+                    <% for id in @previous.identifiers: %>
                         <tr>
-                            <td><%= identifier %></td>
+                            <td><%= id %></td>
                             <td>Дмитрий Фролов</td>
                             <td>Егор Мальцев</td>
                             <td>Станислав Тарасов</td>

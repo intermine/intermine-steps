@@ -6,5 +6,11 @@ ToolView = require 'chaplin/views/Tool'
 
 module.exports = class ResultsTableTool extends ToolView
 
-    # What does it mean for this tool to serialize?
-    serialize: -> 'list': 'A list coming from a results table'
+    # Extend by the model passed in.
+    getTemplateData: ->
+        data = super
+
+        # We better have parent.
+        assert previous = @options.previous, "No previous Model provided"
+
+        _.extend data, 'previous': previous.data

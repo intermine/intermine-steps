@@ -11,7 +11,7 @@ module.exports =
         # What are the next steps?
         'next':
             # Show in a Results Table
-            'ResultsTableTool':
+            'results-table-tool':
                 # Show in a second step...
                 'step': 2
                 # ...with this text
@@ -31,7 +31,7 @@ module.exports =
         # What are the next steps?
         'next':
             # Show a list enrichment.
-            'EnrichListTool':
+            'enrich-list-tool':
                 # Show in the first step...
                 'step': 1
                 # ...with this text

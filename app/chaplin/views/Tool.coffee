@@ -16,14 +16,7 @@ module.exports = class ToolView extends GenericToolView
     getTemplateFunction: -> require 'chaplin/templates/tool'
 
     # Extend Model by the step.
-    getTemplateData: ->
-        o = _.extend @model.toJSON(), 'step': @step
-        
-        # Do we have extra params?
-        if @options.params then o = _.extend o, 'params': @options.params
-
-        # Done.
-        o
+    getTemplateData: -> _.extend @model.toJSON(), 'step': @step
 
     initialize: ->
         super
@@ -50,15 +43,15 @@ module.exports = class ToolView extends GenericToolView
 
         ul = aside.find('ul')
         # Any next steps for this tool & step?
-        model = @model.toJSON()
-        if model.next
-            for k, v of model.next
+        if next = @model.get('next')
+            for k, v of next
+                # Do we match on step?
                 if v.step is @step
                     # Remove placeholder.
                     aside.find('p').remove()
                     # Append the link.
                     ul.append li = $ '<li/>'
-                    li.append a = $ '<a/>', 'href': '#', 'text': v.text
+                    li.append a = $ '<a/>', 'href': "/tool/#{k}/continue", 'text': v.text
 
         # Do we have breadcrumbs to show?
         if window.History.length > 1
@@ -70,7 +63,7 @@ module.exports = class ToolView extends GenericToolView
                 # Add the list item.
                 li = $ '<li/>', 'class': 'entypo rightopen'
                 # Add the link.
-                li.append a = $ '<a/>', 'html': '#', 'text': crumb.get('title')
+                li.append a = $ '<a/>', 'href': "/tool/#{crumb.get('slug')}/history/#{crumb.get('row')}/step/#{crumb.get('col')}", 'text': crumb.get('title')
                 # Append it.
                 crumbs.append li
 
@@ -81,8 +74,6 @@ module.exports = class ToolView extends GenericToolView
         if @step is 1 and @model.get('locked')? then @updateTime $(@el).find('em.ago')
 
         @
-
-    serialize: -> assert false, 'Override with custom logic for this tool'
 
     # Get DOM for current step.
     getDOM: -> $(@el).find('ul.accordion li.active div.content')
