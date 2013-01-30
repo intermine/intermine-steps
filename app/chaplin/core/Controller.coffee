@@ -6,7 +6,7 @@ module.exports = class Controller extends Chaplin.Controller
     views: []
 
     initialize: ->
-        console.log "%c#{@constructor.name}", 'color: #FFF; background: #2ba6cb'
+        console.blue @constructor.name
         super
 
     # Remove all attached Views.

@@ -1,7 +1,6 @@
 Chaplin = require 'chaplin'
 
 Mediator = require 'chaplin/core/Mediator'
-
 View = require 'chaplin/core/View'
 
 HistoryToolView = require 'chaplin/views/HistoryTool'
@@ -29,81 +28,17 @@ module.exports = class HistoryView extends View
         # Store the table grid DOM here for easy append of elements.
         @grid = []
 
-        # Current state we are in.
-        @current =
-            'row': 0
-            'col': -1
-
         # Add a step to the history, we need to resolve its position in the grid.
-        Mediator.subscribe 'history:add', (model) =>
-            assert @collection, "Do not have a `window.History` collection on view `#{@cid}`"
-
-            # Is the current model locked?
-            if model.get 'locked'
-                # Reset the whole shebang.
-                @resetTable()
-
-                # For all models underneath us, set push them off by 1 row.
-                @collection.each (model) =>
-                    # Is the row below us?
-                    if (row = model.get('row')) > @current.row
-                        # Off by 1.
-                        model.set 'row', row + 1
-                    
-                    # Need to move parent as well?
-                    parent = model.get('parent')
-                    if parent and parent.row > @current.row
-                        parent.row += 1
-                        model.set 'parent', parent
-                    
-                    # Render it back.
-                    @addTool model
-
-                # Set us "underneath" the parent (the first available row).
-                model.set 'row': @current.row + 1, 'col': @current.col
-            else
-                # Continue in the same row.
-                model.set 'row': @current.row, 'col': @current.col + 1
-                # Link to parent?
-                if @current.col >= 0
-                    # Get the model @ the current step.
-                    current = (@collection.where(@current)).pop()
-                    assert current, 'We do not have a current step'
-                    model.set 'parent':
-                        'col': current.get('col')
-                        'row': current.get('row')
-
-            # Add to collection.
-            @collection.add model
-
-            # Update the collection on the server.
-            Backbone.sync 'update', @collection
-
-            # Add to view.
-            @addTool model
-
-            # Activate.
-            Mediator.publish 'step:activate', model
-        , @
+        Mediator.subscribe 'history:update', @addTool, @
 
         # Listen to step activations to update where we are.
-        Mediator.subscribe 'step:activate', (row, col) =>
-            @current.col = row
-            @current.row = col
-        , @
+        Mediator.subscribe 'step:activate', @activateStep, @
 
         # Deactivate the currently active step.
-        Mediator.subscribe 'step:deactivate', =>
-            @current =
-                'row': @rows
-                'col': -1
-        , @
+        Mediator.subscribe 'step:deactivate', @deactivateStep, @
 
         # Toggle the view.
-        Mediator.subscribe 'history:toggle', =>
-            $('div#whiteout').toggle()
-            $(@el).parent().slideToggle()
-        , @
+        Mediator.subscribe 'history:toggle', @toggleHistory, @
 
     afterRender: ->
         super
@@ -120,9 +55,80 @@ module.exports = class HistoryView extends View
         $(window).resize height
 
         # Add any tools if they exist.
-        @collection.each @addTool
+        @collection.each @renderTool
 
         @
+
+    # Toggle the view.
+    toggleHistory: =>
+        $('div#whiteout').toggle()
+        $(@el).parent().slideToggle()
+
+    # Add a step to the history, we need to resolve its position in the grid.
+    addTool: (model) =>
+        assert @collection, "Do not have a `window.History` collection on view `#{@cid}`"
+
+        return console.log 'ya'
+
+        # Is the current model locked?
+        if model.get 'locked'
+            # Reset the whole shebang.
+            @resetTable()
+
+            # For all models underneath us, set push them off by 1 row.
+            @collection.each (model) =>
+                # Is the row below us?
+                if (row = model.get('row')) > @collection.current.row
+                    # Off by 1.
+                    model.set 'row', row + 1
+                
+                # Need to move parent as well?
+                parent = model.get('parent')
+                if parent and parent.row > @collection.current.row
+                    parent.row += 1
+                    model.set 'parent', parent
+                
+                # Render it back.
+                @renderTool model
+
+            # Set us "underneath" the parent (the first available row).
+            model.set 'row': @collection.current.row + 1, 'col': @collection.current.col
+        else
+            # Continue in the same row.
+            model.set 'row': @collection.current.row, 'col': @collection.current.col + 1
+            # Link to parent?
+            if @collection.current.col >= 0
+                # Get the model @ the current step.
+                current = @collection.current()
+                assert current, 'We do not have a current step'
+                model.set 'parent':
+                    'col': current.get('col')
+                    'row': current.get('row')
+
+        # Add to collection.
+        @collection.add model
+
+        # Update the collection on the server.
+        Backbone.sync 'update', @collection
+
+        # Add to view.
+        @renderTool model
+
+        # Activate.
+        Mediator.publish 'step:activate', model.get('row'), model.get('col')
+
+    # Listen to step activations to update where we are.
+    activateStep: (row, col) =>
+        assert Utils.isInt(row) and Utils.isInt(col), 'Incorrect `row` and `col` provided'
+
+        @collection.current.col = row
+        @collection.current.row = col
+
+    # Deactivate the currently active step.
+    deactivateStep: =>
+        @collection.current =
+            'row': @rows
+            'col': -1
 
     # Reset the history view.
     resetTable: =>
@@ -166,7 +172,7 @@ module.exports = class HistoryView extends View
         @cols += 1
 
     # Update the View rendering the Tools that have been used in the current session.
-    addTool: (model) =>
+    renderTool: (model) =>
         # Create the View.
         @views.push step = new HistoryToolView 'model': model
         # Where do we go?

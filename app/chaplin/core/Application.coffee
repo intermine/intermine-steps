@@ -3,6 +3,8 @@ Chaplin = require 'chaplin'
 require 'chaplin/core/AssertException' # assertions
 require 'chaplin/core/LocalStorage'    # storage
 require 'chaplin/core/Mediator'        # mediator
+require 'chaplin/core/Console'         # console
+require 'chaplin/core/Utils'           # utilities
 
 Layout = require 'chaplin/core/Layout'
 Routes = require 'chaplin/core/Routes'

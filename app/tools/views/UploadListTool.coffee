@@ -12,8 +12,6 @@ module.exports = class UploadListToolView extends ToolView
         @delegate 'click', '#submit', ->
             # Get the DOM data.
             @model.set 'form', @getDOM().find('form textarea').val().split(' ')
-            # Set the creation time.
-            @model.set 'created', new Date()
             # Update the history.
             Mediator.publish 'history:add', @model
             # Change the step.

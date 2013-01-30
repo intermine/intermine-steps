@@ -39,7 +39,7 @@ module.exports = class HistoryToolView extends GenericToolView
         @delegate 'click', '', ->
             Mediator.publish 'app:oldTool', @model
             # Activate the element.
-            Mediator.publish 'step:activate', @model
+            Mediator.publish 'step:activate', @model.get('row'), @model.get('col')
             # Lock the model.
             @model.set 'locked', true
             # But also route to it.

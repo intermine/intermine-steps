@@ -27,8 +27,6 @@ module.exports = class EnrichListToolView extends ToolView
 
         # Set on model.
         @model.set 'list', list
-        # Set the creation time.
-        @model.set 'created', new Date()
         # Update the history.
         Mediator.publish 'history:add', @model
         # Change the step.
