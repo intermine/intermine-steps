@@ -16,8 +16,8 @@ module.exports = class HistoryToolView extends GenericToolView
     initialize: ->
         super
 
-        # Reset active status of this step.
-        Mediator.subscribe 'step:activate', (row, col) =>
+        # Re/set active status of this step.
+        Mediator.subscribe 'history:activate', ({ row, col }) =>
             if @model.get('row') is row and @model.get('col') is col
                 $(@el).addClass('active')
             else
@@ -34,15 +34,5 @@ module.exports = class HistoryToolView extends GenericToolView
 
         # Init "time ago" updater.
         @updateTime $(@el).find('em.ago')
-
-        # Capture onclick if we want to visit a step in a history.
-        @delegate 'click', '', ->
-            Mediator.publish 'app:oldTool', @model
-            # Activate the element.
-            Mediator.publish 'step:activate', @model.get('row'), @model.get('col')
-            # Lock the model.
-            @model.set 'locked', true
-            # But also route to it.
-            Mediator.publish 'router:route', @model.toJSON()
 
         @
