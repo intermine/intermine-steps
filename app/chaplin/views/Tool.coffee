@@ -54,10 +54,10 @@ module.exports = class ToolView extends GenericToolView
                     li.append a = $ '<a/>', 'href': "/tool/#{k}/continue", 'text': v.text
 
         # Do we have breadcrumbs to show?
-        if window.History.length > 1
+        if window.History.length isnt 0
             crumbs = $(@el).find('ul.breadcrumbs')
             # Get the two Models before the last one.
-            for crumb in window.History.models[-3...-1] then do (crumb) ->
+            for crumb in window.History.models[-2...] then do (crumb) ->
                 # Show them.
                 crumbs.show()
                 # Add the list item.
