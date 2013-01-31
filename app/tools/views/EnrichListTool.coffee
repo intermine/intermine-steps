@@ -9,22 +9,23 @@ module.exports = class EnrichListToolView extends ToolView
     afterRender: ->
         super
 
-        # Is this the first step?
-        if @step is 1
-            # Do we have a list set already?
-            if @options.params and @options.params.list
-                # Go straight to step 2 with this list preset.
-                @setList @options.params.list
+        switch @step
+            when 1
+                # Do we have a list set already?
+                if @options.previous and @options.previous.data and @options.previous.data.identifiers
+                    # Go straight to step 2 with this list preset.
+                    @setList @options.previous.data.identifiers
+            when 2
+                # We better have the list set.
+                assert @model.get('data'), 'List not provided'
 
-        @delegate 'click', '#submit', ->
-            @setList 'Some random list, as if coming from Step #1'
+        # Use a "list" from step #1.
+        @delegate 'click', '#submit', -> @setList [ 'Random #1', 'Random #2' ]
 
         @
 
     # Set list and render step 2 saving into history.
     setList: (list) ->
-        assert typeof(list) is 'string', "You need to pass in a list: #{JSON.stringify list}"
-
         # Set on model.
         @model.set 'data': { 'list': list }
         # Update the history.

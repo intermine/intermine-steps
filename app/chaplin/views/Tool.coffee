@@ -15,8 +15,13 @@ module.exports = class ToolView extends GenericToolView
     # Accordion template.
     getTemplateFunction: -> require 'chaplin/templates/tool'
 
-    # Extend Model by the step.
-    getTemplateData: -> _.extend @model.toJSON(), 'step': @step
+    getTemplateData: ->
+        # Extend Model by the step.
+        data = _.extend @model.toJSON(), 'step': @step
+        # Further extend by previous step data if present.
+        if @options.previous then data = _.extend data, 'previous': @options.previous?.data
+        # Nice ret.
+        data
 
     initialize: ->
         super
