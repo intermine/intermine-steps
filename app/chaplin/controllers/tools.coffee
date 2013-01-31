@@ -44,6 +44,9 @@ module.exports = class ToolsController extends Controller
         # Render the View.
         @views.push new Clazz 'model': model
 
+        # Change the title.
+        @adjustTitle model.get 'title'
+
     cont: ({ slug }) ->
         Mediator.publish 'tool:cont'
 
@@ -71,6 +74,9 @@ module.exports = class ToolsController extends Controller
         # Render the View.
         @views.push new Clazz 'model': model, 'previous': previous.toJSON()
 
+        # Change the title.
+        @adjustTitle model.get 'title'
+
     old: ({ slug, row, col }) ->
         Mediator.publish 'tool:old'
 
@@ -95,3 +101,6 @@ module.exports = class ToolsController extends Controller
 
         # Activate this model.
         Mediator.publish 'history:activate', { 'row': model.get('row'), 'col': model.get('col') }
+
+        # Change the title.
+        @adjustTitle model.get 'title'
