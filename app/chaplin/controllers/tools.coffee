@@ -73,8 +73,11 @@ module.exports = class ToolsController extends Controller
         # Require the View.
         Clazz = require "tools/views/#{model.get('name')}"
 
+        # Lock the Model.
+        model.set 'locked', true
+
         # Render the View.
-        @views.push new Clazz 'model': model, 'historical': true
+        @views.push new Clazz 'model': model
 
         # Activate this model.
         Mediator.publish 'history:activate', { 'row': model.get('row'), 'col': model.get('col') }

@@ -33,9 +33,6 @@ module.exports = class History extends Chaplin.Collection
 
     # Add a tool to our collection.
     addTool: (model) =>
-        # Set the creation time.
-        model.set 'created', new Date()
-
         # Do we have a current step?
         unless @current
             # Do we have models already?
@@ -47,11 +44,21 @@ module.exports = class History extends Chaplin.Collection
                 @current = 'row': 0, 'col': 0
         else
             # Are we continuing or are we doing an alternate step to this one?
+            if model.get('locked')?
+                # Duplicate the model.
+                model = @dupe model
 
-            # Set the parent.
-            model.set 'parent': @getCurrent().toJSON()
-            # Continue in the same vein.
-            @current.col += 1
+                # Use the first available row directly underneath us.
+                @current = 'row': @getHeight() + 1, 'col': @current.col
+            else
+                # Set the parent.
+                model.set 'parent': @getCurrent().toJSON()
+
+                # Continue in the same vein.
+                @current.col += 1
+
+        # Set the creation time.
+        model.set 'created', new Date()
 
         # Set us on current.
         model.set @current
@@ -63,3 +70,14 @@ module.exports = class History extends Chaplin.Collection
         Mediator.publish 'history:activate', @current
         # Now do the sync.
         Backbone.sync 'update', @
+
+    # Duplicate a model.
+    dupe: (model) ->
+        # Get JSON repr.
+        obj = model.toJSON()
+        # Remove locked status.
+        delete obj.locked
+        # Require the Model.
+        Clazz = require "tools/models/#{obj.name}"
+        # Init the Model again.
+        new Clazz obj

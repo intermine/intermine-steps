@@ -71,7 +71,7 @@ module.exports = class ToolView extends GenericToolView
             crumbs.append $ '<li/>', 'class': 'entypo rightopen', 'html': '&nbsp;'
 
         # Init "time ago" updater.
-        if @options.historical? then @updateTime $(@el).find('em.ago')
+        if @model.get('locked')? then @updateTime $(@el).find('em.ago')
 
         @
 
