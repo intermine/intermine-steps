@@ -1,5 +1,7 @@
 Controller = require 'chaplin/core/Controller'
 
+Mediator = require 'chaplin/core/Mediator'
+
 AppView = require 'chaplin/views/App'
 LeftSidebarView = require 'chaplin/views/LeftSidebar'
 RightSidebarView = require 'chaplin/views/RightSidebar'
@@ -73,3 +75,6 @@ module.exports = class ToolsController extends Controller
 
         # Render the View.
         @views.push new Clazz 'model': model, 'historical': true
+
+        # Activate this model.
+        Mediator.publish 'history:activate', { 'row': model.get('row'), 'col': model.get('col') }
