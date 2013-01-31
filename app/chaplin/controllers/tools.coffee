@@ -14,11 +14,15 @@ module.exports = class ToolsController extends Controller
     collection: window.History
 
     # Init the chrome.
-    _build: (slug) ->
+    _chrome: ->
         @views.push new AppView()
         @views.push new HistoryView 'collection': @collection
         @views.push new LeftSidebarView()
         @views.push new RightSidebarView()
+
+
+    new: ({ slug }) ->
+        @_chrome()
 
         # Do we know this tool in a registry?
         assert spec = Registry[slug], "Tool `#{slug}` does not exist"
@@ -31,16 +35,22 @@ module.exports = class ToolsController extends Controller
         # Require the View.
         Clazz = require "tools/views/#{spec.name}"
 
-        [ model, Clazz ]
-
-    new: ({ slug }) ->
-        [ model, Clazz ] = @_build slug
-
         # Render the View.
         @views.push new Clazz 'model': model
 
     cont: ({ slug }) ->
-        [ model, Clazz ] = @_build slug
+        @_chrome()
+
+        # Do we know this tool in a registry?
+        assert spec = Registry[slug], "Tool `#{slug}` does not exist"
+
+        # Require the Model.
+        Clazz = require "tools/models/#{spec.name}"
+        # Blank slate, only the spec.
+        model = new Clazz spec
+
+        # Require the View.
+        Clazz = require "tools/views/#{spec.name}"
 
         previous = @collection.getCurrent()
         # Did we actually have a previous step?
@@ -50,4 +60,16 @@ module.exports = class ToolsController extends Controller
         @views.push new Clazz 'model': model, 'previous': previous.toJSON()
 
     old: ({ slug, row, col }) ->
-        console.log 'old', slug, row, col
+        # Convert type.
+        row = parseInt(row) ; col = parseInt(col)
+        # Find the model in question.
+        [ model ] = @collection.where 'slug': slug, 'row': row, 'col': col
+        assert model, "We do not have this Model in History"
+
+        @_chrome()
+
+        # Require the View.
+        Clazz = require "tools/views/#{model.get('name')}"
+
+        # Render the View.
+        @views.push new Clazz 'model': model
