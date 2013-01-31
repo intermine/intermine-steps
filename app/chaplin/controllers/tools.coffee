@@ -72,4 +72,4 @@ module.exports = class ToolsController extends Controller
         Clazz = require "tools/views/#{model.get('name')}"
 
         # Render the View.
-        @views.push new Clazz 'model': model
+        @views.push new Clazz 'model': model, 'historical': true
