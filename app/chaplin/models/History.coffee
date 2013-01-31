@@ -17,11 +17,20 @@ module.exports = class History extends Chaplin.Collection
         @current = null
 
         Mediator.subscribe 'history:add', @addTool, @
+        Mediator.subscribe 'tool:new', @resetCurrent, @
+        Mediator.subscribe 'history:activate', @setCurrent, @
+
+
+    # Reset currently active step.
+    resetCurrent: => @current = null
 
     # Get the Model @ current state.
     getCurrent: ->
         assert @current, "Do not have a `current` object in a History collection"
         (@where(@current)).pop()
+
+    # Set current step.
+    setCurrent: (@current) =>
 
     # Get the first available row.
     getHeight: ->
@@ -50,6 +59,9 @@ module.exports = class History extends Chaplin.Collection
 
                 # Use the first available row directly underneath us.
                 @current = 'row': @getHeight() + 1, 'col': @current.col
+
+                # Change the window location. Not great as router did not know about this.
+                window.history.pushState {}, 'Staða', "/tool/#{model.get('slug')}/continue"
             else
                 # Set the parent.
                 model.set 'parent': @getCurrent().toJSON()

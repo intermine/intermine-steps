@@ -24,10 +24,15 @@ module.exports = class ToolsController extends Controller
 
 
     new: ({ slug }) ->
+        Mediator.publish 'tool:new'
+
         @_chrome()
 
         # Do we know this tool in a registry?
         assert spec = Registry[slug], "Tool `#{slug}` does not exist"
+
+        # Deactivate any previous steps. We start anew.
+        Mediator.publish ''
 
         # Require the Model.
         Clazz = require "tools/models/#{spec.name}"
@@ -41,6 +46,8 @@ module.exports = class ToolsController extends Controller
         @views.push new Clazz 'model': model
 
     cont: ({ slug }) ->
+        Mediator.publish 'tool:cont'
+
         @_chrome()
 
         # Do we know this tool in a registry?
@@ -62,6 +69,8 @@ module.exports = class ToolsController extends Controller
         @views.push new Clazz 'model': model, 'previous': previous.toJSON()
 
     old: ({ slug, row, col }) ->
+        Mediator.publish 'tool:old'
+
         # Convert type.
         row = parseInt(row) ; col = parseInt(col)
         # Find the model in question.
