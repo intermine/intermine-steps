@@ -1,0 +1,22 @@
+<div id="wrapper">
+    <header id="top">
+        <div class="inner">
+            <div class="account right">
+                Monsieur Tout-le-Monde <span>&#8226;</span> <a href="#">Logout</a>
+            </div>
+            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
+        </div>
+    </header>
+
+    <section id="middle">
+        <div id="landing" class="container row">
+            <div class="twelve columns">
+                <h2>404, Page Not Found</h2>
+            </div>
+        </div>
+    </section>
+</div>
+
+<footer id="wide">
+    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>
+</footer>

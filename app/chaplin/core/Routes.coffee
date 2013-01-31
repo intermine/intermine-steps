@@ -3,3 +3,4 @@ module.exports = (match) ->
     match 'tool/:slug/new',                    'tools#new'     # new tool
     match 'tool/:slug/continue',               'tools#cont'    # continue with a next tool
     match 'tool/:slug/history/:row/step/:col', 'tools#old'     # historical tool
+    match 'error/404',                         'error#404'     # 404

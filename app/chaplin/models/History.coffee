@@ -61,7 +61,8 @@ module.exports = class History extends Chaplin.Collection
                 @current = 'row': @getHeight() + 1, 'col': @current.col
 
                 # Change the window location. Not great as router did not know about this.
-                window.history.pushState {}, 'Staða', "/tool/#{model.get('slug')}/continue"
+                # window.history.pushState {}, 'Staða', "/tool/#{model.get('slug')}/continue"
+                window.App.router.changeURL "/tool/#{model.get('slug')}/continue"
             else
                 # Set the parent.
                 model.set 'parent': @getCurrent().toJSON()

@@ -29,10 +29,9 @@ module.exports = class ToolsController extends Controller
         @_chrome()
 
         # Do we know this tool in a registry?
-        assert spec = Registry[slug], "Tool `#{slug}` does not exist"
-
-        # Deactivate any previous steps. We start anew.
-        Mediator.publish ''
+        unless spec = Registry[slug]
+            window.App.router.route '/error/404', { 'changeURL': false }
+            assert spec, "Tool `#{slug}` does not exist"
 
         # Require the Model.
         Clazz = require "tools/models/#{spec.name}"
@@ -51,7 +50,9 @@ module.exports = class ToolsController extends Controller
         @_chrome()
 
         # Do we know this tool in a registry?
-        assert spec = Registry[slug], "Tool `#{slug}` does not exist"
+        unless spec = Registry[slug]
+            window.App.router.route '/error/404', { 'changeURL': false }
+            assert spec, "Tool `#{slug}` does not exist"
 
         # Require the Model.
         Clazz = require "tools/models/#{spec.name}"
@@ -63,7 +64,9 @@ module.exports = class ToolsController extends Controller
 
         previous = @collection.getCurrent()
         # Did we actually have a previous step?
-        assert previous, "No previous step"
+        unless previous
+            window.App.router.route '/error/404', { 'changeURL': false }
+            assert model, 'No previous step'
 
         # Render the View.
         @views.push new Clazz 'model': model, 'previous': previous.toJSON()
@@ -75,7 +78,9 @@ module.exports = class ToolsController extends Controller
         row = parseInt(row) ; col = parseInt(col)
         # Find the model in question.
         [ model ] = @collection.where 'slug': slug, 'row': row, 'col': col
-        assert model, "We do not have this Model in History"
+        unless model
+            window.App.router.route '/error/404', { 'changeURL': false }
+            assert model, 'We do not have this Model in History'
 
         @_chrome()
 
