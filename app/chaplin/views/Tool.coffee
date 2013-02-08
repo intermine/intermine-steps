@@ -68,7 +68,7 @@ module.exports = class ToolView extends GenericToolView
                 # Add the list item.
                 li = $ '<li/>', 'class': 'entypo rightopen'
                 # Add the link.
-                li.append a = $ '<a/>', 'href': "/tool/#{crumb.get('slug')}/history/#{crumb.get('row')}/step/#{crumb.get('col')}", 'text': crumb.get('title')
+                li.append a = $ '<a/>', 'href': "/tool/#{crumb.get('slug')}/id/#{crumb.get('guid')}", 'text': crumb.get('title')
                 # Append it.
                 crumbs.append li
 

@@ -17,8 +17,8 @@ module.exports = class HistoryToolView extends GenericToolView
         super
 
         # Re/set active status of this step.
-        Mediator.subscribe 'history:activate', ({ row, col }) =>
-            if @model.get('row') is row and @model.get('col') is col
+        Mediator.subscribe 'history:activate', (guid) =>
+            if @model.get('guid') is guid
                 $(@el).addClass('active')
             else
                 $(@el).removeClass('active')

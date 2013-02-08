@@ -28,6 +28,9 @@ module.exports = class HistoryView extends View
         # Store the table grid DOM here for easy append of elements.
         @grid = []
 
+        # A dict of all guids so we can quickly position elements.
+        @guids = {}
+
         # Add a step to the history, we need to resolve its position in the grid.
         Mediator.subscribe 'history:update', @renderTool, @
 
@@ -101,29 +104,44 @@ module.exports = class HistoryView extends View
 
     # Update the View rendering the Tools that have been used in the current session.
     renderTool: (model) =>
-        # Make sure we have the position (set by History collection);
-        row = model.get('row') ; col = model.get('col')
-        assert Utils.isInt(row) and Utils.isInt(col), "Model does not have `row` and/or `col` provided"
-
         # Create the View.
         @views.push step = new HistoryToolView 'model': model
 
-        # Add rows if need be.
-        dist = 1 + row - @rows # 0 indexed
-        if dist > 0 then ( @addRow() for i in [0...dist] )
-        # Add columns if need be.
-        dist = 1 + col - @cols # 0 indexed
-        if dist > 0 then ( @addCol() for i in [0...dist] )
+        # Do we have a parent?
+        if parent = model.get 'parent'
+            # We better have already rendered the parent. (singly linked list to the parent)
+            assert pos = @guids[parent], "Parent element `#{parent}` is not rendered first"
 
-        # Finally add the element.
-        assert @grid[col] and @grid[col][row], 'Grid does not have an element to save tool in'
-        @grid[col][row].append step.el
+            # Do we have as many columns?
+            if pos.col + 1 >= @cols
+                # Add a new column.
+                @addCol()
+                # Render next to the parent.
+                @grid[col = pos.col + 1][row = pos.row].append step.el
+            else
+                # Maybe our column in this row is not taken?
+                unless (temp = @grid[col = pos.col + 1][row = pos.row]).children().length
+                    temp.append step.el
+                else
+                    # Use the first available row and column directly underneath.
+                    @addRow()
+                    @grid[col = pos.col + 1][row = @rows - 1].append step.el
+
+            # Draw connector.
+            @drawConnector pos, { 'col': col, 'row': row }
+        
+        else
+            # A new row and column?
+            @addRow()
+            if @cols < 1 then @addCol()
+            # Use the first available row and 0th column to place this tool.
+            @grid[col = 0][row = @rows - 1].append step.el
+        
+        # Save the guid in a list.
+        @guids[model.get('guid')] = 'col': col, 'row': row
 
         # Update the width of the table.
         $(@el).find('#tools table.grid').css('width', 180 * @cols)
-
-        # Draw connector.
-        @drawConnector model.get('parent'), { 'col': col, 'row': row }
 
         # We have added a tool, hide the info message.
         $(@el).find('p.message').hide()

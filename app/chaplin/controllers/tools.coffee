@@ -77,13 +77,11 @@ module.exports = class ToolsController extends Controller
         # Change the title.
         @adjustTitle model.get 'title'
 
-    old: ({ slug, row, col }) ->
+    old: ({ slug, guid }) ->
         Mediator.publish 'tool:old'
 
-        # Convert type.
-        row = parseInt(row) ; col = parseInt(col)
         # Find the model in question.
-        [ model ] = @collection.where 'slug': slug, 'row': row, 'col': col
+        [ model ] = @collection.where 'slug': slug, 'guid': guid
         unless model
             window.App.router.route '/error/404', { 'changeURL': false }
             assert model, 'We do not have this Model in History'
@@ -100,7 +98,7 @@ module.exports = class ToolsController extends Controller
         @views.push new Clazz 'model': model
 
         # Activate this model.
-        Mediator.publish 'history:activate', { 'row': model.get('row'), 'col': model.get('col') }
+        Mediator.publish 'history:activate', guid
 
         # Change the title.
         @adjustTitle model.get 'title'
