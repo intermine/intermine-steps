@@ -6,6 +6,8 @@ mediator.publish = (opts...) ->
     Backbone.Events.trigger opts...
 
 mediator.subscribe = (opts...) ->
+    # Makes sure we always pass our context.
+    assert opts.length is 3, 'Context for the subscriber not provided'
     Backbone.Events.on opts...
 
 # Assert the existence of the channel (to avoid typos).

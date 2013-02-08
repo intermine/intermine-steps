@@ -1,48 +1,13 @@
 module.exports =
-    # Upload a list.
-    'upload-list-tool':
-        'slug': 'upload-list-tool'
-        'name': 'UploadListTool'
-        'title': 'Upload a List'
-        'description': 'Upload a list of identifiers'
-        'type': 'deyork'
-        # Our internal steps.
-        'steps': [ 'Input Identifiers', 'See Result' ]
-        # What are the next steps?
-        'next':
-            # Show in a Results Table
-            'results-table-tool':
-                # Show in a second step...
-                'step': 2
-                # ...with this text
-                'text': 'Show in a table'
-
-    # A Results Table.
-    'results-table-tool':
-        'slug': 'results-table-tool'
-        'name': 'ResultsTableTool'
-        'title': 'Results Table'
-        'description': 'Show a table of results'
-        'type': 'curiousblue'
-        # Our internal steps.
-        'steps': [ 'See Table' ]
-        # You cannot see me unless you go from a diff step.
-        'hidden': true
-        # What are the next steps?
-        'next':
-            # Show a list enrichment.
-            'enrich-list-tool':
-                # Show in the first step...
-                'step': 1
-                # ...with this text
-                'text': 'See list enrichment'
-
-    # Enrich a list.
-    'enrich-list-tool':
-        'slug': 'enrich-list-tool'
-        'name': 'EnrichListTool'
-        'title': 'Enrich a List'
-        'description': 'Show a list enrichment chart'
-        'type': 'crail'
-        # Our internal steps.
-        'steps': [ 'Choose a list', 'See Chart' ]
+    'i:onHomepage': [
+        [ 'upload-list-tool', 'Start by uploading a list' ]
+        [ 'enrich-list-tool', 'Start by enriching an existing list' ]
+    ]
+    'i:onLeft': [
+        [ 'upload-list-tool', 'Upload a new list' ]
+        [ 'enrich-list-tool', 'Enrich an existing list' ]
+    ]
+    'i:haveList': [
+        [ 'enrich-list-tool', 'Enrich this list' ]
+        [ 'results-table-tool', 'View this list in a table' ]
+    ]

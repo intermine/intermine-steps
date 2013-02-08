@@ -1,5 +1,3 @@
-Chaplin = require 'chaplin'
-
 View = require 'chaplin/core/View'
 
 module.exports = class ErrorView extends View

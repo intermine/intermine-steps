@@ -2,19 +2,19 @@ Chaplin = require 'chaplin'
 
 require 'chaplin/core/AssertException' # assertions
 require 'chaplin/core/LocalStorage'    # storage
-require 'chaplin/core/Mediator'        # mediator
 require 'chaplin/core/Console'         # console
 require 'chaplin/core/Utils'           # utilities
 
+Mediator = require 'chaplin/core/Mediator'
 Layout = require 'chaplin/core/Layout'
 Routes = require 'chaplin/core/Routes'
+
+Registry = require 'tools/Registry'
 
 # The application object.
 module.exports = class InterMineSteps extends Chaplin.Application
 
     title: 'Staða'
-
-    data: {}
 
     initialize: ->
         super
@@ -25,6 +25,8 @@ module.exports = class InterMineSteps extends Chaplin.Application
             'controllerSuffix': ''
         
         @initLayout()
+
+        @initRegistry()
 
         # Register all routes and start routing
         @initRouter Routes
@@ -37,3 +39,13 @@ module.exports = class InterMineSteps extends Chaplin.Application
         # Use an application-specific Layout class. Currently this adds
         # no features to the standard Chaplin Layout, it’s an empty placeholder.
         @layout = new Layout {@title}
+
+    # Listen to context changes.
+    initRegistry: ->
+        for key, map of Registry then do (key, map) ->
+            # This is what we have.
+            Mediator.subscribe "context:#{key}", ->
+                for [ slug, label ] in map
+                    # These guys might like this.
+                    Mediator.publish "contextRender:#{key}", slug, label
+            , @

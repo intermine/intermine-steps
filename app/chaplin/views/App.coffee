@@ -1,5 +1,3 @@
-Chaplin = require 'chaplin'
-
 Mediator = require 'chaplin/core/Mediator'
 
 View = require 'chaplin/core/View'

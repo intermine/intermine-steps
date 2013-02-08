@@ -3,7 +3,7 @@ Chaplin = require 'chaplin'
 Mediator = require 'chaplin/core/Mediator'
 View = require 'chaplin/core/View'
 
-Registry = require 'tools/Registry'
+NextStepsLandingView = require 'chaplin/views/NextStepsLanding'
 
 module.exports = class LandingView extends View
 
@@ -13,4 +13,10 @@ module.exports = class LandingView extends View
 
     getTemplateFunction: -> require 'chaplin/templates/landing'
 
-    getTemplateData: -> 'registry': Registry
+    afterRender: ->
+        super
+
+        # Load the appropriate Next Steps.
+        @views.push new NextStepsLandingView()
+
+        @

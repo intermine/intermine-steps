@@ -1,10 +1,6 @@
-Chaplin = require 'chaplin'
-
-Mediator = require 'chaplin/core/Mediator'
 View = require 'chaplin/core/View'
 
-Tool = require 'chaplin/models/Tool'
-Registry = require 'tools/Registry'
+NextStepsLeftView = require 'chaplin/views/NextStepsLeft'
 
 module.exports = class LeftSidebarView extends View
 
@@ -14,16 +10,10 @@ module.exports = class LeftSidebarView extends View
 
     getTemplateFunction: -> require 'chaplin/templates/sidebar-left'
 
-    getTemplateData: -> 'registry': Registry
-
     afterRender: ->
         super
 
-        @delegate 'click', 'a', (e) ->
-            # Reset the currently active step, we start anew.
-            Mediator.publish 'step:deactivate'
-            # Set the new route.
-            name = $(e.target).attr('data-tool')
-            Mediator.publish 'router:route', name
+        # Load the appropriate Next Steps.
+        @views.push new NextStepsLeftView()
 
         @

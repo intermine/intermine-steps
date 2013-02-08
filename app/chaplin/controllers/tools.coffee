@@ -7,8 +7,6 @@ LeftSidebarView = require 'chaplin/views/LeftSidebar'
 RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
 
-Registry = require 'tools/Registry'
-
 module.exports = class ToolsController extends Controller
 
     historyURL: (params) -> ''
@@ -22,24 +20,20 @@ module.exports = class ToolsController extends Controller
         @views.push new LeftSidebarView()
         @views.push new RightSidebarView()
 
-
     new: ({ slug }) ->
         Mediator.publish 'tool:new'
 
         @_chrome()
 
-        # Do we know this tool in a registry?
-        unless spec = Registry[slug]
-            window.App.router.route '/error/404', { 'changeURL': false }
-            assert spec, "Tool `#{slug}` does not exist"
+        # Convert to PascalCase.
+        name = window.Utils.hyphenToPascal slug
 
         # Require the Model.
-        Clazz = require "tools/models/#{spec.name}"
-        # Blank slate, only the spec.
-        model = new Clazz spec
+        Clazz = require "tools/models/#{name}"
+        model = new Clazz()
 
         # Require the View.
-        Clazz = require "tools/views/#{spec.name}"
+        Clazz = require "tools/views/#{name}"
 
         # Render the View.
         @views.push new Clazz 'model': model
@@ -52,24 +46,21 @@ module.exports = class ToolsController extends Controller
 
         @_chrome()
 
-        # Do we know this tool in a registry?
-        unless spec = Registry[slug]
-            window.App.router.route '/error/404', { 'changeURL': false }
-            assert spec, "Tool `#{slug}` does not exist"
+        # Convert to PascalCase.
+        name = window.Utils.hyphenToPascal slug
 
         # Require the Model.
-        Clazz = require "tools/models/#{spec.name}"
-        # Blank slate, only the spec.
-        model = new Clazz spec
+        Clazz = require "tools/models/#{name}"
+        model = new Clazz()
 
         # Require the View.
-        Clazz = require "tools/views/#{spec.name}"
+        Clazz = require "tools/views/#{name}"
 
         previous = @collection.getCurrent()
         # Did we actually have a previous step?
         unless previous
             window.App.router.route '/error/404', { 'changeURL': false }
-            assert model, 'No previous step'
+            assert false, 'No previous step'
 
         # Render the View.
         @views.push new Clazz 'model': model, 'previous': previous.toJSON()
@@ -84,7 +75,7 @@ module.exports = class ToolsController extends Controller
         [ model ] = @collection.where 'slug': slug, 'guid': guid
         unless model
             window.App.router.route '/error/404', { 'changeURL': false }
-            assert model, 'We do not have this Model in History'
+            assert false, 'We do not have this Model in History'
 
         @_chrome()
 

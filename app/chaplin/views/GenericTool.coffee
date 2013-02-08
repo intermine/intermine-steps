@@ -1,5 +1,3 @@
-Chaplin = require 'chaplin'
-
 View = require 'chaplin/core/View'
 
 # Be it in the main View or in the History, store generic functionality here.

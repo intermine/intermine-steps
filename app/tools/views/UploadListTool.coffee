@@ -1,13 +1,16 @@
-Chaplin = require 'chaplin'
-
 Mediator = require 'chaplin/core/Mediator'
 
 ToolView = require 'chaplin/views/Tool'
 
 module.exports = class UploadListToolView extends ToolView
-
+    
     afterRender: ->
         super
+
+        switch @step
+            when 2
+                # We have a list!
+                Mediator.publish 'context:i:haveList'
 
         @delegate 'click', '#submit', ->
             # Get the DOM data.
