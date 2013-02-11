@@ -21,7 +21,8 @@ module.exports = class ToolsController extends Controller
         @views.push new RightSidebarView()
 
     new: ({ slug }) ->
-        Mediator.publish 'tool:new'
+        # Reset current step.
+        Mediator.publish 'history:reset'
 
         @_chrome()
 
@@ -41,9 +42,7 @@ module.exports = class ToolsController extends Controller
         # Change the title.
         @adjustTitle model.get 'title'
 
-    cont: ({ slug }) ->
-        Mediator.publish 'tool:cont'
-
+    cont: ({ slug, guid }) ->
         @_chrome()
 
         # Convert to PascalCase.
@@ -56,7 +55,7 @@ module.exports = class ToolsController extends Controller
         # Require the View.
         Clazz = require "tools/views/#{name}"
 
-        previous = @collection.getCurrent()
+        previous = (@collection.where({ 'guid': guid })).pop()
         # Did we actually have a previous step?
         unless previous
             window.App.router.route '/error/404', { 'changeURL': false }
@@ -69,7 +68,8 @@ module.exports = class ToolsController extends Controller
         @adjustTitle model.get 'title'
 
     old: ({ slug, guid }) ->
-        Mediator.publish 'tool:old'
+        # Reset current step.
+        Mediator.publish 'history:reset'
 
         # Find the model in question.
         [ model ] = @collection.where 'slug': slug, 'guid': guid
@@ -82,8 +82,8 @@ module.exports = class ToolsController extends Controller
         # Require the View.
         Clazz = require "tools/views/#{model.get('name')}"
 
-        # Lock the Model.
-        model.set 'locked', true
+        # Dupe so we set new data on a new model.
+        model = @collection.dupe model
 
         # Render the View.
         @views.push new Clazz 'model': model

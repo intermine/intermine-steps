@@ -13,61 +13,29 @@ module.exports = class History extends Chaplin.Collection
     initialize: ->
         super
 
-        # Provide a link to the 'current' state.
-        @current = null
-
+        # Add a user's model to our collection.
         Mediator.subscribe 'history:add', @addTool, @
-        Mediator.subscribe 'tool:new', @resetCurrent, @
+        # Make sure that we have a globally accessible current step.
         Mediator.subscribe 'history:activate', @setCurrent, @
+        # New step in history.
+        Mediator.subscribe 'history:reset', @resetCurrent, @
 
+    # Reset the current tool when we start anew.
+    resetCurrent: (@current = null) =>
 
-    # Reset currently active step.
-    resetCurrent: => @current = null
-
-    # Get the Model @ current state.
-    getCurrent: -> (@where({ 'guid': @current })).pop()
-
-    # Set current step.
+    # Make sure we store the current step guid on a global object.
     setCurrent: (@current) =>
 
-    # # Get the first available row.
-    # getHeight: ->
-    #     rows = 0
-    #     @each (model) ->
-    #         row = model.get('row')
-    #         rows = row if row > rows
-    #     rows
-
-    # Add a tool to our collection.
+    # Add a tool to our collection (following a user action).
     addTool: (model) =>
-        # Do we have a current step?
-        unless @current
-            true
-            # # Do we have models already?
-            # if @length isnt 0
-            #     # Get the first available row.
-            #     @current = 'row': @getHeight() + 1, 'col': 0
-            # else
-            #     # First row, first column.
-            #     @current = 'row': 0, 'col': 0
+        # Is this model locked?
+        if model.get('dupe')?
+            # Change the window location. Not great as router did not know about this.
+            # window.history.pushState {}, 'Staða', "/tool/#{model.get('slug')}/continue"
+            # window.App.router.changeURL "/tool/#{model.get('slug')}/continue"
         else
-            # Are we continuing or are we doing an alternate step to this one?
-            if model.get('locked')?
-                # Duplicate the model.
-                model = @dupe model
-
-                # # Use the first available row directly underneath us.
-                # @current = 'row': @getHeight() + 1, 'col': @current.col
-
-                # Change the window location. Not great as router did not know about this.
-                # window.history.pushState {}, 'Staða', "/tool/#{model.get('slug')}/continue"
-                window.App.router.changeURL "/tool/#{model.get('slug')}/continue"
-            else
-                # Set the parent.
-                model.set 'parent': @getCurrent().get('guid')
-
-                # # Continue in the same vein.
-                # @current.col += 1
+            # Otherwise set the current uid as the parent.
+            if @current then model.set 'parent', @current
 
         # Set the creation time.
         model.set 'created', new Date()
@@ -78,15 +46,15 @@ module.exports = class History extends Chaplin.Collection
             guid = window.Utils.guid()
             # Check not in our collection already.
             if @where({ 'guid': guid }).length is 0 then notfound = false
-        # Set us on current.
-        model.set 'guid': @current = guid
-        
+        # Set our uid.
+        model.set 'guid': guid
+
         # Add to the collection.
         @add model
         # Say the View needs to update.
-        Mediator.publish 'history:update', model
-        # Activate this model.
-        Mediator.publish 'history:activate', @current
+        Mediator.publish 'history:render', model
+        # 'Activate' this model (will bolden the box in History).
+        Mediator.publish 'history:activate', guid
         # Now do the sync.
         Backbone.sync 'update', @
 
@@ -94,8 +62,10 @@ module.exports = class History extends Chaplin.Collection
     dupe: (model) ->
         # Get JSON repr.
         obj = model.toJSON()
-        # Remove locked status.
-        delete obj.locked
+        # Delete our UID just to make sure.
+        delete obj.guid
+        # Set dupe status.
+        obj.dupe = true
         # Require the Model.
         Clazz = require "tools/models/#{obj.name}"
         # Init the Model again.

@@ -182,7 +182,7 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
     ToolsController.prototype["new"] = function(_arg) {
       var Clazz, model, name, slug;
       slug = _arg.slug;
-      Mediator.publish('tool:new');
+      Mediator.publish('history:reset');
       this._chrome();
       name = window.Utils.hyphenToPascal(slug);
       Clazz = require("tools/models/" + name);
@@ -195,15 +195,16 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
     };
 
     ToolsController.prototype.cont = function(_arg) {
-      var Clazz, model, name, previous, slug;
-      slug = _arg.slug;
-      Mediator.publish('tool:cont');
+      var Clazz, guid, model, name, previous, slug;
+      slug = _arg.slug, guid = _arg.guid;
       this._chrome();
       name = window.Utils.hyphenToPascal(slug);
       Clazz = require("tools/models/" + name);
       model = new Clazz();
       Clazz = require("tools/views/" + name);
-      previous = this.collection.getCurrent();
+      previous = (this.collection.where({
+        'guid': guid
+      })).pop();
       if (!previous) {
         window.App.router.route('/error/404', {
           'changeURL': false
@@ -220,7 +221,7 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
     ToolsController.prototype.old = function(_arg) {
       var Clazz, guid, model, slug;
       slug = _arg.slug, guid = _arg.guid;
-      Mediator.publish('tool:old');
+      Mediator.publish('history:reset');
       model = this.collection.where({
         'slug': slug,
         'guid': guid
@@ -233,7 +234,7 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
       }
       this._chrome();
       Clazz = require("tools/views/" + (model.get('name')));
-      model.set('locked', true);
+      model = this.collection.dupe(model);
       this.views.push(new Clazz({
         'model': model
       }));
@@ -549,7 +550,7 @@ window.require.define({"chaplin/core/Routes": function(exports, require, module)
   module.exports = function(match) {
     match('', 'landing#index');
     match('tool/:slug/new', 'tools#new');
-    match('tool/:slug/continue', 'tools#cont');
+    match('tool/:slug/continue/:guid', 'tools#cont');
     match('tool/:slug/id/:guid', 'tools#old');
     return match('error/404', 'error#404');
   };
@@ -688,20 +689,13 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
 
     History.prototype.initialize = function() {
       History.__super__.initialize.apply(this, arguments);
-      this.current = null;
       Mediator.subscribe('history:add', this.addTool, this);
-      Mediator.subscribe('tool:new', this.resetCurrent, this);
-      return Mediator.subscribe('history:activate', this.setCurrent, this);
+      Mediator.subscribe('history:activate', this.setCurrent, this);
+      return Mediator.subscribe('history:reset', this.resetCurrent, this);
     };
 
-    History.prototype.resetCurrent = function() {
-      return this.current = null;
-    };
-
-    History.prototype.getCurrent = function() {
-      return (this.where({
-        'guid': this.current
-      })).pop();
+    History.prototype.resetCurrent = function(current) {
+      this.current = current != null ? current : null;
     };
 
     History.prototype.setCurrent = function(current) {
@@ -710,16 +704,11 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
 
     History.prototype.addTool = function(model) {
       var guid, notfound;
-      if (!this.current) {
-        true;
+      if (model.get('dupe') != null) {
+
       } else {
-        if (model.get('locked') != null) {
-          model = this.dupe(model);
-          window.App.router.changeURL("/tool/" + (model.get('slug')) + "/continue");
-        } else {
-          model.set({
-            'parent': this.getCurrent().get('guid')
-          });
+        if (this.current) {
+          model.set('parent', this.current);
         }
       }
       model.set('created', new Date());
@@ -733,18 +722,19 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
         }
       }
       model.set({
-        'guid': this.current = guid
+        'guid': guid
       });
       this.add(model);
-      Mediator.publish('history:update', model);
-      Mediator.publish('history:activate', this.current);
+      Mediator.publish('history:render', model);
+      Mediator.publish('history:activate', guid);
       return Backbone.sync('update', this);
     };
 
     History.prototype.dupe = function(model) {
       var Clazz, obj;
       obj = model.toJSON();
-      delete obj.locked;
+      delete obj.guid;
+      obj.dupe = true;
       Clazz = require("tools/models/" + obj.name);
       return new Clazz(obj);
     };
@@ -1407,7 +1397,7 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
       this.cols = 0;
       this.grid = [];
       this.guids = {};
-      Mediator.subscribe('history:update', this.renderTool, this);
+      Mediator.subscribe('history:render', this.renderTool, this);
       return Mediator.subscribe('history:toggle', this.toggleHistory, this);
     };
 
@@ -1706,10 +1696,15 @@ window.require.define({"chaplin/views/NextSteps": function(exports, require, mod
     NextStepsView.prototype.getTemplateFunction = function() {};
 
     NextStepsView.prototype.add = function(slug, label) {
+      var suffix;
       assert(this.method, 'We do not know which linking `method` to use');
+      suffix = '';
+      if (this.method === 'continue') {
+        suffix = '/' + window.History.current;
+      }
       return $(this.el).append($('<li/>').append($('<a/>', {
         'text': label,
-        'href': "/tool/" + slug + "/" + this.method
+        'href': "/tool/" + slug + "/" + this.method + suffix
       })));
     };
 
@@ -1972,7 +1967,7 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
           'html': '&nbsp;'
         }));
       }
-      if (this.model.get('locked') != null) {
+      if (this.model.get('dupe') != null) {
         this.updateTime($(this.el).find('em.ago'));
       }
       return this;

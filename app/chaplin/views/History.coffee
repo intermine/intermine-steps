@@ -30,7 +30,7 @@ module.exports = class HistoryView extends View
         @guids = {}
 
         # Add a step to the history, we need to resolve its position in the grid.
-        Mediator.subscribe 'history:update', @renderTool, @
+        Mediator.subscribe 'history:render', @renderTool, @
 
         # Toggle the view.
         Mediator.subscribe 'history:toggle', @toggleHistory, @
