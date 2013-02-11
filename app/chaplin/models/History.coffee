@@ -25,9 +25,7 @@ module.exports = class History extends Chaplin.Collection
     resetCurrent: => @current = null
 
     # Get the Model @ current state.
-    getCurrent: ->
-        assert @current, "Do not have a `current` object in a History collection"
-        (@where({ 'guid': @current })).pop()
+    getCurrent: -> (@where({ 'guid': @current })).pop()
 
     # Set current step.
     setCurrent: (@current) =>
