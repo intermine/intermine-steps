@@ -14,7 +14,7 @@ Registry = require 'tools/Registry'
 # The application object.
 module.exports = class InterMineSteps extends Chaplin.Application
 
-    title: 'Staða'
+    title: 'InterMine Steps'
 
     initialize: ->
         super

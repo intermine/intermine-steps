@@ -8,7 +8,7 @@ send     = require 'send'
 history = []
 
 # Export for Brunch.
-exports.startServer = (port, dir) ->
+exports.startServer = (port, dir='public') ->
     app = flatiron.app
     app.use flatiron.plugins.http,
         'before': [
