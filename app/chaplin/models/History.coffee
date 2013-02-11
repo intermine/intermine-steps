@@ -32,7 +32,11 @@ module.exports = class History extends Chaplin.Collection
         if model.get('dupe')?
             # Change the window location. Not great as router did not know about this.
             # window.history.pushState {}, 'Staða', "/tool/#{model.get('slug')}/continue"
-            # window.App.router.changeURL "/tool/#{model.get('slug')}/continue"
+            # Do we have parent?
+            if parent = model.get('parent')
+                window.App.router.changeURL "/tool/#{model.get('slug')}/continue/#{parent}"
+            else
+                window.App.router.changeURL "/tool/#{model.get('slug')}/new"
         else
             # Otherwise set the current uid as the parent.
             if @current then model.set 'parent', @current

@@ -703,9 +703,13 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
     };
 
     History.prototype.addTool = function(model) {
-      var guid, notfound;
+      var guid, notfound, parent;
       if (model.get('dupe') != null) {
-
+        if (parent = model.get('parent')) {
+          window.App.router.changeURL("/tool/" + (model.get('slug')) + "/continue/" + parent);
+        } else {
+          window.App.router.changeURL("/tool/" + (model.get('slug')) + "/new");
+        }
       } else {
         if (this.current) {
           model.set('parent', this.current);
