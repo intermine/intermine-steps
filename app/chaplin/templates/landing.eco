@@ -50,7 +50,7 @@
                 <ul class="pricing-table">
                     <li class="title">Working on next &hellip;</li>
                     <li class="bullet-item">Latest breadcrumbs in all tabs</li>
-                    <li class="bullet-item">Tool registry having a category and weight concept</li>
+                    <li class="bullet-item">Tool registry having a label "weight" concept</li>
                     <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>
                 </ul>
             </div>
