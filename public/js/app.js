@@ -479,11 +479,15 @@ window.require.define({"chaplin/core/LocalStorage": function(exports, require, m
   module.exports = LocalStorage = (function() {
 
     function LocalStorage(name) {
-      var item;
       this.name = name;
-      item = window.localStorage.getItem(this.name);
-      this.keys = (item && item.split(',')) || [];
+      this.refreshKeys();
     }
+
+    LocalStorage.prototype.refreshKeys = function() {
+      var item;
+      item = window.localStorage.getItem(this.name);
+      return this.keys = (item && item.split(',')) || [];
+    };
 
     LocalStorage.prototype.reset = function() {
       var key, _i, _len, _ref;
@@ -519,6 +523,7 @@ window.require.define({"chaplin/core/LocalStorage": function(exports, require, m
 
     LocalStorage.prototype.findAll = function() {
       var key, _i, _len, _ref, _results;
+      this.refreshKeys();
       _ref = this.keys;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {

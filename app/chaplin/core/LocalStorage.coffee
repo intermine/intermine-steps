@@ -2,9 +2,12 @@
 module.exports = class LocalStorage
 
     # Name of the store.
-    constructor: (@name) ->
+    constructor: (@name) -> @refreshKeys()
+
+    # Get the latest set of keys from LocalStorage.
+    refreshKeys: ->
         item = window.localStorage.getItem @name
-        @keys = (item and item.split(',')) or []
+        @keys = (item and item.split(',')) or []        
 
     # Destroy all entries.
     reset: ->
@@ -39,4 +42,6 @@ module.exports = class LocalStorage
         @save()
 
     # Return all items.
-    findAll: -> ( JSON.parse(window.localStorage.getItem(@name + '-' + key)) for key in @keys )
+    findAll: ->
+        @refreshKeys()
+        ( JSON.parse(window.localStorage.getItem(@name + '-' + key)) for key in @keys )
