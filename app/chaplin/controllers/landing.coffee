@@ -8,3 +8,4 @@ module.exports = class LandingController extends Controller
 
     index: (params) ->
         @views.push new LandingView()
+        @adjustTitle 'Welcome'

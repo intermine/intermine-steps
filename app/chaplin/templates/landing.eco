@@ -32,6 +32,26 @@
                     <a class="button" id="reset">Reset Database</a>
                 </div>
             </div>
+            <div class="six columns">
+                <ul class="pricing-table">
+                    <li class="title">What it does now</li>
+                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>
+                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>
+                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>
+                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>
+                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>
+                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>
+                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>
+                </ul>
+            </div>
+            <div class="six columns">
+                <ul class="pricing-table">
+                    <li class="title">Working on next &hellip;</li>
+                    <li class="bullet-item">Latest breadcrumbs in all tabs</li>
+                    <li class="bullet-item">Tool registry having a category and weight concept</li>
+                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>
+                </ul>
+            </div>
         </div>
     </section>
 </div>
