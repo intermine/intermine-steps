@@ -23,9 +23,6 @@ module.exports = class ToolsController extends Controller
         @views.push new ModalView()
 
     new: ({ slug }) ->
-        # Reset current step.
-        Mediator.publish 'history:reset'
-
         @_chrome()
 
         # Convert to PascalCase.
@@ -63,6 +60,9 @@ module.exports = class ToolsController extends Controller
             window.App.router.route '/error/404', { 'changeURL': false }
             assert false, 'No previous step'
 
+        # Set the parent on us.
+        model.set 'parent': guid
+
         # Render the View.
         @views.push new Clazz 'model': model, 'previous': previous.toJSON()
 
@@ -70,9 +70,6 @@ module.exports = class ToolsController extends Controller
         @adjustTitle model.get 'title'
 
     old: ({ slug, guid }) ->
-        # Reset current step.
-        Mediator.publish 'history:reset'
-
         # Find the model in question.
         [ model ] = @collection.where 'slug': slug, 'guid': guid
         unless model

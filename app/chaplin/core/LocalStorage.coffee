@@ -7,7 +7,7 @@ module.exports = class LocalStorage
     # Get the latest set of keys from LocalStorage.
     refreshKeys: ->
         item = window.localStorage.getItem @name
-        @keys = (item and item.split(',')) or []        
+        @keys = (item and item.split(',')) or []
 
     # Destroy all entries.
     reset: ->

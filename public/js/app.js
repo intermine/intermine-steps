@@ -184,7 +184,6 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
     ToolsController.prototype["new"] = function(_arg) {
       var Clazz, model, name, slug;
       slug = _arg.slug;
-      Mediator.publish('history:reset');
       this._chrome();
       name = window.Utils.hyphenToPascal(slug);
       Clazz = require("tools/models/" + name);
@@ -213,6 +212,9 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
         });
         assert(false, 'No previous step');
       }
+      model.set({
+        'parent': guid
+      });
       this.views.push(new Clazz({
         'model': model,
         'previous': previous.toJSON()
@@ -223,7 +225,6 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
     ToolsController.prototype.old = function(_arg) {
       var Clazz, guid, model, slug;
       slug = _arg.slug, guid = _arg.guid;
-      Mediator.publish('history:reset');
       model = this.collection.where({
         'slug': slug,
         'guid': guid
@@ -714,10 +715,6 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
     function History() {
       this.addTool = __bind(this.addTool, this);
 
-      this.setCurrent = __bind(this.setCurrent, this);
-
-      this.resetCurrent = __bind(this.resetCurrent, this);
-
       this.checkStorage = __bind(this.checkStorage, this);
       return History.__super__.constructor.apply(this, arguments);
     }
@@ -729,9 +726,7 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
     History.prototype.initialize = function() {
       History.__super__.initialize.apply(this, arguments);
       this.storage = new LocalStorage('Steps');
-      Mediator.subscribe('history:add', this.addTool, this);
-      Mediator.subscribe('history:activate', this.setCurrent, this);
-      return Mediator.subscribe('history:reset', this.resetCurrent, this);
+      return Mediator.subscribe('history:add', this.addTool, this);
     };
 
     History.prototype.bootup = function(cb) {
@@ -784,14 +779,6 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
       return this.timeouts.push(setTimeout(this.checkStorage, 1000));
     };
 
-    History.prototype.resetCurrent = function(current) {
-      this.current = current != null ? current : null;
-    };
-
-    History.prototype.setCurrent = function(current) {
-      this.current = current;
-    };
-
     History.prototype.addTool = function(model) {
       var guid, notfound, parent;
       if (model.get('locked') != null) {
@@ -799,10 +786,6 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
           window.App.router.changeURL("/tool/" + (model.get('slug')) + "/continue/" + parent);
         } else {
           window.App.router.changeURL("/tool/" + (model.get('slug')) + "/new");
-        }
-      } else {
-        if (this.current) {
-          model.set('parent', this.current);
         }
       }
       model.set('created', new Date());
@@ -1920,10 +1903,12 @@ window.require.define({"chaplin/views/Modal": function(exports, require, module)
 }});
 
 window.require.define({"chaplin/views/NextSteps": function(exports, require, module) {
-  var NextStepsView, View,
+  var Mediator, NextStepsView, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
 
   View = require('chaplin/core/View');
 
@@ -1933,6 +1918,8 @@ window.require.define({"chaplin/views/NextSteps": function(exports, require, mod
 
     function NextStepsView() {
       this.add = __bind(this.add, this);
+
+      this.activate = __bind(this.activate, this);
       return NextStepsView.__super__.constructor.apply(this, arguments);
     }
 
@@ -1944,12 +1931,21 @@ window.require.define({"chaplin/views/NextSteps": function(exports, require, mod
 
     NextStepsView.prototype.getTemplateFunction = function() {};
 
+    NextStepsView.prototype.initialize = function() {
+      NextStepsView.__super__.initialize.apply(this, arguments);
+      return Mediator.subscribe('history:activate', this.activate, this);
+    };
+
+    NextStepsView.prototype.activate = function(current) {
+      this.current = current;
+    };
+
     NextStepsView.prototype.add = function(slug, label) {
       var suffix;
       assert(this.method, 'We do not know which linking `method` to use');
       suffix = '';
       if (this.method === 'continue') {
-        suffix = '/' + window.History.current;
+        suffix = "/" + this.current;
       }
       return $(this.el).append($('<li/>').append($('<a/>', {
         'text': label,

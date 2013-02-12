@@ -18,10 +18,6 @@ module.exports = class History extends Collection
 
         # Add a user's model to our collection.
         Mediator.subscribe 'history:add', @addTool, @
-        # Make sure that we have a globally accessible current step.
-        Mediator.subscribe 'history:activate', @setCurrent, @
-        # New step in history.
-        Mediator.subscribe 'history:reset', @resetCurrent, @
 
     # The initial fetch either from LocalStorage or, if empty, from the server.
     bootup: (cb) ->
@@ -64,12 +60,6 @@ module.exports = class History extends Collection
         # Check again later on.
         @timeouts.push setTimeout @checkStorage, 1000
 
-    # Reset the current tool when we start anew.
-    resetCurrent: (@current = null) =>
-
-    # Make sure we store the current step guid on a global object.
-    setCurrent: (@current) =>
-
     # Add a tool to our collection (following a user action).
     addTool: (model) =>
         # Is this model locked?
@@ -81,9 +71,6 @@ module.exports = class History extends Collection
                 window.App.router.changeURL "/tool/#{model.get('slug')}/continue/#{parent}"
             else
                 window.App.router.changeURL "/tool/#{model.get('slug')}/new"
-        else
-            # Otherwise set the current uid as the parent.
-            if @current then model.set 'parent', @current
 
         # Set the creation time.
         model.set 'created', new Date()
