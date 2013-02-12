@@ -350,6 +350,46 @@ window.require.define({"chaplin/core/AssertException": function(exports, require
   
 }});
 
+window.require.define({"chaplin/core/Collection": function(exports, require, module) {
+  var Chaplin, Collection, Mediator,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Chaplin = require('chaplin');
+
+  Mediator = require('chaplin/core/Mediator');
+
+  module.exports = Collection = (function(_super) {
+
+    __extends(Collection, _super);
+
+    function Collection() {
+      return Collection.__super__.constructor.apply(this, arguments);
+    }
+
+    Collection.prototype.initialize = function() {
+      Collection.__super__.initialize.apply(this, arguments);
+      this.timeouts = [];
+      return this;
+    };
+
+    Collection.prototype.dispose = function() {
+      var t, _i, _len, _ref;
+      _ref = this.timeouts;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        t = _ref[_i];
+        clearTimeout(t);
+      }
+      Mediator.unsubscribe(null, null, this);
+      return Collection.__super__.dispose.apply(this, arguments);
+    };
+
+    return Collection;
+
+  })(Chaplin.Collection);
+  
+}});
+
 window.require.define({"chaplin/core/Console": function(exports, require, module) {
   
   this.console = this.console || {
@@ -596,6 +636,7 @@ window.require.define({"chaplin/core/View": function(exports, require, module) {
     View.prototype.initialize = function() {
       View.__super__.initialize.apply(this, arguments);
       this.views = [];
+      this.timeouts = [];
       return this;
     };
 
@@ -605,13 +646,18 @@ window.require.define({"chaplin/core/View": function(exports, require, module) {
     };
 
     View.prototype.dispose = function() {
-      var v, _i, _len, _ref;
+      var t, v, _i, _j, _len, _len1, _ref, _ref1;
       _ref = this.views;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         v = _ref[_i];
         if (v != null) {
           v.dispose();
         }
+      }
+      _ref1 = this.timeouts;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        t = _ref1[_j];
+        clearTimeout(t);
       }
       Mediator.unsubscribe(null, null, this);
       return View.__super__.dispose.apply(this, arguments);
@@ -643,12 +689,12 @@ window.require.define({"chaplin/initialize": function(exports, require, module) 
 }});
 
 window.require.define({"chaplin/models/History": function(exports, require, module) {
-  var Chaplin, History, LocalStorage, Mediator, Tool,
+  var Collection, History, LocalStorage, Mediator, Tool,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Chaplin = require('chaplin');
+  Collection = require('chaplin/core/Collection');
 
   Mediator = require('chaplin/core/Mediator');
 
@@ -666,6 +712,8 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
       this.setCurrent = __bind(this.setCurrent, this);
 
       this.resetCurrent = __bind(this.resetCurrent, this);
+
+      this.checkStorage = __bind(this.checkStorage, this);
       return History.__super__.constructor.apply(this, arguments);
     }
 
@@ -682,7 +730,7 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
     };
 
     History.prototype.bootup = function(cb) {
-      var data, model, _i, _len,
+      var data, obj, _i, _len,
         _this = this;
       data = this.storage.findAll();
       if (data.length === 0) {
@@ -694,16 +742,41 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
             coll.each(function(model) {
               return _this.storage.add(model.toJSON());
             });
+            _this.checkStorage();
             return cb(coll);
           }
         });
       } else {
         for (_i = 0, _len = data.length; _i < _len; _i++) {
-          model = data[_i];
-          this.add(model);
+          obj = data[_i];
+          this.add(obj);
         }
+        this.checkStorage();
         return cb(this);
       }
+    };
+
+    History.prototype.checkStorage = function() {
+      var guid, obj, _i, _len, _ref;
+      _ref = this.storage.findAll();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        obj = _ref[_i];
+        guid = obj.guid;
+        assert(guid, 'LocalStorage object has no `guid`');
+        switch (this.where({
+              'guid': guid
+            }).length) {
+          case 0:
+            console.log("Adding `" + guid + "`");
+            this.add(obj);
+            break;
+          case 1:
+            break;
+          default:
+            assert(false, 'Cannot have more than 1 object with the same `guid`');
+        }
+      }
+      return this.timeouts.push(setTimeout(this.checkStorage, 1000));
     };
 
     History.prototype.resetCurrent = function(current) {
@@ -764,7 +837,7 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
 
     return History;
 
-  })(Chaplin.Collection);
+  })(Collection);
   
 }});
 
@@ -1060,7 +1133,7 @@ window.require.define({"chaplin/templates/landing": function(exports, require, m
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2>Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2>Popular Steps</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <h2>Help</h2>\n                <ul>\n                    <li>Et iusto odio dignissimos</li>\n                    <li>Ducimus qui blanditiis</li>\n                    <li>Praesentium voluptatum deleniti</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2>Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2>Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1451,6 +1524,8 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
       this.resetTable = __bind(this.resetTable, this);
 
       this.toggleHistory = __bind(this.toggleHistory, this);
+
+      this.checkCollection = __bind(this.checkCollection, this);
       return HistoryView.__super__.constructor.apply(this, arguments);
     }
 
@@ -1485,9 +1560,21 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
         return _this.tools.css('height', ($(window).height() * .5) - 67);
       })();
       $(window).resize(height);
-      this.collection.each(this.renderTool);
+      this.checkCollection();
       this.delegate('click', '#serialize', this.serializeHistory);
       return this;
+    };
+
+    HistoryView.prototype.checkCollection = function() {
+      var _this = this;
+      this.collection.each(function(model) {
+        var guid;
+        guid = model.get('guid');
+        if (!_this.guids[guid]) {
+          return _this.renderTool(model);
+        }
+      });
+      return this.timeouts.push(setTimeout(this.checkCollection, 1000));
     };
 
     HistoryView.prototype.toggleHistory = function() {
@@ -1706,7 +1793,16 @@ window.require.define({"chaplin/views/Landing": function(exports, require, modul
     LandingView.prototype.afterRender = function() {
       LandingView.__super__.afterRender.apply(this, arguments);
       this.views.push(new NextStepsLandingView());
+      this.delegate('click', '#reset', this.resetDatabase);
       return this;
+    };
+
+    LandingView.prototype.resetDatabase = function() {
+      var collection;
+      collection = window.History;
+      collection.storage.reset();
+      collection.reset();
+      return Backbone.sync('update', collection);
     };
 
     return LandingView;

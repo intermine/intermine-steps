@@ -43,6 +43,9 @@ a {
 label {
   cursor: default;
 }
+code {
+  font-size: 11px;
+}
 .row {
   width: auto;
   min-width: auto;
@@ -109,6 +112,7 @@ section#middle:after {
 }
 section#middle div#landing {
   width: 1000px;
+  margin-top: 20px;
 }
 section#middle div#landing h2 {
   font-size: 20px;
@@ -455,6 +459,5 @@ footer#bottom .wrap {
   overflow-y: auto;
 }
 #modal .code {
-  font-size: 11px;
   background: inherit;
 }

@@ -1,11 +1,10 @@
-Chaplin = require 'chaplin'
-
+Collection = require 'chaplin/core/Collection'
 Mediator = require 'chaplin/core/Mediator'
 LocalStorage = require 'chaplin/core/LocalStorage'
 
 Tool = require 'chaplin/models/Tool'
 
-module.exports = class History extends Chaplin.Collection
+module.exports = class History extends Collection
 
     'model': Tool
 
@@ -35,14 +34,35 @@ module.exports = class History extends Chaplin.Collection
                 'success': (coll, res) =>
                     # Save in LocalStorage.
                     coll.each (model) => @storage.add model.toJSON()
-
+                    # Start checking storage.
+                    @checkStorage()
                     # Callback.
                     cb coll
         else
             # Save the models on us then.
-            ( @add(model) for model in data )
+            ( @add(obj) for obj in data )
+            # Start checking storage.
+            @checkStorage()
             # Return us.
             cb @
+
+    # Monitor LocalStorage for changes, adding models to our Collection.
+    checkStorage: =>
+        # Get all objects from LocalStorage and check we have them all.
+        for obj in @storage.findAll()
+            guid = obj.guid
+            assert guid, 'LocalStorage object has no `guid`'
+
+            switch @where({ 'guid': guid }).length
+                when 0
+                    console.log "Adding `#{guid}`"
+                    @add obj
+                when 1
+                else
+                    assert false, 'Cannot have more than 1 object with the same `guid`'
+
+        # Check again later on.
+        @timeouts.push setTimeout @checkStorage, 1000
 
     # Reset the current tool when we start anew.
     resetCurrent: (@current = null) =>

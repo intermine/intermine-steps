@@ -49,13 +49,22 @@ module.exports = class HistoryView extends View
         # On window resize, update height again.
         $(window).resize height
 
-        # Add any tools if they exist.
-        @collection.each @renderTool
+        # Start checking for tools to add.
+        @checkCollection()
 
         # Capture serialization requests.
         @delegate 'click', '#serialize', @serializeHistory
 
         @
+
+    # Check for models in Collection.
+    checkCollection: =>
+        @collection.each (model) =>
+            guid = model.get('guid')
+            # Do we have this guid?
+            unless @guids[guid] then @renderTool model
+        # Check again later on.
+        @timeouts.push setTimeout @checkCollection, 1000
 
     # Toggle the view.
     toggleHistory: =>

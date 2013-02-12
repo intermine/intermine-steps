@@ -16,7 +16,7 @@
                 <div id="next"></div>
             </div>
             <div class="four columns">
-                <h2>Popular Steps</h2>
+                <h2>Help</h2>
                 <ul>
                     <li>Lorem ipsum dolor</li>
                     <li>Sed ut perspiciatis</li>
@@ -24,12 +24,13 @@
                 </ul>
             </div>
             <div class="four columns">
-                <h2>Help</h2>
-                <ul>
-                    <li>Et iusto odio dignissimos</li>
-                    <li>Ducimus qui blanditiis</li>
-                    <li>Praesentium voluptatum deleniti</li>
-                </ul>
+                <div class="panel">
+                    <h5>System Actions</h5>
+                    <p>Use the following action to clear
+                        <code>Backbone.js Collection</code> and associated
+                        <code>LocalStorage</code>:</p>
+                    <a class="button" id="reset">Reset Database</a>
+                </div>
             </div>
         </div>
     </section>
