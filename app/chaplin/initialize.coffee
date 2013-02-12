@@ -5,10 +5,9 @@ root = this
 
 $ ->
     # Init history.
-    (new History()).fetch
-        'error': (coll, res) -> assert false, response
-        'success': (coll, res) ->
-            root.History = coll
-            # Start the app.
-            root.App = new InterMineSteps()
-            root.App.initialize()
+    (new History()).bootup (collection) ->
+        # Make globally available.
+        root.History = collection
+        # Start the app.
+        root.App = new InterMineSteps()
+        root.App.initialize()

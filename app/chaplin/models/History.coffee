@@ -1,6 +1,7 @@
 Chaplin = require 'chaplin'
 
 Mediator = require 'chaplin/core/Mediator'
+LocalStorage = require 'chaplin/core/LocalStorage'
 
 Tool = require 'chaplin/models/Tool'
 
@@ -13,12 +14,35 @@ module.exports = class History extends Chaplin.Collection
     initialize: ->
         super
 
+        # Associate a LocalStorage collection with us.
+        @storage = new LocalStorage 'Steps'
+
         # Add a user's model to our collection.
         Mediator.subscribe 'history:add', @addTool, @
         # Make sure that we have a globally accessible current step.
         Mediator.subscribe 'history:activate', @setCurrent, @
         # New step in history.
         Mediator.subscribe 'history:reset', @resetCurrent, @
+
+    # The initial fetch either from LocalStorage or, if empty, from the server.
+    bootup: (cb) ->
+        # Do we have data in LocalStorage?
+        data = @storage.findAll()
+        if data.length is 0
+            # Call Backbone then.
+            @fetch
+                'error': (coll, res) -> assert false, res.responseText
+                'success': (coll, res) =>
+                    # Save in LocalStorage.
+                    coll.each (model) => @storage.add model.toJSON()
+
+                    # Callback.
+                    cb coll
+        else
+            # Save the models on us then.
+            ( @add(model) for model in data )
+            # Return us.
+            cb @
 
     # Reset the current tool when we start anew.
     resetCurrent: (@current = null) =>
@@ -58,6 +82,9 @@ module.exports = class History extends Chaplin.Collection
 
         # Add to the collection.
         @add model
+        # Further, save this model into a LocalStorage collection.
+        @storage.add model.toJSON()
+
         # Say the View needs to update.
         Mediator.publish 'history:render', model
         # 'Activate' this model (will bolden the box in History).

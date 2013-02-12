@@ -452,7 +452,6 @@ footer#bottom .wrap {
   content: "\e762";
 }
 #modal .scroll {
-  height: 500px;
   overflow-y: auto;
 }
 #modal .code {

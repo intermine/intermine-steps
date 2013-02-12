@@ -96,7 +96,6 @@ window.require.define({"chaplin/controllers/error": function(exports, require, m
     };
 
     ErrorController.prototype[404] = function(params) {
-      console.log(params);
       return this.views.push(new ErrorView({
         'template': 404
       }));
@@ -259,8 +258,6 @@ window.require.define({"chaplin/core/Application": function(exports, require, mo
   Chaplin = require('chaplin');
 
   require('chaplin/core/AssertException');
-
-  require('chaplin/core/LocalStorage');
 
   require('chaplin/core/Console');
 
@@ -436,10 +433,10 @@ window.require.define({"chaplin/core/Layout": function(exports, require, module)
 }});
 
 window.require.define({"chaplin/core/LocalStorage": function(exports, require, module) {
-  var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var LocalStorage,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  window.LocalStorage = (function() {
-    var S4, guid;
+  module.exports = LocalStorage = (function() {
 
     function LocalStorage(name) {
       var item;
@@ -461,12 +458,9 @@ window.require.define({"chaplin/core/LocalStorage": function(exports, require, m
 
     LocalStorage.prototype.add = function(model) {
       var key;
-      if (!model.id) {
-        model.id = guid();
-        model.set(model.idAttribute, model.id);
-      }
-      window.localStorage.setItem(this.name + '-' + model.id, JSON.stringify(model));
-      key = model.id.toString();
+      assert(model.guid, 'Model `guid` not provided');
+      window.localStorage.setItem(this.name + '-' + model.guid, JSON.stringify(model));
+      key = model.guid.toString();
       if (__indexOf.call(this.keys, key) < 0) {
         this.keys.push(key);
       }
@@ -478,8 +472,8 @@ window.require.define({"chaplin/core/LocalStorage": function(exports, require, m
     };
 
     LocalStorage.prototype.remove = function(model) {
-      window.localStorage.removeItem(this.name + '-' + model.id);
-      this.keys.splice(this.keys.indexOf(model.id), 1);
+      window.localStorage.removeItem(this.name + '-' + model.guid);
+      this.keys.splice(this.keys.indexOf(model.guid), 1);
       return this.save();
     };
 
@@ -492,14 +486,6 @@ window.require.define({"chaplin/core/LocalStorage": function(exports, require, m
         _results.push(JSON.parse(window.localStorage.getItem(this.name + '-' + key)));
       }
       return _results;
-    };
-
-    S4 = function() {
-      return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    };
-
-    guid = function() {
-      return [S4(), S4(), '-', S4(), '-', S4(), '-', S4(), '-', S4(), S4(), S4()].join('');
     };
 
     return LocalStorage;
@@ -647,22 +633,17 @@ window.require.define({"chaplin/initialize": function(exports, require, module) 
   root = this;
 
   $(function() {
-    return (new History()).fetch({
-      'error': function(coll, res) {
-        return assert(false, response);
-      },
-      'success': function(coll, res) {
-        root.History = coll;
-        root.App = new InterMineSteps();
-        return root.App.initialize();
-      }
+    return (new History()).bootup(function(collection) {
+      root.History = collection;
+      root.App = new InterMineSteps();
+      return root.App.initialize();
     });
   });
   
 }});
 
 window.require.define({"chaplin/models/History": function(exports, require, module) {
-  var Chaplin, History, Mediator, Tool,
+  var Chaplin, History, LocalStorage, Mediator, Tool,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -670,6 +651,8 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
   Chaplin = require('chaplin');
 
   Mediator = require('chaplin/core/Mediator');
+
+  LocalStorage = require('chaplin/core/LocalStorage');
 
   Tool = require('chaplin/models/Tool');
 
@@ -692,9 +675,35 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
 
     History.prototype.initialize = function() {
       History.__super__.initialize.apply(this, arguments);
+      this.storage = new LocalStorage('Steps');
       Mediator.subscribe('history:add', this.addTool, this);
       Mediator.subscribe('history:activate', this.setCurrent, this);
       return Mediator.subscribe('history:reset', this.resetCurrent, this);
+    };
+
+    History.prototype.bootup = function(cb) {
+      var data, model, _i, _len,
+        _this = this;
+      data = this.storage.findAll();
+      if (data.length === 0) {
+        return this.fetch({
+          'error': function(coll, res) {
+            return assert(false, res.responseText);
+          },
+          'success': function(coll, res) {
+            coll.each(function(model) {
+              return _this.storage.add(model.toJSON());
+            });
+            return cb(coll);
+          }
+        });
+      } else {
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          model = data[_i];
+          this.add(model);
+        }
+        return cb(this);
+      }
     };
 
     History.prototype.resetCurrent = function(current) {
@@ -735,6 +744,7 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
         'locked': true
       });
       this.add(model);
+      this.storage.add(model.toJSON());
       Mediator.publish('history:render', model);
       Mediator.publish('history:activate', guid);
       return Backbone.sync('update', this);

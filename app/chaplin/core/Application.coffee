@@ -1,7 +1,6 @@
 Chaplin = require 'chaplin'
 
 require 'chaplin/core/AssertException' # assertions
-require 'chaplin/core/LocalStorage'    # storage
 require 'chaplin/core/Console'         # console
 require 'chaplin/core/Utils'           # utilities
 

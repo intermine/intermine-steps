@@ -1,5 +1,5 @@
 # A Class for saving to localStorage.
-class window.LocalStorage
+module.exports = class LocalStorage
 
     # Name of the store.
     constructor: (@name) ->
@@ -17,15 +17,13 @@ class window.LocalStorage
 
     # Add a Model.
     add: (model) ->
-        # Need to generate an id?
-        unless model.id
-            model.id = guid()
-            model.set model.idAttribute, model.id
+        # Do we have guid on us?
+        assert model.guid, 'Model `guid` not provided'
 
         # Add to storage.
-        window.localStorage.setItem @name + '-' + model.id, JSON.stringify model
+        window.localStorage.setItem @name + '-' + model.guid, JSON.stringify model
         # Save the key.
-        key = model.id.toString()
+        key = model.guid.toString()
         @keys.push key unless key in @keys
         @save()
 
@@ -35,16 +33,10 @@ class window.LocalStorage
     # Remove the Model.
     remove: (model) ->
         # Object.
-        window.localStorage.removeItem @name + '-' + model.id
+        window.localStorage.removeItem @name + '-' + model.guid
         # Keys.
-        @keys.splice @keys.indexOf(model.id), 1
+        @keys.splice @keys.indexOf(model.guid), 1
         @save()
 
     # Return all items.
     findAll: -> ( JSON.parse(window.localStorage.getItem(@name + '-' + key)) for key in @keys )
-
-    # Generate four random hex digits.
-    S4 = -> (((1 + Math.random()) * 0x10000) | 0).toString(16).substring 1
-
-    # Generate a pseudo-GUID by concatenating random hexadecimal.
-    guid = -> [ S4(), S4(), '-', S4(), '-', S4(), '-', S4(), '-', S4(), S4(), S4() ].join('')
