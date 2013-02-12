@@ -309,11 +309,11 @@ window.require.define({"chaplin/core/Application": function(exports, require, mo
         map = Registry[key];
         _results.push((function(key, map) {
           return Mediator.subscribe("context:" + key, function() {
-            var label, slug, _i, _len, _ref, _results1;
+            var obj, _i, _len, _results1;
             _results1 = [];
             for (_i = 0, _len = map.length; _i < _len; _i++) {
-              _ref = map[_i], slug = _ref[0], label = _ref[1];
-              _results1.push(Mediator.publish("contextRender:" + key, slug, label));
+              obj = map[_i];
+              _results1.push(Mediator.publish("contextRender:" + key, obj));
             }
             return _results1;
           }, this);
@@ -1123,7 +1123,7 @@ window.require.define({"chaplin/templates/landing": function(exports, require, m
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2>Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2>Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Latest breadcrumbs in all tabs</li>\n                    <li class="bullet-item">Tool registry having a category and weight concept</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2>Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2>Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Latest breadcrumbs in all tabs</li>\n                    <li class="bullet-item">Tool registry having a category and weight concept</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1929,12 +1929,13 @@ window.require.define({"chaplin/views/NextSteps": function(exports, require, mod
 
     NextStepsView.prototype.autoRender = true;
 
-    NextStepsView.prototype.tagName = 'ul';
+    NextStepsView.prototype.tagName = 'div';
 
     NextStepsView.prototype.getTemplateFunction = function() {};
 
     NextStepsView.prototype.initialize = function() {
       NextStepsView.__super__.initialize.apply(this, arguments);
+      this.list = {};
       return Mediator.subscribe('history:activate', this.activate, this);
     };
 
@@ -1942,14 +1943,21 @@ window.require.define({"chaplin/views/NextSteps": function(exports, require, mod
       this.current = current;
     };
 
-    NextStepsView.prototype.add = function(slug, label) {
-      var suffix;
+    NextStepsView.prototype.add = function(_arg) {
+      var category, label, slug, suffix;
+      slug = _arg.slug, label = _arg.label, category = _arg.category;
       assert(this.method, 'We do not know which linking `method` to use');
       suffix = '';
       if (this.method === 'continue') {
         suffix = "/" + this.current;
       }
-      return $(this.el).append($('<li/>').append($('<a/>', {
+      if (!this.list[category]) {
+        $(this.el).append($('<h4/>', {
+          'text': category
+        }));
+        $(this.el).append(this.list[category] = $('<ul/>'));
+      }
+      return this.list[category].append($('<li/>').append($('<a/>', {
         'text': label,
         'href': "/tool/" + slug + "/" + this.method + suffix
       })));
@@ -2233,9 +2241,39 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
 window.require.define({"tools/Registry": function(exports, require, module) {
   
   module.exports = {
-    'i:onHomepage': [['upload-list-tool', 'Start by uploading a list'], ['enrich-list-tool', 'Start by enriching an existing list']],
-    'i:onLeft': [['upload-list-tool', 'Upload a new list'], ['enrich-list-tool', 'Enrich an existing list']],
-    'i:haveList': [['enrich-list-tool', 'Enrich this list'], ['results-table-tool', 'View this list in a table']]
+    'i:onHomepage': [
+      {
+        'slug': 'upload-list-tool',
+        'label': 'Start by uploading a list',
+        'category': 'Data loaders'
+      }, {
+        'slug': 'enrich-list-tool',
+        'label': 'Start by enriching an existing list',
+        'category': 'Enrichment'
+      }
+    ],
+    'i:onLeft': [
+      {
+        'slug': 'upload-list-tool',
+        'label': 'Upload a new list',
+        'category': 'Data loaders'
+      }, {
+        'slug': 'enrich-list-tool',
+        'label': 'Enrich an existing list',
+        'category': 'Enrichment'
+      }
+    ],
+    'i:haveList': [
+      {
+        'slug': 'enrich-list-tool',
+        'label': 'Enrich this list',
+        'category': 'Enrichment'
+      }, {
+        'slug': 'results-table-tool',
+        'label': 'View this list in a table',
+        'category': 'Visualization'
+      }
+    ]
   };
   
 }});

@@ -117,6 +117,10 @@ section#middle div#landing {
 section#middle div#landing h2 {
   font-size: 20px;
 }
+section#middle div#landing h4 {
+  font-size: 16px;
+  margin: 0;
+}
 section#middle div#landing ul {
   list-style-type: none;
 }
@@ -145,6 +149,10 @@ section#middle aside p {
 section#middle aside h3 {
   font-size: 16px;
   margin: 10px;
+}
+section#middle aside h4 {
+  font-size: 14px;
+  margin: 10px 10px 0 10px;
 }
 section#middle aside ul {
   list-style-type: none;

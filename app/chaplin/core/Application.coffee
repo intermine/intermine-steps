@@ -44,7 +44,7 @@ module.exports = class InterMineSteps extends Chaplin.Application
         for key, map of Registry then do (key, map) ->
             # This is what we have.
             Mediator.subscribe "context:#{key}", ->
-                for [ slug, label ] in map
+                for obj in map
                     # These guys might like this.
-                    Mediator.publish "contextRender:#{key}", slug, label
+                    Mediator.publish "contextRender:#{key}", obj
             , @

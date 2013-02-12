@@ -37,7 +37,9 @@
                     <li class="title">What it does now</li>
                     <li class="bullet-item">Concept of a tool consisting of multiple steps</li>
                     <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>
+                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>
                     <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>
+                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>
                     <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>
                     <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>
                     <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>
