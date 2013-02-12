@@ -52,6 +52,9 @@ module.exports = class HistoryView extends View
         # Add any tools if they exist.
         @collection.each @renderTool
 
+        # Capture serialization requests.
+        @delegate 'click', '#serialize', @serializeHistory
+
         @
 
     # Toggle the view.
@@ -181,3 +184,11 @@ module.exports = class HistoryView extends View
         # Update the height?
         if (b = parseInt(svg.attr('height'))) < a or !b
             svg.attr('height', a + 'px')
+
+    # Serialize History models into JSON and show in modal.
+    serializeHistory: ->
+        # Call the modal with a serialized History collection.
+        Mediator.publish 'modal:render',
+            'code':
+                'src': JSON.stringify(window.History.models, null, 4)
+                'lang': 'json'

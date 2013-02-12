@@ -140,7 +140,7 @@ window.require.define({"chaplin/controllers/landing": function(exports, require,
 }});
 
 window.require.define({"chaplin/controllers/tools": function(exports, require, module) {
-  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, RightSidebarView, ToolsController,
+  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, ModalView, RightSidebarView, ToolsController,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -155,6 +155,8 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
   RightSidebarView = require('chaplin/views/RightSidebar');
 
   HistoryView = require('chaplin/views/History');
+
+  ModalView = require('chaplin/views/Modal');
 
   module.exports = ToolsController = (function(_super) {
 
@@ -176,7 +178,8 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
         'collection': this.collection
       }));
       this.views.push(new LeftSidebarView());
-      return this.views.push(new RightSidebarView());
+      this.views.push(new RightSidebarView());
+      return this.views.push(new ModalView());
     };
 
     ToolsController.prototype["new"] = function(_arg) {
@@ -738,9 +741,13 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
     };
 
     History.prototype.dupe = function(model) {
-      var Clazz, obj;
+      var Clazz, key, obj, _i, _len, _ref;
       obj = model.toJSON();
-      delete obj.guid;
+      _ref = ['guid', 'created'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        key = _ref[_i];
+        delete obj[key];
+      }
       Clazz = require("tools/models/" + obj.name);
       return new Clazz(obj);
     };
@@ -864,7 +871,7 @@ window.require.define({"chaplin/templates/app": function(exports, require, modul
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <aside id="left"></aside>\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- show when we want to hide the app (but say not the history) -->\n<div id="whiteout"></div>\n\n<!-- tools used in the history -->\n<div id="history"></div>\n\n<!-- history toggler fixed to bottom -->\n<footer id="bottom">\n    <div class="wrap">\n        <a class="button" data-action="history-toggle">Show history</a>\n    </div>\n</footer>');
+        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <aside id="left"></aside>\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- show when we want to hide the app (but say not the history) -->\n<div id="whiteout"></div>\n\n<!-- tools used in the history -->\n<div id="history"></div>\n\n<!-- history toggler fixed to bottom -->\n<footer id="bottom">\n    <div class="wrap">\n        <a class="button" data-action="history-toggle">Show history</a>\n    </div>\n</footer>\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
       
       }).call(this);
       
@@ -992,7 +999,7 @@ window.require.define({"chaplin/templates/history": function(exports, require, m
     (function() {
       (function() {
       
-        __out.push('<div class="head">\n    <a class="button success">Save your Steps</a> <h1>History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
+        __out.push('<div class="head">\n    <a id="serialize" class="button success">Serialize</a> <h1>History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
       
       }).call(this);
       
@@ -1044,6 +1051,57 @@ window.require.define({"chaplin/templates/landing": function(exports, require, m
       (function() {
       
         __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2>Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2>Popular Steps</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <h2>Help</h2>\n                <ul>\n                    <li>Et iusto odio dignissimos</li>\n                    <li>Ducimus qui blanditiis</li>\n                    <li>Praesentium voluptatum deleniti</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+}});
+
+window.require.define({"chaplin/templates/modal": function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<h2 class="title"></h2>\n<div class="scroll">\n    <p class="text"></p>\n    <pre><code class="code"></code></pre>\n</div>\n<a class="close-reveal-modal">&#215;</a>');
       
       }).call(this);
       
@@ -1418,6 +1476,7 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
       })();
       $(window).resize(height);
       this.collection.each(this.renderTool);
+      this.delegate('click', '#serialize', this.serializeHistory);
       return this;
     };
 
@@ -1529,6 +1588,15 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
       if ((b = parseInt(svg.attr('height'))) < a || !b) {
         return svg.attr('height', a + 'px');
       }
+    };
+
+    HistoryView.prototype.serializeHistory = function() {
+      return Mediator.publish('modal:render', {
+        'code': {
+          'src': JSON.stringify(window.History.models, null, 4),
+          'lang': 'json'
+        }
+      });
     };
 
     return HistoryView;
@@ -1668,6 +1736,70 @@ window.require.define({"chaplin/views/LeftSidebar": function(exports, require, m
       LeftSidebarView.__super__.afterRender.apply(this, arguments);
       this.views.push(new NextStepsLeftView());
       return this;
+    };
+
+    return LeftSidebarView;
+
+  })(View);
+  
+}});
+
+window.require.define({"chaplin/views/Modal": function(exports, require, module) {
+  var LeftSidebarView, Mediator, View,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  View = require('chaplin/core/View');
+
+  module.exports = LeftSidebarView = (function(_super) {
+
+    __extends(LeftSidebarView, _super);
+
+    function LeftSidebarView() {
+      this.show = __bind(this.show, this);
+      return LeftSidebarView.__super__.constructor.apply(this, arguments);
+    }
+
+    LeftSidebarView.prototype.container = '#modal';
+
+    LeftSidebarView.prototype.containerMethod = 'html';
+
+    LeftSidebarView.prototype.autoRender = true;
+
+    LeftSidebarView.prototype.getTemplateFunction = function() {
+      return require('chaplin/templates/modal');
+    };
+
+    LeftSidebarView.prototype.initialize = function() {
+      LeftSidebarView.__super__.initialize.apply(this, arguments);
+      Mediator.subscribe('modal:render', this.show, this);
+      return this;
+    };
+
+    LeftSidebarView.prototype.afterRender = function() {
+      LeftSidebarView.__super__.afterRender.apply(this, arguments);
+      $(this.el).addClass('reveal-modal');
+      return this;
+    };
+
+    LeftSidebarView.prototype.show = function(_arg) {
+      var code, el, text, title;
+      title = _arg.title, text = _arg.text, code = _arg.code;
+      el = $(this.el);
+      if (title) {
+        el.find('.title').html(title);
+      }
+      if (code) {
+        el.find('.code').html(code.src).attr('data-language', code.lang);
+        Rainbow.color();
+      }
+      el.reveal();
+      return el.find('.scroll').css({
+        'height': $(window).height() / 2
+      });
     };
 
     return LeftSidebarView;

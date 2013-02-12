@@ -69,8 +69,8 @@ module.exports = class History extends Chaplin.Collection
     dupe: (model) ->
         # Get JSON repr.
         obj = model.toJSON()
-        # Delete our UID just to make sure.
-        delete obj.guid
+        # Delete our UID and creation time just to make sure.
+        ( delete obj[key] for key in [ 'guid', 'created' ] )
         # Require the Model.
         Clazz = require "tools/models/#{obj.name}"
         # Init the Model again.

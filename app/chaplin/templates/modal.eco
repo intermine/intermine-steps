@@ -1,0 +1,6 @@
+<h2 class="title"></h2>
+<div class="scroll">
+    <p class="text"></p>
+    <pre><code class="code"></code></pre>
+</div>
+<a class="close-reveal-modal">&#215;</a>
