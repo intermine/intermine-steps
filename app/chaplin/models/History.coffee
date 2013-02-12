@@ -29,7 +29,7 @@ module.exports = class History extends Chaplin.Collection
     # Add a tool to our collection (following a user action).
     addTool: (model) =>
         # Is this model locked?
-        if model.get('dupe')?
+        if model.get('locked')?
             # Change the window location. Not great as router did not know about this.
             # window.history.pushState {}, 'Staða', "/tool/#{model.get('slug')}/continue"
             # Do we have parent?
@@ -53,6 +53,9 @@ module.exports = class History extends Chaplin.Collection
         # Set our uid.
         model.set 'guid': guid
 
+        # It is now a "locked" object.
+        model.set 'locked': true
+
         # Add to the collection.
         @add model
         # Say the View needs to update.
@@ -68,8 +71,6 @@ module.exports = class History extends Chaplin.Collection
         obj = model.toJSON()
         # Delete our UID just to make sure.
         delete obj.guid
-        # Set dupe status.
-        obj.dupe = true
         # Require the Model.
         Clazz = require "tools/models/#{obj.name}"
         # Init the Model again.

@@ -704,7 +704,7 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
 
     History.prototype.addTool = function(model) {
       var guid, notfound, parent;
-      if (model.get('dupe') != null) {
+      if (model.get('locked') != null) {
         if (parent = model.get('parent')) {
           window.App.router.changeURL("/tool/" + (model.get('slug')) + "/continue/" + parent);
         } else {
@@ -728,6 +728,9 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
       model.set({
         'guid': guid
       });
+      model.set({
+        'locked': true
+      });
       this.add(model);
       Mediator.publish('history:render', model);
       Mediator.publish('history:activate', guid);
@@ -738,7 +741,6 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
       var Clazz, obj;
       obj = model.toJSON();
       delete obj.guid;
-      obj.dupe = true;
       Clazz = require("tools/models/" + obj.name);
       return new Clazz(obj);
     };
@@ -1971,7 +1973,7 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
           'html': '&nbsp;'
         }));
       }
-      if (this.model.get('dupe') != null) {
+      if (this.model.get('locked') != null) {
         this.updateTime($(this.el).find('em.ago'));
       }
       return this;
