@@ -89,16 +89,15 @@ module.exports = class History extends Collection
         # Further, save this model into a LocalStorage collection.
         @storage.add model.toJSON()
 
-        # Was this model locked?
-        if locked?
-            # Do we have parent?
-            if model.get('parent')
-                # window.App.router.changeURL "/tool/#{model.get('slug')}/continue/#{parent}"
-            else
-                # window.App.router.changeURL "/tool/#{model.get('slug')}/new"
-        else
-            # Give us the url of this saved tool.
-            @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': model.get('guid') }
+        # # Was this model locked and having a parent?
+        # if locked? and parent = model.get('parent')
+        #     # window.App.router.changeURL "/tool/#{model.get('slug')}/continue/#{parent}"
+        #     @controller.redirectToRoute 'cont', { 'slug': model.get('slug'), 'guid': parent }
+        # else
+        #     # Give us the url of this saved tool.
+        #     @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': guid }
+
+        @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': guid }
 
         # Say the View needs to update.
         # Mediator.publish 'history:render', model

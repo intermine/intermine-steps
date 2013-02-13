@@ -815,18 +815,10 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
       });
       this.add(model);
       this.storage.add(model.toJSON());
-      if (locked != null) {
-        if (model.get('parent')) {
-
-        } else {
-
-        }
-      } else {
-        return this.controller.redirectToRoute('old', {
-          'slug': model.get('slug'),
-          'guid': model.get('guid')
-        });
-      }
+      return this.controller.redirectToRoute('old', {
+        'slug': model.get('slug'),
+        'guid': guid
+      });
     };
 
     History.prototype.dupe = function(model) {
@@ -1908,6 +1900,9 @@ window.require.define({"chaplin/views/Modal": function(exports, require, module)
         el.find('.code').html(code.src).attr('data-language', code.lang);
         Rainbow.color();
       }
+      if (text) {
+        el.find('.text').html(text);
+      }
       el.reveal();
       return el.find('.scroll').css({
         'height': $(window).height() / 2
@@ -2424,8 +2419,27 @@ window.require.define({"tools/templates/EnrichListTool/step-1": function(exports
     }
     (function() {
       (function() {
+        var key, val, _ref;
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the list you want to enrich.</p>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Enrich this list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the list you want to enrich:</p>\n            <table>\n                <thead>\n                    <tr>\n                        <th></th>\n                        <th>List name</th>\n                        <th>Tags</th>\n                        <th>Size</th>\n                    </tr>\n                </thead>\n                <tbody>\n                ');
+      
+        _ref = this.lists;
+        for (key in _ref) {
+          val = _ref[key];
+          __out.push('\n                    <tr>\n                        <td style="text-align:center"><input type="checkbox" data-key="');
+          __out.push(__sanitize(key));
+          __out.push('" class="check" ');
+          if (val.selected) {
+            __out.push('checked="checked"');
+          }
+          __out.push(' /></td>\n                        <td>');
+          __out.push(__sanitize(val.name));
+          __out.push('</td>\n                        <td>\n                            <span class="secondary label">Random data</span>\n                        </td>\n                        <td>');
+          __out.push(__sanitize(val.items.length));
+          __out.push(' Item(s)</td>\n                    </tr>\n                ');
+        }
+      
+        __out.push('\n                </tbody>\n            </table>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Enrich the selected list</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -2477,9 +2491,13 @@ window.require.define({"tools/templates/EnrichListTool/step-2": function(exports
       (function() {
         var id, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="four columns">\n            <h2>Gene Enrichment</h2>\n            <p>A chart would be shown here for identifiers:</p>\n            <ul>\n                ');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="four columns">\n            <h2>Gene Enrichment</h2>\n            <p>A chart for list "');
       
-        _ref = this.data.list;
+        __out.push(__sanitize(this.data.list.name));
+      
+        __out.push('":</p>\n            <ul>\n                ');
+      
+        _ref = this.data.list.items;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           id = _ref[_i];
           __out.push('\n                    <li>');
@@ -2487,9 +2505,13 @@ window.require.define({"tools/templates/EnrichListTool/step-2": function(exports
           __out.push('</li>\n                ');
         }
       
-        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Publication Enrichment</h2>\n            <p>A chart would be shown here for identifiers:</p>\n            <ul>\n                ');
+        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Publication Enrichment</h2>\n            <p>A chart for list "');
       
-        _ref1 = this.data.list;
+        __out.push(__sanitize(this.data.list.name));
+      
+        __out.push('":</p>\n            <ul>\n                ');
+      
+        _ref1 = this.data.list.items;
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           id = _ref1[_j];
           __out.push('\n                    <li>');
@@ -2497,9 +2519,13 @@ window.require.define({"tools/templates/EnrichListTool/step-2": function(exports
           __out.push('</li>\n                ');
         }
       
-        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Protein Enrichment</h2>\n            <p>A chart would be shown here for identifiers:</p>\n            <ul>\n                ');
+        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Protein Enrichment</h2>\n            <p>A chart for list "');
       
-        _ref2 = this.data.list;
+        __out.push(__sanitize(this.data.list.name));
+      
+        __out.push('":</p>\n            <ul>\n                ');
+      
+        _ref2 = this.data.list.items;
         for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
           id = _ref2[_k];
           __out.push('\n                    <li>');
@@ -2701,6 +2727,7 @@ window.require.define({"tools/templates/UploadListTool/step-2": function(exports
 
 window.require.define({"tools/views/EnrichListTool": function(exports, require, module) {
   var EnrichListToolView, Mediator, ToolView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2713,34 +2740,94 @@ window.require.define({"tools/views/EnrichListTool": function(exports, require, 
     __extends(EnrichListToolView, _super);
 
     function EnrichListToolView() {
+      this.enrichList = __bind(this.enrichList, this);
+
+      this.selectList = __bind(this.selectList, this);
       return EnrichListToolView.__super__.constructor.apply(this, arguments);
     }
 
+    EnrichListToolView.prototype.lists = [
+      {
+        key: 'acme',
+        name: 'ACME/Herman Inc.',
+        items: ['Scott Golden', 'Ronan Buckley', 'Bevis Herman', 'Linus Melendez', 'Jameson Maddox']
+      }, {
+        key: 'caldwell',
+        name: 'The Caldwell Trust',
+        items: ['Caldwell Little', 'Hyatt Dudley', 'Herman Parks', 'Abdul Owens', 'Tyrone Banks']
+      }
+    ];
+
+    EnrichListToolView.prototype.getTemplateData = function() {
+      var found, l, list, _i, _len, _ref, _ref1;
+      switch (this.step) {
+        case 1:
+          list = (_ref = this.model.get('data')) != null ? _ref.list : void 0;
+          if (list) {
+            found = false;
+            _ref1 = this.lists;
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              l = _ref1[_i];
+              if (!found) {
+                if (l.key === list.key) {
+                  l.selected = true;
+                  found = true;
+                }
+              }
+            }
+            if (!found) {
+              list.selected = true;
+              this.lists.push(list);
+            }
+          }
+          return _.extend(EnrichListToolView.__super__.getTemplateData.apply(this, arguments), {
+            'lists': this.lists
+          });
+        default:
+          return EnrichListToolView.__super__.getTemplateData.apply(this, arguments);
+      }
+    };
+
     EnrichListToolView.prototype.afterRender = function() {
+      var list, _ref, _ref1, _ref2;
       EnrichListToolView.__super__.afterRender.apply(this, arguments);
       switch (this.step) {
         case 1:
-          if (this.options.previous && this.options.previous.data && this.options.previous.data.identifiers) {
-            this.setList(this.options.previous.data.identifiers);
+          list = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0;
+          if (list) {
+            this.selected = list;
+            this.enrichList();
           }
           break;
         case 2:
           assert(this.model.get('data'), 'List not provided');
       }
-      this.delegate('click', '#submit', function() {
-        return this.setList(['Random #1', 'Random #2']);
-      });
+      this.delegate('click', 'input.check', this.selectList);
+      this.delegate('click', '#submit', this.enrichList);
       return this;
     };
 
-    EnrichListToolView.prototype.setList = function(list) {
-      this.model.set({
-        'data': {
-          'list': list
-        }
-      });
-      Mediator.publish('history:add', this.model);
-      return Mediator.publish('tool:step', this.step += 1);
+    EnrichListToolView.prototype.selectList = function(e) {
+      $(this.el).find('table input.check').attr('checked', false);
+      this.selected = this.lists[$(e.target).attr('data-key')];
+      return $(e.target).attr('checked', true);
+    };
+
+    EnrichListToolView.prototype.enrichList = function() {
+      if (!this.selected) {
+        return Mediator.publish('modal:render', {
+          'title': 'Oops &hellip;',
+          'text': 'You have not selected any lists.'
+        });
+      } else {
+        this.model.set({
+          'data': {
+            'list': this.selected
+          }
+        });
+        Mediator.publish('history:add', this.model);
+        return Mediator.publish('tool:step', this.step += 1);
+      }
     };
 
     return EnrichListToolView;
@@ -2795,7 +2882,11 @@ window.require.define({"tools/views/UploadListTool": function(exports, require, 
       }
       this.delegate('click', '#submit', function() {
         this.model.set('data', {
-          'identifiers': this.getDOM().find('form textarea').val().split(' ')
+          'list': {
+            key: 'temp',
+            name: 'Just uploaded',
+            items: this.getDOM().find('form textarea').val().split(' ')
+          }
         });
         Mediator.publish('history:add', this.model);
         return Mediator.publish('tool:step', this.step += 1);

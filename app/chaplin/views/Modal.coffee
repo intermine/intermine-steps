@@ -34,6 +34,7 @@ module.exports = class LeftSidebarView extends View
         if code
             el.find('.code').html(code.src).attr('data-language', code.lang)
             Rainbow.color()
+        if text then el.find('.text').html(text)
 
         # Foundation Reveal.
         el.reveal()

@@ -40,11 +40,17 @@ li {
 a {
   cursor: pointer;
 }
+table {
+  width: 100%;
+}
 label {
   cursor: default;
 }
 code {
   font-size: 11px;
+}
+input[type="checkbox"] {
+  cursor: pointer;
 }
 .row {
   width: auto;
