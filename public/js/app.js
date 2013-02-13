@@ -109,11 +109,13 @@ window.require.define({"chaplin/controllers/error": function(exports, require, m
 }});
 
 window.require.define({"chaplin/controllers/landing": function(exports, require, module) {
-  var Controller, LandingController, LandingView,
+  var Controller, LandingController, LandingView, Mediator,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Controller = require('chaplin/core/Controller');
+
+  Mediator = require('chaplin/core/Mediator');
 
   LandingView = require('chaplin/views/Landing');
 
@@ -141,7 +143,7 @@ window.require.define({"chaplin/controllers/landing": function(exports, require,
 }});
 
 window.require.define({"chaplin/controllers/tools": function(exports, require, module) {
-  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, ModalView, RightSidebarView, ToolsController,
+  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, ModalView, RightSidebarView, ToolsController, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -159,6 +161,8 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
 
   ModalView = require('chaplin/views/Modal');
 
+  root = this;
+
   module.exports = ToolsController = (function(_super) {
 
     __extends(ToolsController, _super);
@@ -171,7 +175,7 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
       return '';
     };
 
-    ToolsController.prototype.collection = window.History;
+    ToolsController.prototype.collection = root.History;
 
     ToolsController.prototype._chrome = function() {
       this.views.push(new AppView());
@@ -187,7 +191,7 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
       var Clazz, model, name, slug;
       slug = _arg.slug;
       this._chrome();
-      name = window.Utils.hyphenToPascal(slug);
+      name = root.Utils.hyphenToPascal(slug);
       Clazz = require("tools/models/" + name);
       model = new Clazz();
       Clazz = require("tools/views/" + name);
@@ -201,7 +205,7 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
       var Clazz, guid, model, name, previous, slug;
       slug = _arg.slug, guid = _arg.guid;
       this._chrome();
-      name = window.Utils.hyphenToPascal(slug);
+      name = root.Utils.hyphenToPascal(slug);
       Clazz = require("tools/models/" + name);
       model = new Clazz();
       Clazz = require("tools/views/" + name);
@@ -209,9 +213,7 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
         'guid': guid
       })).pop();
       if (!previous) {
-        window.App.router.route('/error/404', {
-          'changeURL': false
-        });
+        this.redirectToRoute('error');
         assert(false, 'No previous step');
       }
       model.set({
@@ -232,9 +234,7 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
         'guid': guid
       })[0];
       if (!model) {
-        window.App.router.route('/error/404', {
-          'changeURL': false
-        });
+        this.redirectToRoute('error');
         assert(false, 'We do not have this Model in History');
       }
       this._chrome();
@@ -585,11 +585,21 @@ window.require.define({"chaplin/core/Mediator": function(exports, require, modul
 window.require.define({"chaplin/core/Routes": function(exports, require, module) {
   
   module.exports = function(match) {
-    match('', 'landing#index');
-    match('tool/:slug/new', 'tools#new');
-    match('tool/:slug/continue/:guid', 'tools#cont');
-    match('tool/:slug/id/:guid', 'tools#old');
-    return match('error/404', 'error#404');
+    match('', 'landing#index', {
+      name: 'landing'
+    });
+    match('tool/:slug/new', 'tools#new', {
+      name: 'new'
+    });
+    match('tool/:slug/continue/:guid', 'tools#cont', {
+      name: 'cont'
+    });
+    match('tool/:slug/id/:guid', 'tools#old', {
+      name: 'old'
+    });
+    return match('error/404', 'error#404', {
+      name: 'error'
+    });
   };
   
 }});
@@ -697,7 +707,7 @@ window.require.define({"chaplin/initialize": function(exports, require, module) 
 }});
 
 window.require.define({"chaplin/models/History": function(exports, require, module) {
-  var Collection, History, LocalStorage, Mediator, Tool,
+  var Collection, Controller, History, LocalStorage, Mediator, Tool,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -707,6 +717,8 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
   Mediator = require('chaplin/core/Mediator');
 
   LocalStorage = require('chaplin/core/LocalStorage');
+
+  Controller = require('chaplin/core/Controller');
 
   Tool = require('chaplin/models/Tool');
 
@@ -728,7 +740,8 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
     History.prototype.initialize = function() {
       History.__super__.initialize.apply(this, arguments);
       this.storage = new LocalStorage('Steps');
-      return Mediator.subscribe('history:add', this.addTool, this);
+      Mediator.subscribe('history:add', this.addTool, this);
+      return this.controller = new Controller();
     };
 
     History.prototype.bootup = function(cb) {
@@ -782,15 +795,7 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
     };
 
     History.prototype.addTool = function(model) {
-      var guid, notfound, parent;
-      if (model.get('locked') != null) {
-        if (parent = model.get('parent')) {
-          window.App.router.changeURL("/tool/" + (model.get('slug')) + "/continue/" + parent);
-        } else {
-          window.App.router.changeURL("/tool/" + (model.get('slug')) + "/new");
-        }
-      }
-      model.set('created', new Date());
+      var guid, locked, notfound;
       notfound = true;
       while (notfound) {
         guid = window.Utils.guid();
@@ -803,14 +808,25 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
       model.set({
         'guid': guid
       });
+      locked = model.get('locked');
+      model.set('created', new Date());
       model.set({
         'locked': true
       });
       this.add(model);
       this.storage.add(model.toJSON());
-      Mediator.publish('history:render', model);
-      Mediator.publish('history:activate', guid);
-      return Backbone.sync('update', this);
+      if (locked != null) {
+        if (model.get('parent')) {
+
+        } else {
+
+        }
+      } else {
+        return this.controller.redirectToRoute('old', {
+          'slug': model.get('slug'),
+          'guid': model.get('guid')
+        });
+      }
     };
 
     History.prototype.dupe = function(model) {

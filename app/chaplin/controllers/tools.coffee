@@ -8,11 +8,13 @@ RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
 ModalView = require 'chaplin/views/Modal'
 
+root = @
+
 module.exports = class ToolsController extends Controller
 
     historyURL: (params) -> ''
 
-    collection: window.History
+    collection: root.History
 
     # Init the chrome.
     _chrome: ->
@@ -26,7 +28,7 @@ module.exports = class ToolsController extends Controller
         @_chrome()
 
         # Convert to PascalCase.
-        name = window.Utils.hyphenToPascal slug
+        name = root.Utils.hyphenToPascal slug
 
         # Require the Model.
         Clazz = require "tools/models/#{name}"
@@ -45,7 +47,7 @@ module.exports = class ToolsController extends Controller
         @_chrome()
 
         # Convert to PascalCase.
-        name = window.Utils.hyphenToPascal slug
+        name = root.Utils.hyphenToPascal slug
 
         # Require the Model.
         Clazz = require "tools/models/#{name}"
@@ -57,7 +59,7 @@ module.exports = class ToolsController extends Controller
         previous = (@collection.where({ 'guid': guid })).pop()
         # Did we actually have a previous step?
         unless previous
-            window.App.router.route '/error/404', { 'changeURL': false }
+            @redirectToRoute 'error'
             assert false, 'No previous step'
 
         # Set the parent on us.
@@ -73,7 +75,7 @@ module.exports = class ToolsController extends Controller
         # Find the model in question.
         [ model ] = @collection.where 'slug': slug, 'guid': guid
         unless model
-            window.App.router.route '/error/404', { 'changeURL': false }
+            @redirectToRoute 'error'
             assert false, 'We do not have this Model in History'
 
         @_chrome()

@@ -1,4 +1,5 @@
 Controller = require 'chaplin/core/Controller'
+Mediator = require 'chaplin/core/Mediator'
 
 LandingView = require 'chaplin/views/Landing'
 

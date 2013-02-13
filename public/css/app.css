@@ -426,6 +426,7 @@ footer {
   left: 0;
 }
 footer#wide {
+  background: rgba(255,255,255,0.9);
   width: 100%;
 }
 footer#wide p {

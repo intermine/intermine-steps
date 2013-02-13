@@ -1,6 +1,7 @@
 Collection = require 'chaplin/core/Collection'
 Mediator = require 'chaplin/core/Mediator'
 LocalStorage = require 'chaplin/core/LocalStorage'
+Controller = require 'chaplin/core/Controller'
 
 Tool = require 'chaplin/models/Tool'
 
@@ -18,6 +19,9 @@ module.exports = class History extends Collection
 
         # Add a user's model to our collection.
         Mediator.subscribe 'history:add', @addTool, @
+
+        # Our own little controller for redirection purposes.
+        @controller = new Controller()
 
     # The initial fetch either from LocalStorage or, if empty, from the server.
     bootup: (cb) ->
@@ -62,19 +66,6 @@ module.exports = class History extends Collection
 
     # Add a tool to our collection (following a user action).
     addTool: (model) =>
-        # Is this model locked?
-        if model.get('locked')?
-            # Change the window location. Not great as router did not know about this.
-            # window.history.pushState {}, 'Staða', "/tool/#{model.get('slug')}/continue"
-            # Do we have parent?
-            if parent = model.get('parent')
-                window.App.router.changeURL "/tool/#{model.get('slug')}/continue/#{parent}"
-            else
-                window.App.router.changeURL "/tool/#{model.get('slug')}/new"
-
-        # Set the creation time.
-        model.set 'created', new Date()
-
         # Generate unused guid.
         notfound = true
         while notfound
@@ -84,6 +75,12 @@ module.exports = class History extends Collection
         # Set our uid.
         model.set 'guid': guid
 
+        # Was this model locked?
+        locked = model.get('locked')
+
+        # Set the creation time.
+        model.set 'created', new Date()
+
         # It is now a "locked" object.
         model.set 'locked': true
 
@@ -92,12 +89,23 @@ module.exports = class History extends Collection
         # Further, save this model into a LocalStorage collection.
         @storage.add model.toJSON()
 
+        # Was this model locked?
+        if locked?
+            # Do we have parent?
+            if model.get('parent')
+                # window.App.router.changeURL "/tool/#{model.get('slug')}/continue/#{parent}"
+            else
+                # window.App.router.changeURL "/tool/#{model.get('slug')}/new"
+        else
+            # Give us the url of this saved tool.
+            @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': model.get('guid') }
+
         # Say the View needs to update.
-        Mediator.publish 'history:render', model
+        # Mediator.publish 'history:render', model
         # 'Activate' this model (will bolden the box in History).
-        Mediator.publish 'history:activate', guid
+        # Mediator.publish 'history:activate', guid
         # Now do the sync.
-        Backbone.sync 'update', @
+        # Backbone.sync 'update', @
 
     # Duplicate a model.
     dupe: (model) ->
