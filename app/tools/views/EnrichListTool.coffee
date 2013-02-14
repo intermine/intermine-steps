@@ -2,20 +2,20 @@ Mediator = require 'chaplin/core/Mediator'
 
 ToolView = require 'chaplin/views/Tool'
 
-module.exports = class EnrichListToolView extends ToolView
+# Default lists to use, as if coming from the server.
+lists = [
+    {
+        key: 'acme'
+        name: 'ACME/Herman Inc.'
+        items: [ 'Scott Golden', 'Ronan Buckley', 'Bevis Herman', 'Linus Melendez', 'Jameson Maddox' ]
+    }, {
+        key: 'caldwell'
+        name: 'The Caldwell Trust'
+        items: [ 'Caldwell Little', 'Hyatt Dudley', 'Herman Parks', 'Abdul Owens', 'Tyrone Banks' ]
+    }
+]
 
-    # Lists as if coming from a server.
-    lists: [
-        {
-            key: 'acme'
-            name: 'ACME/Herman Inc.'
-            items: [ 'Scott Golden', 'Ronan Buckley', 'Bevis Herman', 'Linus Melendez', 'Jameson Maddox' ]
-        }, {
-            key: 'caldwell'
-            name: 'The Caldwell Trust'
-            items: [ 'Caldwell Little', 'Hyatt Dudley', 'Herman Parks', 'Abdul Owens', 'Tyrone Banks' ]
-        }
-    ]
+module.exports = class EnrichListToolView extends ToolView
 
     getTemplateData: ->
         switch @step
@@ -39,6 +39,12 @@ module.exports = class EnrichListToolView extends ToolView
                 _.extend super, 'lists': @lists
             else
                 super
+
+    initialize: ->
+        super
+
+        # Define properties on us.
+        @lists = @property lists
 
     afterRender: ->
         super

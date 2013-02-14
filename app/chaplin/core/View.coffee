@@ -33,3 +33,6 @@ module.exports = class View extends Chaplin.View
         Mediator.unsubscribe null, null, @
         
         super
+
+    # Set a property on us.
+    property: (data) -> JSON.parse JSON.stringify data

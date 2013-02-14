@@ -681,6 +681,10 @@ window.require.define({"chaplin/core/View": function(exports, require, module) {
       return View.__super__.dispose.apply(this, arguments);
     };
 
+    View.prototype.property = function(data) {
+      return JSON.parse(JSON.stringify(data));
+    };
+
     return View;
 
   })(Chaplin.View);
@@ -1539,7 +1543,6 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
 
     HistoryView.prototype.initialize = function() {
       HistoryView.__super__.initialize.apply(this, arguments);
-      this.views = [];
       this.rows = 0;
       this.cols = 0;
       this.grid = [];
@@ -2726,7 +2729,7 @@ window.require.define({"tools/templates/UploadListTool/step-2": function(exports
 }});
 
 window.require.define({"tools/views/EnrichListTool": function(exports, require, module) {
-  var EnrichListToolView, Mediator, ToolView,
+  var EnrichListToolView, Mediator, ToolView, lists,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2734,6 +2737,18 @@ window.require.define({"tools/views/EnrichListTool": function(exports, require, 
   Mediator = require('chaplin/core/Mediator');
 
   ToolView = require('chaplin/views/Tool');
+
+  lists = [
+    {
+      key: 'acme',
+      name: 'ACME/Herman Inc.',
+      items: ['Scott Golden', 'Ronan Buckley', 'Bevis Herman', 'Linus Melendez', 'Jameson Maddox']
+    }, {
+      key: 'caldwell',
+      name: 'The Caldwell Trust',
+      items: ['Caldwell Little', 'Hyatt Dudley', 'Herman Parks', 'Abdul Owens', 'Tyrone Banks']
+    }
+  ];
 
   module.exports = EnrichListToolView = (function(_super) {
 
@@ -2745,18 +2760,6 @@ window.require.define({"tools/views/EnrichListTool": function(exports, require, 
       this.selectList = __bind(this.selectList, this);
       return EnrichListToolView.__super__.constructor.apply(this, arguments);
     }
-
-    EnrichListToolView.prototype.lists = [
-      {
-        key: 'acme',
-        name: 'ACME/Herman Inc.',
-        items: ['Scott Golden', 'Ronan Buckley', 'Bevis Herman', 'Linus Melendez', 'Jameson Maddox']
-      }, {
-        key: 'caldwell',
-        name: 'The Caldwell Trust',
-        items: ['Caldwell Little', 'Hyatt Dudley', 'Herman Parks', 'Abdul Owens', 'Tyrone Banks']
-      }
-    ];
 
     EnrichListToolView.prototype.getTemplateData = function() {
       var found, l, list, _i, _len, _ref, _ref1;
@@ -2786,6 +2789,11 @@ window.require.define({"tools/views/EnrichListTool": function(exports, require, 
         default:
           return EnrichListToolView.__super__.getTemplateData.apply(this, arguments);
       }
+    };
+
+    EnrichListToolView.prototype.initialize = function() {
+      EnrichListToolView.__super__.initialize.apply(this, arguments);
+      return this.lists = this.property(lists);
     };
 
     EnrichListToolView.prototype.afterRender = function() {

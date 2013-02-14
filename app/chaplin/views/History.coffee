@@ -16,9 +16,6 @@ module.exports = class HistoryView extends View
     initialize: ->
         super
 
-        # Store all step Views here to garbage dump.
-        @views = []
-
         # Number of rows & columns we have in the table grid.
         @rows = 0
         @cols = 0
