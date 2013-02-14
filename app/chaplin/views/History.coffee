@@ -41,7 +41,7 @@ module.exports = class HistoryView extends View
         @tools = $(@el).find('#tools')
 
         # Set the height of the tools based on the height of the viewport.
-        do height = => @tools.css 'height', ($(window).height() * .5) - 67
+        do height = => @tools.css 'height', ($(window).height() * .5) - 79
 
         # On window resize, update height again.
         $(window).resize height

@@ -10,3 +10,6 @@
     # hyphen-notation to PascalCase.
     'hyphenToPascal': (text) ->
         ( x.charAt(0).toUpperCase() + x.slice(1) for x in text.split('-') ).join('')
+
+    # Array equality.
+    'arrayEql': (a, b) -> not (a < b or b < a)

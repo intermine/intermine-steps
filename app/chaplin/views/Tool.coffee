@@ -2,6 +2,7 @@ Mediator = require 'chaplin/core/Mediator'
 Tool = require 'chaplin/models/Tool'
 
 GenericToolView = require 'chaplin/views/GenericTool'
+CrumbView = require 'chaplin/views/Crumb'
 
 module.exports = class ToolView extends GenericToolView
 
@@ -22,6 +23,9 @@ module.exports = class ToolView extends GenericToolView
 
     initialize: ->
         super
+
+        # A list of breadcrumb ids we have rendered.
+        @crumbs = []
 
         # Do we have contexts for a tool?
         if @contexts
@@ -62,21 +66,26 @@ module.exports = class ToolView extends GenericToolView
         collection = window.History
 
         if collection.length isnt 0
-            # Clear any previous ones first.
-            (crumbs = $(@el).find('ul.breadcrumbs')).html('')
-            # Get the three Models before the last one.
-            for crumb in collection.models[-3...] then do (crumb) ->
-                # Show them.
-                crumbs.show()
-                # Add the list item.
-                li = $ '<li/>', 'class': 'entypo rightopen'
-                # Add the link.
-                li.append a = $ '<a/>', 'href': "/tool/#{crumb.get('slug')}/id/#{crumb.get('guid')}", 'text': crumb.get('title')
-                # Append it.
-                crumbs.append li
+            # Get the 3 Models before the last one (current one).
+            models = collection.models[-3...]
+            # Have we already rendered all 3 of them?
+            guids = ( model.get('guid') for model in models )
+            unless window.Utils.arrayEql @crumbs, guids
+                # Save for next time.
+                @crumbs = guids
+                # Clear any previous ones first.
+                crumbs = $(@el).find('ul.breadcrumbs')
+                ( v.dispose() for v in @views )
+                crumbs.html('')
 
-            # Trailing arrow.
-            crumbs.append $ '<li/>', 'class': 'entypo rightopen', 'html': '&nbsp;'
+                # Get the three Models before the last one.
+                for crumb in models then do (crumb) =>
+                    # Show them.
+                    crumbs.show()
+                    # Add the single crumb as a View.
+                    @views.push view = new CrumbView 'model': crumb
+                    # Append it.
+                    crumbs.append view.el
 
         # Check again later on.
         @timeouts.push setTimeout @checkCrumbs, 1000

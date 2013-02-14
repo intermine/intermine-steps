@@ -629,6 +629,9 @@ window.require.define({"chaplin/core/Utils": function(exports, require, module) 
         }
         return _results;
       })()).join('');
+    },
+    'arrayEql': function(a, b) {
+      return !(a < b || b < a);
     }
   };
   
@@ -961,6 +964,69 @@ window.require.define({"chaplin/templates/app": function(exports, require, modul
   }
 }});
 
+window.require.define({"chaplin/templates/crumb": function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<span class="entypo rightopen"></span>\n<a href="/tool/');
+      
+        __out.push(__sanitize(this.slug));
+      
+        __out.push('/id/');
+      
+        __out.push(__sanitize(this.guid));
+      
+        __out.push('">');
+      
+        __out.push(__sanitize(this.title));
+      
+        __out.push('</a>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+}});
+
 window.require.define({"chaplin/templates/history-tool": function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -1079,7 +1145,7 @@ window.require.define({"chaplin/templates/history": function(exports, require, m
     (function() {
       (function() {
       
-        __out.push('<div class="head">\n    <a id="serialize" class="button success">Serialize</a> <h1>History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
+        __out.push('<div class="head">\n    <a id="serialize" class="button success">Serialize</a> <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
       
       }).call(this);
       
@@ -1130,7 +1196,7 @@ window.require.define({"chaplin/templates/landing": function(exports, require, m
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2>Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2>Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Latest breadcrumbs in all tabs</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1181,7 +1247,7 @@ window.require.define({"chaplin/templates/modal": function(exports, require, mod
     (function() {
       (function() {
       
-        __out.push('<h1 class="title"></h1>\n<div class="scroll">\n    <p class="text"></p>\n    <pre><code class="code"></code></pre>\n</div>\n<a class="close-reveal-modal">&#215;</a>');
+        __out.push('<h1><span class="entypo comment"></span> <span class="title"></span></h1>\n<div class="scroll">\n    <p class="text"></p>\n    <pre><code class="code"></code></pre>\n</div>\n<a class="close-reveal-modal">&#215;</a>');
       
       }).call(this);
       
@@ -1232,7 +1298,7 @@ window.require.define({"chaplin/templates/sidebar-left": function(exports, requi
     (function() {
       (function() {
       
-        __out.push('<div class="wrap">\n    <h3>Tools</h3>\n    <div id="next"></div>\n</div>');
+        __out.push('<div class="wrap">\n    <h3><span class="entypo crossroads"></span> Start all over again</h3>\n    <div id="next"></div>\n</div>');
       
       }).call(this);
       
@@ -1283,7 +1349,7 @@ window.require.define({"chaplin/templates/sidebar-right": function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="wrap">\n    <h3>Next Steps from Here</h3>\n    <p>The next steps you can take from here will be shown here.</p>\n    <div id="continue"></div>\n</div>');
+        __out.push('<div class="wrap">\n    <h3><span class="entypo clippy"></span> What can I do next?</h3>\n    <p class="description">The next steps you can take from here will be shown here.</p>\n    <div id="continue"></div>\n</div>');
       
       }).call(this);
       
@@ -1424,6 +1490,37 @@ window.require.define({"chaplin/views/App": function(exports, require, module) {
   
 }});
 
+window.require.define({"chaplin/views/Crumb": function(exports, require, module) {
+  var CrumbView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('chaplin/core/View');
+
+  module.exports = CrumbView = (function(_super) {
+
+    __extends(CrumbView, _super);
+
+    function CrumbView() {
+      return CrumbView.__super__.constructor.apply(this, arguments);
+    }
+
+    CrumbView.prototype.containerMethod = 'html';
+
+    CrumbView.prototype.autoRender = true;
+
+    CrumbView.prototype.tagName = 'li';
+
+    CrumbView.prototype.getTemplateFunction = function() {
+      return require('chaplin/templates/crumb');
+    };
+
+    return CrumbView;
+
+  })(View);
+  
+}});
+
 window.require.define({"chaplin/views/Error": function(exports, require, module) {
   var ErrorView, View,
     __hasProp = {}.hasOwnProperty,
@@ -1557,7 +1654,7 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
       $(this.el).css('width', $(window).width() - $('footer#bottom').outerWidth()).addClass('container');
       this.tools = $(this.el).find('#tools');
       (height = function() {
-        return _this.tools.css('height', ($(window).height() * .5) - 67);
+        return _this.tools.css('height', ($(window).height() * .5) - 79);
       })();
       $(window).resize(height);
       this.checkCollection();
@@ -2147,7 +2244,7 @@ window.require.define({"chaplin/views/RightSidebar": function(exports, require, 
 
     RightSidebarView.prototype.afterRender = function() {
       RightSidebarView.__super__.afterRender.apply(this, arguments);
-      this.views.push(new NextStepsRightView());
+      this.views.push(new NextStepsRightView);
       return this;
     };
 
@@ -2158,7 +2255,7 @@ window.require.define({"chaplin/views/RightSidebar": function(exports, require, 
 }});
 
 window.require.define({"chaplin/views/Tool": function(exports, require, module) {
-  var GenericToolView, Mediator, Tool, ToolView,
+  var CrumbView, GenericToolView, Mediator, Tool, ToolView,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2168,6 +2265,8 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
   Tool = require('chaplin/models/Tool');
 
   GenericToolView = require('chaplin/views/GenericTool');
+
+  CrumbView = require('chaplin/views/Crumb');
 
   module.exports = ToolView = (function(_super) {
 
@@ -2205,6 +2304,7 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
       var label, name, _fn, _ref,
         _this = this;
       ToolView.__super__.initialize.apply(this, arguments);
+      this.crumbs = [];
       if (this.contexts) {
         _ref = this.contexts;
         _fn = function(name, label) {
@@ -2238,31 +2338,42 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
     };
 
     ToolView.prototype.checkCrumbs = function() {
-      var collection, crumb, crumbs, _fn, _i, _len, _ref;
+      var collection, crumb, crumbs, guids, model, models, v, _fn, _i, _j, _len, _len1, _ref,
+        _this = this;
       collection = window.History;
       if (collection.length !== 0) {
-        (crumbs = $(this.el).find('ul.breadcrumbs')).html('');
-        _ref = collection.models.slice(-3);
-        _fn = function(crumb) {
-          var a, li;
-          crumbs.show();
-          li = $('<li/>', {
-            'class': 'entypo rightopen'
-          });
-          li.append(a = $('<a/>', {
-            'href': "/tool/" + (crumb.get('slug')) + "/id/" + (crumb.get('guid')),
-            'text': crumb.get('title')
-          }));
-          return crumbs.append(li);
-        };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          crumb = _ref[_i];
-          _fn(crumb);
+        models = collection.models.slice(-3);
+        guids = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = models.length; _i < _len; _i++) {
+            model = models[_i];
+            _results.push(model.get('guid'));
+          }
+          return _results;
+        })();
+        if (!window.Utils.arrayEql(this.crumbs, guids)) {
+          this.crumbs = guids;
+          crumbs = $(this.el).find('ul.breadcrumbs');
+          _ref = this.views;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            v = _ref[_i];
+            v.dispose();
+          }
+          crumbs.html('');
+          _fn = function(crumb) {
+            var view;
+            crumbs.show();
+            _this.views.push(view = new CrumbView({
+              'model': crumb
+            }));
+            return crumbs.append(view.el);
+          };
+          for (_j = 0, _len1 = models.length; _j < _len1; _j++) {
+            crumb = models[_j];
+            _fn(crumb);
+          }
         }
-        crumbs.append($('<li/>', {
-          'class': 'entypo rightopen',
-          'html': '&nbsp;'
-        }));
       }
       return this.timeouts.push(setTimeout(this.checkCrumbs, 1000));
     };

@@ -184,6 +184,10 @@ section#middle
 
             li
                 display: inline-block
+                padding: 0
+
+                &::before
+                    content: ""
 
                 a
                     cursor: pointer
@@ -445,7 +449,11 @@ footer
         top: 1px
 
 .entypo
-    font-family: "Entypo"
+    &:before
+        font-family: "Entypo"
+        font-weight: normal
+        font-size: 1.8em
+        line-height: 1em
     
     &.lock:before
         content: "\1f512"
@@ -455,6 +463,18 @@ footer
         content: "\1f506"
     &.rightopen:before
         content: "\e762"
+    &.clippy:before
+        content: "\1f4ce"
+    &.crossroads:before
+        content: "\e723"
+    &.flowbranch:before
+        content: "\1F569"
+    &.openbook:before
+        content: "\1f4d6"
+    &.lifebuoy:before
+        content: "\e788"
+    &.comment:before
+        content: "\e718"
 
 #modal
     div.reveal-modal

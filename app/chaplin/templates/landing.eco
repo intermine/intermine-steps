@@ -11,12 +11,12 @@
     <section id="middle">
         <div id="landing" class="container row">
             <div class="four columns">
-                <h2>Tools</h2>
+                <h2><span class="entypo crossroads"></span> Tools</h2>
                 <!-- populate next steps here -->
                 <div id="next"></div>
             </div>
             <div class="four columns">
-                <h2>Help</h2>
+                <h2><span class="entypo lifebuoy"></span> Help</h2>
                 <ul>
                     <li>Lorem ipsum dolor</li>
                     <li>Sed ut perspiciatis</li>
@@ -43,15 +43,16 @@
                     <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>
                     <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>
                     <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>
+                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>
                     <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>
                 </ul>
             </div>
             <div class="six columns">
                 <ul class="pricing-table">
                     <li class="title">Working on next &hellip;</li>
-                    <li class="bullet-item">Latest breadcrumbs in all tabs</li>
-                    <li class="bullet-item">Tool registry having a label "weight" concept</li>
                     <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>
+                    <li class="bullet-item">Tool registry having a label "weight" concept</li>
+                    <li class="bullet-item">Editable help for tools &amp; labels</li>
                 </ul>
             </div>
         </div>

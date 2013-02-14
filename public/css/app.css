@@ -186,6 +186,10 @@ section#middle div#widget ul.breadcrumbs {
 }
 section#middle div#widget ul.breadcrumbs li {
   display: inline-block;
+  padding: 0;
+}
+section#middle div#widget ul.breadcrumbs li::before {
+  content: "";
 }
 section#middle div#widget ul.breadcrumbs li a {
   cursor: pointer;
@@ -455,8 +459,11 @@ footer#bottom .wrap {
 .button:active {
   top: 1px;
 }
-.entypo {
+.entypo:before {
   font-family: "Entypo";
+  font-weight: normal;
+  font-size: 1.8em;
+  line-height: 1em;
 }
 .entypo.lock:before {
   content: "\1f512";
@@ -469,6 +476,24 @@ footer#bottom .wrap {
 }
 .entypo.rightopen:before {
   content: "\e762";
+}
+.entypo.clippy:before {
+  content: "\1f4ce";
+}
+.entypo.crossroads:before {
+  content: "\e723";
+}
+.entypo.flowbranch:before {
+  content: "\1F569";
+}
+.entypo.openbook:before {
+  content: "\1f4d6";
+}
+.entypo.lifebuoy:before {
+  content: "\e788";
+}
+.entypo.comment:before {
+  content: "\e718";
 }
 #modal div.reveal-modal {
   border-top: 3px solid #c24747;

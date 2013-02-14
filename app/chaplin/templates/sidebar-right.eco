@@ -1,5 +1,5 @@
 <div class="wrap">
-    <h3>Next Steps from Here</h3>
-    <p>The next steps you can take from here will be shown here.</p>
+    <h3><span class="entypo clippy"></span> What can I do next?</h3>
+    <p class="description">The next steps you can take from here will be shown here.</p>
     <div id="continue"></div>
 </div>
