@@ -25,7 +25,7 @@ exports.config =
                 ]
 
         templates:
-            joinTo: 'js/app.js'
+            joinTo: 'js/templates.js'
 
     server:
         path: 'server.coffee'

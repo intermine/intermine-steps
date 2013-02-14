@@ -24,9 +24,6 @@ module.exports = class ToolView extends GenericToolView
     initialize: ->
         super
 
-        # A list of breadcrumb ids we have rendered.
-        @crumbs = []
-
         # Do we have contexts for a tool?
         if @contexts
             # Register listener.
@@ -46,6 +43,9 @@ module.exports = class ToolView extends GenericToolView
 
     afterRender: ->
         super
+
+        # A list of breadcrumb ids we have rendered.
+        @crumbs = []
 
         name = @model.get('name')
         assert name, 'Name of the tool is not provided'

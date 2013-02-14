@@ -61,20 +61,25 @@
     throw new Error('Cannot find module "' + name + '"');
   };
 
-  var define = function(bundle) {
-    for (var key in bundle) {
-      if (has(bundle, key)) {
-        modules[key] = bundle[key];
+  var define = function(bundle, fn) {
+    if (typeof bundle === 'object') {
+      for (var key in bundle) {
+        if (has(bundle, key)) {
+          modules[key] = bundle[key];
+        }
       }
+    } else {
+      modules[bundle] = fn;
     }
-  }
+  };
 
   globals.require = require;
   globals.require.define = define;
+  globals.require.register = define;
   globals.require.brunch = true;
 })();
 
-window.require.define({"chaplin/controllers/error": function(exports, require, module) {
+window.require.register("chaplin/controllers/error", function(exports, require, module) {
   var Controller, ErrorController, ErrorView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -106,9 +111,8 @@ window.require.define({"chaplin/controllers/error": function(exports, require, m
 
   })(Controller);
   
-}});
-
-window.require.define({"chaplin/controllers/landing": function(exports, require, module) {
+});
+window.require.register("chaplin/controllers/landing", function(exports, require, module) {
   var Controller, LandingController, LandingView, Mediator,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -140,9 +144,8 @@ window.require.define({"chaplin/controllers/landing": function(exports, require,
 
   })(Controller);
   
-}});
-
-window.require.define({"chaplin/controllers/tools": function(exports, require, module) {
+});
+window.require.register("chaplin/controllers/tools", function(exports, require, module) {
   var AppView, Controller, HistoryView, LeftSidebarView, Mediator, ModalView, RightSidebarView, ToolsController, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -251,9 +254,8 @@ window.require.define({"chaplin/controllers/tools": function(exports, require, m
 
   })(Controller);
   
-}});
-
-window.require.define({"chaplin/core/Application": function(exports, require, module) {
+});
+window.require.register("chaplin/core/Application", function(exports, require, module) {
   var Chaplin, InterMineSteps, Layout, Mediator, Registry, Routes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -326,9 +328,8 @@ window.require.define({"chaplin/core/Application": function(exports, require, mo
 
   })(Chaplin.Application);
   
-}});
-
-window.require.define({"chaplin/core/AssertException": function(exports, require, module) {
+});
+window.require.register("chaplin/core/AssertException", function(exports, require, module) {
   var AssertException;
 
   AssertException = (function() {
@@ -351,9 +352,8 @@ window.require.define({"chaplin/core/AssertException": function(exports, require
     }
   };
   
-}});
-
-window.require.define({"chaplin/core/Collection": function(exports, require, module) {
+});
+window.require.register("chaplin/core/Collection", function(exports, require, module) {
   var Chaplin, Collection, Mediator,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -391,9 +391,8 @@ window.require.define({"chaplin/core/Collection": function(exports, require, mod
 
   })(Chaplin.Collection);
   
-}});
-
-window.require.define({"chaplin/core/Console": function(exports, require, module) {
+});
+window.require.register("chaplin/core/Console", function(exports, require, module) {
   
   this.console = this.console || {
     'log': function() {}
@@ -415,9 +414,8 @@ window.require.define({"chaplin/core/Console": function(exports, require, module
     return console.log("%c" + text, 'color: #FFF; background: #5da423');
   };
   
-}});
-
-window.require.define({"chaplin/core/Controller": function(exports, require, module) {
+});
+window.require.register("chaplin/core/Controller", function(exports, require, module) {
   var Chaplin, Controller,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -452,9 +450,8 @@ window.require.define({"chaplin/core/Controller": function(exports, require, mod
 
   })(Chaplin.Controller);
   
-}});
-
-window.require.define({"chaplin/core/Layout": function(exports, require, module) {
+});
+window.require.register("chaplin/core/Layout", function(exports, require, module) {
   var Chaplin, Layout,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -473,9 +470,8 @@ window.require.define({"chaplin/core/Layout": function(exports, require, module)
 
   })(Chaplin.Layout);
   
-}});
-
-window.require.define({"chaplin/core/LocalStorage": function(exports, require, module) {
+});
+window.require.register("chaplin/core/LocalStorage", function(exports, require, module) {
   var LocalStorage,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -540,9 +536,8 @@ window.require.define({"chaplin/core/LocalStorage": function(exports, require, m
 
   })();
   
-}});
-
-window.require.define({"chaplin/core/Mediator": function(exports, require, module) {
+});
+window.require.register("chaplin/core/Mediator", function(exports, require, module) {
   var Backbone, mediator,
     __slice = [].slice;
 
@@ -580,9 +575,8 @@ window.require.define({"chaplin/core/Mediator": function(exports, require, modul
     return Backbone.Events._callbacks = null;
   };
   
-}});
-
-window.require.define({"chaplin/core/Routes": function(exports, require, module) {
+});
+window.require.register("chaplin/core/Routes", function(exports, require, module) {
   
   module.exports = function(match) {
     match('', 'landing#index', {
@@ -602,9 +596,8 @@ window.require.define({"chaplin/core/Routes": function(exports, require, module)
     });
   };
   
-}});
-
-window.require.define({"chaplin/core/Utils": function(exports, require, module) {
+});
+window.require.register("chaplin/core/Utils", function(exports, require, module) {
   
   this.Utils = {
     'isInt': function(input) {
@@ -635,9 +628,8 @@ window.require.define({"chaplin/core/Utils": function(exports, require, module) 
     }
   };
   
-}});
-
-window.require.define({"chaplin/core/View": function(exports, require, module) {
+});
+window.require.register("chaplin/core/View", function(exports, require, module) {
   var Chaplin, Mediator, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -692,9 +684,8 @@ window.require.define({"chaplin/core/View": function(exports, require, module) {
 
   })(Chaplin.View);
   
-}});
-
-window.require.define({"chaplin/initialize": function(exports, require, module) {
+});
+window.require.register("chaplin/initialize", function(exports, require, module) {
   var History, InterMineSteps, root;
 
   InterMineSteps = require('chaplin/core/Application');
@@ -711,9 +702,8 @@ window.require.define({"chaplin/initialize": function(exports, require, module) 
     });
   });
   
-}});
-
-window.require.define({"chaplin/models/History": function(exports, require, module) {
+});
+window.require.register("chaplin/models/History", function(exports, require, module) {
   var Collection, Controller, History, LocalStorage, Mediator, Tool,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -839,9 +829,8 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
 
   })(Collection);
   
-}});
-
-window.require.define({"chaplin/models/Tool": function(exports, require, module) {
+});
+window.require.register("chaplin/models/Tool", function(exports, require, module) {
   var Chaplin, Tool,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -860,588 +849,8 @@ window.require.define({"chaplin/models/Tool": function(exports, require, module)
 
   })(Chaplin.Model);
   
-}});
-
-window.require.define({"chaplin/templates/404": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="twelve columns">\n                <h2>404, Page Not Found</h2>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/app": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <aside id="left"></aside>\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- show when we want to hide the app (but say not the history) -->\n<div id="whiteout"></div>\n\n<!-- tools used in the history -->\n<div id="history"></div>\n\n<!-- history toggler fixed to bottom -->\n<footer id="bottom">\n    <div class="wrap">\n        <a class="button" data-action="history-toggle">Show history</a>\n    </div>\n</footer>\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/crumb": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<span class="entypo rightopen"></span>\n<a href="/tool/');
-      
-        __out.push(__sanitize(this.slug));
-      
-        __out.push('/id/');
-      
-        __out.push(__sanitize(this.guid));
-      
-        __out.push('">');
-      
-        __out.push(__sanitize(this.title));
-      
-        __out.push('</a>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/history-tool": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<em class="ago"></em>\n<div class="wrap">\n    <a href="/tool/');
-      
-        __out.push(__sanitize(this.slug));
-      
-        __out.push('/id/');
-      
-        __out.push(__sanitize(this.guid));
-      
-        __out.push('">\n        <div class="box">\n            <h3>');
-      
-        __out.push(__sanitize(this.name));
-      
-        __out.push('</h3>\n            ');
-      
-        if (this.description.length > 15) {
-          __out.push('\n                <p title="');
-          __out.push(__sanitize(this.description));
-          __out.push('">');
-          __out.push(this.description.slice(0, 15));
-          __out.push(' &hellip;</p>\n            ');
-        } else {
-          __out.push('\n                <p>');
-          __out.push(this.description);
-          __out.push('</p>\n            ');
-        }
-      
-        __out.push('\n        </div>\n    </a>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/history": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="head">\n    <a id="serialize" class="button success">Serialize</a> <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/landing": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/modal": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<h1><span class="entypo comment"></span> <span class="title"></span></h1>\n<div class="scroll">\n    <p class="text"></p>\n    <pre><code class="code"></code></pre>\n</div>\n<a class="close-reveal-modal">&#215;</a>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/sidebar-left": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="wrap">\n    <h3><span class="entypo crossroads"></span> Start all over again</h3>\n    <div id="next"></div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/sidebar-right": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="wrap">\n    <h3><span class="entypo clippy"></span> What can I do next?</h3>\n    <p class="description">The next steps you can take from here will be shown here.</p>\n    <div id="continue"></div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/templates/tool": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var i, title, _ref;
-      
-        __out.push('<div class="wrap sidebar">\n\n    <!-- dynamically populated with event handling -->\n    <ul class="breadcrumbs"></ul>\n\n    <div class="head">\n        <h1>');
-      
-        __out.push(__sanitize(this.title));
-      
-        __out.push('</h1>\n        <em class="ago"></em>\n    </div>\n\n    ');
-      
-        if (this.steps.length !== 0) {
-          __out.push('\n        <ul class="accordion">\n            ');
-          _ref = this.steps;
-          for (i in _ref) {
-            title = _ref[i];
-            __out.push('\n                ');
-            i = parseInt(i) + 1;
-            __out.push('\n                <li ');
-            if (i === this.step) {
-              __out.push('class="active"');
-            }
-            __out.push(' data-step="');
-            __out.push(__sanitize(i));
-            __out.push('">\n                    <div class="title">\n                        <h5>#');
-            __out.push(__sanitize(i));
-            __out.push(': ');
-            __out.push(__sanitize(title));
-            __out.push('</h5>\n                    </div>\n                    <div class="content">Dummy</div>\n                </li>\n            ');
-          }
-          __out.push('\n        </ul>\n    ');
-        } else {
-          __out.push('\n        <div class="alert-box alert">\n            No Tool Steps defined.\n        </div>\n    ');
-        }
-      
-        __out.push('\n\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"chaplin/views/App": function(exports, require, module) {
+});
+window.require.register("chaplin/views/App", function(exports, require, module) {
   var AppView, Mediator, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1488,9 +897,8 @@ window.require.define({"chaplin/views/App": function(exports, require, module) {
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/Crumb": function(exports, require, module) {
+});
+window.require.register("chaplin/views/Crumb", function(exports, require, module) {
   var CrumbView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1519,9 +927,8 @@ window.require.define({"chaplin/views/Crumb": function(exports, require, module)
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/Error": function(exports, require, module) {
+});
+window.require.register("chaplin/views/Error", function(exports, require, module) {
   var ErrorView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1550,9 +957,8 @@ window.require.define({"chaplin/views/Error": function(exports, require, module)
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/GenericTool": function(exports, require, module) {
+});
+window.require.register("chaplin/views/GenericTool", function(exports, require, module) {
   var GenericToolView, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -1596,9 +1002,8 @@ window.require.define({"chaplin/views/GenericTool": function(exports, require, m
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/History": function(exports, require, module) {
+});
+window.require.register("chaplin/views/History", function(exports, require, module) {
   var HistoryToolView, HistoryView, Mediator, Tool, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -1798,9 +1203,8 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/HistoryTool": function(exports, require, module) {
+});
+window.require.register("chaplin/views/HistoryTool", function(exports, require, module) {
   var Chaplin, GenericToolView, HistoryToolView, Mediator,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1855,9 +1259,8 @@ window.require.define({"chaplin/views/HistoryTool": function(exports, require, m
 
   })(GenericToolView);
   
-}});
-
-window.require.define({"chaplin/views/Landing": function(exports, require, module) {
+});
+window.require.register("chaplin/views/Landing", function(exports, require, module) {
   var Chaplin, LandingView, Mediator, NextStepsLandingView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1907,9 +1310,8 @@ window.require.define({"chaplin/views/Landing": function(exports, require, modul
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/LeftSidebar": function(exports, require, module) {
+});
+window.require.register("chaplin/views/LeftSidebar", function(exports, require, module) {
   var LeftSidebarView, NextStepsLeftView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1946,9 +1348,8 @@ window.require.define({"chaplin/views/LeftSidebar": function(exports, require, m
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/Modal": function(exports, require, module) {
+});
+window.require.register("chaplin/views/Modal", function(exports, require, module) {
   var LeftSidebarView, Mediator, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -2029,9 +1430,8 @@ window.require.define({"chaplin/views/Modal": function(exports, require, module)
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/NextSteps": function(exports, require, module) {
+});
+window.require.register("chaplin/views/NextSteps", function(exports, require, module) {
   var Mediator, NextStepsView, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -2094,9 +1494,8 @@ window.require.define({"chaplin/views/NextSteps": function(exports, require, mod
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/NextStepsLanding": function(exports, require, module) {
+});
+window.require.register("chaplin/views/NextStepsLanding", function(exports, require, module) {
   var Mediator, NextStepsLandingView, NextStepsView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2132,9 +1531,8 @@ window.require.define({"chaplin/views/NextStepsLanding": function(exports, requi
 
   })(NextStepsView);
   
-}});
-
-window.require.define({"chaplin/views/NextStepsLeft": function(exports, require, module) {
+});
+window.require.register("chaplin/views/NextStepsLeft", function(exports, require, module) {
   var Mediator, NextStepsLeftView, NextStepsView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2170,9 +1568,8 @@ window.require.define({"chaplin/views/NextStepsLeft": function(exports, require,
 
   })(NextStepsView);
   
-}});
-
-window.require.define({"chaplin/views/NextStepsRight": function(exports, require, module) {
+});
+window.require.register("chaplin/views/NextStepsRight", function(exports, require, module) {
   var Mediator, NextStepsRightView, NextStepsView, Registry,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2213,9 +1610,8 @@ window.require.define({"chaplin/views/NextStepsRight": function(exports, require
 
   })(NextStepsView);
   
-}});
-
-window.require.define({"chaplin/views/RightSidebar": function(exports, require, module) {
+});
+window.require.register("chaplin/views/RightSidebar", function(exports, require, module) {
   var NextStepsRightView, RightSidebarView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2252,9 +1648,8 @@ window.require.define({"chaplin/views/RightSidebar": function(exports, require, 
 
   })(View);
   
-}});
-
-window.require.define({"chaplin/views/Tool": function(exports, require, module) {
+});
+window.require.register("chaplin/views/Tool", function(exports, require, module) {
   var CrumbView, GenericToolView, Mediator, Tool, ToolView,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -2304,7 +1699,6 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
       var label, name, _fn, _ref,
         _this = this;
       ToolView.__super__.initialize.apply(this, arguments);
-      this.crumbs = [];
       if (this.contexts) {
         _ref = this.contexts;
         _fn = function(name, label) {
@@ -2327,6 +1721,7 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
     ToolView.prototype.afterRender = function() {
       var name;
       ToolView.__super__.afterRender.apply(this, arguments);
+      this.crumbs = [];
       name = this.model.get('name');
       assert(name, 'Name of the tool is not provided');
       $(this.el).find("ul.accordion li(data-step='<%= @step %>') div.content").html((require("tools/templates/" + name + "/step-" + this.step))(this.getTemplateData()));
@@ -2386,9 +1781,8 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
 
   })(GenericToolView);
   
-}});
-
-window.require.define({"tools/Registry": function(exports, require, module) {
+});
+window.require.register("tools/Registry", function(exports, require, module) {
   
   module.exports = {
     'i:onHomepage': [
@@ -2426,9 +1820,8 @@ window.require.define({"tools/Registry": function(exports, require, module) {
     ]
   };
   
-}});
-
-window.require.define({"tools/models/EnrichListTool": function(exports, require, module) {
+});
+window.require.register("tools/models/EnrichListTool", function(exports, require, module) {
   var EnrichListTool, Tool,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2456,9 +1849,8 @@ window.require.define({"tools/models/EnrichListTool": function(exports, require,
 
   })(Tool);
   
-}});
-
-window.require.define({"tools/models/ResultsTableTool": function(exports, require, module) {
+});
+window.require.register("tools/models/ResultsTableTool", function(exports, require, module) {
   var ResultsTableTool, Tool,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2486,9 +1878,8 @@ window.require.define({"tools/models/ResultsTableTool": function(exports, requir
 
   })(Tool);
   
-}});
-
-window.require.define({"tools/models/UploadListTool": function(exports, require, module) {
+});
+window.require.register("tools/models/UploadListTool", function(exports, require, module) {
   var Tool, UploadListTool,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2516,355 +1907,8 @@ window.require.define({"tools/models/UploadListTool": function(exports, require,
 
   })(Tool);
   
-}});
-
-window.require.define({"tools/templates/EnrichListTool/step-1": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var key, val, _ref;
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the list you want to enrich:</p>\n            <table>\n                <thead>\n                    <tr>\n                        <th></th>\n                        <th>List name</th>\n                        <th>Tags</th>\n                        <th>Size</th>\n                    </tr>\n                </thead>\n                <tbody>\n                ');
-      
-        _ref = this.lists;
-        for (key in _ref) {
-          val = _ref[key];
-          __out.push('\n                    <tr>\n                        <td style="text-align:center"><input type="checkbox" data-key="');
-          __out.push(__sanitize(key));
-          __out.push('" class="check" ');
-          if (val.selected) {
-            __out.push('checked="checked"');
-          }
-          __out.push(' /></td>\n                        <td>');
-          __out.push(__sanitize(val.name));
-          __out.push('</td>\n                        <td>\n                            <span class="secondary label">Random data</span>\n                        </td>\n                        <td>');
-          __out.push(__sanitize(val.items.length));
-          __out.push(' Item(s)</td>\n                    </tr>\n                ');
-        }
-      
-        __out.push('\n                </tbody>\n            </table>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Enrich the selected list</span></a>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"tools/templates/EnrichListTool/step-2": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var id, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="four columns">\n            <h2>Gene Enrichment</h2>\n            <p>A chart for list "');
-      
-        __out.push(__sanitize(this.data.list.name));
-      
-        __out.push('":</p>\n            <ul>\n                ');
-      
-        _ref = this.data.list.items;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          id = _ref[_i];
-          __out.push('\n                    <li>');
-          __out.push(__sanitize(id));
-          __out.push('</li>\n                ');
-        }
-      
-        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Publication Enrichment</h2>\n            <p>A chart for list "');
-      
-        __out.push(__sanitize(this.data.list.name));
-      
-        __out.push('":</p>\n            <ul>\n                ');
-      
-        _ref1 = this.data.list.items;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          id = _ref1[_j];
-          __out.push('\n                    <li>');
-          __out.push(__sanitize(id));
-          __out.push('</li>\n                ');
-        }
-      
-        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Protein Enrichment</h2>\n            <p>A chart for list "');
-      
-        __out.push(__sanitize(this.data.list.name));
-      
-        __out.push('":</p>\n            <ul>\n                ');
-      
-        _ref2 = this.data.list.items;
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          id = _ref2[_k];
-          __out.push('\n                    <li>');
-          __out.push(__sanitize(id));
-          __out.push('</li>\n                ');
-        }
-      
-        __out.push('\n            </ul>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"tools/templates/ResultsTableTool/step-1": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var id, _i, _len, _ref;
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <table>\n                <thead>\n                    <tr>\n                        <th>Identifier</th>\n                        <th>Attr 1</th>\n                        <th>Attr 2</th>\n                        <th>Attr 3</th>\n                    </tr>\n                </thead>\n                <tbody>\n                    ');
-      
-        _ref = this.previous.identifiers;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          id = _ref[_i];
-          __out.push('\n                        <tr>\n                            <td>');
-          __out.push(__sanitize(id));
-          __out.push('</td>\n                            <td>Дмитрий Фролов</td>\n                            <td>Егор Мальцев</td>\n                            <td>Станислав Тарасов</td>\n                        </tr>\n                    ');
-        }
-      
-        __out.push('\n                </tbody>\n            </table>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"tools/templates/UploadListTool/step-1": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var i, id, _ref;
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the type of list to create and either enter in a list\n                of identifiers or upload identifiers from a file. A search will\n                be performed for all the identifiers in your list.</p>\n        </div>\n    </div>\n    <form class="row custom">\n        <div class="six columns">\n            <label>List of identifiers</label>\n            ');
-      
-        if (this.data && this.data.identifiers) {
-          __out.push('\n                <textarea>');
-          _ref = this.data.identifiers;
-          for (i in _ref) {
-            id = _ref[i];
-            __out.push(__sanitize(id));
-            if (parseInt(i) !== this.data.identifiers.length - 1) {
-              __out.push(' ');
-            }
-          }
-          __out.push('</textarea>\n            ');
-        } else {
-          __out.push('\n                <textarea>PPARG ZEN MAD</textarea>\n            ');
-        }
-      
-        __out.push('\n        </div>\n        <div class="six columns">\n            <label>Identifier type</label>\n            <select class="three">\n                <option>Genes</option>\n                <option>Proteins</option>\n            </select>\n        </div>\n    </form>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"tools/templates/UploadListTool/step-2": function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>You have uploaded a list. Maybe some of the steps on the right take your fancy?</p>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-}});
-
-window.require.define({"tools/views/EnrichListTool": function(exports, require, module) {
+});
+window.require.register("tools/views/EnrichListTool", function(exports, require, module) {
   var EnrichListToolView, Mediator, ToolView, lists,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -2979,9 +2023,8 @@ window.require.define({"tools/views/EnrichListTool": function(exports, require, 
 
   })(ToolView);
   
-}});
-
-window.require.define({"tools/views/ResultsTableTool": function(exports, require, module) {
+});
+window.require.register("tools/views/ResultsTableTool", function(exports, require, module) {
   var ResultsTableTool, ToolView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -3000,9 +2043,8 @@ window.require.define({"tools/views/ResultsTableTool": function(exports, require
 
   })(ToolView);
   
-}});
-
-window.require.define({"tools/views/UploadListTool": function(exports, require, module) {
+});
+window.require.register("tools/views/UploadListTool", function(exports, require, module) {
   var Mediator, ToolView, UploadListToolView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -3043,5 +2085,4 @@ window.require.define({"tools/views/UploadListTool": function(exports, require, 
 
   })(ToolView);
   
-}});
-
+});
