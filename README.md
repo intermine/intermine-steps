@@ -16,3 +16,9 @@ Visit ``127.0.0.1:9034``.
 ### Deployment
 
 The app can be deployed using `chernobyl` on `ukraine`. Relevant is the lack of use of the `NODE_ENV` variable otherwise signifying the use of development environment.
+
+Use the following to compress JavaScript:
+
+```bash
+$ ./node_modules/.bin/brunch build --optimize
+```
