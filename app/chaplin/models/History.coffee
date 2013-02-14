@@ -111,6 +111,6 @@ module.exports = class History extends Collection
         # Get JSON repr.
         obj = model.toJSON()
         # Require the Model.
-        Clazz = require "tools/models/#{obj.name}"
+        Clazz = require "tools/#{obj.name}/Model"
         # Init the Model again.
         new Clazz obj

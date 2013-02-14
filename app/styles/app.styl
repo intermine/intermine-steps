@@ -1,3 +1,12 @@
+gradient(a, b)
+    background: a
+    background: -moz-linear-gradient(top, a 0%, b 100%)
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,a), color-stop(100%,b))
+    background: -webkit-linear-gradient(top, a 0%, b 100%)
+    background: -o-linear-gradient(top, a 0%, b 100%)
+    background: -ms-linear-gradient(top, a 0%, b 100%)
+    background: linear-gradient(to bottom, a 0%, b 100%)
+
 @font-face
     font-family: 'Lato'
     font-style: normal
@@ -49,6 +58,10 @@ code
 
 input[type="checkbox"]
     cursor: pointer
+
+ul.alternating
+    li:nth-child(even)
+        background: lighten(#2ba6cb, 49)
 
 .row
     width: auto
@@ -114,7 +127,7 @@ section#middle
         visibility: hidden
         height: 0
 
-    div#landing
+    div.row
         width: 1000px
         margin-top: 20px
 
@@ -124,6 +137,7 @@ section#middle
         h4
             font-size: 16px
             margin: 0
+            margin-bottom: 5px
 
         ul
             list-style-type: none
@@ -156,7 +170,7 @@ section#middle
 
         h4
             font-size: 14px
-            margin: 10px 10px 0 10px
+            margin: 10px
 
         ul
             list-style-type: none
@@ -425,17 +439,19 @@ footer
     left: 0
 
     &#wide
-        background: rgba(255,255,255,0.9)
+        gradient(rgba(255,255,255,0), rgba(255,255,255,1))
         width: 100%
+        padding-top: 100px
 
         p
             text-align: center
 
     &#bottom
+        gradient(rgba(255,255,255,0), rgba(255,255,255,1))
         width: 250px
+        padding-top: 100px
 
         .wrap
-            margin-top: 20px
             padding: 20px 10px
 
 .button
@@ -447,34 +463,6 @@ footer
 
     &:active
         top: 1px
-
-.entypo
-    &:before
-        font-family: "Entypo"
-        font-weight: normal
-        font-size: 1.8em
-        line-height: 1em
-    
-    &.lock:before
-        content: "\1f512"
-    &.backintime:before
-        content: "\e771"
-    &.lightup:before
-        content: "\1f506"
-    &.rightopen:before
-        content: "\e762"
-    &.clippy:before
-        content: "\1f4ce"
-    &.crossroads:before
-        content: "\e723"
-    &.flowbranch:before
-        content: "\1F569"
-    &.openbook:before
-        content: "\1f4d6"
-    &.lifebuoy:before
-        content: "\e788"
-    &.comment:before
-        content: "\e718"
 
 #modal
     div.reveal-modal
@@ -538,3 +526,31 @@ footer
         background-color: whitesmoke
         text-align: center
         padding: 20px
+
+.entypo
+    &:before
+        font-family: "Entypo"
+        font-weight: normal
+        font-size: 1.8em
+        line-height: 1em
+    
+    &.lock:before
+        content: "\1f512"
+    &.backintime:before
+        content: "\e771"
+    &.lightup:before
+        content: "\1f506"
+    &.rightopen:before
+        content: "\e762"
+    &.clippy:before
+        content: "\1f4ce"
+    &.crossroads:before
+        content: "\e723"
+    &.flowbranch:before
+        content: "\1F569"
+    &.openbook:before
+        content: "\1f4d6"
+    &.lifebuoy:before
+        content: "\e788"
+    &.comment:before
+        content: "\e718"

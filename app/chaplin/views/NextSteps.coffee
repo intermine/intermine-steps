@@ -33,7 +33,7 @@ module.exports = class NextStepsView extends View
             # Create the title.
             $(@el).append $ '<h4/>', 'text': category
             # Add a list saving it under our category.
-            $(@el).append @list[category] = $('<ul/>')
+            $(@el).append @list[category] = $('<ul/>', 'class': 'alternating')
 
         # Append the link to an existing category.
         @list[category].append $('<li/>').append $ '<a/>',

@@ -8,8 +8,8 @@
         </div>
     </header>
 
-    <section id="middle">
-        <div id="landing" class="container row">
+    <section id="middle" class="container">
+        <div class="row">
             <div class="four columns">
                 <h2><span class="entypo crossroads"></span> Tools</h2>
                 <!-- populate next steps here -->
@@ -32,6 +32,8 @@
                     <a class="button" id="reset">Reset Database</a>
                 </div>
             </div>
+        </div>
+        <div class="row">
             <div class="six columns">
                 <ul class="pricing-table">
                     <li class="title">What it does now</li>

@@ -107,6 +107,13 @@ window.require.register("chaplin/controllers/error", function(exports, require, 
       return this.adjustTitle('404');
     };
 
+    ErrorController.prototype[500] = function(params) {
+      this.views.push(new ErrorView({
+        'template': 500
+      }));
+      return this.adjustTitle('500');
+    };
+
     return ErrorController;
 
   })(Controller);
@@ -195,9 +202,14 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       slug = _arg.slug;
       this._chrome();
       name = root.Utils.hyphenToPascal(slug);
-      Clazz = require("tools/models/" + name);
-      model = new Clazz();
-      Clazz = require("tools/views/" + name);
+      try {
+        Clazz = require("tools/" + name + "/Model");
+        model = new Clazz();
+        Clazz = require("tools/" + name + "/View");
+      } catch (e) {
+        this.redirectToRoute(404);
+        assert(false, "Unknown tool `" + name + "`");
+      }
       this.views.push(new Clazz({
         'model': model
       }));
@@ -209,14 +221,19 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       slug = _arg.slug, guid = _arg.guid;
       this._chrome();
       name = root.Utils.hyphenToPascal(slug);
-      Clazz = require("tools/models/" + name);
-      model = new Clazz();
-      Clazz = require("tools/views/" + name);
+      try {
+        Clazz = require("tools/" + name + "/Model");
+        model = new Clazz();
+        Clazz = require("tools/" + name + "/View");
+      } catch (e) {
+        this.redirectToRoute(500);
+        assert(false, "Unknown tool `" + name + "`");
+      }
       previous = (this.collection.where({
         'guid': guid
       })).pop();
       if (!previous) {
-        this.redirectToRoute('error');
+        this.redirectToRoute(500);
         assert(false, 'No previous step');
       }
       model.set({
@@ -230,18 +247,24 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
     };
 
     ToolsController.prototype.old = function(_arg) {
-      var Clazz, guid, model, slug;
+      var Clazz, guid, model, name, slug;
       slug = _arg.slug, guid = _arg.guid;
       model = this.collection.where({
         'slug': slug,
         'guid': guid
       })[0];
       if (!model) {
-        this.redirectToRoute('error');
+        this.redirectToRoute(500);
         assert(false, 'We do not have this Model in History');
       }
       this._chrome();
-      Clazz = require("tools/views/" + (model.get('name')));
+      name = model.get('name');
+      try {
+        Clazz = require("tools/" + name + "/View");
+      } catch (e) {
+        this.redirectToRoute(500);
+        assert(false, "Unknown tool `" + name + "`");
+      }
       model = this.collection.dupe(model);
       this.views.push(new Clazz({
         'model': model
@@ -591,8 +614,11 @@ window.require.register("chaplin/core/Routes", function(exports, require, module
     match('tool/:slug/id/:guid', 'tools#old', {
       name: 'old'
     });
-    return match('error/404', 'error#404', {
-      name: 'error'
+    match('error/404', 'error#404', {
+      name: 404
+    });
+    return match('error/500', 'error#500', {
+      name: 500
     });
   };
   
@@ -821,7 +847,7 @@ window.require.register("chaplin/models/History", function(exports, require, mod
     History.prototype.dupe = function(model) {
       var Clazz, obj;
       obj = model.toJSON();
-      Clazz = require("tools/models/" + obj.name);
+      Clazz = require("tools/" + obj.name + "/Model");
       return new Clazz(obj);
     };
 
@@ -891,7 +917,57 @@ window.require.register("chaplin/templates/404", function(exports, require, modu
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="twelve columns">\n                <h2>404, Page Not Found</h2>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="twelve columns">\n                <h2>404, Not Found</h2>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("chaplin/templates/500", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="twelve columns">\n                <h2>500, Internal App Error</h2>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1179,7 +1255,7 @@ window.require.register("chaplin/templates/landing", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle" class="container">\n        <div class="row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -2051,7 +2127,9 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
         $(this.el).append($('<h4/>', {
           'text': category
         }));
-        $(this.el).append(this.list[category] = $('<ul/>'));
+        $(this.el).append(this.list[category] = $('<ul/>', {
+          'class': 'alternating'
+        }));
       }
       return this.list[category].append($('<li/>').append($('<a/>', {
         'text': label,
@@ -2293,7 +2371,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
       this.crumbs = [];
       name = this.model.get('name');
       assert(name, 'Name of the tool is not provided');
-      $(this.el).find("ul.accordion li(data-step='<%= @step %>') div.content").html((require("tools/templates/" + name + "/step-" + this.step))(this.getTemplateData()));
+      $(this.el).find("ul.accordion li(data-step='<%= @step %>') div.content").html((require("tools/" + name + "/step-" + this.step))(this.getTemplateData()));
       this.checkCrumbs();
       if (this.model.get('locked') != null) {
         this.updateTime($(this.el).find('em.ago'));
@@ -2351,46 +2429,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
   })(GenericToolView);
   
 });
-window.require.register("tools/Registry", function(exports, require, module) {
-  
-  module.exports = {
-    'i:onHomepage': [
-      {
-        'slug': 'upload-list-tool',
-        'label': 'Start by uploading a list',
-        'category': 'Data loaders'
-      }, {
-        'slug': 'enrich-list-tool',
-        'label': 'Start by enriching an existing list',
-        'category': 'Enrichment'
-      }
-    ],
-    'i:onLeft': [
-      {
-        'slug': 'upload-list-tool',
-        'label': 'Upload a new list',
-        'category': 'Data loaders'
-      }, {
-        'slug': 'enrich-list-tool',
-        'label': 'Enrich an existing list',
-        'category': 'Enrichment'
-      }
-    ],
-    'i:haveList': [
-      {
-        'slug': 'enrich-list-tool',
-        'label': 'Enrich this list',
-        'category': 'Enrichment'
-      }, {
-        'slug': 'results-table-tool',
-        'label': 'View this list in a table',
-        'category': 'Visualization'
-      }
-    ]
-  };
-  
-});
-window.require.register("tools/models/EnrichListTool", function(exports, require, module) {
+window.require.register("tools/EnrichListTool/Model", function(exports, require, module) {
   var EnrichListTool, Tool,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2419,406 +2458,7 @@ window.require.register("tools/models/EnrichListTool", function(exports, require
   })(Tool);
   
 });
-window.require.register("tools/models/ResultsTableTool", function(exports, require, module) {
-  var ResultsTableTool, Tool,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Tool = require('chaplin/models/Tool');
-
-  module.exports = ResultsTableTool = (function(_super) {
-
-    __extends(ResultsTableTool, _super);
-
-    function ResultsTableTool() {
-      return ResultsTableTool.__super__.constructor.apply(this, arguments);
-    }
-
-    ResultsTableTool.prototype.defaults = {
-      'slug': 'results-table-tool',
-      'name': 'ResultsTableTool',
-      'title': 'Results Table',
-      'description': 'Show a table of results',
-      'type': 'curiousblue',
-      'steps': ['See Table']
-    };
-
-    return ResultsTableTool;
-
-  })(Tool);
-  
-});
-window.require.register("tools/models/UploadListTool", function(exports, require, module) {
-  var Tool, UploadListTool,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Tool = require('chaplin/models/Tool');
-
-  module.exports = UploadListTool = (function(_super) {
-
-    __extends(UploadListTool, _super);
-
-    function UploadListTool() {
-      return UploadListTool.__super__.constructor.apply(this, arguments);
-    }
-
-    UploadListTool.prototype.defaults = {
-      'slug': 'upload-list-tool',
-      'name': 'UploadListTool',
-      'title': 'Upload a List',
-      'description': 'Upload a list of identifiers',
-      'type': 'deyork',
-      'steps': ['Input Identifiers', 'See Result']
-    };
-
-    return UploadListTool;
-
-  })(Tool);
-  
-});
-window.require.register("tools/templates/EnrichListTool/step-1", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var key, val, _ref;
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the list you want to enrich:</p>\n            <table>\n                <thead>\n                    <tr>\n                        <th></th>\n                        <th>List name</th>\n                        <th>Tags</th>\n                        <th>Size</th>\n                    </tr>\n                </thead>\n                <tbody>\n                ');
-      
-        _ref = this.lists;
-        for (key in _ref) {
-          val = _ref[key];
-          __out.push('\n                    <tr>\n                        <td style="text-align:center"><input type="checkbox" data-key="');
-          __out.push(__sanitize(key));
-          __out.push('" class="check" ');
-          if (val.selected) {
-            __out.push('checked="checked"');
-          }
-          __out.push(' /></td>\n                        <td>');
-          __out.push(__sanitize(val.name));
-          __out.push('</td>\n                        <td>\n                            <span class="secondary label">Random data</span>\n                        </td>\n                        <td>');
-          __out.push(__sanitize(val.items.length));
-          __out.push(' Item(s)</td>\n                    </tr>\n                ');
-        }
-      
-        __out.push('\n                </tbody>\n            </table>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Enrich the selected list</span></a>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/templates/EnrichListTool/step-2", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var id, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="four columns">\n            <h2>Gene Enrichment</h2>\n            <p>A chart for list "');
-      
-        __out.push(__sanitize(this.data.list.name));
-      
-        __out.push('":</p>\n            <ul>\n                ');
-      
-        _ref = this.data.list.items;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          id = _ref[_i];
-          __out.push('\n                    <li>');
-          __out.push(__sanitize(id));
-          __out.push('</li>\n                ');
-        }
-      
-        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Publication Enrichment</h2>\n            <p>A chart for list "');
-      
-        __out.push(__sanitize(this.data.list.name));
-      
-        __out.push('":</p>\n            <ul>\n                ');
-      
-        _ref1 = this.data.list.items;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          id = _ref1[_j];
-          __out.push('\n                    <li>');
-          __out.push(__sanitize(id));
-          __out.push('</li>\n                ');
-        }
-      
-        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Protein Enrichment</h2>\n            <p>A chart for list "');
-      
-        __out.push(__sanitize(this.data.list.name));
-      
-        __out.push('":</p>\n            <ul>\n                ');
-      
-        _ref2 = this.data.list.items;
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          id = _ref2[_k];
-          __out.push('\n                    <li>');
-          __out.push(__sanitize(id));
-          __out.push('</li>\n                ');
-        }
-      
-        __out.push('\n            </ul>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/templates/ResultsTableTool/step-1", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var id, _i, _len, _ref;
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <table>\n                <thead>\n                    <tr>\n                        <th>Identifier</th>\n                        <th>Attr 1</th>\n                        <th>Attr 2</th>\n                        <th>Attr 3</th>\n                    </tr>\n                </thead>\n                <tbody>\n                    ');
-      
-        _ref = this.previous.identifiers;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          id = _ref[_i];
-          __out.push('\n                        <tr>\n                            <td>');
-          __out.push(__sanitize(id));
-          __out.push('</td>\n                            <td>Дмитрий Фролов</td>\n                            <td>Егор Мальцев</td>\n                            <td>Станислав Тарасов</td>\n                        </tr>\n                    ');
-        }
-      
-        __out.push('\n                </tbody>\n            </table>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/templates/UploadListTool/step-1", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var i, id, _ref;
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the type of list to create and either enter in a list\n                of identifiers or upload identifiers from a file. A search will\n                be performed for all the identifiers in your list.</p>\n        </div>\n    </div>\n    <form class="row custom">\n        <div class="six columns">\n            <label>List of identifiers</label>\n            ');
-      
-        if (this.data && this.data.identifiers) {
-          __out.push('\n                <textarea>');
-          _ref = this.data.identifiers;
-          for (i in _ref) {
-            id = _ref[i];
-            __out.push(__sanitize(id));
-            if (parseInt(i) !== this.data.identifiers.length - 1) {
-              __out.push(' ');
-            }
-          }
-          __out.push('</textarea>\n            ');
-        } else {
-          __out.push('\n                <textarea>PPARG ZEN MAD</textarea>\n            ');
-        }
-      
-        __out.push('\n        </div>\n        <div class="six columns">\n            <label>Identifier type</label>\n            <select class="three">\n                <option>Genes</option>\n                <option>Proteins</option>\n            </select>\n        </div>\n    </form>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/templates/UploadListTool/step-2", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>You have uploaded a list. Maybe some of the steps on the right take your fancy?</p>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/views/EnrichListTool", function(exports, require, module) {
+window.require.register("tools/EnrichListTool/View", function(exports, require, module) {
   var EnrichListToolView, Mediator, ToolView, lists,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -2934,7 +2574,436 @@ window.require.register("tools/views/EnrichListTool", function(exports, require,
   })(ToolView);
   
 });
-window.require.register("tools/views/ResultsTableTool", function(exports, require, module) {
+window.require.register("tools/EnrichListTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+        var key, val, _ref;
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the list you want to enrich:</p>\n            <table>\n                <thead>\n                    <tr>\n                        <th></th>\n                        <th>List name</th>\n                        <th>Tags</th>\n                        <th>Size</th>\n                    </tr>\n                </thead>\n                <tbody>\n                ');
+      
+        _ref = this.lists;
+        for (key in _ref) {
+          val = _ref[key];
+          __out.push('\n                    <tr>\n                        <td style="text-align:center"><input type="checkbox" data-key="');
+          __out.push(__sanitize(key));
+          __out.push('" class="check" ');
+          if (val.selected) {
+            __out.push('checked="checked"');
+          }
+          __out.push(' /></td>\n                        <td>');
+          __out.push(__sanitize(val.name));
+          __out.push('</td>\n                        <td>\n                            <span class="secondary label">Random data</span>\n                        </td>\n                        <td>');
+          __out.push(__sanitize(val.items.length));
+          __out.push(' Item(s)</td>\n                    </tr>\n                ');
+        }
+      
+        __out.push('\n                </tbody>\n            </table>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Enrich the selected list</span></a>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/EnrichListTool/step-2", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+        var id, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="four columns">\n            <h2>Gene Enrichment</h2>\n            <p>A chart for list "');
+      
+        __out.push(__sanitize(this.data.list.name));
+      
+        __out.push('":</p>\n            <ul>\n                ');
+      
+        _ref = this.data.list.items;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          id = _ref[_i];
+          __out.push('\n                    <li>');
+          __out.push(__sanitize(id));
+          __out.push('</li>\n                ');
+        }
+      
+        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Publication Enrichment</h2>\n            <p>A chart for list "');
+      
+        __out.push(__sanitize(this.data.list.name));
+      
+        __out.push('":</p>\n            <ul>\n                ');
+      
+        _ref1 = this.data.list.items;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          id = _ref1[_j];
+          __out.push('\n                    <li>');
+          __out.push(__sanitize(id));
+          __out.push('</li>\n                ');
+        }
+      
+        __out.push('\n            </ul>\n        </div>\n        <div class="four columns">\n            <h2>Protein Enrichment</h2>\n            <p>A chart for list "');
+      
+        __out.push(__sanitize(this.data.list.name));
+      
+        __out.push('":</p>\n            <ul>\n                ');
+      
+        _ref2 = this.data.list.items;
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          id = _ref2[_k];
+          __out.push('\n                    <li>');
+          __out.push(__sanitize(id));
+          __out.push('</li>\n                ');
+        }
+      
+        __out.push('\n            </ul>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/Registry", function(exports, require, module) {
+  var categories, config;
+
+  categories = {
+    'query': 'Query/Search',
+    'analysis': 'Analysis',
+    'export': 'Export',
+    'viz': 'Visualization',
+    'set': 'Set Operations',
+    'out': 'Linkout',
+    'in': 'Import',
+    'inter': 'Interoperation'
+  };
+
+  config = {
+    'i:onHomepage': [
+      {
+        'slug': 'templates-list-tool',
+        'label': 'Queries (a list of templates)',
+        'category': categories.query
+      }, {
+        'slug': 'region-search-tool',
+        'label': 'Region search',
+        'category': categories.query
+      }, {
+        'slug': 'blast-search-tool',
+        'label': 'BLAST (Concordia University)',
+        'category': categories.query
+      }, {
+        'slug': 'enrichment-tool',
+        'label': 'GO Enrichment',
+        'extra': 'go',
+        'category': categories.analysis
+      }, {
+        'slug': 'enrichment-tool',
+        'label': 'Publications Enrichment',
+        'extra': 'publications',
+        'category': categories.analysis
+      }, {
+        'slug': 'enrichment-tool',
+        'label': 'Pathways Enrichment',
+        'extra': 'pathways',
+        'category': categories.analysis
+      }, {
+        'slug': 'graph-viz-tool',
+        'label': 'Expression graph widget',
+        'extra': 'expression',
+        'category': categories.viz
+      }, {
+        'slug': 'graph-viz-tool',
+        'label': 'Chromosome distribution widget',
+        'extra': 'chromosome-distribution',
+        'category': categories.viz
+      }, {
+        'slug': 'network-viz-tool',
+        'label': 'Cytoscape network diagram',
+        'category': categories.viz
+      }, {
+        'slug': 'report-widget-tool',
+        'label': 'Publications for a Gene',
+        'extra': 'publications-displayer',
+        'category': categories.viz
+      }, {
+        'slug': 'report-widget-tool',
+        'label': 'SPELL YeastMine Histogram',
+        'extra': 'spell',
+        'category': categories.viz
+      }, {
+        'slug': 'report-widget-tool',
+        'label': 'Mouse Phenotype Dendrogram Clustering',
+        'extra': 'mouse-phenotype-dendrogram',
+        'category': categories.viz
+      }, {
+        'slug': 'report-widget-tool',
+        'label': 'Pathways from other mines',
+        'extra': 'pathways',
+        'category': categories.viz
+      }, {
+        'slug': 'set-operations-tool',
+        'label': 'Intersect lists',
+        'extra': 'intersect',
+        'category': categories.set
+      }, {
+        'slug': 'set-operations-tool',
+        'label': 'Do a list union',
+        'extra': 'union',
+        'category': categories.set
+      }, {
+        'slug': 'set-operations-tool',
+        'label': 'Subtract lists',
+        'extra': 'subtract',
+        'category': categories.set
+      }, {
+        'slug': 'upload-list-tool',
+        'label': 'Upload a new list',
+        'category': categories["in"]
+      }, {
+        'slug': 'import-query-tool',
+        'label': 'Import a query/template',
+        'category': categories["in"]
+      }, {
+        'slug': 'import-tags-tool',
+        'label': 'Import tags',
+        'category': categories["in"]
+      }
+    ],
+    'i:haveGene': [
+      {
+        'slug': 'suggest-query-tool',
+        'label': 'View all pathways for this gene',
+        'extra': 'pathways',
+        'category': categories.query
+      }, {
+        'slug': 'suggest-query-tool',
+        'label': 'View all protein domains for this gene',
+        'extra': 'protein-domains',
+        'category': categories.query
+      }, {
+        'slug': 'linkout-tool',
+        'label': 'FlyBase',
+        'extra': 'flybase',
+        'category': categories.out
+      }
+    ],
+    'i:haveProtein': [
+      {
+        'slug': 'linkout-tool',
+        'label': 'UniProt',
+        'extra': 'uniprot',
+        'category': categories.out
+      }
+    ],
+    'i:haveOne': [
+      {
+        'slug': 'convert-type-tool',
+        'label': 'Convert this item to another type',
+        'category': categories.query
+      }
+    ],
+    'i:haveList': [
+      {
+        'slug': 'export-tool',
+        'label': 'Export to Galaxy',
+        'extra': 'galaxy',
+        'category': categories["export"]
+      }, {
+        'slug': 'export-tool',
+        'label': 'Export to GenomeSpace',
+        'extra': 'genome-space',
+        'category': categories["export"]
+      }, {
+        'slug': 'export-tool',
+        'label': 'Export to Comma Separated Values (CSV)',
+        'extra': 'csv',
+        'category': categories["export"]
+      }, {
+        'slug': 'export-tool',
+        'label': 'Export to R',
+        'extra': 'r',
+        'category': categories["export"]
+      }, {
+        'slug': 'export-tool',
+        'label': 'Export to Tab Separated file (TAB)',
+        'extra': 'tab',
+        'category': categories["export"]
+      }, {
+        'slug': 'export-tool',
+        'label': 'Export to FASTA format',
+        'extra': 'fasta',
+        'category': categories["export"]
+      }, {
+        'slug': 'export-tool',
+        'label': 'Export to RDF format',
+        'extra': 'rdf',
+        'category': categories["export"]
+      }, {
+        'slug': 'graph-viz-tool',
+        'label': 'Expression graph widget for this list',
+        'extra': 'expression',
+        'category': categories.viz
+      }, {
+        'slug': 'graph-viz-tool',
+        'label': 'Chromosome distribution for this list',
+        'extra': 'chromosome-distribution',
+        'category': categories.viz
+      }, {
+        'slug': 'report-widget-tool',
+        'label': 'Render a custom graph for this list',
+        'extra': 'custom-graph',
+        'category': categories.viz
+      }, {
+        'slug': 'report-widget-tool',
+        'label': 'Render a heat map for this list',
+        'extra': 'custom-heatmap',
+        'category': categories.viz
+      }, {
+        'slug': 'report-widget-tool',
+        'label': 'Render a cluster diagram for this list',
+        'extra': 'custom-cluster',
+        'category': categories.viz
+      }, {
+        'slug': 'set-operations-tool',
+        'label': 'Intersect with other lists',
+        'extra': 'intersect',
+        'category': categories.set
+      }, {
+        'slug': 'set-operations-tool',
+        'label': 'List union with other lists',
+        'extra': 'union',
+        'category': categories.set
+      }, {
+        'slug': 'set-operations-tool',
+        'label': 'Subtract lists',
+        'extra': 'subtract',
+        'category': categories.set
+      }, {
+        'slug': 'orthologues-tool',
+        'label': 'Convert to orthologues in YeastMine',
+        'extra': 'yeastmine',
+        'category': categories.inter
+      }, {
+        'slug': 'orthologues-tool',
+        'label': 'Convert to orthologues in RatMine',
+        'extra': 'ratmine',
+        'category': categories.inter
+      }, {
+        'slug': 'orthologues-tool',
+        'label': 'Convert to orthologues in this mine',
+        'category': categories.inter
+      }
+    ]
+  };
+
+  config['i:onLeft'] = config['i:onHomepage'];
+
+  module.exports = config;
+  
+});
+window.require.register("tools/ResultsTableTool/Model", function(exports, require, module) {
+  var ResultsTableTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = ResultsTableTool = (function(_super) {
+
+    __extends(ResultsTableTool, _super);
+
+    function ResultsTableTool() {
+      return ResultsTableTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ResultsTableTool.prototype.defaults = {
+      'slug': 'results-table-tool',
+      'name': 'ResultsTableTool',
+      'title': 'Results Table',
+      'description': 'Show a table of results',
+      'type': 'curiousblue',
+      'steps': ['See Table']
+    };
+
+    return ResultsTableTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/ResultsTableTool/View", function(exports, require, module) {
   var ResultsTableTool, ToolView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2954,7 +3023,97 @@ window.require.register("tools/views/ResultsTableTool", function(exports, requir
   })(ToolView);
   
 });
-window.require.register("tools/views/UploadListTool", function(exports, require, module) {
+window.require.register("tools/ResultsTableTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+        var id, _i, _len, _ref;
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <table>\n                <thead>\n                    <tr>\n                        <th>Identifier</th>\n                        <th>Attr 1</th>\n                        <th>Attr 2</th>\n                        <th>Attr 3</th>\n                    </tr>\n                </thead>\n                <tbody>\n                    ');
+      
+        _ref = this.previous.identifiers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          id = _ref[_i];
+          __out.push('\n                        <tr>\n                            <td>');
+          __out.push(__sanitize(id));
+          __out.push('</td>\n                            <td>Дмитрий Фролов</td>\n                            <td>Егор Мальцев</td>\n                            <td>Станислав Тарасов</td>\n                        </tr>\n                    ');
+        }
+      
+        __out.push('\n                </tbody>\n            </table>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/UploadListTool/Model", function(exports, require, module) {
+  var Tool, UploadListTool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = UploadListTool = (function(_super) {
+
+    __extends(UploadListTool, _super);
+
+    function UploadListTool() {
+      return UploadListTool.__super__.constructor.apply(this, arguments);
+    }
+
+    UploadListTool.prototype.defaults = {
+      'slug': 'upload-list-tool',
+      'name': 'UploadListTool',
+      'title': 'Upload a List',
+      'description': 'Upload a list of identifiers',
+      'type': 'deyork',
+      'steps': ['Input Identifiers', 'See Result']
+    };
+
+    return UploadListTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/UploadListTool/View", function(exports, require, module) {
   var Mediator, ToolView, UploadListToolView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2995,4 +3154,122 @@ window.require.register("tools/views/UploadListTool", function(exports, require,
 
   })(ToolView);
   
+});
+window.require.register("tools/UploadListTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+        var i, id, _ref;
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the type of list to create and either enter in a list\n                of identifiers or upload identifiers from a file. A search will\n                be performed for all the identifiers in your list.</p>\n        </div>\n    </div>\n    <form class="row custom">\n        <div class="six columns">\n            <label>List of identifiers</label>\n            ');
+      
+        if (this.data && this.data.identifiers) {
+          __out.push('\n                <textarea>');
+          _ref = this.data.identifiers;
+          for (i in _ref) {
+            id = _ref[i];
+            __out.push(__sanitize(id));
+            if (parseInt(i) !== this.data.identifiers.length - 1) {
+              __out.push(' ');
+            }
+          }
+          __out.push('</textarea>\n            ');
+        } else {
+          __out.push('\n                <textarea>PPARG ZEN MAD</textarea>\n            ');
+        }
+      
+        __out.push('\n        </div>\n        <div class="six columns">\n            <label>Identifier type</label>\n            <select class="three">\n                <option>Genes</option>\n                <option>Proteins</option>\n            </select>\n        </div>\n    </form>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/UploadListTool/step-2", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>You have uploaded a list. Maybe some of the steps on the right take your fancy?</p>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
 });

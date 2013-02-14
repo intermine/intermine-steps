@@ -30,12 +30,16 @@ module.exports = class ToolsController extends Controller
         # Convert to PascalCase.
         name = root.Utils.hyphenToPascal slug
 
-        # Require the Model.
-        Clazz = require "tools/models/#{name}"
-        model = new Clazz()
+        try
+            # Require the Model.
+            Clazz = require "tools/#{name}/Model"
+            model = new Clazz()
 
-        # Require the View.
-        Clazz = require "tools/views/#{name}"
+            # Require the View.
+            Clazz = require "tools/#{name}/View"
+        catch e
+            @redirectToRoute 404
+            assert false, "Unknown tool `#{name}`"
 
         # Render the View.
         @views.push new Clazz 'model': model
@@ -49,17 +53,21 @@ module.exports = class ToolsController extends Controller
         # Convert to PascalCase.
         name = root.Utils.hyphenToPascal slug
 
-        # Require the Model.
-        Clazz = require "tools/models/#{name}"
-        model = new Clazz()
+        try
+            # Require the Model.
+            Clazz = require "tools/#{name}/Model"
+            model = new Clazz()
 
-        # Require the View.
-        Clazz = require "tools/views/#{name}"
+            # Require the View.
+            Clazz = require "tools/#{name}/View"
+        catch e
+            @redirectToRoute 500
+            assert false, "Unknown tool `#{name}`"
 
         previous = (@collection.where({ 'guid': guid })).pop()
         # Did we actually have a previous step?
         unless previous
-            @redirectToRoute 'error'
+            @redirectToRoute 500
             assert false, 'No previous step'
 
         # Set the parent on us.
@@ -75,13 +83,19 @@ module.exports = class ToolsController extends Controller
         # Find the model in question.
         [ model ] = @collection.where 'slug': slug, 'guid': guid
         unless model
-            @redirectToRoute 'error'
+            @redirectToRoute 500
             assert false, 'We do not have this Model in History'
 
         @_chrome()
 
-        # Require the View.
-        Clazz = require "tools/views/#{model.get('name')}"
+        name = model.get('name')
+
+        try
+            # Require the View.
+            Clazz = require "tools/#{name}/View"
+        catch e
+            @redirectToRoute 500
+            assert false, "Unknown tool `#{name}`"
 
         # Dupe so we set new data on a new model.
         model = @collection.dupe model
