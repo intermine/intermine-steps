@@ -106,12 +106,10 @@ module.exports = class History extends Collection
         # Now do the sync.
         # Backbone.sync 'update', @
 
-    # Duplicate a model.
+    # Duplicate a model, preserve data about "us" though!
     dupe: (model) ->
         # Get JSON repr.
         obj = model.toJSON()
-        # Delete our UID and creation time just to make sure.
-        ( delete obj[key] for key in [ 'guid', 'created' ] )
         # Require the Model.
         Clazz = require "tools/models/#{obj.name}"
         # Init the Model again.

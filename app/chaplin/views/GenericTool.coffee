@@ -5,10 +5,13 @@ module.exports = class GenericToolView extends View
 
     # Update our "time ago" and call again if we change often.
     updateTime: (el) =>
-        assert @model, 'Model is not set'
+        assert @model and (guid = @model.get('guid')), 'Model is not set or is incomplete, cannot time update'
 
         # The creation date.
-        created = new Date @model.get 'created'
+        created = @model.get 'created'
+        assert created, "Created date not provided for model `#{guid}`"
+        date = new Date @model.get 'created'
+        assert not(isNaN(date.getTime())), "Invalid created date `#{created}`"
 
         # Skip on new tools that we are using now.
         # if not created or isNaN(created.getTime())
@@ -18,11 +21,11 @@ module.exports = class GenericToolView extends View
         # Init timeout for fib sequence.
         [a, b] = [0, 1]
         # Run this now for the first time.
-        do queue = ->
+        do queue = =>
             # If we do not exist anymore, fold...
 
             # What is the time difference?
-            d = moment(created).fromNow()
+            d = moment(date).fromNow()
             # Call again?
             if c isnt d
                 # Reset fib.
@@ -35,4 +38,4 @@ module.exports = class GenericToolView extends View
                 [a, b] = [b, a + b]
 
             # Call us in this time.
-            setTimeout queue, b * 1000
+            @timeouts.push setTimeout queue, b * 1000

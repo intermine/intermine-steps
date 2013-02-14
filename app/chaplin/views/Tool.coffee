@@ -52,7 +52,7 @@ module.exports = class ToolView extends GenericToolView
         # Start checking for breadcrumbs to show.
         @checkCrumbs()
 
-        # Init "time ago" updater.
+        # Init "time ago" updater for models that are done.
         if @model.get('locked')? then @updateTime $(@el).find('em.ago')
 
         @

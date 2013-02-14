@@ -826,13 +826,8 @@ window.require.define({"chaplin/models/History": function(exports, require, modu
     };
 
     History.prototype.dupe = function(model) {
-      var Clazz, key, obj, _i, _len, _ref;
+      var Clazz, obj;
       obj = model.toJSON();
-      _ref = ['guid', 'created'];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        key = _ref[_i];
-        delete obj[key];
-      }
       Clazz = require("tools/models/" + obj.name);
       return new Clazz(obj);
     };
@@ -1478,21 +1473,25 @@ window.require.define({"chaplin/views/GenericTool": function(exports, require, m
     }
 
     GenericToolView.prototype.updateTime = function(el) {
-      var a, b, c, created, queue, _ref;
-      assert(this.model, 'Model is not set');
-      created = new Date(this.model.get('created'));
+      var a, b, c, created, date, guid, queue, _ref,
+        _this = this;
+      assert(this.model && (guid = this.model.get('guid')), 'Model is not set or is incomplete, cannot time update');
+      created = this.model.get('created');
+      assert(created, "Created date not provided for model `" + guid + "`");
+      date = new Date(this.model.get('created'));
+      assert(!(isNaN(date.getTime())), "Invalid created date `" + created + "`");
       c = null;
       _ref = [0, 1], a = _ref[0], b = _ref[1];
       return (queue = function() {
         var d, _ref1, _ref2;
-        d = moment(created).fromNow();
+        d = moment(date).fromNow();
         if (c !== d) {
           _ref1 = [0, 1], a = _ref1[0], b = _ref1[1];
           el.text(c = d);
         } else {
           _ref2 = [b, a + b], a = _ref2[0], b = _ref2[1];
         }
-        return setTimeout(queue, b * 1000);
+        return _this.timeouts.push(setTimeout(queue, b * 1000));
       })();
     };
 
