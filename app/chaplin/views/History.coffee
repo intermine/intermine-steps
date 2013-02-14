@@ -195,6 +195,7 @@ module.exports = class HistoryView extends View
     serializeHistory: ->
         # Call the modal with a serialized History collection.
         Mediator.publish 'modal:render',
+            'title': 'Your history serialized'
             'code':
                 'src': JSON.stringify(window.History.models, null, 4)
                 'lang': 'json'

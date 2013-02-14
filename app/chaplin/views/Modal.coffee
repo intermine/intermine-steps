@@ -21,7 +21,12 @@ module.exports = class LeftSidebarView extends View
     afterRender: ->
         super
 
-        $(@el).addClass 'reveal-modal'
+        (el = $(@el)).addClass 'reveal-modal'
+
+        # Add links to our components.
+        @title = el.find('.title')
+        @code  = el.find('.code')
+        @text  = el.find('.text')
 
         @
 
@@ -30,14 +35,21 @@ module.exports = class LeftSidebarView extends View
         el = $(@el)
 
         # Populate with content.
-        if title then el.find('.title').html(title)
+        if title then @title.html(title) else @title.html('')
         if code
-            el.find('.code').html(code.src).attr('data-language', code.lang)
+            @code.html(code.src).attr('data-language', code.lang)
             Rainbow.color()
-        if text then el.find('.text').html(text)
+        else
+            @code.html('')
+        if text then @text.html(text) else @text.html('')
 
         # Foundation Reveal.
         el.reveal()
 
-        # Adjust the height of the whole shebang.
-        el.find('.scroll').css 'height': $(window).height() / 2
+        scroll = el.find('.scroll')
+        # Go back to auto scrollbar height.
+        scroll.css 'height': 'auto'
+        # Is our height a bit too large?
+        if el.outerHeight() > 500
+            # Adjust the height of the whole shebang using scrollbar.
+            scroll.css 'height': $(window).height() / 2

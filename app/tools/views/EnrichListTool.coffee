@@ -34,6 +34,8 @@ module.exports = class EnrichListToolView extends ToolView
                         # Add it to the store.
                         list.selected = true
                         @lists.push list
+                    # Make it selected as a property on us.
+                    @selected = list
 
                 # Enhance with lists as if coming from the server.
                 _.extend super, 'lists': @lists

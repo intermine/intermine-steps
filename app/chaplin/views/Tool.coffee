@@ -49,11 +49,23 @@ module.exports = class ToolView extends GenericToolView
         # Render a specific step into our accordion template.
         $(@el).find("ul.accordion li(data-step='<%= @step %>') div.content").html (require("tools/templates/#{name}/step-#{@step}"))(@getTemplateData())
 
-        # Do we have breadcrumbs to show?
-        if window.History.length isnt 0
-            crumbs = $(@el).find('ul.breadcrumbs')
-            # Get the two Models before the last one.
-            for crumb in window.History.models[-2...] then do (crumb) ->
+        # Start checking for breadcrumbs to show.
+        @checkCrumbs()
+
+        # Init "time ago" updater.
+        if @model.get('locked')? then @updateTime $(@el).find('em.ago')
+
+        @
+
+    # Check for latest breadcrumbs to show.
+    checkCrumbs: =>
+        collection = window.History
+
+        if collection.length isnt 0
+            # Clear any previous ones first.
+            (crumbs = $(@el).find('ul.breadcrumbs')).html('')
+            # Get the three Models before the last one.
+            for crumb in collection.models[-3...] then do (crumb) ->
                 # Show them.
                 crumbs.show()
                 # Add the list item.
@@ -66,10 +78,8 @@ module.exports = class ToolView extends GenericToolView
             # Trailing arrow.
             crumbs.append $ '<li/>', 'class': 'entypo rightopen', 'html': '&nbsp;'
 
-        # Init "time ago" updater.
-        if @model.get('locked')? then @updateTime $(@el).find('em.ago')
-
-        @
+        # Check again later on.
+        @timeouts.push setTimeout @checkCrumbs, 1000
 
     # Get DOM for current step.
     getDOM: -> $(@el).find('ul.accordion li.active div.content')

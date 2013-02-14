@@ -1186,7 +1186,7 @@ window.require.define({"chaplin/templates/modal": function(exports, require, mod
     (function() {
       (function() {
       
-        __out.push('<h2 class="title"></h2>\n<div class="scroll">\n    <p class="text"></p>\n    <pre><code class="code"></code></pre>\n</div>\n<a class="close-reveal-modal">&#215;</a>');
+        __out.push('<h1 class="title"></h1>\n<div class="scroll">\n    <p class="text"></p>\n    <pre><code class="code"></code></pre>\n</div>\n<a class="close-reveal-modal">&#215;</a>');
       
       }).call(this);
       
@@ -1690,6 +1690,7 @@ window.require.define({"chaplin/views/History": function(exports, require, modul
 
     HistoryView.prototype.serializeHistory = function() {
       return Mediator.publish('modal:render', {
+        'title': 'Your history serialized',
         'code': {
           'src': JSON.stringify(window.History.models, null, 4),
           'lang': 'json'
@@ -1887,29 +1888,45 @@ window.require.define({"chaplin/views/Modal": function(exports, require, module)
     };
 
     LeftSidebarView.prototype.afterRender = function() {
+      var el;
       LeftSidebarView.__super__.afterRender.apply(this, arguments);
-      $(this.el).addClass('reveal-modal');
+      (el = $(this.el)).addClass('reveal-modal');
+      this.title = el.find('.title');
+      this.code = el.find('.code');
+      this.text = el.find('.text');
       return this;
     };
 
     LeftSidebarView.prototype.show = function(_arg) {
-      var code, el, text, title;
+      var code, el, scroll, text, title;
       title = _arg.title, text = _arg.text, code = _arg.code;
       el = $(this.el);
       if (title) {
-        el.find('.title').html(title);
+        this.title.html(title);
+      } else {
+        this.title.html('');
       }
       if (code) {
-        el.find('.code').html(code.src).attr('data-language', code.lang);
+        this.code.html(code.src).attr('data-language', code.lang);
         Rainbow.color();
+      } else {
+        this.code.html('');
       }
       if (text) {
-        el.find('.text').html(text);
+        this.text.html(text);
+      } else {
+        this.text.html('');
       }
       el.reveal();
-      return el.find('.scroll').css({
-        'height': $(window).height() / 2
+      scroll = el.find('.scroll');
+      scroll.css({
+        'height': 'auto'
       });
+      if (el.outerHeight() > 500) {
+        return scroll.css({
+          'height': $(window).height() / 2
+        });
+      }
     };
 
     return LeftSidebarView;
@@ -2143,6 +2160,7 @@ window.require.define({"chaplin/views/RightSidebar": function(exports, require, 
 
 window.require.define({"chaplin/views/Tool": function(exports, require, module) {
   var GenericToolView, Mediator, Tool, ToolView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2157,6 +2175,7 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
     __extends(ToolView, _super);
 
     function ToolView() {
+      this.checkCrumbs = __bind(this.checkCrumbs, this);
       return ToolView.__super__.constructor.apply(this, arguments);
     }
 
@@ -2207,14 +2226,24 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
     };
 
     ToolView.prototype.afterRender = function() {
-      var crumb, crumbs, name, _fn, _i, _len, _ref;
+      var name;
       ToolView.__super__.afterRender.apply(this, arguments);
       name = this.model.get('name');
       assert(name, 'Name of the tool is not provided');
       $(this.el).find("ul.accordion li(data-step='<%= @step %>') div.content").html((require("tools/templates/" + name + "/step-" + this.step))(this.getTemplateData()));
-      if (window.History.length !== 0) {
-        crumbs = $(this.el).find('ul.breadcrumbs');
-        _ref = window.History.models.slice(-2);
+      this.checkCrumbs();
+      if (this.model.get('locked') != null) {
+        this.updateTime($(this.el).find('em.ago'));
+      }
+      return this;
+    };
+
+    ToolView.prototype.checkCrumbs = function() {
+      var collection, crumb, crumbs, _fn, _i, _len, _ref;
+      collection = window.History;
+      if (collection.length !== 0) {
+        (crumbs = $(this.el).find('ul.breadcrumbs')).html('');
+        _ref = collection.models.slice(-3);
         _fn = function(crumb) {
           var a, li;
           crumbs.show();
@@ -2236,10 +2265,7 @@ window.require.define({"chaplin/views/Tool": function(exports, require, module) 
           'html': '&nbsp;'
         }));
       }
-      if (this.model.get('locked') != null) {
-        this.updateTime($(this.el).find('em.ago'));
-      }
-      return this;
+      return this.timeouts.push(setTimeout(this.checkCrumbs, 1000));
     };
 
     ToolView.prototype.getDOM = function() {
@@ -2782,6 +2808,7 @@ window.require.define({"tools/views/EnrichListTool": function(exports, require, 
               list.selected = true;
               this.lists.push(list);
             }
+            this.selected = list;
           }
           return _.extend(EnrichListToolView.__super__.getTemplateData.apply(this, arguments), {
             'lists': this.lists
