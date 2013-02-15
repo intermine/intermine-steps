@@ -14,7 +14,11 @@
                 <% i = parseInt(i) + 1 %>
                 <li class="<%= @type %><% if i is @step: %> active<% end %>" data-step="<%= i %>">
                     <div class="title">
-                        <h5>#<%= i %>: <%= title %></h5>
+                        <% if @steps.length isnt 1: %>
+                            <h5>#<%= i %>: <%= title %></h5>
+                        <% else: %>
+                            <h5><%= title %></h5>
+                        <% end %>
                     </div>
                     <div class="content">Dummy</div>
                 </li>

@@ -6,6 +6,6 @@ module.exports = class ExportTool extends Tool
         'slug': 'export-tool'
         'name': 'ExportTool'
         'title': 'Data Export'
-        'description': 'Eexporting'
+        'description': 'Exporting'
         'type': 'turquoise'
-        'steps': [ 'Exporting data' ]
+        'steps': [ 'Choose export format', 'Download exported data' ]

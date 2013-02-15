@@ -1,7 +1,23 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <p>You are exporting data and it feels great &hellip;.</p>
+            <p>
+                You have selected the list
+                <strong><%= @data?.list?.name %></strong> for export.
+            </p>
+            <form class="row">
+                <div class="six columns">
+                    <label>Export format</label>
+                    <select>
+                        <option>Comma Separated Values (CSV)</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            <a id="submit" class="button">Export</span></a>
         </div>
     </div>
 </div>

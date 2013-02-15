@@ -17,18 +17,15 @@ module.exports = class NextStepsView extends View
         # Representation of the list of actions.
         @list = {}
 
-        Mediator.subscribe 'history:activate', @activate, @
-
-    # Set a guid as "current".
-    activate: (@current) =>
-
     # Add a link to a tool from its model.
-    add: ({ slug, label, category, type }) =>
+    add: ({ slug, label, category, type, guid }) =>
         assert @method, 'We do not know which linking `method` to use'
 
         # Get the current tool guid?
         suffix = ''
-        if @method is 'continue' then suffix = "/#{@current}"
+        if @method is 'continue'
+            assert guid, 'Have not provided `guid` parameter, who my daddy?'
+            suffix = "/#{guid}"
 
         # Do we have this category?
         unless @list[category]

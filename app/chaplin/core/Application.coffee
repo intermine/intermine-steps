@@ -45,9 +45,8 @@ module.exports = class InterMineSteps extends Chaplin.Application
     initRegistry: ->
         for key, map of Registry then do (key, map) =>
             # This is what we have.
-            Mediator.subscribe "context:#{key}", =>
+            Mediator.subscribe "context:#{key}", (guid) =>
                 for obj in map
-
                     # Convert to PascalCase to get the name.
                     name = root.Utils.hyphenToPascal obj.slug
 
@@ -61,6 +60,9 @@ module.exports = class InterMineSteps extends Chaplin.Application
 
                     # Enhance the obj with extra info from the model.
                     obj.type = model.get('type')
+
+                    # Add the guid information (when continuing).
+                    obj.guid = guid
 
                     # Cleanup.
                     model.dispose()

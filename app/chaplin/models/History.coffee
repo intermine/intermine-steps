@@ -65,7 +65,7 @@ module.exports = class History extends Collection
         @timeouts.push setTimeout @checkStorage, 1000
 
     # Add a tool to our collection (following a user action).
-    addTool: (model) =>
+    addTool: (model, redirect=true) =>
         # Generate unused guid.
         notfound = true
         while notfound
@@ -97,7 +97,8 @@ module.exports = class History extends Collection
         #     # Give us the url of this saved tool.
         #     @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': guid }
 
-        @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': guid }
+        if redirect?
+            @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': guid }
 
         # Say the View needs to update.
         # Mediator.publish 'history:render', model

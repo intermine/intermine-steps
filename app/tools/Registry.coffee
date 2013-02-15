@@ -25,12 +25,6 @@ config =
     ]
     'i:haveList': [
         {
-            'slug': 'export-tool'
-            'label': 'Export to **Galaxy**'
-            'extra': 'galaxy'
-            'category': 'Category 1'
-            'weight': 2
-        }, {
             'slug': 'results-table-tool'
             'label': 'See list in a **table**'
             'category': 'Category 1'
@@ -40,6 +34,15 @@ config =
             'label': '**Enrich** this list'
             'category': 'Category 1'
             'weight': 9
+        }
+    ]
+    'i:canExport': [
+        {
+            'slug': 'export-tool'
+            'label': 'Export to **Galaxy**'
+            'extra': 'galaxy'
+            'category': 'Category 1'
+            'weight': 2
         }
     ]
 

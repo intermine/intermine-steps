@@ -336,7 +336,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
       for (key in Registry) {
         map = Registry[key];
         _results.push((function(key, map) {
-          return Mediator.subscribe("context:" + key, function() {
+          return Mediator.subscribe("context:" + key, function(guid) {
             var Model, model, name, obj, _i, _len, _results1;
             _results1 = [];
             for (_i = 0, _len = map.length; _i < _len; _i++) {
@@ -350,6 +350,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
                 assert(false, "Unknown tool `" + name + "`");
               }
               obj.type = model.get('type');
+              obj.guid = guid;
               model.dispose();
               _results1.push(Mediator.publish("contextRender:" + key, obj));
             }
@@ -830,8 +831,11 @@ window.require.register("chaplin/models/History", function(exports, require, mod
       return this.timeouts.push(setTimeout(this.checkStorage, 1000));
     };
 
-    History.prototype.addTool = function(model) {
+    History.prototype.addTool = function(model, redirect) {
       var guid, locked, notfound;
+      if (redirect == null) {
+        redirect = true;
+      }
       notfound = true;
       while (notfound) {
         guid = window.Utils.guid();
@@ -851,10 +855,12 @@ window.require.register("chaplin/models/History", function(exports, require, mod
       });
       this.add(model);
       this.storage.add(model.toJSON());
-      return this.controller.redirectToRoute('old', {
-        'slug': model.get('slug'),
-        'guid': guid
-      });
+      if (redirect != null) {
+        return this.controller.redirectToRoute('old', {
+          'slug': model.get('slug'),
+          'guid': guid
+        });
+      }
     };
 
     History.prototype.dupe = function(model) {
@@ -1553,11 +1559,19 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
             }
             __out.push('" data-step="');
             __out.push(__sanitize(i));
-            __out.push('">\n                    <div class="title">\n                        <h5>#');
-            __out.push(__sanitize(i));
-            __out.push(': ');
-            __out.push(__sanitize(title));
-            __out.push('</h5>\n                    </div>\n                    <div class="content">Dummy</div>\n                </li>\n            ');
+            __out.push('">\n                    <div class="title">\n                        ');
+            if (this.steps.length !== 1) {
+              __out.push('\n                            <h5>#');
+              __out.push(__sanitize(i));
+              __out.push(': ');
+              __out.push(__sanitize(title));
+              __out.push('</h5>\n                        ');
+            } else {
+              __out.push('\n                            <h5>');
+              __out.push(__sanitize(title));
+              __out.push('</h5>\n                        ');
+            }
+            __out.push('\n                    </div>\n                    <div class="content">Dummy</div>\n                </li>\n            ');
           }
           __out.push('\n        </ul>\n    ');
         } else {
@@ -2222,8 +2236,6 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
 
     function NextStepsView() {
       this.add = __bind(this.add, this);
-
-      this.activate = __bind(this.activate, this);
       return NextStepsView.__super__.constructor.apply(this, arguments);
     }
 
@@ -2237,21 +2249,17 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
 
     NextStepsView.prototype.initialize = function() {
       NextStepsView.__super__.initialize.apply(this, arguments);
-      this.list = {};
-      return Mediator.subscribe('history:activate', this.activate, this);
-    };
-
-    NextStepsView.prototype.activate = function(current) {
-      this.current = current;
+      return this.list = {};
     };
 
     NextStepsView.prototype.add = function(_arg) {
-      var category, label, slug, suffix, type, view;
-      slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type;
+      var category, guid, label, slug, suffix, type, view;
+      slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type, guid = _arg.guid;
       assert(this.method, 'We do not know which linking `method` to use');
       suffix = '';
       if (this.method === 'continue') {
-        suffix = "/" + this.current;
+        assert(guid, 'Have not provided `guid` parameter, who my daddy?');
+        suffix = "/" + guid;
       }
       if (!this.list[category]) {
         $(this.el).append($('<h4/>', {
@@ -2624,7 +2632,7 @@ window.require.register("tools/BlastSearchTool/View", function(exports, require,
       UploadListToolView.__super__.afterRender.apply(this, arguments);
       switch (this.step) {
         case 2:
-          Mediator.publish('context:i:haveList');
+          Mediator.publish('context:i:haveList', this.model.get('guid'));
       }
       this.delegate('click', '#submit', function() {
         var item;
@@ -2875,7 +2883,7 @@ window.require.register("tools/EnrichListTool/View", function(exports, require, 
           break;
         case 2:
           assert(this.model.get('data'), 'List not provided');
-          Mediator.publish('context:i:haveList');
+          Mediator.publish('context:i:haveList', this.model.get('guid'));
       }
       this.delegate('click', 'input.check', this.selectList);
       this.delegate('click', '#submit', this.enrichList);
@@ -3091,9 +3099,9 @@ window.require.register("tools/ExportTool/Model", function(exports, require, mod
       'slug': 'export-tool',
       'name': 'ExportTool',
       'title': 'Data Export',
-      'description': 'Eexporting',
+      'description': 'Exporting',
       'type': 'turquoise',
-      'steps': ['Exporting data']
+      'steps': ['Choose export format', 'Download exported data']
     };
 
     return ExportTool;
@@ -3102,9 +3110,12 @@ window.require.register("tools/ExportTool/Model", function(exports, require, mod
   
 });
 window.require.register("tools/ExportTool/View", function(exports, require, module) {
-  var ExportToolView, ToolView,
+  var ExportToolView, Mediator, ToolView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
 
   ToolView = require('chaplin/views/Tool');
 
@@ -3113,8 +3124,35 @@ window.require.register("tools/ExportTool/View", function(exports, require, modu
     __extends(ExportToolView, _super);
 
     function ExportToolView() {
+      this.exportData = __bind(this.exportData, this);
       return ExportToolView.__super__.constructor.apply(this, arguments);
     }
+
+    ExportToolView.prototype.afterRender = function() {
+      var list, _ref, _ref1, _ref2;
+      ExportToolView.__super__.afterRender.apply(this, arguments);
+      switch (this.step) {
+        case 1:
+          list = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0;
+          if (list) {
+            this.selected = list;
+            this.exportData();
+          }
+      }
+      return this.delegate('click', '#submit', this.exportData);
+    };
+
+    ExportToolView.prototype.exportData = function() {
+      if (this.selected) {
+        this.model.set({
+          'data': {
+            'list': this.selected
+          }
+        });
+      }
+      Mediator.publish('history:add', this.model);
+      return Mediator.publish('tool:step', this.step += 1);
+    };
 
     return ExportToolView;
 
@@ -3122,6 +3160,61 @@ window.require.register("tools/ExportTool/View", function(exports, require, modu
   
 });
 window.require.register("tools/ExportTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+        var _ref, _ref1;
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>\n                You have selected the list\n                <strong>');
+      
+        __out.push(__sanitize((_ref = this.data) != null ? (_ref1 = _ref.list) != null ? _ref1.name : void 0 : void 0));
+      
+        __out.push('</strong> for export.\n            </p>\n            <form class="row">\n                <div class="six columns">\n                    <label>Export format</label>\n                    <select>\n                        <option>Comma Separated Values (CSV)</option>\n                    </select>\n                </div>\n            </form>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Export</span></a>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/ExportTool/step-2", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
     var __out = [], __capture = function(callback) {
@@ -3201,12 +3294,6 @@ window.require.register("tools/Registry", function(exports, require, module) {
     ],
     'i:haveList': [
       {
-        'slug': 'export-tool',
-        'label': 'Export to **Galaxy**',
-        'extra': 'galaxy',
-        'category': 'Category 1',
-        'weight': 2
-      }, {
         'slug': 'results-table-tool',
         'label': 'See list in a **table**',
         'category': 'Category 1',
@@ -3216,6 +3303,15 @@ window.require.register("tools/Registry", function(exports, require, module) {
         'label': '**Enrich** this list',
         'category': 'Category 1',
         'weight': 9
+      }
+    ],
+    'i:canExport': [
+      {
+        'slug': 'export-tool',
+        'label': 'Export to **Galaxy**',
+        'extra': 'galaxy',
+        'category': 'Category 1',
+        'weight': 2
       }
     ]
   };
@@ -3354,9 +3450,11 @@ window.require.register("tools/ResultsTableTool/Model", function(exports, requir
   
 });
 window.require.register("tools/ResultsTableTool/View", function(exports, require, module) {
-  var ResultsTableTool, ToolView,
+  var Mediator, ResultsTableTool, ToolView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
 
   ToolView = require('chaplin/views/Tool');
 
@@ -3367,6 +3465,11 @@ window.require.register("tools/ResultsTableTool/View", function(exports, require
     function ResultsTableTool() {
       return ResultsTableTool.__super__.constructor.apply(this, arguments);
     }
+
+    ResultsTableTool.prototype.afterRender = function() {
+      ResultsTableTool.__super__.afterRender.apply(this, arguments);
+      return Mediator.publish('context:i:canExport', this.model.get('parent'));
+    };
 
     return ResultsTableTool;
 
@@ -3488,7 +3591,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
       UploadListToolView.__super__.afterRender.apply(this, arguments);
       switch (this.step) {
         case 2:
-          Mediator.publish('context:i:haveList');
+          Mediator.publish('context:i:haveList', this.model.get('guid'));
       }
       this.delegate('click', '#submit', function() {
         this.model.set('data', {
