@@ -1,6 +1,8 @@
 Mediator = require 'chaplin/core/Mediator'
 View = require 'chaplin/core/View'
 
+Action = require 'chaplin/views/Action'
+
 module.exports = class NextStepsView extends View
 
     containerMethod: 'html'
@@ -35,7 +37,12 @@ module.exports = class NextStepsView extends View
             # Add a list saving it under our category.
             $(@el).append @list[category] = $('<ul/>', 'class': 'alternating')
 
+        # Render the View for this action.
+        @views.push view = new Action
+            'slug':   slug
+            'label':  label
+            'method': @method
+            'suffix': suffix
+
         # Append the link to an existing category.
-        @list[category].append $('<li/>').append $ '<a/>',
-            'text': label
-            'href': "/tool/#{slug}/#{@method}#{suffix}"
+        @list[category].append view.el

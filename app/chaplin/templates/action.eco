@@ -1,0 +1,1 @@
+<a href="/tool/<%= @slug %>/<%= @method %><%= @suffix %>"><%- @label %></a>

@@ -59,9 +59,41 @@ code
 input[type="checkbox"]
     cursor: pointer
 
+// used on showing a listing of tools
 ul.alternating
-    li:nth-child(even)
-        background: lighten(#2ba6cb, 49)
+    list-style-type: square !important
+
+    li
+        color: lighten(#2ba6cb, 40)
+
+        &.terracotta
+            color: #e2674a
+        &.goldentainoi
+            color: #FFCC66
+        &.curiousblue
+            color: #3399CC
+        &.turquoise
+            color: #33CCCC
+        &.strikemaster
+            color: #996699
+        &.crail
+            color: #C24747
+        &.deyork
+            color: #99CC99
+        &.patina
+            color: #669999
+        &.hopbush
+            color: #CC6699
+        &.seagreen
+            color: #339966
+        &.kimberly
+            color: #666699
+
+        &:not(:last-child)
+            border-bottom: 1px solid lighten(#2ba6cb, 47)
+
+        &:nth-child(even)
+            background: lighten(#2ba6cb, 51)
 
 .row
     width: auto

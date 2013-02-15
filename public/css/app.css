@@ -52,8 +52,50 @@ code {
 input[type="checkbox"] {
   cursor: pointer;
 }
+ul.alternating {
+  list-style-type: square !important;
+}
+ul.alternating li {
+  color: #cdebf5;
+}
+ul.alternating li.terracotta {
+  color: #e2674a;
+}
+ul.alternating li.goldentainoi {
+  color: #fc6;
+}
+ul.alternating li.curiousblue {
+  color: #39c;
+}
+ul.alternating li.turquoise {
+  color: #3cc;
+}
+ul.alternating li.strikemaster {
+  color: #969;
+}
+ul.alternating li.crail {
+  color: #c24747;
+}
+ul.alternating li.deyork {
+  color: #9c9;
+}
+ul.alternating li.patina {
+  color: #699;
+}
+ul.alternating li.hopbush {
+  color: #c69;
+}
+ul.alternating li.seagreen {
+  color: #396;
+}
+ul.alternating li.kimberly {
+  color: #669;
+}
+ul.alternating li:not(:last-child) {
+  border-bottom: 1px solid #ebf7fb;
+}
 ul.alternating li:nth-child(even) {
-  background: #f3fafd;
+  background: #fcfefe;
 }
 .row {
   width: auto;

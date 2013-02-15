@@ -976,6 +976,70 @@ window.require.register("chaplin/templates/500", function(exports, require, modu
     return __out.join('');
   }
 });
+window.require.register("chaplin/templates/action", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<a href="/tool/');
+      
+        __out.push(__sanitize(this.slug));
+      
+        __out.push('/');
+      
+        __out.push(__sanitize(this.method));
+      
+        __out.push(__sanitize(this.suffix));
+      
+        __out.push('">');
+      
+        __out.push(this.label);
+      
+        __out.push('</a>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
 window.require.register("chaplin/templates/app", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -1494,6 +1558,47 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
     __obj.safe = __objSafe, __obj.escape = __escape;
     return __out.join('');
   }
+});
+window.require.register("chaplin/views/Action", function(exports, require, module) {
+  var ActionView, View,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('chaplin/core/View');
+
+  module.exports = ActionView = (function(_super) {
+
+    __extends(ActionView, _super);
+
+    function ActionView() {
+      return ActionView.__super__.constructor.apply(this, arguments);
+    }
+
+    ActionView.prototype.containerMethod = 'html';
+
+    ActionView.prototype.autoRender = true;
+
+    ActionView.prototype.tagName = 'li';
+
+    ActionView.prototype.getTemplateFunction = function() {
+      return require('chaplin/templates/action');
+    };
+
+    ActionView.prototype.getTemplateData = function() {
+      return _.extend(this.options, {
+        'label': this.markup(this.options.label)
+      });
+    };
+
+    ActionView.prototype.markup = function(text) {
+      text = text.replace(/(\*\*|__)(?=\S)([^\r]*?\S[*_]*)\1/g, "<strong>$2</strong>");
+      return text = text.replace(/(\*|_)(?=\S)([^\r]*?\S)\1/g, "<em>$2</em>");
+    };
+
+    return ActionView;
+
+  })(View);
+  
 });
 window.require.register("chaplin/views/App", function(exports, require, module) {
   var AppView, Mediator, View,
@@ -2077,7 +2182,7 @@ window.require.register("chaplin/views/Modal", function(exports, require, module
   
 });
 window.require.register("chaplin/views/NextSteps", function(exports, require, module) {
-  var Mediator, NextStepsView, View,
+  var Action, Mediator, NextStepsView, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2085,6 +2190,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
   Mediator = require('chaplin/core/Mediator');
 
   View = require('chaplin/core/View');
+
+  Action = require('chaplin/views/Action');
 
   module.exports = NextStepsView = (function(_super) {
 
@@ -2116,7 +2223,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     };
 
     NextStepsView.prototype.add = function(_arg) {
-      var category, label, slug, suffix;
+      var category, label, slug, suffix, view;
       slug = _arg.slug, label = _arg.label, category = _arg.category;
       assert(this.method, 'We do not know which linking `method` to use');
       suffix = '';
@@ -2131,10 +2238,13 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
           'class': 'alternating'
         }));
       }
-      return this.list[category].append($('<li/>').append($('<a/>', {
-        'text': label,
-        'href': "/tool/" + slug + "/" + this.method + suffix
-      })));
+      this.views.push(view = new Action({
+        'slug': slug,
+        'label': label,
+        'method': this.method,
+        'suffix': suffix
+      }));
+      return this.list[category].append(view.el);
     };
 
     return NextStepsView;
@@ -2737,234 +2847,43 @@ window.require.register("tools/EnrichListTool/step-2", function(exports, require
   }
 });
 window.require.register("tools/Registry", function(exports, require, module) {
-  var categories, config;
-
-  categories = {
-    'query': 'Query/Search',
-    'analysis': 'Analysis',
-    'export': 'Export',
-    'viz': 'Visualization',
-    'set': 'Set Operations',
-    'out': 'Linkout',
-    'in': 'Import',
-    'inter': 'Interoperation'
-  };
+  var config;
 
   config = {
     'i:onHomepage': [
       {
-        'slug': 'templates-list-tool',
-        'label': 'Queries (a list of templates)',
-        'category': categories.query
-      }, {
-        'slug': 'region-search-tool',
-        'label': 'Region search',
-        'category': categories.query
+        'slug': 'enrich-list-tool',
+        'label': '**Enrich** an existing list',
+        'category': 'Category 1'
       }, {
         'slug': 'blast-search-tool',
-        'label': 'BLAST (Concordia University)',
-        'category': categories.query
-      }, {
-        'slug': 'enrichment-tool',
-        'label': 'GO Enrichment',
-        'extra': 'go',
-        'category': categories.analysis
-      }, {
-        'slug': 'enrichment-tool',
-        'label': 'Publications Enrichment',
-        'extra': 'publications',
-        'category': categories.analysis
-      }, {
-        'slug': 'enrichment-tool',
-        'label': 'Pathways Enrichment',
-        'extra': 'pathways',
-        'category': categories.analysis
-      }, {
-        'slug': 'graph-viz-tool',
-        'label': 'Expression graph widget',
-        'extra': 'expression',
-        'category': categories.viz
-      }, {
-        'slug': 'graph-viz-tool',
-        'label': 'Chromosome distribution widget',
-        'extra': 'chromosome-distribution',
-        'category': categories.viz
-      }, {
-        'slug': 'network-viz-tool',
-        'label': 'Cytoscape network diagram',
-        'category': categories.viz
+        'label': '**BLAST** (Concordia University)',
+        'category': 'Category 1'
       }, {
         'slug': 'report-widget-tool',
-        'label': 'Publications for a Gene',
+        'label': '**Publications** for a Gene',
         'extra': 'publications-displayer',
-        'category': categories.viz
-      }, {
-        'slug': 'report-widget-tool',
-        'label': 'SPELL YeastMine Histogram',
-        'extra': 'spell',
-        'category': categories.viz
-      }, {
-        'slug': 'report-widget-tool',
-        'label': 'Mouse Phenotype Dendrogram Clustering',
-        'extra': 'mouse-phenotype-dendrogram',
-        'category': categories.viz
-      }, {
-        'slug': 'report-widget-tool',
-        'label': 'Pathways from other mines',
-        'extra': 'pathways',
-        'category': categories.viz
-      }, {
-        'slug': 'set-operations-tool',
-        'label': 'Intersect lists',
-        'extra': 'intersect',
-        'category': categories.set
-      }, {
-        'slug': 'set-operations-tool',
-        'label': 'Do a list union',
-        'extra': 'union',
-        'category': categories.set
-      }, {
-        'slug': 'set-operations-tool',
-        'label': 'Subtract lists',
-        'extra': 'subtract',
-        'category': categories.set
+        'category': 'Category 1'
       }, {
         'slug': 'upload-list-tool',
-        'label': 'Upload a new list',
-        'category': categories["in"]
-      }, {
-        'slug': 'import-query-tool',
-        'label': 'Import a query/template',
-        'category': categories["in"]
-      }, {
-        'slug': 'import-tags-tool',
-        'label': 'Import tags',
-        'category': categories["in"]
-      }
-    ],
-    'i:haveGene': [
-      {
-        'slug': 'suggest-query-tool',
-        'label': 'View all pathways for this gene',
-        'extra': 'pathways',
-        'category': categories.query
-      }, {
-        'slug': 'suggest-query-tool',
-        'label': 'View all protein domains for this gene',
-        'extra': 'protein-domains',
-        'category': categories.query
-      }, {
-        'slug': 'linkout-tool',
-        'label': 'FlyBase',
-        'extra': 'flybase',
-        'category': categories.out
-      }
-    ],
-    'i:haveProtein': [
-      {
-        'slug': 'linkout-tool',
-        'label': 'UniProt',
-        'extra': 'uniprot',
-        'category': categories.out
-      }
-    ],
-    'i:haveOne': [
-      {
-        'slug': 'convert-type-tool',
-        'label': 'Convert this item to another type',
-        'category': categories.query
+        'label': '**Upload** a new list',
+        'category': 'Category 1'
       }
     ],
     'i:haveList': [
       {
         'slug': 'export-tool',
-        'label': 'Export to Galaxy',
+        'label': 'Export to **Galaxy**',
         'extra': 'galaxy',
-        'category': categories["export"]
+        'category': 'Category 1'
       }, {
-        'slug': 'export-tool',
-        'label': 'Export to GenomeSpace',
-        'extra': 'genome-space',
-        'category': categories["export"]
+        'slug': 'results-table-tool',
+        'label': 'See list in a **table**',
+        'category': 'Category 1'
       }, {
-        'slug': 'export-tool',
-        'label': 'Export to Comma Separated Values (CSV)',
-        'extra': 'csv',
-        'category': categories["export"]
-      }, {
-        'slug': 'export-tool',
-        'label': 'Export to R',
-        'extra': 'r',
-        'category': categories["export"]
-      }, {
-        'slug': 'export-tool',
-        'label': 'Export to Tab Separated file (TAB)',
-        'extra': 'tab',
-        'category': categories["export"]
-      }, {
-        'slug': 'export-tool',
-        'label': 'Export to FASTA format',
-        'extra': 'fasta',
-        'category': categories["export"]
-      }, {
-        'slug': 'export-tool',
-        'label': 'Export to RDF format',
-        'extra': 'rdf',
-        'category': categories["export"]
-      }, {
-        'slug': 'graph-viz-tool',
-        'label': 'Expression graph widget for this list',
-        'extra': 'expression',
-        'category': categories.viz
-      }, {
-        'slug': 'graph-viz-tool',
-        'label': 'Chromosome distribution for this list',
-        'extra': 'chromosome-distribution',
-        'category': categories.viz
-      }, {
-        'slug': 'report-widget-tool',
-        'label': 'Render a custom graph for this list',
-        'extra': 'custom-graph',
-        'category': categories.viz
-      }, {
-        'slug': 'report-widget-tool',
-        'label': 'Render a heat map for this list',
-        'extra': 'custom-heatmap',
-        'category': categories.viz
-      }, {
-        'slug': 'report-widget-tool',
-        'label': 'Render a cluster diagram for this list',
-        'extra': 'custom-cluster',
-        'category': categories.viz
-      }, {
-        'slug': 'set-operations-tool',
-        'label': 'Intersect with other lists',
-        'extra': 'intersect',
-        'category': categories.set
-      }, {
-        'slug': 'set-operations-tool',
-        'label': 'List union with other lists',
-        'extra': 'union',
-        'category': categories.set
-      }, {
-        'slug': 'set-operations-tool',
-        'label': 'Subtract lists',
-        'extra': 'subtract',
-        'category': categories.set
-      }, {
-        'slug': 'orthologues-tool',
-        'label': 'Convert to orthologues in YeastMine',
-        'extra': 'yeastmine',
-        'category': categories.inter
-      }, {
-        'slug': 'orthologues-tool',
-        'label': 'Convert to orthologues in RatMine',
-        'extra': 'ratmine',
-        'category': categories.inter
-      }, {
-        'slug': 'orthologues-tool',
-        'label': 'Convert to orthologues in this mine',
-        'category': categories.inter
+        'slug': 'enrich-list-tool',
+        'label': '**Enrich** this list',
+        'category': 'Category 1'
       }
     ]
   };
