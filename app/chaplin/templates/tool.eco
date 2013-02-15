@@ -12,7 +12,7 @@
         <ul class="accordion">
             <% for i, title of @steps: %>
                 <% i = parseInt(i) + 1 %>
-                <li <% if i is @step: %>class="active"<% end %> data-step="<%= i %>">
+                <li class="<%= @type %><% if i is @step: %> active<% end %>" data-step="<%= i %>">
                     <div class="title">
                         <h5>#<%= i %>: <%= title %></h5>
                     </div>

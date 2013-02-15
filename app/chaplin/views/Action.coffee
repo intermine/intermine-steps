@@ -11,6 +11,12 @@ module.exports = class ActionView extends View
     # Custom data prep.
     getTemplateData: -> _.extend @options, 'label': @markup @options.label
 
+    afterRender: ->
+        super
+
+        # Apply class that corresponds to the type of the tool.
+        $(@el).addClass @options.type
+
     # Convert markup with HTML.
     markup: (text) ->
         # Strong.

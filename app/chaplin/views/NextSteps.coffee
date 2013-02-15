@@ -23,7 +23,7 @@ module.exports = class NextStepsView extends View
     activate: (@current) =>
 
     # Add a link to a tool from its model.
-    add: ({ slug, label, category }) =>
+    add: ({ slug, label, category, type }) =>
         assert @method, 'We do not know which linking `method` to use'
 
         # Get the current tool guid?
@@ -40,6 +40,7 @@ module.exports = class NextStepsView extends View
         # Render the View for this action.
         @views.push view = new Action
             'slug':   slug
+            'type':   type
             'label':  label
             'method': @method
             'suffix': suffix

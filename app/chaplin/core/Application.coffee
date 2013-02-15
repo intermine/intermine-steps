@@ -10,6 +10,8 @@ Routes = require 'chaplin/core/Routes'
 
 Registry = require 'tools/Registry'
 
+root = @
+
 # The application object.
 module.exports = class InterMineSteps extends Chaplin.Application
 
@@ -41,10 +43,28 @@ module.exports = class InterMineSteps extends Chaplin.Application
 
     # Listen to context changes.
     initRegistry: ->
-        for key, map of Registry then do (key, map) ->
+        for key, map of Registry then do (key, map) =>
             # This is what we have.
-            Mediator.subscribe "context:#{key}", ->
+            Mediator.subscribe "context:#{key}", =>
                 for obj in map
+
+                    # Convert to PascalCase to get the name.
+                    name = root.Utils.hyphenToPascal obj.slug
+
+                    # Grab the Model.
+                    try
+                        Model =  require "/tools/#{name}/Model"
+                        model = new Model()
+                    catch e
+                        @publishEvent '!router:routeByName', 500
+                        assert false, "Unknown tool `#{name}`"
+
+                    # Enhance the obj with extra info from the model.
+                    obj.type = model.get('type')
+
+                    # Cleanup.
+                    model.dispose()
+
                     # These guys might like this.
                     Mediator.publish "contextRender:#{key}", obj
             , @

@@ -279,7 +279,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
   
 });
 window.require.register("chaplin/core/Application", function(exports, require, module) {
-  var Chaplin, InterMineSteps, Layout, Mediator, Registry, Routes,
+  var Chaplin, InterMineSteps, Layout, Mediator, Registry, Routes, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -298,6 +298,8 @@ window.require.register("chaplin/core/Application", function(exports, require, m
   Routes = require('chaplin/core/Routes');
 
   Registry = require('tools/Registry');
+
+  root = this;
 
   module.exports = InterMineSteps = (function(_super) {
 
@@ -328,20 +330,31 @@ window.require.register("chaplin/core/Application", function(exports, require, m
     };
 
     InterMineSteps.prototype.initRegistry = function() {
-      var key, map, _results;
+      var key, map, _results,
+        _this = this;
       _results = [];
       for (key in Registry) {
         map = Registry[key];
         _results.push((function(key, map) {
           return Mediator.subscribe("context:" + key, function() {
-            var obj, _i, _len, _results1;
+            var Model, model, name, obj, _i, _len, _results1;
             _results1 = [];
             for (_i = 0, _len = map.length; _i < _len; _i++) {
               obj = map[_i];
+              name = root.Utils.hyphenToPascal(obj.slug);
+              try {
+                Model = require("/tools/" + name + "/Model");
+                model = new Model();
+              } catch (e) {
+                _this.publishEvent('!router:routeByName', 500);
+                assert(false, "Unknown tool `" + name + "`");
+              }
+              obj.type = model.get('type');
+              model.dispose();
               _results1.push(Mediator.publish("contextRender:" + key, obj));
             }
             return _results1;
-          }, this);
+          }, _this);
         })(key, map));
       }
       return _results;
@@ -1533,11 +1546,12 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
             title = _ref[i];
             __out.push('\n                ');
             i = parseInt(i) + 1;
-            __out.push('\n                <li ');
+            __out.push('\n                <li class="');
+            __out.push(__sanitize(this.type));
             if (i === this.step) {
-              __out.push('class="active"');
+              __out.push(' active');
             }
-            __out.push(' data-step="');
+            __out.push('" data-step="');
             __out.push(__sanitize(i));
             __out.push('">\n                    <div class="title">\n                        <h5>#');
             __out.push(__sanitize(i));
@@ -1588,6 +1602,11 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
       return _.extend(this.options, {
         'label': this.markup(this.options.label)
       });
+    };
+
+    ActionView.prototype.afterRender = function() {
+      ActionView.__super__.afterRender.apply(this, arguments);
+      return $(this.el).addClass(this.options.type);
     };
 
     ActionView.prototype.markup = function(text) {
@@ -2223,8 +2242,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     };
 
     NextStepsView.prototype.add = function(_arg) {
-      var category, label, slug, suffix, view;
-      slug = _arg.slug, label = _arg.label, category = _arg.category;
+      var category, label, slug, suffix, type, view;
+      slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type;
       assert(this.method, 'We do not know which linking `method` to use');
       suffix = '';
       if (this.method === 'continue') {
@@ -2240,6 +2259,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
       }
       this.views.push(view = new Action({
         'slug': slug,
+        'type': type,
         'label': label,
         'method': this.method,
         'suffix': suffix
@@ -2537,6 +2557,35 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     return ToolView;
 
   })(GenericToolView);
+  
+});
+window.require.register("tools/BlastSearchTool/Model", function(exports, require, module) {
+  var BlastSearchTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = BlastSearchTool = (function(_super) {
+
+    __extends(BlastSearchTool, _super);
+
+    function BlastSearchTool() {
+      return BlastSearchTool.__super__.constructor.apply(this, arguments);
+    }
+
+    BlastSearchTool.prototype.defaults = {
+      'slug': 'blast-search-tool',
+      'name': 'BlastSearchTool',
+      'title': 'BLAST Search',
+      'description': 'Conduct a BLAST search',
+      'type': 'kimberly',
+      'steps': ['Input search item', 'See Result']
+    };
+
+    return BlastSearchTool;
+
+  })(Tool);
   
 });
 window.require.register("tools/EnrichListTool/Model", function(exports, require, module) {
@@ -2854,20 +2903,24 @@ window.require.register("tools/Registry", function(exports, require, module) {
       {
         'slug': 'enrich-list-tool',
         'label': '**Enrich** an existing list',
-        'category': 'Category 1'
+        'category': 'Category 1',
+        'weight': 15
       }, {
         'slug': 'blast-search-tool',
         'label': '**BLAST** (Concordia University)',
-        'category': 'Category 1'
+        'category': 'Category 1',
+        'weight': 20
       }, {
         'slug': 'report-widget-tool',
-        'label': '**Publications** for a Gene',
+        'label': '**Publications** for a *Gene*',
         'extra': 'publications-displayer',
-        'category': 'Category 1'
+        'category': 'Category 1',
+        'weight': 2
       }, {
         'slug': 'upload-list-tool',
         'label': '**Upload** a new list',
-        'category': 'Category 1'
+        'category': 'Category 1',
+        'weight': 7
       }
     ],
     'i:haveList': [
@@ -2875,15 +2928,18 @@ window.require.register("tools/Registry", function(exports, require, module) {
         'slug': 'export-tool',
         'label': 'Export to **Galaxy**',
         'extra': 'galaxy',
-        'category': 'Category 1'
+        'category': 'Category 1',
+        'weight': 2
       }, {
         'slug': 'results-table-tool',
         'label': 'See list in a **table**',
-        'category': 'Category 1'
+        'category': 'Category 1',
+        'weight': 5
       }, {
         'slug': 'enrich-list-tool',
         'label': '**Enrich** this list',
-        'category': 'Category 1'
+        'category': 'Category 1',
+        'weight': 9
       }
     ]
   };
@@ -2891,6 +2947,35 @@ window.require.register("tools/Registry", function(exports, require, module) {
   config['i:onLeft'] = config['i:onHomepage'];
 
   module.exports = config;
+  
+});
+window.require.register("tools/ReportWidgetTool/Model", function(exports, require, module) {
+  var ReportWidgetTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = ReportWidgetTool = (function(_super) {
+
+    __extends(ReportWidgetTool, _super);
+
+    function ReportWidgetTool() {
+      return ReportWidgetTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ReportWidgetTool.prototype.defaults = {
+      'slug': 'report-widget-tool',
+      'name': 'ReportWidgetTool',
+      'title': 'Report Widget',
+      'description': 'See a report widget',
+      'type': 'goldentainoi',
+      'steps': ['See a Widget']
+    };
+
+    return ReportWidgetTool;
+
+  })(Tool);
   
 });
 window.require.register("tools/ResultsTableTool/Model", function(exports, require, module) {

@@ -120,7 +120,6 @@ header#top {
   width: 100%;
   background: url("../img/blackorchid.png");
   color: #fff;
-  border-top: 3px solid #2ba6cb;
 }
 header#top .inner {
   margin: 0 auto;
@@ -318,6 +317,39 @@ section#middle div#widget ul.accordion > li .content {
 section#middle div#widget ul.accordion > li.active {
   border-top: 3px solid #2ba6cb;
 }
+section#middle div#widget ul.accordion > li.active.terracotta {
+  border-color: #e2674a;
+}
+section#middle div#widget ul.accordion > li.active.goldentainoi {
+  border-color: #fc6;
+}
+section#middle div#widget ul.accordion > li.active.curiousblue {
+  border-color: #39c;
+}
+section#middle div#widget ul.accordion > li.active.turquoise {
+  border-color: #3cc;
+}
+section#middle div#widget ul.accordion > li.active.strikemaster {
+  border-color: #969;
+}
+section#middle div#widget ul.accordion > li.active.crail {
+  border-color: #c24747;
+}
+section#middle div#widget ul.accordion > li.active.deyork {
+  border-color: #9c9;
+}
+section#middle div#widget ul.accordion > li.active.patina {
+  border-color: #699;
+}
+section#middle div#widget ul.accordion > li.active.hopbush {
+  border-color: #c69;
+}
+section#middle div#widget ul.accordion > li.active.seagreen {
+  border-color: #396;
+}
+section#middle div#widget ul.accordion > li.active.kimberly {
+  border-color: #669;
+}
 section#middle div#widget ul.accordion > li.active .title {
   background: #fff;
   padding-top: 13px;
@@ -346,7 +378,7 @@ div#history {
 }
 div#history div.container {
   height: 100%;
-  border-top: 3px solid #5da423;
+  border-top: 3px solid #bbb;
   border-left: 1px solid #e9e9e9;
   padding: 15px;
 }
@@ -520,7 +552,7 @@ footer#bottom .wrap {
   top: 1px;
 }
 #modal div.reveal-modal {
-  border-top: 3px solid #c24747;
+  border-top: 3px solid #444;
 }
 #modal .scroll {
   overflow-y: auto;
