@@ -1,26 +1,28 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Identifier</th>
-                        <th>Attr 1</th>
-                        <th>Attr 2</th>
-                        <th>Attr 3</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% for id in @previous.identifiers: %>
+            <% if @previous and @previous.list and @previous.list.items: %>
+                <table>
+                    <thead>
                         <tr>
-                            <td><%= id %></td>
-                            <td>Дмитрий Фролов</td>
-                            <td>Егор Мальцев</td>
-                            <td>Станислав Тарасов</td>
+                            <th>Identifier</th>
+                            <th>Attr 1</th>
+                            <th>Attr 2</th>
+                            <th>Attr 3</th>
                         </tr>
-                    <% end %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <% for id in @previous.list.items: %>
+                            <tr>
+                                <td><%= id %></td>
+                                <td>Дмитрий Фролов</td>
+                                <td>Егор Мальцев</td>
+                                <td>Станислав Тарасов</td>
+                            </tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            <% end %>
         </div>
     </div>
 </div>

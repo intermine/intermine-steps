@@ -1599,9 +1599,13 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
     };
 
     ActionView.prototype.getTemplateData = function() {
-      return _.extend(this.options, {
-        'label': this.markup(this.options.label)
-      });
+      return {
+        'slug': this.options.slug,
+        'type': this.options.type,
+        'label': this.markup(this.options.label),
+        'method': this.options.method,
+        'suffix': this.options.suffix
+      };
     };
 
     ActionView.prototype.afterRender = function() {
@@ -2257,14 +2261,25 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
           'class': 'alternating'
         }));
       }
-      this.views.push(view = new Action({
-        'slug': slug,
-        'type': type,
-        'label': label,
-        'method': this.method,
-        'suffix': suffix
-      }));
-      return this.list[category].append(view.el);
+      if (!(function(views) {
+        var view, _i, _len;
+        for (_i = 0, _len = views.length; _i < _len; _i++) {
+          view = views[_i];
+          if (view.options.label === label) {
+            return true;
+          }
+        }
+        return false;
+      })(this.views)) {
+        this.views.push(view = new Action({
+          'slug': slug,
+          'type': type,
+          'label': label,
+          'method': this.method,
+          'suffix': suffix
+        }));
+        return this.list[category].append(view.el);
+      }
     };
 
     return NextStepsView;
@@ -2588,6 +2603,167 @@ window.require.register("tools/BlastSearchTool/Model", function(exports, require
   })(Tool);
   
 });
+window.require.register("tools/BlastSearchTool/View", function(exports, require, module) {
+  var Mediator, ToolView, UploadListToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = UploadListToolView = (function(_super) {
+
+    __extends(UploadListToolView, _super);
+
+    function UploadListToolView() {
+      return UploadListToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    UploadListToolView.prototype.afterRender = function() {
+      UploadListToolView.__super__.afterRender.apply(this, arguments);
+      switch (this.step) {
+        case 2:
+          Mediator.publish('context:i:haveList');
+      }
+      this.delegate('click', '#submit', function() {
+        var item;
+        item = this.getDOM().find('form input').val();
+        if (!item) {
+          return Mediator.publish('modal:render', {
+            'title': 'Oops &hellip;',
+            'text': 'You have not provided any input.'
+          });
+        } else {
+          this.model.set('data', {
+            'list': {
+              key: 'blast',
+              name: 'From a BLAST Search',
+              items: [item]
+            }
+          });
+          Mediator.publish('history:add', this.model);
+          return Mediator.publish('tool:step', this.step += 1);
+        }
+      });
+      return this;
+    };
+
+    return UploadListToolView;
+
+  })(ToolView);
+  
+});
+window.require.register("tools/BlastSearchTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <form class="row custom">\n        <div class="twelve columns">\n            <label>Item to search against</label>\n            ');
+      
+        if (this.data && this.data.search && this.data.search.item) {
+          __out.push('\n                <input type="text" value="');
+          __out.push(__sanitize(this.data.search.item));
+          __out.push('" />\n            ');
+        } else {
+          __out.push('\n                <input type="text" placeholder="PPARG" />\n            ');
+        }
+      
+        __out.push('\n        </div>\n    </form>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Run Search</span></a>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/BlastSearchTool/step-2", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>You have executed search and now have a list. Maybe some of the steps on the right take your fancy?</p>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
 window.require.register("tools/EnrichListTool/Model", function(exports, require, module) {
   var EnrichListTool, Tool,
     __hasProp = {}.hasOwnProperty,
@@ -2699,6 +2875,7 @@ window.require.register("tools/EnrichListTool/View", function(exports, require, 
           break;
         case 2:
           assert(this.model.get('data'), 'List not provided');
+          Mediator.publish('context:i:haveList');
       }
       this.delegate('click', 'input.check', this.selectList);
       this.delegate('click', '#submit', this.enrichList);
@@ -2895,6 +3072,105 @@ window.require.register("tools/EnrichListTool/step-2", function(exports, require
     return __out.join('');
   }
 });
+window.require.register("tools/ExportTool/Model", function(exports, require, module) {
+  var ExportTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = ExportTool = (function(_super) {
+
+    __extends(ExportTool, _super);
+
+    function ExportTool() {
+      return ExportTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ExportTool.prototype.defaults = {
+      'slug': 'export-tool',
+      'name': 'ExportTool',
+      'title': 'Data Export',
+      'description': 'Eexporting',
+      'type': 'turquoise',
+      'steps': ['Exporting data']
+    };
+
+    return ExportTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/ExportTool/View", function(exports, require, module) {
+  var ExportToolView, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = ExportToolView = (function(_super) {
+
+    __extends(ExportToolView, _super);
+
+    function ExportToolView() {
+      return ExportToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return ExportToolView;
+
+  })(ToolView);
+  
+});
+window.require.register("tools/ExportTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>You are exporting data and it feels great &hellip;.</p>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
 window.require.register("tools/Registry", function(exports, require, module) {
   var config;
 
@@ -2977,6 +3253,76 @@ window.require.register("tools/ReportWidgetTool/Model", function(exports, requir
 
   })(Tool);
   
+});
+window.require.register("tools/ReportWidgetTool/View", function(exports, require, module) {
+  var ReportWidgetToolView, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = ReportWidgetToolView = (function(_super) {
+
+    __extends(ReportWidgetToolView, _super);
+
+    function ReportWidgetToolView() {
+      return ReportWidgetToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return ReportWidgetToolView;
+
+  })(ToolView);
+  
+});
+window.require.register("tools/ReportWidgetTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>A widget is shown here.</p>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
 });
 window.require.register("tools/ResultsTableTool/Model", function(exports, require, module) {
   var ResultsTableTool, Tool,
@@ -3069,17 +3415,21 @@ window.require.register("tools/ResultsTableTool/step-1", function(exports, requi
       (function() {
         var id, _i, _len, _ref;
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <table>\n                <thead>\n                    <tr>\n                        <th>Identifier</th>\n                        <th>Attr 1</th>\n                        <th>Attr 2</th>\n                        <th>Attr 3</th>\n                    </tr>\n                </thead>\n                <tbody>\n                    ');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            ');
       
-        _ref = this.previous.identifiers;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          id = _ref[_i];
-          __out.push('\n                        <tr>\n                            <td>');
-          __out.push(__sanitize(id));
-          __out.push('</td>\n                            <td>Дмитрий Фролов</td>\n                            <td>Егор Мальцев</td>\n                            <td>Станислав Тарасов</td>\n                        </tr>\n                    ');
+        if (this.previous && this.previous.list && this.previous.list.items) {
+          __out.push('\n                <table>\n                    <thead>\n                        <tr>\n                            <th>Identifier</th>\n                            <th>Attr 1</th>\n                            <th>Attr 2</th>\n                            <th>Attr 3</th>\n                        </tr>\n                    </thead>\n                    <tbody>\n                        ');
+          _ref = this.previous.list.items;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            id = _ref[_i];
+            __out.push('\n                            <tr>\n                                <td>');
+            __out.push(__sanitize(id));
+            __out.push('</td>\n                                <td>Дмитрий Фролов</td>\n                                <td>Егор Мальцев</td>\n                                <td>Станислав Тарасов</td>\n                            </tr>\n                        ');
+          }
+          __out.push('\n                    </tbody>\n                </table>\n            ');
         }
       
-        __out.push('\n                </tbody>\n            </table>\n        </div>\n    </div>\n</div>');
+        __out.push('\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       

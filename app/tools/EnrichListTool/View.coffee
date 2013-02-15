@@ -61,6 +61,8 @@ module.exports = class EnrichListToolView extends ToolView
             when 2
                 # We better have the list set.
                 assert @model.get('data'), 'List not provided'
+                # We have a list!
+                Mediator.publish 'context:i:haveList'
 
         # Have we selected an item in the listing of lists?
         @delegate 'click', 'input.check', @selectList

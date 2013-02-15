@@ -1,0 +1,17 @@
+<div class="container">
+    <form class="row custom">
+        <div class="twelve columns">
+            <label>Item to search against</label>
+            <% if @data and @data.search and @data.search.item: %>
+                <input type="text" value="<%= @data.search.item %>" />
+            <% else: %>
+                <input type="text" placeholder="PPARG" />
+            <% end %>
+        </div>
+    </form>
+    <div class="row">
+        <div class="twelve columns">
+            <a id="submit" class="button">Run Search</span></a>
+        </div>
+    </div>
+</div>

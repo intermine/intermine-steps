@@ -37,13 +37,19 @@ module.exports = class NextStepsView extends View
             # Add a list saving it under our category.
             $(@el).append @list[category] = $('<ul/>', 'class': 'alternating')
 
-        # Render the View for this action.
-        @views.push view = new Action
-            'slug':   slug
-            'type':   type
-            'label':  label
-            'method': @method
-            'suffix': suffix
+        # Do we already have this label?
+        unless ( (views) ->
+            for view in views
+                if view.options.label is label then return true
+            false
+        ) @views
+            # Render the View for this action.
+            @views.push view = new Action
+                'slug':   slug
+                'type':   type
+                'label':  label
+                'method': @method
+                'suffix': suffix
 
-        # Append the link to an existing category.
-        @list[category].append view.el
+            # Append the link to an existing category.
+            @list[category].append view.el
