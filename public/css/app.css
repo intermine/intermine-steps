@@ -52,6 +52,9 @@ code {
 input[type="checkbox"] {
   cursor: pointer;
 }
+input.filter {
+  display: none;
+}
 ul.alternating {
   list-style-type: square !important;
 }
@@ -190,6 +193,10 @@ section#middle aside .wrap {
   height: 100%;
   position: relative;
   padding: 10px 0;
+}
+section#middle aside#left input.filter,
+section#middle aside#right #continue {
+  margin: 10px;
 }
 section#middle aside a {
   cursor: pointer;

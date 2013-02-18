@@ -59,6 +59,9 @@ code
 input[type="checkbox"]
     cursor: pointer
 
+input.filter
+    display: none
+
 // used on showing a listing of tools
 ul.alternating
     list-style-type: square !important
@@ -188,6 +191,9 @@ section#middle
             height: 100%
             position: relative
             padding: 10px 0
+
+        &#left input.filter, &#right #continue
+            margin: 10px
 
         a
             cursor: pointer

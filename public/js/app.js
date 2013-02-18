@@ -671,6 +671,9 @@ window.require.register("chaplin/core/Utils", function(exports, require, module)
       })()).join('');
     },
     'arrayEql': function(a, b) {
+      if (!a || !b) {
+        return false;
+      }
       return !(a < b || b < a);
     },
     'dupe': function(obj) {
@@ -1405,6 +1408,56 @@ window.require.register("chaplin/templates/modal", function(exports, require, mo
     return __out.join('');
   }
 });
+window.require.register("chaplin/templates/next-steps", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<input type="text" class="filter" placeholder="e.g. list upload" />');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
 window.require.register("chaplin/templates/sidebar-left", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -1630,7 +1683,8 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
 
     ActionView.prototype.afterRender = function() {
       ActionView.__super__.afterRender.apply(this, arguments);
-      return $(this.el).addClass(this.options.type);
+      $(this.el).addClass(this.options.type);
+      return this.keywords = (_.uniq(this.options.label.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase().split(' '))).join(' ');
     };
 
     ActionView.prototype.markup = function(text) {
@@ -2225,7 +2279,7 @@ window.require.register("chaplin/views/Modal", function(exports, require, module
   
 });
 window.require.register("chaplin/views/NextSteps", function(exports, require, module) {
-  var Action, Mediator, NextStepsView, View,
+  var Action, Mediator, NextStepsView, View, root,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2236,11 +2290,15 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
 
   Action = require('chaplin/views/Action');
 
+  root = this;
+
   module.exports = NextStepsView = (function(_super) {
 
     __extends(NextStepsView, _super);
 
     function NextStepsView() {
+      this.filterLabels = __bind(this.filterLabels, this);
+
       this.add = __bind(this.add, this);
       return NextStepsView.__super__.constructor.apply(this, arguments);
     }
@@ -2251,17 +2309,25 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
 
     NextStepsView.prototype.tagName = 'div';
 
-    NextStepsView.prototype.getTemplateFunction = function() {};
+    NextStepsView.prototype.getTemplateFunction = function() {
+      return require('chaplin/templates/next-steps');
+    };
 
     NextStepsView.prototype.initialize = function() {
       NextStepsView.__super__.initialize.apply(this, arguments);
       return this.list = {};
     };
 
+    NextStepsView.prototype.afterRender = function() {
+      NextStepsView.__super__.afterRender.apply(this, arguments);
+      return this.delegate('keyup', 'input.filter', this.filterLabels);
+    };
+
     NextStepsView.prototype.add = function(_arg) {
       var category, extra, guid, label, slug, suffix, type, view;
       slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type, guid = _arg.guid, extra = _arg.extra;
       assert(this.method, 'We do not know which linking `method` to use');
+      $(this.el).find('input.filter').show();
       suffix = '';
       if (this.method === 'continue') {
         assert(guid, 'Have not provided `guid` parameter, who my daddy?');
@@ -2295,6 +2361,41 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
         }));
         return this.list[category].append(view.el);
       }
+    };
+
+    NextStepsView.prototype.filterLabels = function(e) {
+      var _this = this;
+      if (this.timeout != null) {
+        clearTimeout(this.timeout);
+      }
+      return this.timeout = setTimeout((function() {
+        var part, query, re, view, _i, _len, _ref, _results;
+        query = $(e.target).val();
+        query = _.uniq($.trim(query.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase()).split(' '));
+        if (!root.Utils.arrayEql(query, _this.query)) {
+          _this.query = query;
+          re = new RegExp(((function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = query.length; _i < _len; _i++) {
+              part = query[_i];
+              _results.push("" + part + ".*");
+            }
+            return _results;
+          })()).join('|'), 'i');
+          _ref = _this.views;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            view = _ref[_i];
+            if (view.keywords.match(re)) {
+              _results.push($(view.el).show());
+            } else {
+              _results.push($(view.el).hide());
+            }
+          }
+          return _results;
+        }
+      }), 500);
     };
 
     return NextStepsView;
