@@ -1,15 +1,21 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <p>
-                You have selected the list
-                <strong><%= @data?.list?.name %></strong> for export.
-            </p>
+            <form class="row">
+                <div class="twelve columns">
+                    <label>PathQuery to reach the data</label>
+                    <% if @data: %>
+                        <textarea class="pq"><xml key="<%= @data.list.key %>"><item select="random" /></xml></textarea>
+                    <% else: %>
+                        <textarea class="pq"></textarea>
+                    <% end %>
+                </div>
+            </form>
             <form class="row">
                 <div class="six columns">
                     <label>Export format</label>
-                    <select>
-                        <option>Comma Separated Values (CSV)</option>
+                    <select class="format">
+                        <option value="csv">Comma Separated Values (CSV)</option>
                     </select>
                 </div>
             </form>

@@ -9,18 +9,23 @@ module.exports = class ExportToolView extends ToolView
 
         switch @step
             when 1
-                # Do we have a list coming from a previous step?
-                list = @options?.previous?.data?.list
-                if list
-                    @selected = list
-                    @exportData()
+                # Do we have a PathQuery coming from a previous step?
+                data = @options?.previous?.data
+                if data then @exportData data
 
         # Use a "list" from step #1.
-        @delegate 'click', '#submit', @exportData
+        @delegate 'click', '#submit', =>
+            dom = @getDOM()
+            # Set on the model.
+            @exportData
+                'list': dom.find('textarea.pq').val()
+                'format': dom.find('select.format').val()
 
-    exportData: =>
+    exportData: (data) =>
+        assert data, 'No input data provided'
+
         # Set on model.
-        if @selected then @model.set 'data': { 'list': @selected }
+        @model.set 'data': data
         # Update the history.
         Mediator.publish 'history:add', @model
         # Change the step.

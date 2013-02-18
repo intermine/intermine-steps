@@ -3129,27 +3129,31 @@ window.require.register("tools/ExportTool/View", function(exports, require, modu
     }
 
     ExportToolView.prototype.afterRender = function() {
-      var list, _ref, _ref1, _ref2;
+      var data, _ref, _ref1,
+        _this = this;
       ExportToolView.__super__.afterRender.apply(this, arguments);
       switch (this.step) {
         case 1:
-          list = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0;
-          if (list) {
-            this.selected = list;
-            this.exportData();
+          data = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? _ref1.data : void 0 : void 0;
+          if (data) {
+            this.exportData(data);
           }
       }
-      return this.delegate('click', '#submit', this.exportData);
+      return this.delegate('click', '#submit', function() {
+        var dom;
+        dom = _this.getDOM();
+        return _this.exportData({
+          'list': dom.find('textarea.pq').val(),
+          'format': dom.find('select.format').val()
+        });
+      });
     };
 
-    ExportToolView.prototype.exportData = function() {
-      if (this.selected) {
-        this.model.set({
-          'data': {
-            'list': this.selected
-          }
-        });
-      }
+    ExportToolView.prototype.exportData = function(data) {
+      assert(data, 'No input data provided');
+      this.model.set({
+        'data': data
+      });
       Mediator.publish('history:add', this.model);
       return Mediator.publish('tool:step', this.step += 1);
     };
@@ -3199,13 +3203,18 @@ window.require.register("tools/ExportTool/step-1", function(exports, require, mo
     }
     (function() {
       (function() {
-        var _ref, _ref1;
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>\n                You have selected the list\n                <strong>');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <form class="row">\n                <div class="twelve columns">\n                    <label>PathQuery to reach the data</label>\n                    ');
       
-        __out.push(__sanitize((_ref = this.data) != null ? (_ref1 = _ref.list) != null ? _ref1.name : void 0 : void 0));
+        if (this.data) {
+          __out.push('\n                        <textarea class="pq"><xml key="');
+          __out.push(__sanitize(this.data.list.key));
+          __out.push('"><item select="random" /></xml></textarea>\n                    ');
+        } else {
+          __out.push('\n                        <textarea class="pq"></textarea>\n                    ');
+        }
       
-        __out.push('</strong> for export.\n            </p>\n            <form class="row">\n                <div class="six columns">\n                    <label>Export format</label>\n                    <select>\n                        <option>Comma Separated Values (CSV)</option>\n                    </select>\n                </div>\n            </form>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Export</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('\n                </div>\n            </form>\n            <form class="row">\n                <div class="six columns">\n                    <label>Export format</label>\n                    <select class="format">\n                        <option value="csv">Comma Separated Values (CSV)</option>\n                    </select>\n                </div>\n            </form>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Export</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
