@@ -11,14 +11,18 @@ module.exports = class ExportToolView extends ToolView
             when 1
                 # Do we have a PathQuery coming from a previous step?
                 data = @options?.previous?.data
-                if data then @exportData data
+                if data
+                    # As if make a list into a PathQuery.
+                    data.pq = "<xml key=\"#{data.list.key}\"><item select=\"random\"></item></xml>"
+                    delete data.list
+                    @exportData data
 
         # Use a "list" from step #1.
         @delegate 'click', '#submit', =>
             dom = @getDOM()
             # Set on the model.
             @exportData
-                'list': dom.find('textarea.pq').val()
+                'pq': dom.find('textarea.pq').val()
                 'format': dom.find('select.format').val()
 
     exportData: (data) =>

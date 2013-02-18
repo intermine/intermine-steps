@@ -3136,6 +3136,8 @@ window.require.register("tools/ExportTool/View", function(exports, require, modu
         case 1:
           data = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? _ref1.data : void 0 : void 0;
           if (data) {
+            data.pq = "<xml key=\"" + data.list.key + "\"><item select=\"random\"></item></xml>";
+            delete data.list;
             this.exportData(data);
           }
       }
@@ -3143,7 +3145,7 @@ window.require.register("tools/ExportTool/View", function(exports, require, modu
         var dom;
         dom = _this.getDOM();
         return _this.exportData({
-          'list': dom.find('textarea.pq').val(),
+          'pq': dom.find('textarea.pq').val(),
           'format': dom.find('select.format').val()
         });
       });
@@ -3206,10 +3208,10 @@ window.require.register("tools/ExportTool/step-1", function(exports, require, mo
       
         __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <form class="row">\n                <div class="twelve columns">\n                    <label>PathQuery to reach the data</label>\n                    ');
       
-        if (this.data) {
-          __out.push('\n                        <textarea class="pq"><xml key="');
-          __out.push(__sanitize(this.data.list.key));
-          __out.push('"><item select="random" /></xml></textarea>\n                    ');
+        if (this.data && this.data.pq) {
+          __out.push('\n                        <textarea class="pq">');
+          __out.push(this.data.pq);
+          __out.push('</textarea>\n                    ');
         } else {
           __out.push('\n                        <textarea class="pq"></textarea>\n                    ');
         }
