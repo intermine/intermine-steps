@@ -20,7 +20,10 @@ module.exports = class ActionView extends View
         $(@el).addClass @options.type
 
         # Create an index of words associated with this tool label.
-        @keywords = (_.uniq(@options.label.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase().split(' '))).join(' ')
+        words = @options.label.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase().split(' ')
+        
+        # Beef up with extra keywords.
+        @keywords = _.uniq( words.concat(@options.keywords) ).join(' ')
 
     # Convert markup with HTML.
     markup: (text) ->

@@ -1349,7 +1349,7 @@ window.require.register("chaplin/templates/landing", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle" class="container">\n        <div class="row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle" class="container">\n        <div class="row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>\n                    <li class="bullet-item">Permissive input <strong>filtering</strong> of tools listing</li>\n                    <li class="bullet-item">Tool labels have extra <strong>keywords</strong> associated as alternatives for search</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1682,9 +1682,11 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
     };
 
     ActionView.prototype.afterRender = function() {
+      var words;
       ActionView.__super__.afterRender.apply(this, arguments);
       $(this.el).addClass(this.options.type);
-      return this.keywords = (_.uniq(this.options.label.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase().split(' '))).join(' ');
+      words = this.options.label.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase().split(' ');
+      return this.keywords = _.uniq(words.concat(this.options.keywords)).join(' ');
     };
 
     ActionView.prototype.markup = function(text) {
@@ -2324,8 +2326,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     };
 
     NextStepsView.prototype.add = function(_arg) {
-      var category, extra, guid, label, slug, suffix, type, view;
-      slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type, guid = _arg.guid, extra = _arg.extra;
+      var category, extra, guid, keywords, label, slug, suffix, type, view;
+      slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type, guid = _arg.guid, extra = _arg.extra, keywords = _arg.keywords;
       assert(this.method, 'We do not know which linking `method` to use');
       $(this.el).find('input.filter').show();
       suffix = '';
@@ -2357,7 +2359,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
           'label': label,
           'method': this.method,
           'suffix': suffix,
-          'extra': extra
+          'extra': extra,
+          'keywords': keywords || []
         }));
         return this.list[category].append(view.el);
       }
@@ -3414,11 +3417,13 @@ window.require.register("tools/Registry", function(exports, require, module) {
         'slug': 'enrich-list-tool',
         'label': '**Enrich** an existing list',
         'category': 'Category 1',
+        'keywords': ['chart', 'widget'],
         'weight': 15
       }, {
         'slug': 'blast-search-tool',
         'label': '**BLAST** (Concordia University)',
         'category': 'Category 1',
+        'keywords': ['search'],
         'weight': 20
       }, {
         'slug': 'report-widget-tool',
@@ -3438,11 +3443,13 @@ window.require.register("tools/Registry", function(exports, require, module) {
         'slug': 'results-table-tool',
         'label': 'See list in a **table**',
         'category': 'Category 1',
+        'keywords': ['results'],
         'weight': 5
       }, {
         'slug': 'enrich-list-tool',
         'label': '**Enrich** this list',
         'category': 'Category 1',
+        'keywords': ['chart', 'widget'],
         'weight': 9
       }
     ],
@@ -3452,12 +3459,14 @@ window.require.register("tools/Registry", function(exports, require, module) {
         'label': 'Export to **Galaxy**',
         'extra': 'galaxy',
         'category': 'Data Export',
+        'keywords': ['output', 'dump'],
         'weight': 2
       }, {
         'slug': 'export-tool',
         'label': 'Export to a **CSV** file',
         'extra': 'csv',
         'category': 'Data Export',
+        'keywords': ['spreadsheet', 'tab', 'excel'],
         'weight': 1
       }
     ]

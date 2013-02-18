@@ -4,11 +4,13 @@ config =
             'slug': 'enrich-list-tool'
             'label': '**Enrich** an existing list'
             'category': 'Category 1'
+            'keywords': [ 'chart', 'widget' ]
             'weight': 15
         }, {
             'slug': 'blast-search-tool'
             'label': '**BLAST** (Concordia University)'
             'category': 'Category 1'
+            'keywords': [ 'search' ]
             'weight': 20
         }, {
             'slug': 'report-widget-tool'
@@ -28,11 +30,13 @@ config =
             'slug': 'results-table-tool'
             'label': 'See list in a **table**'
             'category': 'Category 1'
+            'keywords': [ 'results' ]
             'weight': 5
         }, {
             'slug': 'enrich-list-tool'
             'label': '**Enrich** this list'
             'category': 'Category 1'
+            'keywords': [ 'chart', 'widget' ]
             'weight': 9
         }
     ]
@@ -42,12 +46,14 @@ config =
             'label': 'Export to **Galaxy**'
             'extra': 'galaxy'
             'category': 'Data Export'
+            'keywords': [ 'output', 'dump' ]
             'weight': 2
         }, {
             'slug': 'export-tool'
             'label': 'Export to a **CSV** file'
             'extra': 'csv'
             'category': 'Data Export'
+            'keywords': [ 'spreadsheet', 'tab', 'excel' ]
             'weight': 1
         }
     ]

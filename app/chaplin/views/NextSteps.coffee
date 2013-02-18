@@ -26,7 +26,7 @@ module.exports = class NextStepsView extends View
         @delegate 'keyup', 'input.filter', @filterLabels
 
     # Add a link to a tool from its model.
-    add: ({ slug, label, category, type, guid, extra }) =>
+    add: ({ slug, label, category, type, guid, extra, keywords }) =>
         assert @method, 'We do not know which linking `method` to use'
 
         # Show the input filter.
@@ -53,12 +53,13 @@ module.exports = class NextStepsView extends View
         ) @views
             # Render the View for this action.
             @views.push view = new Action
-                'slug':   slug
-                'type':   type
-                'label':  label
-                'method': @method
-                'suffix': suffix
-                'extra':  extra
+                'slug':     slug
+                'type':     type
+                'label':    label
+                'method':   @method
+                'suffix':   suffix
+                'extra':    extra
+                'keywords': keywords or []
 
             # Append the link to an existing category.
             @list[category].append view.el
