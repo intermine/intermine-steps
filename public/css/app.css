@@ -48,6 +48,7 @@ label {
 }
 code {
   font-size: 11px;
+  background: inherit;
 }
 input[type="checkbox"] {
   cursor: pointer;
@@ -567,9 +568,6 @@ footer#bottom .wrap {
 #modal h1 {
   font-size: 22px;
   margin: 0;
-}
-#modal .code {
-  background: inherit;
 }
 .pricing-table {
   border: solid 1px #ddd;

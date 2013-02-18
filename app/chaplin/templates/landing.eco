@@ -36,6 +36,12 @@
         <div class="row">
             <div class="six columns">
                 <ul class="pricing-table">
+                    <li class="title">Working on next &hellip;</li>
+                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>
+                    <li class="bullet-item">Tool registry having a label "weight" concept</li>
+                    <li class="bullet-item">Editable help for tools &amp; labels</li>
+                </ul>
+                <ul class="pricing-table">
                     <li class="title">What it does now</li>
                     <li class="bullet-item">Concept of a tool consisting of multiple steps</li>
                     <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>
@@ -53,11 +59,30 @@
                 </ul>
             </div>
             <div class="six columns">
-                <ul class="pricing-table">
-                    <li class="title">Working on next &hellip;</li>
-                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>
-                    <li class="bullet-item">Tool registry having a label "weight" concept</li>
-                    <li class="bullet-item">Editable help for tools &amp; labels</li>
+                <ul class="tabs-content">
+                    <li class="active">
+                        <dl class="tabs contained">
+                            <dd class="active"><a>Example Tool Config</a></dd>
+                        </dl>
+                        <ul class="tabs-content contained">
+                            <li class="active">
+                                <pre><code class="code rainbow" data-language="json">{
+    <span class="string">"i:haveList"</span>: [
+        {
+            <span class="string">"slug"</span>: <span class="string">"enrich-list-tool"</span>,
+            <span class="string">"label"</span>: <span class="string">"**Enrich** this list"</span>,
+            <span class="string">"category"</span>: <span class="string">"Category 1"</span>,
+            <span class="string">"keywords"</span>: [
+                <span class="string">"chart"</span>,
+                <span class="string">"widget"</span>
+            ],
+            <span class="string">"weight"</span>: <span class="constant numeric">9</span>
+        }
+    ]
+}</code></pre>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
