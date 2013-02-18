@@ -41,8 +41,14 @@ config =
             'slug': 'export-tool'
             'label': 'Export to **Galaxy**'
             'extra': 'galaxy'
-            'category': 'Category 1'
+            'category': 'Data Export'
             'weight': 2
+        }, {
+            'slug': 'export-tool'
+            'label': 'Export to a **CSV** file'
+            'extra': 'csv'
+            'category': 'Data Export'
+            'weight': 1
         }
     ]
 

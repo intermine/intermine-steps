@@ -24,7 +24,7 @@ module.exports = class ToolsController extends Controller
         @views.push new RightSidebarView()
         @views.push new ModalView()
 
-    new: ({ slug }) ->
+    new: ({ slug, extra }) ->
         @_chrome()
 
         # Convert to PascalCase.
@@ -42,12 +42,12 @@ module.exports = class ToolsController extends Controller
             assert false, "Unknown tool `#{name}`"
 
         # Render the View.
-        @views.push new Clazz 'model': model
+        @views.push new Clazz 'model': model, 'extra': extra
 
         # Change the title.
         @adjustTitle model.get 'title'
 
-    cont: ({ slug, guid }) ->
+    cont: ({ slug, extra, guid }) ->
         @_chrome()
 
         # Convert to PascalCase.
@@ -74,14 +74,14 @@ module.exports = class ToolsController extends Controller
         model.set 'parent': guid
 
         # Render the View.
-        @views.push new Clazz 'model': model, 'previous': previous.toJSON()
+        @views.push new Clazz 'model': model, 'previous': previous.toJSON(), 'extra': extra
 
         # Change the title.
         @adjustTitle model.get 'title'
 
-    old: ({ slug, guid }) ->
+    old: ({ guid }) ->
         # Find the model in question.
-        [ model ] = @collection.where 'slug': slug, 'guid': guid
+        [ model ] = @collection.where 'guid': guid
         unless model
             @redirectToRoute 500
             assert false, 'We do not have this Model in History'

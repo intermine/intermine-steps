@@ -18,7 +18,7 @@ module.exports = class NextStepsView extends View
         @list = {}
 
     # Add a link to a tool from its model.
-    add: ({ slug, label, category, type, guid }) =>
+    add: ({ slug, label, category, type, guid, extra }) =>
         assert @method, 'We do not know which linking `method` to use'
 
         # Get the current tool guid?
@@ -47,6 +47,7 @@ module.exports = class NextStepsView extends View
                 'label':  label
                 'method': @method
                 'suffix': suffix
+                'extra':  extra
 
             # Append the link to an existing category.
             @list[category].append view.el

@@ -1,6 +1,6 @@
 <em class="ago"></em>
 <div class="wrap">
-    <a href="/tool/<%= @slug %>/id/<%= @guid %>">
+    <a href="/tool/id/<%= @guid %>">
         <div class="box">
             <h3><%= @name %></h3>
             <% if @description.length > 15: %>

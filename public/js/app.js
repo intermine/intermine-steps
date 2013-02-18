@@ -198,8 +198,8 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
     };
 
     ToolsController.prototype["new"] = function(_arg) {
-      var Clazz, model, name, slug;
-      slug = _arg.slug;
+      var Clazz, extra, model, name, slug;
+      slug = _arg.slug, extra = _arg.extra;
       this._chrome();
       name = root.Utils.hyphenToPascal(slug);
       try {
@@ -211,14 +211,15 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
         assert(false, "Unknown tool `" + name + "`");
       }
       this.views.push(new Clazz({
-        'model': model
+        'model': model,
+        'extra': extra
       }));
       return this.adjustTitle(model.get('title'));
     };
 
     ToolsController.prototype.cont = function(_arg) {
-      var Clazz, guid, model, name, previous, slug;
-      slug = _arg.slug, guid = _arg.guid;
+      var Clazz, extra, guid, model, name, previous, slug;
+      slug = _arg.slug, extra = _arg.extra, guid = _arg.guid;
       this._chrome();
       name = root.Utils.hyphenToPascal(slug);
       try {
@@ -241,16 +242,16 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       });
       this.views.push(new Clazz({
         'model': model,
-        'previous': previous.toJSON()
+        'previous': previous.toJSON(),
+        'extra': extra
       }));
       return this.adjustTitle(model.get('title'));
     };
 
     ToolsController.prototype.old = function(_arg) {
-      var Clazz, guid, model, name, slug;
-      slug = _arg.slug, guid = _arg.guid;
+      var Clazz, guid, model, name;
+      guid = _arg.guid;
       model = this.collection.where({
-        'slug': slug,
         'guid': guid
       })[0];
       if (!model) {
@@ -622,10 +623,16 @@ window.require.register("chaplin/core/Routes", function(exports, require, module
     match('tool/:slug/new', 'tools#new', {
       name: 'new'
     });
+    match('tool/:slug/:extra/new', 'tools#new', {
+      name: 'new'
+    });
     match('tool/:slug/continue/:guid', 'tools#cont', {
       name: 'cont'
     });
-    match('tool/:slug/id/:guid', 'tools#old', {
+    match('tool/:slug/:extra/continue/:guid', 'tools#cont', {
+      name: 'cont'
+    });
+    match('tool/id/:guid', 'tools#old', {
       name: 'old'
     });
     match('error/404', 'error#404', {
@@ -1036,21 +1043,27 @@ window.require.register("chaplin/templates/action", function(exports, require, m
     (function() {
       (function() {
       
-        __out.push('<a href="/tool/');
-      
-        __out.push(__sanitize(this.slug));
-      
-        __out.push('/');
-      
-        __out.push(__sanitize(this.method));
-      
-        __out.push(__sanitize(this.suffix));
-      
-        __out.push('">');
-      
-        __out.push(this.label);
-      
-        __out.push('</a>');
+        if (this.extra) {
+          __out.push('\n    <a href="/tool/');
+          __out.push(__sanitize(this.slug));
+          __out.push('/');
+          __out.push(__sanitize(this.extra));
+          __out.push('/');
+          __out.push(__sanitize(this.method));
+          __out.push(__sanitize(this.suffix));
+          __out.push('">');
+          __out.push(this.label);
+          __out.push('</a>\n');
+        } else {
+          __out.push('\n    <a href="/tool/');
+          __out.push(__sanitize(this.slug));
+          __out.push('/');
+          __out.push(__sanitize(this.method));
+          __out.push(__sanitize(this.suffix));
+          __out.push('">');
+          __out.push(this.label);
+          __out.push('</a>\n');
+        }
       
       }).call(this);
       
@@ -1150,11 +1163,7 @@ window.require.register("chaplin/templates/crumb", function(exports, require, mo
     (function() {
       (function() {
       
-        __out.push('<span class="entypo rightopen"></span>\n<a href="/tool/');
-      
-        __out.push(__sanitize(this.slug));
-      
-        __out.push('/id/');
+        __out.push('<span class="entypo rightopen"></span>\n<a href="/tool/id/');
       
         __out.push(__sanitize(this.guid));
       
@@ -1212,11 +1221,7 @@ window.require.register("chaplin/templates/history-tool", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<em class="ago"></em>\n<div class="wrap">\n    <a href="/tool/');
-      
-        __out.push(__sanitize(this.slug));
-      
-        __out.push('/id/');
+        __out.push('<em class="ago"></em>\n<div class="wrap">\n    <a href="/tool/id/');
       
         __out.push(__sanitize(this.guid));
       
@@ -1613,13 +1618,9 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
     };
 
     ActionView.prototype.getTemplateData = function() {
-      return {
-        'slug': this.options.slug,
-        'type': this.options.type,
-        'label': this.markup(this.options.label),
-        'method': this.options.method,
-        'suffix': this.options.suffix
-      };
+      return _.extend(this.options, {
+        'label': this.markup(this.options.label)
+      });
     };
 
     ActionView.prototype.afterRender = function() {
@@ -2253,8 +2254,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     };
 
     NextStepsView.prototype.add = function(_arg) {
-      var category, guid, label, slug, suffix, type, view;
-      slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type, guid = _arg.guid;
+      var category, extra, guid, label, slug, suffix, type, view;
+      slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type, guid = _arg.guid, extra = _arg.extra;
       assert(this.method, 'We do not know which linking `method` to use');
       suffix = '';
       if (this.method === 'continue') {
@@ -2284,7 +2285,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
           'type': type,
           'label': label,
           'method': this.method,
-          'suffix': suffix
+          'suffix': suffix,
+          'extra': extra
         }));
         return this.list[category].append(view.el);
       }
@@ -3129,15 +3131,21 @@ window.require.register("tools/ExportTool/View", function(exports, require, modu
     }
 
     ExportToolView.prototype.afterRender = function() {
-      var data, _ref, _ref1,
+      var data, format, list, _ref, _ref1, _ref2, _ref3,
         _this = this;
       ExportToolView.__super__.afterRender.apply(this, arguments);
       switch (this.step) {
         case 1:
-          data = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? _ref1.data : void 0 : void 0;
-          if (data) {
-            data.pq = "<xml key=\"" + data.list.key + "\"><item select=\"random\"></item></xml>";
-            delete data.list;
+          data = {};
+          list = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0;
+          if (list) {
+            data.pq = "<xml key=\"" + list.key + "\"><item select=\"random\"></item></xml>";
+          }
+          format = (_ref3 = this.options) != null ? _ref3.extra : void 0;
+          if (format) {
+            data.format = format;
+          }
+          if (data.pq && data.format) {
             this.exportData(data);
           }
       }
@@ -3216,7 +3224,23 @@ window.require.register("tools/ExportTool/step-1", function(exports, require, mo
           __out.push('\n                        <textarea class="pq"></textarea>\n                    ');
         }
       
-        __out.push('\n                </div>\n            </form>\n            <form class="row">\n                <div class="six columns">\n                    <label>Export format</label>\n                    <select class="format">\n                        <option value="csv">Comma Separated Values (CSV)</option>\n                    </select>\n                </div>\n            </form>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Export</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('\n                </div>\n            </form>\n            <form class="row">\n                <div class="six columns">\n                    <label>Export format</label>\n                    <select class="format">\n                        ');
+      
+        if (this.data && this.data.format) {
+          __out.push('\n                            <option value="csv" ');
+          if (this.data.format === 'csv') {
+            __out.push('selected="selected"');
+          }
+          __out.push('>Comma Separated Values (CSV)</option>\n                            <option value="galaxy" ');
+          if (this.data.format === 'galaxy') {
+            __out.push('selected="selected"');
+          }
+          __out.push('>Galaxy @genenetwork.org</option>\n                        ');
+        } else {
+          __out.push('\n                            <option value="csv">Comma Separated Values (CSV)</option>\n                            <option value="galaxy">Galaxy @genenetwork.org</option>\n                        ');
+        }
+      
+        __out.push('\n                    </select>\n                </div>\n            </form>\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Export</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3321,8 +3345,14 @@ window.require.register("tools/Registry", function(exports, require, module) {
         'slug': 'export-tool',
         'label': 'Export to **Galaxy**',
         'extra': 'galaxy',
-        'category': 'Category 1',
+        'category': 'Data Export',
         'weight': 2
+      }, {
+        'slug': 'export-tool',
+        'label': 'Export to a **CSV** file',
+        'extra': 'csv',
+        'category': 'Data Export',
+        'weight': 1
       }
     ]
   };

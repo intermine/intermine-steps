@@ -9,12 +9,7 @@ module.exports = class ActionView extends View
     getTemplateFunction: -> require 'chaplin/templates/action'
 
     # Custom data prep.
-    getTemplateData: ->
-        'slug':   @options.slug
-        'type':   @options.type
-        'label':  @markup @options.label
-        'method': @options.method
-        'suffix': @options.suffix
+    getTemplateData: -> _.extend @options, 'label': @markup @options.label
 
     afterRender: ->
         super

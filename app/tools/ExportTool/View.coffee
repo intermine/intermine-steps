@@ -9,13 +9,17 @@ module.exports = class ExportToolView extends ToolView
 
         switch @step
             when 1
-                # Do we have a PathQuery coming from a previous step?
-                data = @options?.previous?.data
-                if data
-                    # As if make a list into a PathQuery.
-                    data.pq = "<xml key=\"#{data.list.key}\"><item select=\"random\"></item></xml>"
-                    delete data.list
-                    @exportData data
+                data = {}
+                # Do we have a list coming from a previous step? Make into a PQ.
+                list = @options?.previous?.data?.list
+                if list then data.pq = "<xml key=\"#{list.key}\"><item select=\"random\"></item></xml>"
+                
+                # Do we have an extra param?
+                format = @options?.extra
+                if format then data.format = format
+
+                # Do we have both values set? Then skip to the results...
+                if data.pq and data.format then @exportData data
 
         # Use a "list" from step #1.
         @delegate 'click', '#submit', =>

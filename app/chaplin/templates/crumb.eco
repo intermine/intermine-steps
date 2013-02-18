@@ -1,2 +1,2 @@
 <span class="entypo rightopen"></span>
-<a href="/tool/<%= @slug %>/id/<%= @guid %>"><%= @title %></a>
+<a href="/tool/id/<%= @guid %>"><%= @title %></a>
