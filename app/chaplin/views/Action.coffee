@@ -1,5 +1,7 @@
 View = require 'chaplin/core/View'
 
+root = @
+
 module.exports = class ActionView extends View
 
     containerMethod: 'html'
@@ -9,7 +11,7 @@ module.exports = class ActionView extends View
     getTemplateFunction: -> require 'chaplin/templates/action'
 
     # Custom data prep.
-    getTemplateData: -> _.extend @options, 'label': @markup @options.label
+    getTemplateData: -> _.extend root.Utils.dupe(@options), 'label': @markup @options.label
 
     afterRender: ->
         super

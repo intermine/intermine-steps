@@ -672,6 +672,9 @@ window.require.register("chaplin/core/Utils", function(exports, require, module)
     },
     'arrayEql': function(a, b) {
       return !(a < b || b < a);
+    },
+    'dupe': function(obj) {
+      return JSON.parse(JSON.stringify(obj));
     }
   };
   
@@ -1343,7 +1346,7 @@ window.require.register("chaplin/templates/landing", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle" class="container">\n        <div class="row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle" class="container">\n        <div class="row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1593,11 +1596,13 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
   }
 });
 window.require.register("chaplin/views/Action", function(exports, require, module) {
-  var ActionView, View,
+  var ActionView, View, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('chaplin/core/View');
+
+  root = this;
 
   module.exports = ActionView = (function(_super) {
 
@@ -1618,7 +1623,7 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
     };
 
     ActionView.prototype.getTemplateData = function() {
-      return _.extend(this.options, {
+      return _.extend(root.Utils.dupe(this.options), {
         'label': this.markup(this.options.label)
       });
     };

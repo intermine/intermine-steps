@@ -46,6 +46,7 @@
                     <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>
                     <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>
                     <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>
+                    <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>
                     <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>
                 </ul>
             </div>

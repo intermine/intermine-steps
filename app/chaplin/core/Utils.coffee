@@ -13,3 +13,6 @@
 
     # Array equality.
     'arrayEql': (a, b) -> not (a < b or b < a)
+
+    # Deep clone.
+    'dupe': (obj) -> JSON.parse(JSON.stringify(obj))
