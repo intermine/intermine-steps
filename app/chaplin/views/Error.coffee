@@ -6,4 +6,4 @@ module.exports = class ErrorView extends View
     containerMethod: 'html'
     autoRender:      true
 
-    getTemplateFunction: -> require "chaplin/templates/#{@options.template}"
+    getTemplateFunction: -> require "chaplin/templates/error-#{@options.template}"
