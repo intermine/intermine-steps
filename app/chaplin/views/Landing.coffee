@@ -5,13 +5,15 @@ View = require 'chaplin/core/View'
 
 NextStepsLandingView = require 'chaplin/views/NextStepsLanding'
 
+root = @
+
 module.exports = class LandingView extends View
 
     container:       'body'
     containerMethod: 'html'
     autoRender:      true
 
-    getTemplateFunction: -> require 'chaplin/templates/landing'
+    getTemplateFunction: -> require "chaplin/templates/landing-#{root.App.env}"
 
     afterRender: ->
         super

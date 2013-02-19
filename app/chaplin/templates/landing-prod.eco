@@ -1,0 +1,24 @@
+<div id="wrapper">
+    <header id="top">
+        <div class="inner">
+            <div class="account right">
+                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>
+            </div>
+            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
+        </div>
+    </header>
+
+    <section id="middle" class="container">
+        <div class="row">
+            <div class="twelve columns">
+                <h2><span class="entypo crossroads"></span> Tools</h2>
+                <!-- populate next steps here -->
+                <div id="next"></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<footer id="wide">
+    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>
+</footer>

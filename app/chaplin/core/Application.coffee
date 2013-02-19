@@ -20,6 +20,9 @@ module.exports = class InterMineSteps extends Chaplin.Application
     initialize: ->
         super
 
+        # Production or development env?
+        @env = if location.hostname is 'intermine-steps.labs.intermine.org' then 'prod' else 'dev'
+
         # Initialize core components
         @initDispatcher
             'controllerPath':   'chaplin/controllers/'
