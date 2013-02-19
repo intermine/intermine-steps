@@ -1,5 +1,6 @@
 Mediator = require 'chaplin/core/Mediator'
 View = require 'chaplin/core/View'
+Controller = require 'chaplin/core/Controller'
 
 HistoryToolView = require 'chaplin/views/HistoryTool'
 
@@ -51,8 +52,20 @@ module.exports = class HistoryView extends View
 
         # Capture serialization requests.
         @delegate 'click', '#serialize', @serializeHistory
+        @delegate 'click', '#reset', @resetDatabase
 
         @
+
+    # Clear LocalStorage and History Collection.
+    resetDatabase: ->
+        # LocalStorage.
+        @collection.storage.reset()
+        # Collection itself.
+        @collection.reset()
+        # Now do the sync.
+        # Backbone.sync 'update', collection
+        # Ckear View.
+        @resetTable()
 
     # Check for models in Collection.
     checkCollection: =>

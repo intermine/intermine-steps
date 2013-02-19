@@ -1,5 +1,7 @@
 <div class="head">
-    <a id="serialize" class="button success">Serialize</a> <h1><span class="entypo flowbranch"></span> History</h1>
+    <a id="serialize" class="button success">Serialize</a>
+    <a id="reset" class="button secondary" style="margin-right:10px">Clear</a>
+    <h1><span class="entypo flowbranch"></span> History</h1>
     <p class="message">Steps you have taken will be populated here as you work with this app.</p>
 </div>
 

@@ -34,4 +34,4 @@ module.exports = class LandingView extends View
         # Collection itself.
         collection.reset()
         # Now do the sync.
-        Backbone.sync 'update', collection
+        # Backbone.sync 'update', collection

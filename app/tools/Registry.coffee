@@ -8,7 +8,7 @@ config =
             'weight': 15
         }, {
             'slug': 'blast-search-tool'
-            'label': '**BLAST** (Concordia University)'
+            'label': '**BLAST** search'
             'category': 'Category 1'
             'keywords': [ 'search' ]
             'weight': 20

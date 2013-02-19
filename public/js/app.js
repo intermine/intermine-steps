@@ -1234,7 +1234,7 @@ window.require.register("chaplin/templates/error-no-html5", function(exports, re
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="twelve columns">\n                <h2>Your browser does not support either <a href="http://diveintohtml5.info/storage.html" target="_new">localStorage</a> or <a href="http://diveintohtml5.info/history.html" target="_new">pushState</a>, sadness &hellip;</h2>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle">\n        <div id="landing" class="container row">\n            <div class="twelve columns">\n                <h2>Your browser does not support either <a href="http://diveintohtml5.info/storage.html" target="_new">localStorage</a> or <a href="http://diveintohtml5.info/history.html" target="_new">pushState</a>, sadness &hellip;</h2>\n                <p>Please use a different browser or disable a browser addon (related to cookies etc.) that could be blocking the functionality.</p>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1356,7 +1356,7 @@ window.require.register("chaplin/templates/history", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div class="head">\n    <a id="serialize" class="button success">Serialize</a> <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
+        __out.push('<div class="head">\n    <a id="serialize" class="button success">Serialize</a>\n    <a id="reset" class="button secondary" style="margin-right:10px">Clear</a>\n    <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
       
       }).call(this);
       
@@ -1556,7 +1556,7 @@ window.require.register("chaplin/templates/next-steps", function(exports, requir
     (function() {
       (function() {
       
-        __out.push('<input type="text" class="filter" placeholder="e.g. list upload" />');
+        __out.push('<input type="text" class="filter" placeholder="Tool search e.g. list upload" />');
       
       }).call(this);
       
@@ -1960,7 +1960,7 @@ window.require.register("chaplin/views/GenericTool", function(exports, require, 
   
 });
 window.require.register("chaplin/views/History", function(exports, require, module) {
-  var HistoryToolView, HistoryView, Mediator, Tool, View,
+  var Controller, HistoryToolView, HistoryView, Mediator, Tool, View,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1968,6 +1968,8 @@ window.require.register("chaplin/views/History", function(exports, require, modu
   Mediator = require('chaplin/core/Mediator');
 
   View = require('chaplin/core/View');
+
+  Controller = require('chaplin/core/Controller');
 
   HistoryToolView = require('chaplin/views/HistoryTool');
 
@@ -2020,7 +2022,14 @@ window.require.register("chaplin/views/History", function(exports, require, modu
       $(window).resize(height);
       this.checkCollection();
       this.delegate('click', '#serialize', this.serializeHistory);
+      this.delegate('click', '#reset', this.resetDatabase);
       return this;
+    };
+
+    HistoryView.prototype.resetDatabase = function() {
+      this.collection.storage.reset();
+      this.collection.reset();
+      return this.resetTable();
     };
 
     HistoryView.prototype.checkCollection = function() {
@@ -2260,8 +2269,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
       var collection;
       collection = window.History;
       collection.storage.reset();
-      collection.reset();
-      return Backbone.sync('update', collection);
+      return collection.reset();
     };
 
     return LandingView;
@@ -3530,7 +3538,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
         'weight': 15
       }, {
         'slug': 'blast-search-tool',
-        'label': '**BLAST** (Concordia University)',
+        'label': '**BLAST** search',
         'category': 'Category 1',
         'keywords': ['search'],
         'weight': 20
