@@ -18,7 +18,7 @@ module.exports = class LeftSidebarView extends View
 
         @
 
-    afterRender: ->
+    attach: ->
         super
 
         (el = $(@el)).addClass 'reveal-modal'

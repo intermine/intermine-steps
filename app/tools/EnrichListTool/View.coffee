@@ -48,7 +48,7 @@ module.exports = class EnrichListToolView extends ToolView
         # Define properties on us.
         @lists = @property lists
 
-    afterRender: ->
+    attach: ->
         super
 
         switch @step
@@ -75,11 +75,11 @@ module.exports = class EnrichListToolView extends ToolView
     # Select a list, and only one list, in a table of lists.
     selectList: (e) =>
         # Deselect any already selected.
-        $(@el).find('table input.check').attr('checked', false)
+        $(@el).find('table input.check').prop('checked', false)
         # Set us as selected.
         @selected = @lists[$(e.target).attr('data-key')]
         # Actually tick us again.
-        $(e.target).attr('checked', true)
+        $(e.target).prop('checked', true)
 
     # Set list and render step 2 saving into history.
     enrichList: =>

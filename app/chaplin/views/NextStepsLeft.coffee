@@ -13,7 +13,7 @@ module.exports = class NextStepsLeftView extends NextStepsView
         # Render on us.
         Mediator.subscribe 'contextRender:i:onLeft', @add, @
 
-    afterRender: ->
+    attach: ->
         super
 
         # We are in the left sidebar.

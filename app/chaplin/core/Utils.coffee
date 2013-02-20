@@ -15,6 +15,3 @@
     'arrayEql': (a, b) ->
         return false if not a or not b
         not (a < b or b < a)
-
-    # Deep clone.
-    'dupe': (obj) -> JSON.parse(JSON.stringify(obj))

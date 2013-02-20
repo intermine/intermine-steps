@@ -29,7 +29,7 @@
                     <p>Use the following action to clear
                         <code>Backbone.js Collection</code> and associated
                         <code>LocalStorage</code>:</p>
-                    <a class="button" id="reset">Reset Database</a>
+                    <a href="app/reset" class="button">Reset Database</a>
                 </div>
             </div>
         </div>

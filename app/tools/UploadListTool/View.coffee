@@ -3,8 +3,8 @@ Mediator = require 'chaplin/core/Mediator'
 ToolView = require 'chaplin/views/Tool'
 
 module.exports = class UploadListToolView extends ToolView
-    
-    afterRender: ->
+
+    attach: ->
         super
 
         switch @step
@@ -18,7 +18,7 @@ module.exports = class UploadListToolView extends ToolView
                 key: 'temp'
                 name: 'Just uploaded'
                 items: @getDOM().find('form textarea').val().split(' ')
-            
+
             # Update the history.
             Mediator.publish 'history:add', @model
             # Change the step.

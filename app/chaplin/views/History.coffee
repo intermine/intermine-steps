@@ -33,7 +33,7 @@ module.exports = class HistoryView extends View
         # Toggle the view.
         Mediator.subscribe 'history:toggle', @toggleHistory, @
 
-    afterRender: ->
+    attach: ->
         super
 
         # Hide by default and set width to how much space we have on screen. Add a class.
@@ -52,20 +52,8 @@ module.exports = class HistoryView extends View
 
         # Capture serialization requests.
         @delegate 'click', '#serialize', @serializeHistory
-        @delegate 'click', '#reset', @resetDatabase
 
         @
-
-    # Clear LocalStorage and History Collection.
-    resetDatabase: ->
-        # LocalStorage.
-        @collection.storage.reset()
-        # Collection itself.
-        @collection.reset()
-        # Now do the sync.
-        # Backbone.sync 'update', collection
-        # Ckear View.
-        @resetTable()
 
     # Check for models in Collection.
     checkCollection: =>

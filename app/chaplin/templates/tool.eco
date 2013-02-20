@@ -20,7 +20,7 @@
                             <h5><%= title %></h5>
                         <% end %>
                     </div>
-                    <div class="content">Dummy</div>
+                    <div class="content">Loading content &hellip;</div>
                 </li>
             <% end %>
         </ul>

@@ -13,7 +13,7 @@ module.exports = class View extends Chaplin.View
 
         @
 
-    afterRender: ->
+    attach: ->
         super
         # console.green "+#{@cid} #{@constructor.name}"
 
@@ -35,4 +35,4 @@ module.exports = class View extends Chaplin.View
         super
 
     # Set a property on us.
-    property: (data) -> JSON.parse JSON.stringify data
+    property: (data) -> _.cloneDeep data

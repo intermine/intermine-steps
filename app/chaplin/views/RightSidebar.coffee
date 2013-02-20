@@ -10,7 +10,7 @@ module.exports = class RightSidebarView extends View
 
     getTemplateFunction: -> require 'chaplin/templates/sidebar-right'
 
-    afterRender: ->
+    attach: ->
         super
 
         # Load the appropriate Next Steps.

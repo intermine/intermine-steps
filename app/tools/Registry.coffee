@@ -4,7 +4,7 @@ config =
             'slug': 'enrich-list-tool'
             'label': '**Enrich** an existing list'
             'category': 'Category 1'
-            'keywords': [ 'chart', 'widget' ]
+            'keywords': [ 'chart', 'widget', 'graph' ]
             'weight': 15
         }, {
             'slug': 'blast-search-tool'

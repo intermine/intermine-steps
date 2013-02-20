@@ -19,7 +19,7 @@ module.exports = class NextStepsView extends View
         # Representation of the list of actions.
         @list = {}
 
-    afterRender: ->
+    attach: ->
         super
 
         # Filter the tool labels.

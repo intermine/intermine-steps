@@ -4,13 +4,12 @@ require 'chaplin/core/AssertException' # assertions
 require 'chaplin/core/Console'         # console
 require 'chaplin/core/Utils'           # utilities
 
+Dispatcher = require 'chaplin/core/Dispatcher'
 Mediator = require 'chaplin/core/Mediator'
 Layout = require 'chaplin/core/Layout'
 Routes = require 'chaplin/core/Routes'
 
 Registry = require 'tools/Registry'
-
-root = @
 
 # The application object.
 module.exports = class InterMineSteps extends Chaplin.Application
@@ -21,10 +20,9 @@ module.exports = class InterMineSteps extends Chaplin.Application
         super
 
         # Production or development env?
-        @env = if location.hostname is 'intermine-steps.labs.intermine.org' then 'prod' else 'dev'
+        @env = 'dev' # if location.hostname is 'intermine-steps.labs.intermine.org' then 'prod' else 'dev'
 
-        # Initialize core components
-        @initDispatcher
+        @dispatcher = new Dispatcher
             'controllerPath':   'chaplin/controllers/'
             'controllerSuffix': ''
         
@@ -42,7 +40,9 @@ module.exports = class InterMineSteps extends Chaplin.Application
     initLayout: ->
         # Use an application-specific Layout class. Currently this adds
         # no features to the standard Chaplin Layout, it’s an empty placeholder.
-        @layout = new Layout {@title}
+        @layout = new Layout
+            'title': @title
+            'openExternalToBlank': true
 
     # Listen to context changes.
     initRegistry: ->
@@ -51,7 +51,7 @@ module.exports = class InterMineSteps extends Chaplin.Application
             Mediator.subscribe "context:#{key}", (guid) =>
                 for obj in map
                     # Convert to PascalCase to get the name.
-                    name = root.Utils.hyphenToPascal obj.slug
+                    name = window.Utils.hyphenToPascal obj.slug
 
                     # Grab the Model.
                     try

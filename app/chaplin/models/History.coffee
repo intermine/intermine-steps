@@ -78,11 +78,11 @@ module.exports = class History extends Collection
         # Was this model locked?
         locked = model.get('locked')
 
-        # Set the creation time.
-        model.set 'created', new Date()
-
         # It is now a "locked" object.
         model.set 'locked': true
+
+        # Set the creation time.
+        model.set 'created', new Date()
 
         # Add to the collection.
         @add model
@@ -104,8 +104,6 @@ module.exports = class History extends Collection
         # Mediator.publish 'history:render', model
         # 'Activate' this model (will bolden the box in History).
         # Mediator.publish 'history:activate', guid
-        # Now do the sync.
-        # Backbone.sync 'update', @
 
     # Duplicate a model, preserve data about "us" though!
     dupe: (model) ->

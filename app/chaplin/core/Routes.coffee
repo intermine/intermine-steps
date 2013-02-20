@@ -7,3 +7,4 @@ module.exports = (match) ->
     match 'tool/id/:guid',                    'tools#old',     name: 'old'     # historical tool
     match 'error/404',                        'error#404',     name: 404       # 404
     match 'error/500',                        'error#500',     name: 500       # 500
+    match 'app/reset',                        'app#reset',     name: 'reset'   # reset the database

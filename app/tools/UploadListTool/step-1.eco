@@ -9,8 +9,8 @@
     <form class="row custom">
         <div class="six columns">
             <label>List of identifiers</label>
-            <% if @data and @data.identifiers: %>
-                <textarea><% for i, id of @data.identifiers: %><%= id %><% if parseInt(i) isnt @data.identifiers.length - 1: %> <% end %><% end %></textarea>
+            <% if @data and @data.list: %>
+                <textarea><% for i, id of @data.list.items: %><%= id %><% if parseInt(i) isnt @data.list.items.length - 1: %> <% end %><% end %></textarea>
             <% else: %>
                 <textarea>PPARG ZEN MAD</textarea>
             <% end %>

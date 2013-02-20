@@ -79,6 +79,43 @@
   globals.require.brunch = true;
 })();
 
+window.require.register("chaplin/controllers/app", function(exports, require, module) {
+  var AppController, Controller,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Controller = require('chaplin/core/Controller');
+
+  module.exports = AppController = (function(_super) {
+
+    __extends(AppController, _super);
+
+    function AppController() {
+      return AppController.__super__.constructor.apply(this, arguments);
+    }
+
+    AppController.prototype.historyURL = function(params) {
+      return '';
+    };
+
+    AppController.prototype.afterAction = {
+      'reset': function() {
+        return this.redirectToRoute('landing');
+      }
+    };
+
+    AppController.prototype.reset = function(params) {
+      var collection;
+      collection = window.History;
+      collection.storage.reset();
+      return collection.reset();
+    };
+
+    return AppController;
+
+  })(Controller);
+  
+});
 window.require.register("chaplin/controllers/error", function(exports, require, module) {
   var Controller, ErrorController, ErrorView,
     __hasProp = {}.hasOwnProperty,
@@ -280,7 +317,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
   
 });
 window.require.register("chaplin/core/Application", function(exports, require, module) {
-  var Chaplin, InterMineSteps, Layout, Mediator, Registry, Routes, root,
+  var Chaplin, Dispatcher, InterMineSteps, Layout, Mediator, Registry, Routes,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -292,6 +329,8 @@ window.require.register("chaplin/core/Application", function(exports, require, m
 
   require('chaplin/core/Utils');
 
+  Dispatcher = require('chaplin/core/Dispatcher');
+
   Mediator = require('chaplin/core/Mediator');
 
   Layout = require('chaplin/core/Layout');
@@ -299,8 +338,6 @@ window.require.register("chaplin/core/Application", function(exports, require, m
   Routes = require('chaplin/core/Routes');
 
   Registry = require('tools/Registry');
-
-  root = this;
 
   module.exports = InterMineSteps = (function(_super) {
 
@@ -314,8 +351,8 @@ window.require.register("chaplin/core/Application", function(exports, require, m
 
     InterMineSteps.prototype.initialize = function() {
       InterMineSteps.__super__.initialize.apply(this, arguments);
-      this.env = location.hostname === 'intermine-steps.labs.intermine.org' ? 'prod' : 'dev';
-      this.initDispatcher({
+      this.env = 'dev';
+      this.dispatcher = new Dispatcher({
         'controllerPath': 'chaplin/controllers/',
         'controllerSuffix': ''
       });
@@ -327,7 +364,8 @@ window.require.register("chaplin/core/Application", function(exports, require, m
 
     InterMineSteps.prototype.initLayout = function() {
       return this.layout = new Layout({
-        title: this.title
+        'title': this.title,
+        'openExternalToBlank': true
       });
     };
 
@@ -343,7 +381,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
             _results1 = [];
             for (_i = 0, _len = map.length; _i < _len; _i++) {
               obj = map[_i];
-              name = root.Utils.hyphenToPascal(obj.slug);
+              name = window.Utils.hyphenToPascal(obj.slug);
               try {
                 Model = require("/tools/" + name + "/Model");
                 model = new Model();
@@ -455,11 +493,13 @@ window.require.register("chaplin/core/Console", function(exports, require, modul
   
 });
 window.require.register("chaplin/core/Controller", function(exports, require, module) {
-  var Chaplin, Controller,
+  var Chaplin, Controller, Mediator,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Chaplin = require('chaplin');
+
+  Mediator = require('chaplin/core/Mediator');
 
   module.exports = Controller = (function(_super) {
 
@@ -488,6 +528,75 @@ window.require.register("chaplin/core/Controller", function(exports, require, mo
     return Controller;
 
   })(Chaplin.Controller);
+  
+});
+window.require.register("chaplin/core/Dispatcher", function(exports, require, module) {
+  var Chaplin, Dispatcher, utils,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Chaplin = require('chaplin');
+
+  utils = require('chaplin/lib/utils');
+
+  module.exports = Dispatcher = (function(_super) {
+
+    __extends(Dispatcher, _super);
+
+    function Dispatcher() {
+      return Dispatcher.__super__.constructor.apply(this, arguments);
+    }
+
+    Dispatcher.prototype.controllerLoaded = function(controllerName, action, params, options, ControllerConstructor) {
+      var acts, afterAction, afterActions, args, controller, name, next, _i, _len, _ref,
+        _this = this;
+      Dispatcher.__super__.controllerLoaded.apply(this, arguments);
+      controller = new ControllerConstructor(params, options);
+      afterActions = [];
+      args = arguments;
+      _ref = utils.getAllPropertyVersions(controller, 'afterAction');
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        acts = _ref[_i];
+        for (name in acts) {
+          afterAction = acts[name];
+          if (name === action || RegExp("^" + name + "$").test(action)) {
+            if (typeof afterAction === 'string') {
+              afterAction = controller[afterAction];
+            }
+            if (typeof afterAction !== 'function') {
+              throw new Error('Controller#executeAfterActions: ' + ("" + afterAction + " is not a valid afterAction method for " + name + "."));
+            }
+            afterActions.push(afterAction);
+          }
+        }
+      }
+      next = function(method, previous) {
+        if (previous == null) {
+          previous = null;
+        }
+        if (controller.redirected) {
+          return;
+        }
+        if (!method) {
+          return;
+        }
+        previous = method.call(controller, params, options, previous);
+        if (previous && typeof previous.then === 'function') {
+          return previous.then(function(data) {
+            if (!_this.currentController || controller === _this.currentController) {
+              return next(afterActions.shift(), data);
+            }
+          });
+        } else {
+          return next(afterActions.shift(), previous);
+        }
+      };
+      return next(afterActions.shift());
+    };
+
+    return Dispatcher;
+
+  })(Chaplin.Dispatcher);
   
 });
 window.require.register("chaplin/core/Layout", function(exports, require, module) {
@@ -639,8 +748,11 @@ window.require.register("chaplin/core/Routes", function(exports, require, module
     match('error/404', 'error#404', {
       name: 404
     });
-    return match('error/500', 'error#500', {
+    match('error/500', 'error#500', {
       name: 500
+    });
+    return match('app/reset', 'app#reset', {
+      name: 'reset'
     });
   };
   
@@ -676,9 +788,6 @@ window.require.register("chaplin/core/Utils", function(exports, require, module)
         return false;
       }
       return !(a < b || b < a);
-    },
-    'dupe': function(obj) {
-      return JSON.parse(JSON.stringify(obj));
     }
   };
   
@@ -707,8 +816,8 @@ window.require.register("chaplin/core/View", function(exports, require, module) 
       return this;
     };
 
-    View.prototype.afterRender = function() {
-      View.__super__.afterRender.apply(this, arguments);
+    View.prototype.attach = function() {
+      View.__super__.attach.apply(this, arguments);
       return $(this.el).attr('data-cid', this.cid);
     };
 
@@ -731,7 +840,7 @@ window.require.register("chaplin/core/View", function(exports, require, module) 
     };
 
     View.prototype.property = function(data) {
-      return JSON.parse(JSON.stringify(data));
+      return _.cloneDeep(data);
     };
 
     return View;
@@ -869,10 +978,10 @@ window.require.register("chaplin/models/History", function(exports, require, mod
         'guid': guid
       });
       locked = model.get('locked');
-      model.set('created', new Date());
       model.set({
         'locked': true
       });
+      model.set('created', new Date());
       this.add(model);
       this.storage.add(model.toJSON());
       if (redirect != null) {
@@ -1356,7 +1465,7 @@ window.require.register("chaplin/templates/history", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div class="head">\n    <a id="serialize" class="button success">Serialize</a>\n    <a id="reset" class="button secondary" style="margin-right:10px">Clear</a>\n    <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
+        __out.push('<div class="head">\n    <a id="serialize" class="button success">Serialize</a>\n    <a href="/app/reset" class="button secondary" style="margin-right:10px">Clear</a>\n    <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
       
       }).call(this);
       
@@ -1406,7 +1515,7 @@ window.require.register("chaplin/templates/landing-dev", function(exports, requi
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle" class="container">\n        <div class="row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a class="button" id="reset">Reset Database</a>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>\n                    <li class="bullet-item">Permissive input <strong>filtering</strong> of tools listing</li>\n                    <li class="bullet-item">Tool labels have extra <strong>keywords</strong> associated as alternatives for search</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="tabs-content">\n                    <li class="active">\n                        <dl class="tabs contained">\n                            <dd class="active"><a>Example Tool Config</a></dd>\n                        </dl>\n                        <ul class="tabs-content contained">\n                            <li class="active">\n                                <pre><code class="code rainbow" data-language="json">{\n    <span class="string">"i:haveList"</span>: [\n        {\n            <span class="string">"slug"</span>: <span class="string">"enrich-list-tool"</span>,\n            <span class="string">"label"</span>: <span class="string">"**Enrich** this list"</span>,\n            <span class="string">"category"</span>: <span class="string">"Category 1"</span>,\n            <span class="string">"keywords"</span>: [\n                <span class="string">"chart"</span>,\n                <span class="string">"widget"</span>\n            ],\n            <span class="string">"weight"</span>: <span class="constant numeric">9</span>\n        }\n    ]\n}</code></pre>\n                            </li>\n                        </ul>\n                    </li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="account right">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n        </div>\n    </header>\n\n    <section id="middle" class="container">\n        <div class="row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a href="app/reset" class="button">Reset Database</a>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">Working on next &hellip;</li>\n                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>\n                    <li class="bullet-item">Tool registry having a label "weight" concept</li>\n                    <li class="bullet-item">Editable help for tools &amp; labels</li>\n                </ul>\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>\n                    <li class="bullet-item">Permissive input <strong>filtering</strong> of tools listing</li>\n                    <li class="bullet-item">Tool labels have extra <strong>keywords</strong> associated as alternatives for search</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="tabs-content">\n                    <li class="active">\n                        <dl class="tabs contained">\n                            <dd class="active"><a>Example Tool Config</a></dd>\n                        </dl>\n                        <ul class="tabs-content contained">\n                            <li class="active">\n                                <pre><code class="code rainbow" data-language="json">{\n    <span class="string">"i:haveList"</span>: [\n        {\n            <span class="string">"slug"</span>: <span class="string">"enrich-list-tool"</span>,\n            <span class="string">"label"</span>: <span class="string">"**Enrich** this list"</span>,\n            <span class="string">"category"</span>: <span class="string">"Category 1"</span>,\n            <span class="string">"keywords"</span>: [\n                <span class="string">"chart"</span>,\n                <span class="string">"widget"</span>\n            ],\n            <span class="string">"weight"</span>: <span class="constant numeric">9</span>\n        }\n    ]\n}</code></pre>\n                            </li>\n                        </ul>\n                    </li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1739,7 +1848,7 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
               __out.push(__sanitize(title));
               __out.push('</h5>\n                        ');
             }
-            __out.push('\n                    </div>\n                    <div class="content">Dummy</div>\n                </li>\n            ');
+            __out.push('\n                    </div>\n                    <div class="content">Loading content &hellip;</div>\n                </li>\n            ');
           }
           __out.push('\n        </ul>\n    ');
         } else {
@@ -1783,14 +1892,14 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
     };
 
     ActionView.prototype.getTemplateData = function() {
-      return _.extend(root.Utils.dupe(this.options), {
+      return _.extend(_.cloneDeep(this.options), {
         'label': this.markup(this.options.label)
       });
     };
 
-    ActionView.prototype.afterRender = function() {
+    ActionView.prototype.attach = function() {
       var words;
-      ActionView.__super__.afterRender.apply(this, arguments);
+      ActionView.__super__.attach.apply(this, arguments);
       $(this.el).addClass(this.options.type);
       words = this.options.label.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase().split(' ');
       return this.keywords = _.uniq(words.concat(this.options.keywords)).join(' ');
@@ -1833,8 +1942,8 @@ window.require.register("chaplin/views/App", function(exports, require, module) 
       return require('chaplin/templates/app');
     };
 
-    AppView.prototype.afterRender = function() {
-      AppView.__super__.afterRender.apply(this, arguments);
+    AppView.prototype.attach = function() {
+      AppView.__super__.attach.apply(this, arguments);
       this.delegate('click', '.button[data-action="history-toggle"]', this.historyToggle);
       this.delegate('click', 'header#top h1', function() {
         return Mediator.publish('router:landing');
@@ -2010,10 +2119,10 @@ window.require.register("chaplin/views/History", function(exports, require, modu
       return Mediator.subscribe('history:toggle', this.toggleHistory, this);
     };
 
-    HistoryView.prototype.afterRender = function() {
+    HistoryView.prototype.attach = function() {
       var height,
         _this = this;
-      HistoryView.__super__.afterRender.apply(this, arguments);
+      HistoryView.__super__.attach.apply(this, arguments);
       $(this.el).css('width', $(window).width() - $('footer#bottom').outerWidth()).addClass('container');
       this.tools = $(this.el).find('#tools');
       (height = function() {
@@ -2022,14 +2131,7 @@ window.require.register("chaplin/views/History", function(exports, require, modu
       $(window).resize(height);
       this.checkCollection();
       this.delegate('click', '#serialize', this.serializeHistory);
-      this.delegate('click', '#reset', this.resetDatabase);
       return this;
-    };
-
-    HistoryView.prototype.resetDatabase = function() {
-      this.collection.storage.reset();
-      this.collection.reset();
-      return this.resetTable();
     };
 
     HistoryView.prototype.checkCollection = function() {
@@ -2213,8 +2315,8 @@ window.require.register("chaplin/views/HistoryTool", function(exports, require, 
       return this;
     };
 
-    HistoryToolView.prototype.afterRender = function() {
-      HistoryToolView.__super__.afterRender.apply(this, arguments);
+    HistoryToolView.prototype.attach = function() {
+      HistoryToolView.__super__.attach.apply(this, arguments);
       $(this.el).attr('class', "" + (this.model.get('type')) + " step").attr('data-id', this.model.id);
       this.updateTime($(this.el).find('em.ago'));
       return this;
@@ -2258,18 +2360,10 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
       return require("chaplin/templates/landing-" + root.App.env);
     };
 
-    LandingView.prototype.afterRender = function() {
-      LandingView.__super__.afterRender.apply(this, arguments);
+    LandingView.prototype.attach = function() {
+      LandingView.__super__.attach.apply(this, arguments);
       this.views.push(new NextStepsLandingView());
-      this.delegate('click', '#reset', this.resetDatabase);
       return this;
-    };
-
-    LandingView.prototype.resetDatabase = function() {
-      var collection;
-      collection = window.History;
-      collection.storage.reset();
-      return collection.reset();
     };
 
     return LandingView;
@@ -2304,8 +2398,8 @@ window.require.register("chaplin/views/LeftSidebar", function(exports, require, 
       return require('chaplin/templates/sidebar-left');
     };
 
-    LeftSidebarView.prototype.afterRender = function() {
-      LeftSidebarView.__super__.afterRender.apply(this, arguments);
+    LeftSidebarView.prototype.attach = function() {
+      LeftSidebarView.__super__.attach.apply(this, arguments);
       this.views.push(new NextStepsLeftView());
       return this;
     };
@@ -2350,9 +2444,9 @@ window.require.register("chaplin/views/Modal", function(exports, require, module
       return this;
     };
 
-    LeftSidebarView.prototype.afterRender = function() {
+    LeftSidebarView.prototype.attach = function() {
       var el;
-      LeftSidebarView.__super__.afterRender.apply(this, arguments);
+      LeftSidebarView.__super__.attach.apply(this, arguments);
       (el = $(this.el)).addClass('reveal-modal');
       this.title = el.find('.title');
       this.code = el.find('.code');
@@ -2437,8 +2531,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
       return this.list = {};
     };
 
-    NextStepsView.prototype.afterRender = function() {
-      NextStepsView.__super__.afterRender.apply(this, arguments);
+    NextStepsView.prototype.attach = function() {
+      NextStepsView.__super__.attach.apply(this, arguments);
       return this.delegate('keyup', 'input.filter', this.filterLabels);
     };
 
@@ -2549,8 +2643,8 @@ window.require.register("chaplin/views/NextStepsLanding", function(exports, requ
       return Mediator.subscribe('contextRender:i:onHomepage', this.add, this);
     };
 
-    NextStepsLandingView.prototype.afterRender = function() {
-      NextStepsLandingView.__super__.afterRender.apply(this, arguments);
+    NextStepsLandingView.prototype.attach = function() {
+      NextStepsLandingView.__super__.attach.apply(this, arguments);
       Mediator.publish('context:i:onHomepage');
       return this;
     };
@@ -2586,8 +2680,8 @@ window.require.register("chaplin/views/NextStepsLeft", function(exports, require
       return Mediator.subscribe('contextRender:i:onLeft', this.add, this);
     };
 
-    NextStepsLeftView.prototype.afterRender = function() {
-      NextStepsLeftView.__super__.afterRender.apply(this, arguments);
+    NextStepsLeftView.prototype.attach = function() {
+      NextStepsLeftView.__super__.attach.apply(this, arguments);
       Mediator.publish('context:i:onLeft');
       return this;
     };
@@ -2666,8 +2760,8 @@ window.require.register("chaplin/views/RightSidebar", function(exports, require,
       return require('chaplin/templates/sidebar-right');
     };
 
-    RightSidebarView.prototype.afterRender = function() {
-      RightSidebarView.__super__.afterRender.apply(this, arguments);
+    RightSidebarView.prototype.attach = function() {
+      RightSidebarView.__super__.attach.apply(this, arguments);
       this.views.push(new NextStepsRightView);
       return this;
     };
@@ -2746,13 +2840,14 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
       }, this);
     };
 
-    ToolView.prototype.afterRender = function() {
-      var name;
-      ToolView.__super__.afterRender.apply(this, arguments);
+    ToolView.prototype.attach = function() {
+      var content, name;
+      ToolView.__super__.attach.apply(this, arguments);
       this.crumbs = [];
       name = this.model.get('name');
       assert(name, 'Name of the tool is not provided');
-      $(this.el).find("ul.accordion li(data-step='<%= @step %>') div.content").html((require("tools/" + name + "/step-" + this.step))(this.getTemplateData()));
+      content = $(this.el).find("ul.accordion li[data-step='" + this.step + "'] div.content");
+      content.html((require("tools/" + name + "/step-" + this.step))(this.getTemplateData()));
       this.checkCrumbs();
       if (this.model.get('locked') != null) {
         this.updateTime($(this.el).find('em.ago'));
@@ -2856,8 +2951,8 @@ window.require.register("tools/BlastSearchTool/View", function(exports, require,
       return UploadListToolView.__super__.constructor.apply(this, arguments);
     }
 
-    UploadListToolView.prototype.afterRender = function() {
-      UploadListToolView.__super__.afterRender.apply(this, arguments);
+    UploadListToolView.prototype.attach = function() {
+      UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 2:
           Mediator.publish('context:i:haveList', this.model.get('guid'));
@@ -2933,9 +3028,9 @@ window.require.register("tools/BlastSearchTool/step-1", function(exports, requir
       
         __out.push('<div class="container">\n    <form class="row custom">\n        <div class="twelve columns">\n            <label>Item to search against</label>\n            ');
       
-        if (this.data && this.data.search && this.data.search.item) {
+        if (this.data && this.data.list) {
           __out.push('\n                <input type="text" value="');
-          __out.push(__sanitize(this.data.search.item));
+          __out.push(__sanitize(this.data.list.items.pop()));
           __out.push('" />\n            ');
         } else {
           __out.push('\n                <input type="text" placeholder="PPARG" />\n            ');
@@ -3098,9 +3193,9 @@ window.require.register("tools/EnrichListTool/View", function(exports, require, 
       return this.lists = this.property(lists);
     };
 
-    EnrichListToolView.prototype.afterRender = function() {
+    EnrichListToolView.prototype.attach = function() {
       var list, _ref, _ref1, _ref2;
-      EnrichListToolView.__super__.afterRender.apply(this, arguments);
+      EnrichListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
           list = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0;
@@ -3119,9 +3214,9 @@ window.require.register("tools/EnrichListTool/View", function(exports, require, 
     };
 
     EnrichListToolView.prototype.selectList = function(e) {
-      $(this.el).find('table input.check').attr('checked', false);
+      $(this.el).find('table input.check').prop('checked', false);
       this.selected = this.lists[$(e.target).attr('data-key')];
-      return $(e.target).attr('checked', true);
+      return $(e.target).prop('checked', true);
     };
 
     EnrichListToolView.prototype.enrichList = function() {
@@ -3356,10 +3451,10 @@ window.require.register("tools/ExportTool/View", function(exports, require, modu
       return ExportToolView.__super__.constructor.apply(this, arguments);
     }
 
-    ExportToolView.prototype.afterRender = function() {
+    ExportToolView.prototype.attach = function() {
       var data, format, list, _ref, _ref1, _ref2, _ref3,
         _this = this;
-      ExportToolView.__super__.afterRender.apply(this, arguments);
+      ExportToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
           data = {};
@@ -3534,7 +3629,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
         'slug': 'enrich-list-tool',
         'label': '**Enrich** an existing list',
         'category': 'Category 1',
-        'keywords': ['chart', 'widget'],
+        'keywords': ['chart', 'widget', 'graph'],
         'weight': 15
       }, {
         'slug': 'blast-search-tool',
@@ -3739,8 +3834,8 @@ window.require.register("tools/ResultsTableTool/View", function(exports, require
       return ResultsTableTool.__super__.constructor.apply(this, arguments);
     }
 
-    ResultsTableTool.prototype.afterRender = function() {
-      ResultsTableTool.__super__.afterRender.apply(this, arguments);
+    ResultsTableTool.prototype.attach = function() {
+      ResultsTableTool.__super__.attach.apply(this, arguments);
       return Mediator.publish('context:i:canExport', this.model.get('parent'));
     };
 
@@ -3860,8 +3955,8 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
       return UploadListToolView.__super__.constructor.apply(this, arguments);
     }
 
-    UploadListToolView.prototype.afterRender = function() {
-      UploadListToolView.__super__.afterRender.apply(this, arguments);
+    UploadListToolView.prototype.attach = function() {
+      UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 2:
           Mediator.publish('context:i:haveList', this.model.get('guid'));
@@ -3929,13 +4024,13 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
       
         __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the type of list to create and either enter in a list\n                of identifiers or upload identifiers from a file. A search will\n                be performed for all the identifiers in your list.</p>\n        </div>\n    </div>\n    <form class="row custom">\n        <div class="six columns">\n            <label>List of identifiers</label>\n            ');
       
-        if (this.data && this.data.identifiers) {
+        if (this.data && this.data.list) {
           __out.push('\n                <textarea>');
-          _ref = this.data.identifiers;
+          _ref = this.data.list.items;
           for (i in _ref) {
             id = _ref[i];
             __out.push(__sanitize(id));
-            if (parseInt(i) !== this.data.identifiers.length - 1) {
+            if (parseInt(i) !== this.data.list.items.length - 1) {
               __out.push(' ');
             }
           }

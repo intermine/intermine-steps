@@ -1,6 +1,6 @@
 root = this
 
-$ ->  
+$ ->
     # Check for localStorage & pushState support.
     unless Modernizr.localstorage and Modernizr.history
         View = require 'chaplin/views/Error'

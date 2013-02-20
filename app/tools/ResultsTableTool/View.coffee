@@ -3,7 +3,7 @@ ToolView = require 'chaplin/views/Tool'
 
 module.exports = class ResultsTableTool extends ToolView
 
-    afterRender: ->
+    attach: ->
         super
 
         # Say we can export and we are a pass-thru entity.

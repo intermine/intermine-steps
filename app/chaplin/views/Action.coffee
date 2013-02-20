@@ -11,9 +11,9 @@ module.exports = class ActionView extends View
     getTemplateFunction: -> require 'chaplin/templates/action'
 
     # Custom data prep.
-    getTemplateData: -> _.extend root.Utils.dupe(@options), 'label': @markup @options.label
+    getTemplateData: -> _.extend _.cloneDeep(@options), 'label': @markup @options.label
 
-    afterRender: ->
+    attach: ->
         super
 
         # Apply class that corresponds to the type of the tool.

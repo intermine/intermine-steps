@@ -10,7 +10,7 @@ module.exports = class AppView extends View
 
     getTemplateFunction: -> require 'chaplin/templates/app'
 
-    afterRender: ->
+    attach: ->
         super
 
         # Toggle history.

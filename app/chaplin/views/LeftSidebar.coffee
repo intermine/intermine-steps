@@ -10,7 +10,7 @@ module.exports = class LeftSidebarView extends View
 
     getTemplateFunction: -> require 'chaplin/templates/sidebar-left'
 
-    afterRender: ->
+    attach: ->
         super
 
         # Load the appropriate Next Steps.

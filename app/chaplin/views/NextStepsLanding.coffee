@@ -13,7 +13,7 @@ module.exports = class NextStepsLandingView extends NextStepsView
         # Render on us.
         Mediator.subscribe 'contextRender:i:onHomepage', @add, @
 
-    afterRender: ->
+    attach: ->
         super
 
         # We are on the homepage.

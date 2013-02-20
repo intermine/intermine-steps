@@ -2,8 +2,8 @@
     <form class="row custom">
         <div class="twelve columns">
             <label>Item to search against</label>
-            <% if @data and @data.search and @data.search.item: %>
-                <input type="text" value="<%= @data.search.item %>" />
+            <% if @data and @data.list: %>
+                <input type="text" value="<%= @data.list.items.pop() %>" />
             <% else: %>
                 <input type="text" placeholder="PPARG" />
             <% end %>

@@ -1,5 +1,7 @@
 Chaplin = require 'chaplin'
 
+Mediator = require 'chaplin/core/Mediator'
+
 module.exports = class Controller extends Chaplin.Controller
 
     # Cleanup these.

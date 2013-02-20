@@ -26,7 +26,7 @@ module.exports = class HistoryToolView extends GenericToolView
 
         @
 
-    afterRender: ->
+    attach: ->
         super
 
         # Add class and add order, 0-indexed!

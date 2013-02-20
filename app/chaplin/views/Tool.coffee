@@ -41,7 +41,7 @@ module.exports = class ToolView extends GenericToolView
             @render()
         , @
 
-    afterRender: ->
+    attach: ->
         super
 
         # A list of breadcrumb ids we have rendered.
@@ -51,7 +51,8 @@ module.exports = class ToolView extends GenericToolView
         assert name, 'Name of the tool is not provided'
 
         # Render a specific step into our accordion template.
-        $(@el).find("ul.accordion li(data-step='<%= @step %>') div.content").html (require("tools/#{name}/step-#{@step}"))(@getTemplateData())
+        content = $(@el).find("ul.accordion li[data-step='#{@step}'] div.content")
+        content.html (require("tools/#{name}/step-#{@step}"))(@getTemplateData())
 
         # Start checking for breadcrumbs to show.
         @checkCrumbs()
