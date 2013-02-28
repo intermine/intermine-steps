@@ -1,4 +1,5 @@
 View = require 'chaplin/core/View'
+Mediator = require 'chaplin/core/Mediator'
 
 root = @
 
@@ -29,9 +30,19 @@ module.exports = class ActionView extends View
         # Beef up with extra keywords.
         @keywords = _.uniq( words.concat(@options.keywords) ).join(' ')
 
+        # Capture help clicks.
+        @delegate 'click', '.help', @showHelp
+
     # Convert markup with HTML.
     markup: (text) ->
         # Strong.
         text = text.replace /(\*\*|__)(?=\S)([^\r]*?\S[*_]*)\1/g, "<strong>$2</strong>"
         # Emphasis.
         text = text.replace /(\*|_)(?=\S)([^\r]*?\S)\1/g, "<em>$2</em>"
+
+    showHelp: =>
+        assert @options.help, 'Help content is not provided'
+
+        Mediator.publish 'modal:render',
+            'title': @markup @options.label
+            'text':  @options.help

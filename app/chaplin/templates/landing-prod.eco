@@ -27,3 +27,6 @@
 <footer id="wide">
     <p>&copy; 2000-2013 InterMine, University of Cambridge</p>
 </footer>
+
+<!-- finally the almighty modal -->
+<div id="modal"></div>

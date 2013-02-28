@@ -76,7 +76,8 @@
                 <span class="string">"chart"</span>,
                 <span class="string">"widget"</span>
             ],
-            <span class="string">"weight"</span>: <span class="constant numeric">9</span>
+            <span class="string">"weight"</span>: <span class="constant numeric">9</span>,
+            <span class="string">"help"</span>: <span class="string">"A help text can go here."</span>
         }
     ]
 }</code></pre>
@@ -92,3 +93,6 @@
 <footer id="wide">
     <p>&copy; 2000-2013 InterMine, University of Cambridge</p>
 </footer>
+
+<!-- finally the almighty modal -->
+<div id="modal"></div>

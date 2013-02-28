@@ -1,3 +1,9 @@
+<!-- help text provided? -->
+<% if @help: %>
+    <span class="entypo help right" title="Show help for this item"></span>
+<% end %>
+
+<!-- the link -->
 <% if @extra: %>
     <a href="/tool/<%= @slug %>/<%= @extra %>/<%= @method %><%= @suffix %>"><%- @label %></a>
 <% else: %>

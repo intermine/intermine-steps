@@ -56,6 +56,11 @@ input[type="checkbox"] {
 input.filter {
   display: none;
 }
+.help,
+.help:before {
+  color: #333;
+  cursor: pointer;
+}
 ul.alternating {
   list-style-type: square !important;
 }
@@ -674,4 +679,7 @@ footer#bottom .wrap {
 }
 .entypo.comment:before {
   content: "\e718";
+}
+.entypo.help:before {
+  content: "\2753";
 }

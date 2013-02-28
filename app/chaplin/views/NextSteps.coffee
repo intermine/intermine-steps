@@ -29,7 +29,7 @@ module.exports = class NextStepsView extends View
         @delegate 'click', '.show', @showHidden
 
     # Add a link to a tool from its model.
-    add: ({ slug, label, category, type, guid, extra, keywords, weight }) =>
+    add: ({ slug, label, category, type, guid, extra, keywords, weight, help }) =>
         assert @method, 'We do not know which linking `method` to use'
 
         # Show the input filter.
@@ -64,6 +64,7 @@ module.exports = class NextStepsView extends View
                 'suffix':   suffix
                 'extra':    extra
                 'weight':   weight
+                'help':     help
                 'keywords': keywords or []
 
             # Append the link to an existing category.

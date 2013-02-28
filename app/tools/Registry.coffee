@@ -5,7 +5,8 @@ config =
             'label': '**Enrich** an existing list'
             'category': 'Category 1'
             'keywords': [ 'chart', 'widget', 'graph' ]
-            'weight': 15
+            'weight': 15,
+            'help': 'Contrary to popular belief, <em>Lorem Ipsum</em> is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.'
         }, {
             'slug': 'blast-search-tool'
             'label': '**BLAST** search'
@@ -22,7 +23,8 @@ config =
             'slug': 'upload-list-tool'
             'label': '**Upload** a new list'
             'category': 'Category 1'
-            'weight': 7
+            'weight': 7,
+            'help': 'Contrary to popular belief, <em>Lorem Ipsum</em> is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.'
         }
     ]
     'i:haveList': [
