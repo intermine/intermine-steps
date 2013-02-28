@@ -23,7 +23,7 @@ module.exports = class NextStepsView extends View
         super
 
         # Filter the tool labels.
-        @delegate 'keyup', 'input.filter', @filterLabels
+        Mediator.subscribe 'app:search', @filterLabels, @
 
         # Show hidden tools.
         @delegate 'click', '.show', @showHidden
@@ -73,7 +73,9 @@ module.exports = class NextStepsView extends View
             if weight < 10
                 $(@el).find('.show.hidden').removeClass('hidden')
 
-    filterLabels: (e) =>
+    filterLabels: (query) =>
+        assert typeof(query) is 'string', 'Query input not provided'
+
         # Delay any further processing by a few.
         if @timeout? then clearTimeout @timeout
 
@@ -81,8 +83,6 @@ module.exports = class NextStepsView extends View
             # Show them all.
             @showHidden()
             
-            # Fetch the query value.
-            query = $(e.target).val()
             # Remove extra whitespace, trim, keep only unique words
             query = _.uniq( $.trim( query.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase() ).split(' ') )
             

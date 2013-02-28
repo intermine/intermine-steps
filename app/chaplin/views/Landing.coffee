@@ -21,4 +21,7 @@ module.exports = class LandingView extends View
         # Load the appropriate Next Steps.
         @views.push new NextStepsLandingView()
 
+        # App search.
+        @delegate 'keyup', 'input#search', (e) -> Mediator.publish 'app:search', $(e.target).val()
+
         @

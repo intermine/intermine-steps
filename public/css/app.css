@@ -124,32 +124,49 @@ header#top {
   width: 100%;
   background: url("../img/blackorchid.png");
   color: #fff;
-}
-header#top .inner {
-  margin: 0 auto;
   padding: 10px;
 }
-header#top a {
+header#top .inner {
+  position: relative;
+}
+header#top .inner .first {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 250px;
+}
+header#top .inner .first a {
   color: inherit;
 }
-header#top h1 {
+header#top .inner .first h1 {
   margin: 0;
   padding: 0;
   font-size: 20px;
-  display: inline-block;
+  line-height: 30px;
 }
-header#top h1 span {
+header#top .inner .first h1 span {
   font-weight: normal;
 }
-header#top .account {
-  margin-top: 4px;
+header#top .inner .second {
+  padding: 0 291px;
+  height: 30px;
 }
-header#top .account span {
+header#top .inner .second input#search {
+  margin: 0;
+}
+header#top .inner .third {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 250px;
+  text-align: right;
+  line-height: 30px;
+}
+header#top .inner .third span {
   display: inline-block;
   margin: 0 4px;
   font-size: 8px;
-  height: 5px;
-  margin-bottom: 4px;
+  height: 18px;
 }
 section#middle {
   width: 100%;

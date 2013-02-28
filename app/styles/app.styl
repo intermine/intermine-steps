@@ -122,32 +122,49 @@ header#top
     width: 100%
     background: url('../img/blackorchid.png')
     color: #FFF
+    padding: 10px
 
     .inner
-        margin: 0 auto
-        padding: 10px
+        position: relative
 
-    a
-        color: inherit
+        .first
+            position: absolute
+            top: 0
+            left: 0
+            width: 250px
 
-    h1
-        margin: 0
-        padding: 0
-        font-size: 20px
-        display: inline-block
+            a
+                color: inherit
 
-        span
-            font-weight: normal
+            h1
+                margin: 0
+                padding: 0
+                font-size: 20px
+                line-height: 30px
 
-    .account
-        margin-top: 4px
+                span
+                    font-weight: normal
 
-        span
-            display: inline-block
-            margin: 0 4px
-            font-size: 8px
-            height: 5px
-            margin-bottom: 4px
+        .second
+            padding: 0 291px
+            height: 30px
+
+            input#search
+                margin: 0
+
+        .third
+            position: absolute
+            top: 0
+            right: 0
+            width: 250px
+            text-align: right
+            line-height: 30px
+
+            span
+                display: inline-block
+                margin: 0 4px
+                font-size: 8px
+                height: 18px
 
 section#middle
     width: 100%

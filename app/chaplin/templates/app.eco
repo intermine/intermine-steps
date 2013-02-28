@@ -2,10 +2,15 @@
     <!-- header, account etc. -->
     <header id="top">
         <div class="inner">
-            <div class="account right">
+            <div class="first">
+                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
+            </div>
+            <div class="second">
+                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />
+            </div>
+            <div class="third">
                 Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>
             </div>
-            <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
         </div>
     </header>
 

@@ -19,6 +19,8 @@ module.exports = class AppView extends View
         # Show landing page.
         @delegate 'click', 'header#top h1', -> Mediator.publish 'router:landing'
 
+        # App search.
+        @delegate 'keyup', 'input#search', (e) -> Mediator.publish 'app:search', $(e.target).val()
 
         @
 
