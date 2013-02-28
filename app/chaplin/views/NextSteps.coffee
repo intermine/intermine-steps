@@ -25,8 +25,11 @@ module.exports = class NextStepsView extends View
         # Filter the tool labels.
         @delegate 'keyup', 'input.filter', @filterLabels
 
+        # Show hidden tools.
+        @delegate 'click', '.show', @showHidden
+
     # Add a link to a tool from its model.
-    add: ({ slug, label, category, type, guid, extra, keywords }) =>
+    add: ({ slug, label, category, type, guid, extra, keywords, weight }) =>
         assert @method, 'We do not know which linking `method` to use'
 
         # Show the input filter.
@@ -40,10 +43,11 @@ module.exports = class NextStepsView extends View
 
         # Do we have this category?
         unless @list[category]
+            target = $(@el).find('.tools')
             # Create the title.
-            $(@el).append $ '<h4/>', 'text': category
+            target.append $ '<h4/>', 'text': category
             # Add a list saving it under our category.
-            $(@el).append @list[category] = $('<ul/>', 'class': 'alternating')
+            target.append @list[category] = $('<ul/>', 'class': 'alternating')
 
         # Do we already have this label?
         unless ( (views) ->
@@ -59,16 +63,24 @@ module.exports = class NextStepsView extends View
                 'method':   @method
                 'suffix':   suffix
                 'extra':    extra
+                'weight':   weight
                 'keywords': keywords or []
 
             # Append the link to an existing category.
             @list[category].append view.el
+
+            # Do we have a hidden label now?
+            if weight < 10
+                $(@el).find('.show.hidden').removeClass('hidden')
 
     filterLabels: (e) =>
         # Delay any further processing by a few.
         if @timeout? then clearTimeout @timeout
 
         @timeout = setTimeout (=>
+            # Show them all.
+            @showHidden()
+            
             # Fetch the query value.
             query = $(e.target).val()
             # Remove extra whitespace, trim, keep only unique words
@@ -86,3 +98,9 @@ module.exports = class NextStepsView extends View
                     if view.keywords.match(re) then $(view.el).show()
                     else $(view.el).hide()
         ), 500
+
+    # Show hidden tools.
+    showHidden: (e) =>
+        if e then $(e.target).remove()
+        else $(@el).find('.show').remove()
+        $(@el).find('.hidden').removeClass('hidden')

@@ -179,6 +179,9 @@ section#middle div.row h4 {
 section#middle div.row ul {
   list-style-type: none;
 }
+section#middle .hidden {
+  display: none !important;
+}
 section#middle aside {
   position: absolute;
   top: 0;
@@ -195,27 +198,28 @@ section#middle aside .wrap {
   position: relative;
   padding: 10px 0;
 }
+section#middle aside#left p,
+section#middle aside#left h3,
+section#middle aside#left h4,
+section#middle aside#left ul,
 section#middle aside#left input.filter,
+section#middle aside#left .button.show {
+  margin: 10px 0 10px 10px;
+}
 section#middle aside#right #continue {
-  margin: 10px;
+  margin-right: 10px;
 }
 section#middle aside a {
   cursor: pointer;
 }
-section#middle aside p {
-  margin: 10px;
-}
 section#middle aside h3 {
   font-size: 16px;
-  margin: 10px;
 }
 section#middle aside h4 {
   font-size: 14px;
-  margin: 10px;
 }
 section#middle aside ul {
   list-style-type: none;
-  margin: 0 10px;
   padding: 0;
 }
 section#middle aside ul li {

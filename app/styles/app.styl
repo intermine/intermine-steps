@@ -177,6 +177,10 @@ section#middle
         ul
             list-style-type: none
 
+
+    .hidden
+        display: none !important
+
     aside
         position: absolute
         top: 0
@@ -193,26 +197,24 @@ section#middle
             position: relative
             padding: 10px 0
 
-        &#left input.filter, &#right #continue
-            margin: 10px
+        &#left
+            p, h3, h4, ul, input.filter, .button.show
+                margin: 10px 0 10px 10px
+
+        &#right #continue
+            margin-right: 10px
 
         a
             cursor: pointer
 
-        p
-            margin: 10px
-
         h3
             font-size: 16px
-            margin: 10px
 
         h4
             font-size: 14px
-            margin: 10px
 
         ul
             list-style-type: none
-            margin: 0 10px
             padding: 0
 
             li

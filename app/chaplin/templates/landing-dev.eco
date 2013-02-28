@@ -36,12 +36,6 @@
         <div class="row">
             <div class="six columns">
                 <ul class="pricing-table">
-                    <li class="title">Working on next &hellip;</li>
-                    <li class="bullet-item">Uncluttered example tools from a spec by Julie</li>
-                    <li class="bullet-item">Tool registry having a label "weight" concept</li>
-                    <li class="bullet-item">Editable help for tools &amp; labels</li>
-                </ul>
-                <ul class="pricing-table">
                     <li class="title">What it does now</li>
                     <li class="bullet-item">Concept of a tool consisting of multiple steps</li>
                     <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>
@@ -55,6 +49,7 @@
                     <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>
                     <li class="bullet-item">Permissive input <strong>filtering</strong> of tools listing</li>
                     <li class="bullet-item">Tool labels have extra <strong>keywords</strong> associated as alternatives for search</li>
+                    <li class="bullet-item">Showing only tool labels that have a <em>weight</em> higher than 10</li>
                     <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>
                 </ul>
             </div>

@@ -16,8 +16,12 @@ module.exports = class ActionView extends View
     attach: ->
         super
 
-        # Apply class that corresponds to the type of the tool.
-        $(@el).addClass @options.type
+        $(@el).addClass =>
+            # Apply class that corresponds to the type of the tool.
+            classes = [ @options.type ]
+            # Do we hide it?
+            if @options.weight < 10 then classes.push 'hidden'
+            classes.join(' ')
 
         # Create an index of words associated with this tool label.
         words = @options.label.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase().split(' ')
