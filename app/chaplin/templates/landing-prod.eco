@@ -13,7 +13,7 @@
         </div>
     </header>
 
-    <section id="middle" class="container">
+    <section id="middle" class="narrow container">
         <div class="row">
             <div class="twelve columns">
                 <h2><span class="entypo crossroads"></span> Tools</h2>

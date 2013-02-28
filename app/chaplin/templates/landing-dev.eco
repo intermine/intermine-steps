@@ -13,7 +13,7 @@
         </div>
     </header>
 
-    <section id="middle" class="container">
+    <section id="middle" class="narrow container">
         <div class="row">
             <div class="four columns">
                 <h2><span class="entypo crossroads"></span> Tools</h2>
@@ -55,6 +55,7 @@
                     <li class="bullet-item">Permissive input <strong>filtering</strong> of tools listing</li>
                     <li class="bullet-item">Tool labels have extra <strong>keywords</strong> associated as alternatives for search</li>
                     <li class="bullet-item">Showing only tool labels that have a <em>weight</em> higher than 10</li>
+                    <li class="bullet-item">Tool actions can have <strong>help</strong> text associated with them</li>
                     <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>
                 </ul>
             </div>

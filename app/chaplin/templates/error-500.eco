@@ -11,7 +11,7 @@
         </div>
     </header>
 
-    <section id="middle">
+    <section id="middle" class="narrow">
         <div id="landing" class="container row">
             <div class="twelve columns">
                 <h2>500, Internal App Error</h2>
