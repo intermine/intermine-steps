@@ -2,7 +2,7 @@
     <div class="row">
         <div class="twelve columns">
             <% if @previous and @previous.list and @previous.list.items: %>
-                <table>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Identifier</th>

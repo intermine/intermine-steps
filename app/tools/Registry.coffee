@@ -33,13 +33,14 @@ config =
             'label': 'See list in a **table**'
             'category': 'Category 1'
             'keywords': [ 'results' ]
-            'weight': 5
+            'weight': 15
+            'help': 'Nothing much to say really'
         }, {
             'slug': 'enrich-list-tool'
             'label': '**Enrich** this list'
             'category': 'Category 1'
             'keywords': [ 'chart', 'widget' ]
-            'weight': 9
+            'weight': 11
         }
     ]
     'i:canExport': [
@@ -60,7 +61,7 @@ config =
         }
     ]
 
-# Dupe for now.
-config['i:onLeft'] = config['i:onHomepage']
+# Dupe and show all labels.
+config['i:onLeft'] = ( ( label.weight = 10 ; label ) for label in config['i:onHomepage'] )
 
 module.exports = config

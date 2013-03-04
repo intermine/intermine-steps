@@ -7,6 +7,11 @@ gradient(a, b)
     background: -ms-linear-gradient(top, a 0%, b 100%)
     background: linear-gradient(to bottom, a 0%, b 100%)
 
+shadow(value)
+    -moz-box-shadow: value
+    -webkit-box-shadow: value
+    box-shadow: value
+
 @font-face
     font-family: 'Lato'
     font-style: normal
@@ -37,15 +42,21 @@ body
     margin: 0
     background: transparent
     -webkit-font-smoothing: antialiased
+    background: #DADEE9 url('../img/bg.png') repeat-y top left
 
     > div
         height: 100%
 
-body, h1, h2, h3, h4, p, li
+body, h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
     font-family: Lato
+    color: #68718A
 
 a
     cursor: pointer
+    color: #579ED7
+
+    &:hover
+        color: darken(#579ED7, 30%)
 
 table
     width: 100%
@@ -53,9 +64,21 @@ table
 label
     cursor: default
 
+.label
+    border-radius: 2px
+    font-weight: normal
+
+    &.secondary
+        background: #A58AD5
+        color: #FFF
+        text-shadow: -1px -1px rgba(0,0,0,0.15)
+
 code
     font-size: 11px
     background: inherit
+
+::-webkit-input-placeholder
+    color: lighten(#5b617d, 50%)
 
 input[type="checkbox"]
     cursor: pointer
@@ -64,16 +87,50 @@ input.filter
     display: none
 
 .help, .help:before
-    color: #333
+    color: rgba(0,0,0,0.2)
     cursor: pointer
+    text-shadow: 1px 1px #FFF
+
+.button
+    gradient(#71B9EC, #54A1E7)
+    border-color: #5FA4DE
+    border-radius: 2px
+    font-size: 12px
+    text-transform: uppercase
+    text-shadow: 1px 1px rgba(0,0,0,0.25)
+
+    &.secondary
+        gradient(#FAFBFD, #E8ECF1)
+        border-color: #BFCFDA
+        color: #838B9F
+        text-shadow: 1px 1px #FFF
+
+table.table
+    border-collapse: collapse
+    border: 0
+
+    tbody
+        border: 1px solid #E0E3ED
+        border-left: 3px solid #E0E3ED
+
+    tr
+        th
+            background: #FFF
+            border-bottom: 1px solid #E0E3ED
+
+        &:nth-child(odd)
+            td
+                border-bottom: 1px solid #E0E3ED
+
+        &:nth-child(even)
+            td
+                background: #F5F6F9
 
 // used on showing a listing of tools
 ul.alternating
     list-style-type: square !important
 
     li
-        color: lighten(#2ba6cb, 40)
-
         &.terracotta
             color: #e2674a
         &.goldentainoi
@@ -97,12 +154,6 @@ ul.alternating
         &.kimberly
             color: #666699
 
-        &:not(:last-child)
-            border-bottom: 1px solid lighten(#2ba6cb, 47)
-
-        &:nth-child(even)
-            background: lighten(#2ba6cb, 51)
-
 .row
     width: auto
     min-width: auto
@@ -124,51 +175,57 @@ div#whiteout
 
 header#top
     width: 100%
-    background: url('../img/blackorchid.png')
-    color: #FFF
-    padding: 10px
+    // background: url('../img/blackorchid.png')
+    color: #97a5b8
+    gradient(#455B7C, #3D516E)
+    border-bottom: 1px solid #34455E
+    shadow(0 0 1px 1px #888)
+    text-shadow: -1px -1px rgba(0,0,0,0.2)
 
-    .inner
-        position: relative
+    a
+        color: #FFF
 
-        .first
-            position: absolute
-            top: 0
-            left: 0
-            width: 250px
+    .first, .second, .third
+        display: inline-block
 
-            a
-                color: inherit
+    .first
+        width: 272px
 
-            h1
-                margin: 0
-                padding: 0
-                font-size: 20px
-                line-height: 30px
+        a
+            color: inherit
 
-                span
-                    font-weight: normal
-
-        .second
-            padding: 0 291px
-            height: 30px
-
-            input#search
-                margin: 0
-
-        .third
-            position: absolute
-            top: 0
-            right: 0
-            width: 250px
-            text-align: right
+        h1
+            margin: 0
+            padding: 10px 0 10px 10px
+            font-size: 20px
             line-height: 30px
+            color: #FFF
+            text-shadow: 1px 1px rgba(0,0,0,0.3)
 
             span
-                display: inline-block
-                margin: 0 4px
-                font-size: 8px
-                height: 18px
+                font-weight: normal
+
+    .second
+        vertical-align: top
+        padding-left: 20px
+        border-left: 1px solid rgba(0,0,0,0.25)
+
+        input#search
+            margin: 10px 10px 10px 0
+            width: 400px
+
+    .third
+        padding: 10px
+        float: right
+        width: 250px
+        text-align: right
+        line-height: 30px
+
+        span
+            display: inline-block
+            margin: 0 4px
+            font-size: 8px
+            height: 18px
 
 section#middle
     width: 100%
@@ -211,30 +268,41 @@ section#middle
 
         &#left
             left: 0
+            width: 275px
 
         &#right
-            right: 0
+            background: #F5F6F9
+            border-radius: 2px
+            top: 20px
+            right: 20px
+            border: 1px solid #bccad5
+            shadow(-3px 3px 3px rgba(0,0,0,0.05))
 
-        .wrap
-            height: 100%
-            position: relative
-            padding: 10px 0
+            .content
+                padding: 10px 15px
+                border-radius: 0 0 2px 2px
 
         &#left
             p, h3, h4, ul, input.filter, .button.show
-                margin: 10px 0 10px 10px
+                margin: 10px
 
-        &#right #continue
-            margin-right: 10px
+            h3
+                margin: 20px 10px
 
         a
             cursor: pointer
+            color: #5B617D
+            text-shadow: 1px 1px rgba(255,255,255,0.5)
+            display: block
+            padding: 2px 0
 
         h3
-            font-size: 16px
+            text-transform: uppercase
+            font-size: 12px
 
         h4
             font-size: 14px
+            color: #5B617D
 
         ul
             list-style-type: none
@@ -244,8 +312,55 @@ section#middle
                 background-repeat: no-repeat
                 background-position: 0 3px
 
+        table.tabs
+            background: inherit
+            border: 0
+            border-collapse: collapse
+
+            td
+                padding: 0
+                cursor: pointer
+                position: relative
+
+                h3
+                    text-transform: uppercase
+                    font-weight: bold
+                    margin: 15px 10px 10px 15px
+
+                &:before
+                    display: inline-block
+                    content: ""
+                    width: 100%
+                    height: 5px
+                    position: absolute
+
+                &.active
+                    border-right: 1px solid #CAD6DF
+                    border-bottom-color: #F5F6F9
+
+                    h3
+                        color: #68718a
+
+                    &:before
+                        gradient(#74BCF0, #56A7EC)
+                        border-right: 5px solid #7C98AB
+
+                &.inactive
+                    shadow(inset 2px 1px 5px 0 rgba(0,0,0,0.1))
+                    gradient(#F7F9FD, #ECEEF3)
+                    border-bottom: 1px solid #CAD6DF
+
+                    h3
+                        color: #A7B4C7
+                        text-shadow: 1px 1px rgba(255,255,255,0.5)
+
+                    &:before
+                        gradient(#AFBED4, #A3B4CE)
+
     div#widget
         overflow: hidden
+        margin-top: 1px
+        padding-bottom: 5px
 
         ul.list, ol.list
             a
@@ -257,7 +372,12 @@ section#middle
         ul.breadcrumbs
             list-style-type: none
             display: none
-            margin: 20px 0 0 0
+            gradient(#FFF, #F4F6FB)
+            border: 0
+            border-bottom: 1px solid #CBD8E2
+            margin: 0
+            padding-left: 20px
+            font-weight: bold
 
             li
                 display: inline-block
@@ -268,13 +388,50 @@ section#middle
 
                 a
                     cursor: pointer
-                    padding: 4px 10px
+                    padding: 0 4px
 
         div.head
+            background: #E0E3ED
+            shadow(inset 0 3px 5px rgba(0,0,0,0.03))
 
             h1
                 font-size: 22px
                 float: left
+                margin: 20px
+                margin-right: 10px
+                text-shadow: 1px 1px rgba(255,255,255,0.8)
+
+                &:before
+                    content: ''
+                    width: 10px
+                    height: 10px
+                    display: inline-block
+                    border: 4px solid #FFF
+                    margin-right: 10px
+                    shadow(1px 1px 2px rgba(0,0,0,0.15))
+
+                &.terracotta:before
+                    background: #e2674a
+                &.goldentainoi:before
+                    background: #FFCC66
+                &.curiousblue:before
+                    background: #3399CC
+                &.turquoise:before
+                    background: #33CCCC
+                &.strikemaster:before
+                    background: #996699
+                &.crail:before
+                    background: #C24747
+                &.deyork:before
+                    background: #99CC99
+                &.patina:before
+                    background: #669999
+                &.hopbush:before
+                    background: #CC6699
+                &.seagreen:before
+                    background: #339966
+                &.kimberly:before
+                    background: #666699
 
             .entypo
                 float: left
@@ -282,7 +439,7 @@ section#middle
 
             em.ago
                 float: left
-                margin: 23px 0 0 5px
+                margin: 29px 0 0 0
 
             &:after
                 content: ""
@@ -293,32 +450,39 @@ section#middle
             font-size: 18px
 
         .wrap
-            padding: 0 0 0 250px // no space for right sidebar
-
-        .wrap.sidebar
-            padding: 0 300px // make space for both sidebars and some
+            border-radius: 4px
+            margin: 20px 295px
+            margin-bottom: 0
+            padding: 0
+            border: 1px solid #BCCAD5
+            shadow(-3px 3px 3px rgba(0,0,0,0.05))
 
         .half
             float: left
             width: 50%
 
         ul.accordion
-            margin: 0 0 22px 0
-            border-bottom: 1px solid #e9e9e9
+            margin: 0
+            border: 0
             
             > li
                 list-style: none;
                 margin: 0;
                 padding: 0;
-                border-top: 1px solid #e9e9e9;
+                border-top: 1px solid #CBD8E2
                 
+                &:last-child
+                    > div.title
+                        border-radius: 0 0 2px 2px
+                        padding-bottom: 17px
+
                 > div.title
                     background: #f6f6f6
                     padding: 15px
                     margin: 0
                     position: relative
-                    border-left: 1px solid #e9e9e9
-                    border-right: 1px solid #e9e9e9
+                    // border-left: 1px solid #e9e9e9
+                    // border-right: 1px solid #e9e9e9
                     -webkit-transition: 0.15s background linear
                     -moz-transition: 0.15s background linear
                     -o-transition: 0.15s background linear
@@ -342,31 +506,12 @@ section#middle
                     display: none
                     padding: 15px
         
+                &:not(.active)
+                    .title
+                        gradient(#F6F8FC, #ECEEF3)
+
                 &.active
-                    border-top: 3px solid #2ba6cb
-                    
-                    &.terracotta
-                        border-color: #e2674a
-                    &.goldentainoi
-                        border-color: #FFCC66
-                    &.curiousblue
-                        border-color: #3399CC
-                    &.turquoise
-                        border-color: #33CCCC
-                    &.strikemaster
-                        border-color: #996699
-                    &.crail
-                        border-color: #C24747
-                    &.deyork
-                        border-color: #99CC99
-                    &.patina
-                        border-color: #669999
-                    &.hopbush
-                        border-color: #CC6699
-                    &.seagreen
-                        border-color: #339966
-                    &.kimberly
-                        border-color: #666699
+                    border-top: 1px solid #bccad5
 
                     .title
                         background: white
@@ -383,8 +528,8 @@ section#middle
                     .content
                         background: #FFF
                         display: block
-                        border-left: 1px solid #e9e9e9
-                        border-right: 1px solid #e9e9e9
+                        // border-left: 1px solid #e9e9e9
+                        // border-right: 1px solid #e9e9e9
 
 div#history
     position: absolute
@@ -525,7 +670,7 @@ footer
     left: 0
 
     &#wide
-        gradient(rgba(255,255,255,0), rgba(255,255,255,1))
+        // gradient(rgba(255,255,255,0), rgba(255,255,255,1))
         width: 100%
         padding-top: 100px
 
@@ -533,12 +678,13 @@ footer
             text-align: center
 
     &#bottom
-        gradient(rgba(255,255,255,0), rgba(255,255,255,1))
-        width: 250px
-        padding-top: 100px
+        // gradient(rgba(255,255,255,0), rgba(255,255,255,1))
+        width: 275px
+        // padding-top: 100px
 
         .wrap
-            padding: 20px 10px
+            text-align: center
+            padding: 20px
 
 .button
     display: inline-block

@@ -2,7 +2,7 @@
     <div class="row">
         <div class="twelve columns">
             <p>Select the list you want to enrich:</p>
-            <table>
+            <table class="table">
                 <thead>
                     <tr>
                         <th></th>

@@ -1,14 +1,14 @@
 <div id="wrapper">
     <header id="top">
         <div class="inner">
+            <div class="third">
+                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>
+            </div>
             <div class="first">
                 <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
             </div>
             <div class="second">
                 <input id="search" type="text" placeholder="e.g. list upload, PPARG" />
-            </div>
-            <div class="third">
-                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>
             </div>
         </div>
     </header>

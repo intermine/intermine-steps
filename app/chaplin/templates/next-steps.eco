@@ -1,2 +1,2 @@
 <div class="tools"><!-- tool labels go here --></div>
-<a class="tiny secondary button show hidden">Show hidden tools</a>
+<a class="tiny secondary button show hidden">&hellip;</a>

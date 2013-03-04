@@ -1,5 +1,10 @@
-<div class="wrap">
-    <h3><span class="entypo clippy"></span> What can I do next?</h3>
+<table class="tabs">
+    <tr>
+        <td class="active"><h3>Next Steps</h3></td>
+        <td class="inactive"><h3>Research Notes</h3></td>
+    </tr>
+</table>
+<div class="content">
     <p class="description">The next steps you can take from here will be shown here.</p>
     <div id="continue"></div>
 </div>
