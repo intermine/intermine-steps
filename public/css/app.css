@@ -67,7 +67,6 @@ label {
   color: #68718a;
   text-shadow: -1px -1px rgba(255,255,255,0.3);
   -webkit-box-shadow: inset 1px 1px 3px rgba(104,113,138,0.2);
-  -moz-box-shadow: inset 1px 1px 3px rgba(104,113,138,0.2);
   box-shadow: inset 1px 1px 3px rgba(104,113,138,0.2);
   border: 1px solid rgba(104,113,138,0.3);
 }
@@ -190,7 +189,6 @@ header#top {
   background: linear-gradient(to bottom, #455b7c 0%, #3d516e 100%);
   border-bottom: 1px solid #34455e;
   -webkit-box-shadow: 0 0 1px 1px #888;
-  -moz-box-shadow: 0 0 1px 1px #888;
   box-shadow: 0 0 1px 1px #888;
   text-shadow: -1px -1px rgba(0,0,0,0.2);
 }
@@ -290,7 +288,6 @@ section#middle aside#right {
   right: 20px;
   border: 1px solid #bccad5;
   -webkit-box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
-  -moz-box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
   box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
 }
 section#middle aside#right .content {
@@ -335,7 +332,6 @@ section#middle aside a:hover {
   margin: 0 -10px;
   padding: 0 10px;
   -webkit-box-shadow: inset 0 0 2px 0 rgba(255,255,255,0.5);
-  -moz-box-shadow: inset 0 0 2px 0 rgba(255,255,255,0.5);
   box-shadow: inset 0 0 2px 0 rgba(255,255,255,0.5);
 }
 section#middle aside h3 {
@@ -395,7 +391,6 @@ section#middle aside table.tabs td.active:before {
 }
 section#middle aside table.tabs td.inactive {
   -webkit-box-shadow: inset 2px 1px 5px 0 rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 2px 1px 5px 0 rgba(0,0,0,0.1);
   box-shadow: inset 2px 1px 5px 0 rgba(0,0,0,0.1);
   background: #f7f9fd;
   background: -moz-linear-gradient(top, #f7f9fd 0%, #eceef3 100%);
@@ -461,7 +456,6 @@ section#middle div#widget ul.breadcrumbs li a {
 section#middle div#widget div.head {
   background: #e0e3ed;
   -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,0.03);
-  -moz-box-shadow: inset 0 3px 5px rgba(0,0,0,0.03);
   box-shadow: inset 0 3px 5px rgba(0,0,0,0.03);
 }
 section#middle div#widget div.head h1 {
@@ -479,7 +473,6 @@ section#middle div#widget div.head h1:before {
   border: 4px solid #fff;
   margin-right: 10px;
   -webkit-box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
-  -moz-box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
   box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
 }
 section#middle div#widget div.head h1.terracotta:before {
@@ -538,7 +531,6 @@ section#middle div#widget .wrap {
   padding: 0;
   border: 1px solid #bccad5;
   -webkit-box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
-  -moz-box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
   box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
 }
 section#middle div#widget .half {
@@ -634,9 +626,8 @@ div#history div.container {
   border: 1px solid #bccad5;
   border-bottom: 0;
   border-radius: 2px 2px 0 0;
-  -webkit-box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
-  -moz-box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
-  box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
+  -webkit-box-shadow: -3px 3px 3px rgba(0,0,0,0.05), 3px -3px 5px rgba(218,222,233,0.5);
+  box-shadow: -3px 3px 3px rgba(0,0,0,0.05), 3px -3px 5px rgba(218,222,233,0.5);
 }
 div#history div.head {
   padding: 10px;
@@ -715,7 +706,6 @@ div#history #tools div.step.terracotta .box {
   border-width: 3px 1px 1px 1px;
   color: #cf4221;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.terracotta .box {
@@ -728,7 +718,6 @@ div#history #tools div.step.goldentainoi .box {
   border-width: 3px 1px 1px 1px;
   color: #ffb41f;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.goldentainoi .box {
@@ -741,7 +730,6 @@ div#history #tools div.step.curiousblue .box {
   border-width: 3px 1px 1px 1px;
   color: #297aa3;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.curiousblue .box {
@@ -754,7 +742,6 @@ div#history #tools div.step.turq .box {
   border-width: 3px 1px 1px 1px;
   color: #29a3a3;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.turq .box {
@@ -767,7 +754,6 @@ div#history #tools div.step.strikemaster .box {
   border-width: 3px 1px 1px 1px;
   color: #7a527a;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.strikemaster .box {
@@ -780,7 +766,6 @@ div#history #tools div.step.crail .box {
   border-width: 3px 1px 1px 1px;
   color: #9f3535;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.crail .box {
@@ -793,7 +778,6 @@ div#history #tools div.step.deyork .box {
   border-width: 3px 1px 1px 1px;
   color: #69b469;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.deyork .box {
@@ -806,7 +790,6 @@ div#history #tools div.step.patina .box {
   border-width: 3px 1px 1px 1px;
   color: #527a7a;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.patina .box {
@@ -819,7 +802,6 @@ div#history #tools div.step.hopbush .box {
   border-width: 3px 1px 1px 1px;
   color: #b83d7a;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.hopbush .box {
@@ -832,7 +814,6 @@ div#history #tools div.step. .box {
   border-width: 3px 1px 1px 1px;
   color: #297a52;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active. .box {
@@ -845,7 +826,6 @@ div#history #tools div.step.kimberly .box {
   border-width: 3px 1px 1px 1px;
   color: #52527a;
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
-  -moz-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
 div#history #tools div.step.active.kimberly .box {
@@ -923,6 +903,9 @@ footer#bottom .wrap {
   padding: 10px;
   border-bottom: 1px solid #bccad5;
   border-radius: 2px 2px 0 0;
+}
+#modal h1 span.entypo {
+  margin-right: 4px;
 }
 #modal .close-reveal-modal {
   color: #68718a;

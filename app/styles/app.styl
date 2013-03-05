@@ -1,3 +1,37 @@
+is-comma-list()
+    return match('\), \(', ''+arguments)
+
+replace-args(args,argument,val)
+    result = ()
+    if is-comma-list(args)
+        for subargs in args
+            subresult = ()
+            for arg in subargs
+                arg = unquote(val) if arg == argument
+                push(subresult, arg)
+            subresult = literal-join(' ', subresult) if length(subresult) > 1
+            push(result, subresult)
+        result = literal-join(', ', result)
+    else
+        for arg in args
+            arg = unquote(val) if arg == argument
+            push(result, arg)
+    return result
+
+vendor-prefixes = webkit moz o ms official
+
+vendor(prop, args, only = null, ignore = null)
+    for prefix in vendor-prefixes
+        unless (only and !(prefix in only)) or (ignore and prefix in ignore)
+            if official == prefix
+                {prop}: args
+            else
+                newargs = args
+                // Adjusting the args if needed
+                if prop in ('transition' 'transition-property')
+                    newargs = replace-args(args, transform, '-' + prefix + '-transform')
+                {'-' + prefix + '-' + prop}: newargs
+
 gradient(a, b)
     background: a
     background: -moz-linear-gradient(top, a 0%, b 100%)
@@ -7,10 +41,8 @@ gradient(a, b)
     background: -ms-linear-gradient(top, a 0%, b 100%)
     background: linear-gradient(to bottom, a 0%, b 100%)
 
-shadow(value)
-    -webkit-box-shadow: value
-    -moz-box-shadow: value
-    box-shadow: value
+box-shadow()
+    vendor('box-shadow', arguments, only: webkit official)
 
 transition(value)
     -webkit-transition: value
@@ -75,7 +107,7 @@ label
     gradient(rgba(#68718a, 0.15), rgba(#68718a, 0.4))
     color: #68718a
     text-shadow: -1px -1px rgba(255,255,255,0.3)
-    shadow(inset 1px 1px 3px rgba(#68718a, 0.2))
+    box-shadow: inset 1px 1px 3px rgba(#68718a, 0.2)
     border: 1px solid rgba(#68718a, 0.3)
 
 code
@@ -173,7 +205,7 @@ header#top
     color: #97a5b8
     gradient(#455B7C, #3D516E)
     border-bottom: 1px solid #34455E
-    shadow(0 0 1px 1px #888)
+    box-shadow: 0 0 1px 1px #888
     text-shadow: -1px -1px rgba(0,0,0,0.2)
 
     a
@@ -270,7 +302,7 @@ section#middle
             top: 20px
             right: 20px
             border: 1px solid #bccad5
-            shadow(-3px 3px 3px rgba(0,0,0,0.05))
+            box-shadow: -3px 3px 3px rgba(0,0,0,0.05)
 
             .content
                 padding: 10px 15px
@@ -301,7 +333,7 @@ section#middle
                 text-shadow: 1px 1px #4D93D8
                 margin: 0 -10px
                 padding: 0 10px
-                shadow(inset 0 0 2px 0 rgba(255,255,255,0.5))
+                box-shadow: inset 0 0 2px 0 rgba(255,255,255,0.5)
 
         h3
             text-transform: uppercase
@@ -353,7 +385,7 @@ section#middle
                         border-right: 5px solid #7C98AB
 
                 &.inactive
-                    shadow(inset 2px 1px 5px 0 rgba(0,0,0,0.1))
+                    box-shadow: inset 2px 1px 5px 0 rgba(0,0,0,0.1)
                     gradient(#F7F9FD, #ECEEF3)
                     border-bottom: 1px solid #CAD6DF
 
@@ -399,7 +431,7 @@ section#middle
 
         div.head
             background: #E0E3ED
-            shadow(inset 0 3px 5px rgba(0,0,0,0.03))
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.03)
 
             h1
                 font-size: 22px
@@ -415,7 +447,7 @@ section#middle
                     display: inline-block
                     border: 4px solid #FFF
                     margin-right: 10px
-                    shadow(1px 1px 2px rgba(0,0,0,0.15))
+                    box-shadow: 1px 1px 2px rgba(0,0,0,0.15)
 
                 &.terracotta:before
                     background: #e2674a
@@ -462,7 +494,7 @@ section#middle
             margin-bottom: 0
             padding: 0
             border: 1px solid #BCCAD5
-            shadow(-3px 3px 3px rgba(0,0,0,0.05))
+            box-shadow: -3px 3px 3px rgba(0,0,0,0.05)
 
         .half
             float: left
@@ -551,12 +583,11 @@ div#history
         border: 1px solid #bccad5
         border-bottom: 0
         border-radius: 2px 2px 0 0
-        shadow(-3px 3px 3px rgba(0,0,0,0.05))
+        box-shadow: -3px 3px 3px rgba(0,0,0,0.05), 3px -3px 5px rgba(#DADEE9, 0.5)
 
     div.head
         padding: 10px
         background: #e0e3ed
-        //shadow(inset 0 3px 5px rgba(0,0,0,0.03))
         margin-bottom: 20px
         border-bottom: 1px solid #bccad5
         
@@ -636,7 +667,7 @@ div#history
                     border: 1px solid darken(color[1], 20%)
                     border-width: 3px 1px 1px 1px
                     color: darken(color[1], 20%)
-                    shadow(inset 1px 1px 5px rgba(0,0,0,0.1))
+                    box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1)
 
                 &.active.{color[0]} .box
                     background: color[1]
@@ -720,6 +751,9 @@ footer
         padding: 10px
         border-bottom: 1px solid #bccad5
         border-radius: 2px 2px 0 0
+
+        span.entypo
+            margin-right: 4px
 
     .close-reveal-modal
         color: #68718a
