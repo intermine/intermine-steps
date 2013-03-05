@@ -103,9 +103,10 @@ box-shadow()
 transition()
     vendor('transition', arguments)
 
-/** ============== Theme colors as vars ============== */
+/** ============== Vars ============== */
 
-$colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagreen #339966) (kimberly #666699)
+$colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagrn #339966) (kimberly #666699)
+$entypo = (lock "\1f512") (backintime "\e771") (lightup "\1f506") (rightopen "\e762") (clippy "\1f4ce") (crossroads "\e723") (flowbranch "\1F569") (openbook "\1f4d6") (lifebuoy "\e788") (comment "\e718") (help "\2753")
 
 /** ============== Fonts ============== */
 
@@ -832,25 +833,6 @@ footer
         font-size: 1.8em
         line-height: 1em
     
-    &.lock:before
-        content: "\1f512"
-    &.backintime:before
-        content: "\e771"
-    &.lightup:before
-        content: "\1f506"
-    &.rightopen:before
-        content: "\e762"
-    &.clippy:before
-        content: "\1f4ce"
-    &.crossroads:before
-        content: "\e723"
-    &.flowbranch:before
-        content: "\1F569"
-    &.openbook:before
-        content: "\1f4d6"
-    &.lifebuoy:before
-        content: "\e788"
-    &.comment:before
-        content: "\e718"
-    &.help:before
-        content: "\2753"
+    for font in $entypo
+        &.{font[0]}:before
+            content: font[1]

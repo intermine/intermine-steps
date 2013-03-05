@@ -1,5 +1,5 @@
 /** ============== nib functions ============== */
-/** ============== Theme colors as vars ============== */
+/** ============== Vars ============== */
 /** ============== Fonts ============== */
 @font-face {
   font-family: 'Lato';
@@ -159,7 +159,7 @@ ul.alternating li.patina {
 ul.alternating li.hopbush {
   color: #c69;
 }
-ul.alternating li. {
+ul.alternating li.seagrn {
   color: #396;
 }
 ul.alternating li.kimberly {
@@ -490,7 +490,7 @@ section#middle div#widget div.head h1.patina:before {
 section#middle div#widget div.head h1.hopbush:before {
   background: #c69;
 }
-section#middle div#widget div.head h1.:before {
+section#middle div#widget div.head h1.seagrn:before {
   background: #396;
 }
 section#middle div#widget div.head h1.kimberly:before {
@@ -793,7 +793,7 @@ div#history #tools div.step.active.hopbush .box {
   background: #c69;
   color: #fff;
 }
-div#history #tools div.step. .box {
+div#history #tools div.step.seagrn .box {
   background: #75d1a3;
   border: 1px solid #297a52;
   border-width: 3px 1px 1px 1px;
@@ -801,7 +801,7 @@ div#history #tools div.step. .box {
   -webkit-box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
   box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1);
 }
-div#history #tools div.step.active. .box {
+div#history #tools div.step.active.seagrn .box {
   background: #396;
   color: #fff;
 }
