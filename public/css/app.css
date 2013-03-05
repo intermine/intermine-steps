@@ -307,6 +307,8 @@ section#middle aside a {
   border-bottom: 1px solid transparent;
   -webkit-transition: color 100ms ease-out;
   -moz-transition: color 100ms ease-out;
+  -o-transition: color 100ms ease-out;
+  -ms-transition: color 100ms ease-out;
   transition: color 100ms ease-out;
 }
 section#middle aside a:hover {
@@ -541,9 +543,8 @@ section#middle div#widget ul.accordion > li > div.title {
   -webkit-transition: 0.15s background linear;
   -moz-transition: 0.15s background linear;
   -o-transition: 0.15s background linear;
-  -webkit-transition: 0.15s;
-  -moz-transition: 0.15s;
-  transition: 0.15s;
+  -ms-transition: 0.15s background linear;
+  transition: 0.15s background linear;
 }
 section#middle div#widget ul.accordion > li > div.title h1,
 section#middle div#widget ul.accordion > li > div.title h2,

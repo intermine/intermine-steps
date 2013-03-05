@@ -98,10 +98,8 @@ linear-gradient(start, stops...)
 box-shadow()
     vendor('box-shadow', arguments, only: webkit official)
 
-transition(value)
-    -webkit-transition: value
-    -moz-transition: value
-    transition: value
+transition()
+    vendor('transition', arguments)
 
 @font-face
     font-family: 'Lato'
@@ -376,7 +374,7 @@ section#middle
             padding: 0
             border-top: 1px solid transparent
             border-bottom: 1px solid transparent
-            transition(color 100ms ease-out)
+            transition: color 100ms ease-out
 
             &:hover
                 background: linear-gradient(#8AC8F1, #59A6E8)
@@ -573,9 +571,6 @@ section#middle
                     padding: 15px
                     margin: 0
                     position: relative
-                    -webkit-transition: 0.15s background linear
-                    -moz-transition: 0.15s background linear
-                    -o-transition: 0.15s background linear
                     transition: 0.15s background linear
                     
                     h1, h2, h3, h4, h5
