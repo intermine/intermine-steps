@@ -1,3 +1,5 @@
+vendor-prefixes = webkit moz o ms official
+
 is-comma-list()
     return match('\), \(', ''+arguments)
 
@@ -18,7 +20,50 @@ replace-args(args,argument,val)
             push(result, arg)
     return result
 
-vendor-prefixes = webkit moz o ms official
+replace(expr, str, val)
+    expr = clone(expr)
+    for e, i in expr
+        if length(e) > 1
+            expr[i] = replace(e, str, val)
+        else
+            if str == e
+                expr[i] = val
+    expr
+
+normalize-stops(stops)
+    stops = clone(stops)
+    for stop, i in stops
+        if length(stop) == 1
+            color = stop[0]
+            stop[0] = pos-in-stops(i, stops)
+            stop[1] = color
+        else if typeof(stop[1]) == 'unit'
+            pos = stop[1]
+            stop[1] = stop[0]
+            stop[0] = pos
+    stops
+
+join-stops(stops, translate)
+    str = ''
+    len = length(stops)
+    for stop, i in stops
+        str += ', ' if i
+        pos = stop[0]
+        color = stop[1]
+        str += translate(color, pos)
+    unquote(str)
+
+pos-in-stops(i, stops)
+    len = length(stops)
+    if len - 1 == i
+        100%
+    else if i
+        unit(i / len * 100, '%')
+    else
+        0%
+
+std-stop(color, pos)
+    '%s %s' % (color pos) 
 
 vendor(prop, args, only = null, ignore = null)
     for prefix in vendor-prefixes
@@ -32,14 +77,23 @@ vendor(prop, args, only = null, ignore = null)
                     newargs = replace-args(args, transform, '-' + prefix + '-transform')
                 {'-' + prefix + '-' + prop}: newargs
 
-gradient(a, b)
-    background: a
-    background: -moz-linear-gradient(top, a 0%, b 100%)
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,a), color-stop(100%,b))
-    background: -webkit-linear-gradient(top, a 0%, b 100%)
-    background: -o-linear-gradient(top, a 0%, b 100%)
-    background: -ms-linear-gradient(top, a 0%, b 100%)
-    background: linear-gradient(to bottom, a 0%, b 100%)
+linear-gradient(start, stops...)
+    prop = current-property[0]
+    val = current-property[1]
+
+    if start is a 'color'
+        unshift(stops, start)
+        start = top
+
+    stops = normalize-stops(stops)
+
+    stops = join-stops(stops, std-stop)
+    for prefix in vendor-prefixes
+        unless prefix == official
+            gradient = '-%s-linear-gradient(%s, %s)' % (prefix start stops)     
+            add-property(prop, replace(val, '__CALL__', gradient))
+
+    'linear-gradient(%s, %s)' % (start stops)
 
 box-shadow()
     vendor('box-shadow', arguments, only: webkit official)
@@ -104,7 +158,7 @@ label
 .label
     border-radius: 2px
     font-weight: normal
-    gradient(rgba(#68718a, 0.15), rgba(#68718a, 0.4))
+    background: linear-gradient(rgba(#68718a, 0.15), rgba(#68718a, 0.4))
     color: #68718a
     text-shadow: -1px -1px rgba(255,255,255,0.3)
     box-shadow: inset 1px 1px 3px rgba(#68718a, 0.2)
@@ -128,7 +182,7 @@ input.filter
     cursor: pointer
 
 .button
-    gradient(#71B9EC, #54A1E7)
+    background: linear-gradient(#71B9EC, #54A1E7)
     border-color: #5FA4DE
     border-radius: 2px
     font-size: 12px
@@ -136,7 +190,7 @@ input.filter
     text-shadow: 1px 1px rgba(0,0,0,0.25)
 
     &.secondary
-        gradient(#FAFBFD, #E8ECF1)
+        background: linear-gradient(#FAFBFD, #E8ECF1)
         border-color: #BFCFDA
         color: #838B9F
         text-shadow: 1px 1px #FFF
@@ -201,9 +255,8 @@ div#wrapper
 
 header#top
     width: 100%
-    // background: url('../img/blackorchid.png')
     color: #97a5b8
-    gradient(#455B7C, #3D516E)
+    background: linear-gradient(#455B7C, #3D516E)
     border-bottom: 1px solid #34455E
     box-shadow: 0 0 1px 1px #888
     text-shadow: -1px -1px rgba(0,0,0,0.2)
@@ -326,7 +379,7 @@ section#middle
             transition(color 100ms ease-out)
 
             &:hover
-                gradient(#8AC8F1, #59A6E8)
+                background: linear-gradient(#8AC8F1, #59A6E8)
                 border-top: 1px solid #5FA4DE
                 border-bottom: 1px solid #4D93D8
                 color: #FFF
@@ -381,12 +434,12 @@ section#middle
                         color: #68718a
 
                     &:before
-                        gradient(#74BCF0, #56A7EC)
+                        background: linear-gradient(#74BCF0, #56A7EC)
                         border-right: 5px solid #7C98AB
 
                 &.inactive
                     box-shadow: inset 2px 1px 5px 0 rgba(0,0,0,0.1)
-                    gradient(#F7F9FD, #ECEEF3)
+                    background: linear-gradient(#F7F9FD, #ECEEF3)
                     border-bottom: 1px solid #CAD6DF
 
                     h3
@@ -394,7 +447,7 @@ section#middle
                         text-shadow: 1px 1px rgba(255,255,255,0.5)
 
                     &:before
-                        gradient(#AFBED4, #A3B4CE)
+                        background: linear-gradient(#AFBED4, #A3B4CE)
 
     div#widget
         overflow: hidden
@@ -411,7 +464,7 @@ section#middle
         ul.breadcrumbs
             list-style-type: none
             display: none
-            gradient(#FFF, #F4F6FB)
+            background: linear-gradient(#FFF, #F4F6FB)
             border: 0
             border-bottom: 1px solid #CBD8E2
             margin: 0
@@ -520,8 +573,6 @@ section#middle
                     padding: 15px
                     margin: 0
                     position: relative
-                    // border-left: 1px solid #e9e9e9
-                    // border-right: 1px solid #e9e9e9
                     -webkit-transition: 0.15s background linear
                     -moz-transition: 0.15s background linear
                     -o-transition: 0.15s background linear
@@ -547,7 +598,7 @@ section#middle
         
                 &:not(.active)
                     .title
-                        gradient(#F6F8FC, #ECEEF3)
+                        background: linear-gradient(#F6F8FC, #ECEEF3)
 
                 &.active
                     border-top: 1px solid #bccad5
@@ -706,7 +757,6 @@ footer
     left: 0
 
     &#wide
-        // gradient(rgba(255,255,255,0), rgba(255,255,255,1))
         width: 100%
         padding-top: 100px
 
@@ -714,9 +764,7 @@ footer
             text-align: center
 
     &#bottom
-        // gradient(rgba(255,255,255,0), rgba(255,255,255,1))
         width: 275px
-        // padding-top: 100px
 
         .wrap
             text-align: center
