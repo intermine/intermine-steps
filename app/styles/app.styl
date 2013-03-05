@@ -67,14 +67,14 @@ label
 .label
     border-radius: 2px
     font-weight: normal
-
-    &.secondary
-        background: #A58AD5
-        color: #FFF
-        text-shadow: -1px -1px rgba(0,0,0,0.15)
+    gradient(rgba(#68718a, 0.15), rgba(#68718a, 0.4))
+    color: #68718a
+    text-shadow: -1px -1px rgba(255,255,255,0.3)
+    shadow(inset 1px 1px 3px rgba(#68718a, 0.2))
+    border: 1px solid rgba(#68718a, 0.3)
 
 code
-    font-size: 11px
+    font-size: 10px
     background: inherit
 
 ::-webkit-input-placeholder
@@ -137,7 +137,7 @@ ul.alternating
             color: #FFCC66
         &.curiousblue
             color: #3399CC
-        &.turquoise
+        &.turq
             color: #33CCCC
         &.strikemaster
             color: #996699
@@ -162,16 +162,6 @@ div#wrapper
     width: 100%
     min-width: 1000px
     min-height: 100%
-
-div#whiteout
-    display: none
-    position: absolute
-    top: 0
-    left: 0
-    content: ""
-    background: rgba(255,255,255,0.5)
-    width: 100%
-    height: 100%
 
 header#top
     width: 100%
@@ -416,7 +406,7 @@ section#middle
                     background: #FFCC66
                 &.curiousblue:before
                     background: #3399CC
-                &.turquoise:before
+                &.turq:before
                     background: #33CCCC
                 &.strikemaster:before
                     background: #996699
@@ -534,24 +524,39 @@ section#middle
 div#history
     position: absolute
     bottom: 0
-    left: 250px // width of the sidebar
-    height: 50% // take up this much of the screen
-    display: none
-    background: #FFF
+    left: 275px // width of the sidebar
+    height: 33% // take up this much of the screen
 
     div.container
+        background: #FFF
+        margin-left: 20px
         height: 100%
-        border-top: 3px solid #BBB
-        border-left: 1px solid #e9e9e9
-        padding: 15px
+        border: 1px solid #bccad5
+        border-bottom: 0
+        border-radius: 2px 2px 0 0
+        shadow(-3px 3px 3px rgba(0,0,0,0.05))
 
     div.head
+        padding: 10px
+        background: #e0e3ed
+        //shadow(inset 0 3px 5px rgba(0,0,0,0.03))
         margin-bottom: 20px
+        border-bottom: 1px solid #bccad5
         
+        a.button
+            margin-top: 6px
+
         h1
             font-size: 22px
             margin: 0
+            text-shadow: 1px 1px rgba(255,255,255,0.8)
         
+            span
+                margin-right: 4px
+
+        p
+            display: none
+
         a.button
             float: right
 
@@ -561,7 +566,7 @@ div#history
             display: block
 
     #tools
-        margin: 0
+        margin: 0 10px
         padding: 0
         overflow-x: auto
         overflow-y: auto
@@ -594,75 +599,58 @@ div#history
 
             td
                 padding: 0
+                text-align: center
 
         // div based system
         div.step
             display: inline-block
-            width: 180px
-            margin: 10px 0
+            width: 100px
+            margin: 5px 0
 
             div.wrap
-                width: 160px
+                width: 80px
                 margin: 0 auto
 
-            &.terracotta .box
-                background: #e2674a
-                color: #FFF
-            &.goldentainoi .box
-                background: #FFCC66
-            &.curiousblue .box
-                background: #3399CC
-                color: #FFF
-            &.turquoise .box
-                background: #33CCCC
-            &.strikemaster .box
-                background: #996699
-                color: #FFF
-            &.crail .box
-                background: #C24747
-            &.deyork .box
-                background: #99CC99
-            &.patina .box
-                background: #669999
-                color: #FFF
-            &.hopbush .box
-                background: #CC6699
-                color: #FFF
-            &.seagreen .box
-                background: #339966
-                color: #FFF
-            &.kimberly .box
-                background: #666699
-                color: #FFF
+            colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagreen #339966) (kimberly #666699)
 
-            &.active .box > *
-                opacity: 1
+            for color in colors
+                &.{color[0]} .box
+                    background: lighten(color[1], 40%)
+                    border: 1px solid darken(color[1], 20%)
+                    border-width: 3px 1px 1px 1px
+                    color: darken(color[1], 20%)
+                    shadow(inset 1px 1px 5px rgba(0,0,0,0.1))
+
+                &.active.{color[0]} .box
+                    background: color[1]
+                    if dark(darken(color[1], 20%))
+                        color: #FFF
+                    else
+                        color: darken(color[1], 50%)
 
             em.ago
                 text-align: center
                 display: block
-                font-size: 11px
+                font-size: 9px
 
             a
                 color: inherit
 
             div.box
-                background: #CEF2FB
-                padding: 10px 20px
-                height: 60px
+                height: 25px
                 overflow: hidden
+                text-align: center
+                vertical-align: middle
+                border-radius: 2px
 
-                > *
-                    opacity: 0.3
-
-                h3
-                    font-size: 16px
+                h5
+                    height: 20px
+                    line-height: 20px
+                    font-size: 10px
                     margin: 0
 
                 p
-                    margin: 5px 0 0 0
-                    line-height: 1
-                    font-size: 12px
+                    display: none
 
 footer
     position: fixed
@@ -698,14 +686,27 @@ footer
 
 #modal
     div.reveal-modal
-        border-top: 3px solid #444
+        border: #bccad5
+        border-radius: 2px
+        padding: 0
 
     .scroll
         overflow-y: auto
+        margin: 10px
 
     h1
         font-size: 22px
         margin: 0
+        color: #68718a
+        text-shadow: 1px 1px rgba(255,255,255,0.8)
+        background: #e0e3ed
+        padding: 10px
+        border-bottom: 1px solid #bccad5
+        border-radius: 2px 2px 0 0
+
+    .close-reveal-modal
+        color: #68718a
+        margin-top: 15px
 
 .pricing-table
     border: solid 1px #DDD

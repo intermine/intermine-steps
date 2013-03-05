@@ -2,6 +2,8 @@ Mediator = require 'chaplin/core/Mediator'
 
 View = require 'chaplin/core/View'
 
+root = @
+
 module.exports = class AppView extends View
 
     container:       'body'
@@ -9,6 +11,8 @@ module.exports = class AppView extends View
     autoRender:      true
 
     getTemplateFunction: -> require 'chaplin/templates/app'
+
+    getTemplateData: -> 'showHistory': root.App.showHistory
 
     attach: ->
         super
@@ -27,10 +31,12 @@ module.exports = class AppView extends View
     historyToggle: (e) ->
         # Change the button text.
         btn = $(e.target)
-        btn.text(
-            if btn.text()[0...4] is 'Show' then 'Hide history'
-            else 'Show history'
-        )
+        if btn.attr('data-show') is '0'
+            btn.text 'Hide history'
+            btn.attr 'data-show', '1'
+        else
+            btn.text 'Show history'
+            btn.attr 'data-show', '0'
         
         # Send a message (to HistoryView).
         Mediator.publish 'history:toggle'

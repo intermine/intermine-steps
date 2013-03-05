@@ -24,16 +24,17 @@
     </section>
 </div>
 
-<!-- show when we want to hide the app (but say not the history) -->
-<div id="whiteout"></div>
-
 <!-- tools used in the history -->
 <div id="history"></div>
 
 <!-- history toggler fixed to bottom -->
 <footer id="bottom">
     <div class="wrap">
-        <a class="button" data-action="history-toggle">Show history</a>
+        <% if @showHistory: %>
+            <a class="button" data-show="1" data-action="history-toggle">Hide history</a>
+        <% else: %>
+            <a class="button" data-show="0" data-action="history-toggle">Show history</a>
+        <% end %>
     </div>
 </footer>
 

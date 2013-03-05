@@ -13,7 +13,7 @@ module.exports = class LandingView extends View
     containerMethod: 'html'
     autoRender:      true
 
-    getTemplateFunction: -> require "chaplin/templates/landing-#{root.App.env}"
+    getTemplateFunction: -> require 'chaplin/templates/landing'
 
     attach: ->
         super

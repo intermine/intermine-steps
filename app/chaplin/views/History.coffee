@@ -6,6 +6,8 @@ HistoryToolView = require 'chaplin/views/HistoryTool'
 
 Tool = require 'chaplin/models/Tool'
 
+root = @
+
 module.exports = class HistoryView extends View
 
     'container':       '#history'
@@ -37,12 +39,12 @@ module.exports = class HistoryView extends View
         super
 
         # Hide by default and set width to how much space we have on screen. Add a class.
-        $(@el).css('width', $(window).width() - $('footer#bottom').outerWidth()).addClass('container')
+        $(@el).css('width', $(window).width() - $('footer#bottom').outerWidth() - 40).addClass('container')
 
         @tools = $(@el).find('#tools')
 
         # Set the height of the tools based on the height of the viewport.
-        do height = => @tools.css 'height', ($(window).height() * .5) - 79
+        do height = => @tools.css 'height', ($(window).height() * .33) - 85
 
         # On window resize, update height again.
         $(window).resize height
@@ -52,6 +54,9 @@ module.exports = class HistoryView extends View
 
         # Capture serialization requests.
         @delegate 'click', '#serialize', @serializeHistory
+
+        # Show us?
+        unless root.App.showHistory then $(@el).hide()
 
         @
 
@@ -66,8 +71,9 @@ module.exports = class HistoryView extends View
 
     # Toggle the view.
     toggleHistory: =>
-        $('div#whiteout').toggle()
-        $(@el).parent().slideToggle()
+        $(@el).fadeToggle()
+        # Save the flip state.
+        root.App.showHistory = !root.App.showHistory
 
     # Reset the history view.
     resetTable: =>
@@ -149,7 +155,7 @@ module.exports = class HistoryView extends View
         @guids[model.get('guid')] = 'col': col, 'row': row
 
         # Update the width of the table.
-        $(@el).find('#tools table.grid').css('width', 180 * @cols)
+        $(@el).find('#tools table.grid').css('width', 120 * @cols)
 
         # We have added a tool, hide the info message.
         $(@el).find('p.message').hide()
@@ -157,7 +163,7 @@ module.exports = class HistoryView extends View
     # Draw a connector line between a parent and its child.
     drawConnector: (a, b) ->
         # Box dimensions (history el is hidden so cannot get dimensions live).
-        width = 180 ; height = 98
+        width = 120 ; height = 53
 
         # Skip very first element.
         return unless a

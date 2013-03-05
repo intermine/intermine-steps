@@ -2,7 +2,7 @@
 <div class="wrap">
     <a href="/tool/id/<%= @guid %>">
         <div class="box">
-            <h3><%= @name %></h3>
+            <h5><%= @name %></h5>
             <% if @description.length > 15: %>
                 <p title="<%= @description %>"><%- @description[0...15] %> &hellip;</p>
             <% else: %>

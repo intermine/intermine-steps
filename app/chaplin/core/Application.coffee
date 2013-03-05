@@ -16,11 +16,11 @@ module.exports = class InterMineSteps extends Chaplin.Application
 
     title: 'InterMine Steps'
 
+    # Default state of the History View.
+    showHistory: true
+
     initialize: ->
         super
-
-        # Production or development env?
-        @env = 'dev' # if location.hostname is 'intermine-steps.labs.intermine.org' then 'prod' else 'dev'
 
         @dispatcher = new Dispatcher
             'controllerPath':   'chaplin/controllers/'
@@ -34,7 +34,7 @@ module.exports = class InterMineSteps extends Chaplin.Application
         @initRouter Routes
 
         # Freeze the application instance to prevent further changes
-        Object.freeze? @
+        # Object.freeze? @
 
     # Override standard layout initializer.
     initLayout: ->

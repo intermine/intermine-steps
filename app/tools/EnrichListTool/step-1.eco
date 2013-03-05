@@ -17,7 +17,7 @@
                         <td style="text-align:center"><input type="checkbox" data-key="<%= key %>" class="check" <% if val.selected: %>checked="checked"<% end %> /></td>
                         <td><%= val.name %></td>
                         <td>
-                            <span class="secondary label">Random data</span>
+                            <span class="label">Random data</span>
                         </td>
                         <td><%= val.items.length %> Item(s)</td>
                     </tr>
