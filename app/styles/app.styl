@@ -1,3 +1,5 @@
+/** ============== nib functions ============== */
+
 vendor-prefixes = webkit moz o ms official
 
 is-comma-list()
@@ -101,21 +103,29 @@ box-shadow()
 transition()
     vendor('transition', arguments)
 
-@font-face
+/** ============== Theme colors as vars ============== */
+
+$colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagreen #339966) (kimberly #666699)
+
+/** ============== Fonts ============== */
+
+@font-face {
     font-family: 'Lato'
     font-style: normal
     font-weight: 700
     src: url('../fonts/LatoBold.woff') format('woff'),
     url('../fonts/LatoBold.ttf') format('truetype')
+}
 
-@font-face
+@font-face {
     font-family: 'Lato'
     font-style: normal
     font-weight: 400
     src: url('../fonts/LatoRegular.woff') format('woff'),
     url('../fonts/LatoRegular.ttf') format('truetype')
+}
 
-@font-face
+@font-face {
     font-family: 'Entypo'
     font-style: normal
     font-weight: 400
@@ -123,13 +133,15 @@ transition()
     url('../fonts/Entypo.eot') format('eot'),
     url('../fonts/Entypo.ttf') format('truetype'),
     url('../fonts/Entypo.svg') format('svg')
+}
+
+/** ============== Generic styles ============== */
 
 body, html
     height: 100%
 
 body
     margin: 0
-    background: transparent
     -webkit-font-smoothing: antialiased
     background: #DADEE9 url('../img/bg.png') repeat-y top left
 
@@ -219,32 +231,15 @@ ul.alternating
     list-style-type: square !important
 
     li
-        &.terracotta
-            color: #e2674a
-        &.goldentainoi
-            color: #FFCC66
-        &.curiousblue
-            color: #3399CC
-        &.turq
-            color: #33CCCC
-        &.strikemaster
-            color: #996699
-        &.crail
-            color: #C24747
-        &.deyork
-            color: #99CC99
-        &.patina
-            color: #669999
-        &.hopbush
-            color: #CC6699
-        &.seagreen
-            color: #339966
-        &.kimberly
-            color: #666699
+        for color in $colors
+            &.{color[0]}
+                color: color[1]
 
 .row
     width: auto
     min-width: auto
+
+/** ============== Elements ============== */
 
 div#wrapper
     width: 100%
@@ -500,28 +495,9 @@ section#middle
                     margin-right: 10px
                     box-shadow: 1px 1px 2px rgba(0,0,0,0.15)
 
-                &.terracotta:before
-                    background: #e2674a
-                &.goldentainoi:before
-                    background: #FFCC66
-                &.curiousblue:before
-                    background: #3399CC
-                &.turq:before
-                    background: #33CCCC
-                &.strikemaster:before
-                    background: #996699
-                &.crail:before
-                    background: #C24747
-                &.deyork:before
-                    background: #99CC99
-                &.patina:before
-                    background: #669999
-                &.hopbush:before
-                    background: #CC6699
-                &.seagreen:before
-                    background: #339966
-                &.kimberly:before
-                    background: #666699
+                for color in $colors
+                    &.{color[0]}:before
+                        background: color[1]
 
             .entypo
                 float: left
@@ -613,14 +589,12 @@ section#middle
                     .content
                         background: #FFF
                         display: block
-                        // border-left: 1px solid #e9e9e9
-                        // border-right: 1px solid #e9e9e9
 
 div#history
     position: absolute
     bottom: 0
-    left: 275px // width of the sidebar
-    height: 33% // take up this much of the screen
+    left: 275px
+    height: 33%
 
     div.container
         background: #FFF
@@ -705,9 +679,7 @@ div#history
                 width: 80px
                 margin: 0 auto
 
-            colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagreen #339966) (kimberly #666699)
-
-            for color in colors
+            for color in $colors
                 &.{color[0]} .box
                     background: lighten(color[1], 40%)
                     border: 1px solid darken(color[1], 20%)
@@ -850,6 +822,8 @@ footer
         background-color: whitesmoke
         text-align: center
         padding: 20px
+
+/** ============== Icon fonts ============== */
 
 .entypo
     &:before

@@ -1,3 +1,6 @@
+/** ============== nib functions ============== */
+/** ============== Theme colors as vars ============== */
+/** ============== Fonts ============== */
 @font-face {
   font-family: 'Lato';
   font-style: normal;
@@ -16,13 +19,13 @@
   font-weight: 400;
   src: url("../fonts/Entypo.woff") format('woff'), url("../fonts/Entypo.eot") format('eot'), url("../fonts/Entypo.ttf") format('truetype'), url("../fonts/Entypo.svg") format('svg');
 }
+/** ============== Generic styles ============== */
 body,
 html {
   height: 100%;
 }
 body {
   margin: 0;
-  background: transparent;
   -webkit-font-smoothing: antialiased;
   background: #dadee9 url("../img/bg.png") repeat-y top left;
 }
@@ -156,7 +159,7 @@ ul.alternating li.patina {
 ul.alternating li.hopbush {
   color: #c69;
 }
-ul.alternating li.seagreen {
+ul.alternating li. {
   color: #396;
 }
 ul.alternating li.kimberly {
@@ -166,6 +169,7 @@ ul.alternating li.kimberly {
   width: auto;
   min-width: auto;
 }
+/** ============== Elements ============== */
 div#wrapper {
   width: 100%;
   min-width: 1000px;
@@ -486,7 +490,7 @@ section#middle div#widget div.head h1.patina:before {
 section#middle div#widget div.head h1.hopbush:before {
   background: #c69;
 }
-section#middle div#widget div.head h1.seagreen:before {
+section#middle div#widget div.head h1.:before {
   background: #396;
 }
 section#middle div#widget div.head h1.kimberly:before {
@@ -941,6 +945,7 @@ footer#bottom .wrap {
   text-align: center;
   padding: 20px;
 }
+/** ============== Icon fonts ============== */
 .entypo:before {
   font-family: "Entypo";
   font-weight: normal;
