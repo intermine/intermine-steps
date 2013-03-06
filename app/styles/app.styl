@@ -6,6 +6,9 @@
 
 $colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagrn #339966) (kimberly #666699)
 $entypo = (lock "\1f512") (backintime "\e771") (lightup "\1f506") (rightopen "\e762") (clippy "\1f4ce") (crossroads "\e723") (flowbranch "\1F569") (openbook "\1f4d6") (lifebuoy "\e788") (comment "\e718") (help "\2753")
+$text_color = #68718A
+$link_color = #579ED7
+$border_color = #BCCAD5
 
 /** ============== Fonts ============== */
 
@@ -50,14 +53,14 @@ body
 
 body, h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
     font-family: Lato
-    color: #68718A
+    color: $text_color
 
 a
     cursor: pointer
-    color: #579ED7
+    color: $link_color
 
     &:hover
-        color: darken(#579ED7, 30%)
+        color: darken($link_color, 30%)
 
 table
     width: 100%
@@ -68,11 +71,11 @@ label
 .label
     border-radius: 2px
     font-weight: normal
-    background: linear-gradient(rgba(#68718a, 0.15), rgba(#68718a, 0.4))
-    color: #68718a
+    background: linear-gradient(rgba($text_color, 0.15), rgba($text_color, 0.4))
+    color: $text_color
     text-shadow: -1px -1px rgba(255,255,255,0.3)
-    box-shadow: inset 1px 1px 3px rgba(#68718a, 0.2)
-    border: 1px solid rgba(#68718a, 0.3)
+    box-shadow: inset 1px 1px 3px rgba($text_color, 0.2)
+    border: 1px solid rgba($text_color, 0.3)
 
 code
     font-size: 10px
@@ -247,7 +250,7 @@ section#middle
             border-radius: 2px
             top: 20px
             right: 20px
-            border: 1px solid #bccad5
+            border: 1px solid $border_color
             box-shadow: -3px 3px 3px rgba(0,0,0,0.05)
 
             .content
@@ -324,7 +327,7 @@ section#middle
                     border-bottom-color: #F5F6F9
 
                     h3
-                        color: #68718a
+                        color: $text_color
 
                     &:before
                         background: linear-gradient(#74BCF0, #56A7EC)
@@ -420,7 +423,7 @@ section#middle
             margin: 20px 295px
             margin-bottom: 0
             padding: 0
-            border: 1px solid #BCCAD5
+            border: 1px solid $border_color
             box-shadow: -3px 3px 3px rgba(0,0,0,0.05)
 
         .half
@@ -472,7 +475,7 @@ section#middle
                         background: linear-gradient(#F6F8FC, #ECEEF3)
 
                 &.active
-                    border-top: 1px solid #bccad5
+                    border-top: 1px solid $border_color
 
                     .title
                         background: white
@@ -500,7 +503,7 @@ div#history
         background: #FFF
         margin-left: 20px
         height: 100%
-        border: 1px solid #bccad5
+        border: 1px solid $border_color
         border-bottom: 0
         border-radius: 2px 2px 0 0
         box-shadow: -3px 3px 3px rgba(0,0,0,0.05), 3px -3px 5px rgba(#DADEE9, 0.5)
@@ -509,7 +512,7 @@ div#history
         padding: 10px
         background: #e0e3ed
         margin-bottom: 20px
-        border-bottom: 1px solid #bccad5
+        border-bottom: 1px solid $border_color
         
         a.button
             margin-top: 6px
@@ -649,7 +652,7 @@ footer
 
 #modal
     div.reveal-modal
-        border: #bccad5
+        border: $border_color
         border-radius: 2px
         padding: 0
 
@@ -660,18 +663,18 @@ footer
     h1
         font-size: 22px
         margin: 0
-        color: #68718a
+        color: $text_color
         text-shadow: 1px 1px rgba(255,255,255,0.8)
         background: #e0e3ed
         padding: 10px
-        border-bottom: 1px solid #bccad5
+        border-bottom: 1px solid $border_color
         border-radius: 2px 2px 0 0
 
         span.entypo
             margin-right: 4px
 
     .close-reveal-modal
-        color: #68718a
+        color: $text_color
         margin-top: 15px
 
 .pricing-table
