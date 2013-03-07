@@ -270,11 +270,11 @@ ul.tools li a {
   padding: 0;
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
-  -webkit-transition: kimberly #669 100ms ease-out 100ms ease-out 100ms ease-out 100ms ease-out;
-  -moz-transition: kimberly #669 100ms ease-out 100ms ease-out 100ms ease-out 100ms ease-out;
-  -o-transition: kimberly #669 100ms ease-out 100ms ease-out 100ms ease-out 100ms ease-out;
-  -ms-transition: kimberly #669 100ms ease-out 100ms ease-out 100ms ease-out 100ms ease-out;
-  transition: kimberly #669 100ms ease-out 100ms ease-out 100ms ease-out 100ms ease-out 100ms ease-out;
+  -webkit-transition: color 100ms ease-out;
+  -moz-transition: color 100ms ease-out;
+  -o-transition: color 100ms ease-out;
+  -ms-transition: color 100ms ease-out;
+  transition: color 100ms ease-out;
 }
 ul.tools li a:hover {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #8ac8f1), color-stop(1, #59a6e8));

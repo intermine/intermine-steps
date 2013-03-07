@@ -209,9 +209,9 @@ ul.tools
     list-style-type: square !important
 
     li
-        for color in $colors
-            &.{color[0]}
-                color: color[1]
+        for clr in $colors
+            &.{clr[0]}
+                color: clr[1]
 
         a
             cursor: pointer
@@ -541,9 +541,9 @@ section#middle
                     margin-right: 10px
                     box-shadow: 1px 1px 2px rgba(0,0,0,0.15)
 
-                for color in $colors
-                    &.{color[0]}:before
-                        background: color[1]
+                for clr in $colors
+                    &.{clr[0]}:before
+                        background: clr[1]
 
             .entypo
                 float: left
@@ -727,19 +727,19 @@ div#history
                 margin: 0 auto
 
             for color in $colors
-                &.{color[0]} .box
-                    background: lighten(color[1], 40%)
-                    border: 1px solid darken(color[1], 20%)
+                &.{clr[0]} .box
+                    background: lighten(clr[1], 40%)
+                    border: 1px solid darken(clr[1], 20%)
                     border-width: 3px 1px 1px 1px
-                    color: darken(color[1], 20%)
+                    color: darken(clr[1], 20%)
                     box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1)
 
-                &.active.{color[0]} .box
-                    background: color[1]
-                    if dark(darken(color[1], 20%))
+                &.active.{clr[0]} .box
+                    background: clr[1]
+                    if dark(darken(clr[1], 20%))
                         color: #FFF
                     else
-                        color: darken(color[1], 50%)
+                        color: darken(clr[1], 50%)
 
             em.ago
                 text-align: center
