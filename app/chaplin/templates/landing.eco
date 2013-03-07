@@ -1,91 +1,79 @@
 <div id="wrapper">
     <header id="top">
-        <div class="inner">
-            <div class="third">
-                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>
-            </div>
-            <div class="first">
+        <div class="row">
+            <div class="first three columns">
                 <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
             </div>
-            <div class="second">
+            <div class="second four columns">
                 <input id="search" type="text" placeholder="e.g. list upload, PPARG" />
+            </div>
+            <div class="third five columns">
+                Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>
             </div>
         </div>
     </header>
 
     <section id="middle" class="narrow container">
         <div class="row">
-            <div class="four columns">
-                <h2><span class="entypo crossroads"></span> Tools</h2>
-                <!-- populate next steps here -->
-                <div id="next"></div>
-            </div>
-            <div class="four columns">
-                <h2><span class="entypo lifebuoy"></span> Help</h2>
-                <ul>
-                    <li>Lorem ipsum dolor</li>
-                    <li>Sed ut perspiciatis</li>
-                    <li>At vero eos et accusamus</li>
-                </ul>
-            </div>
-            <div class="four columns">
-                <div class="panel">
-                    <h5>System Actions</h5>
-                    <p>Use the following action to clear
-                        <code>Backbone.js Collection</code> and associated
-                        <code>LocalStorage</code>:</p>
-                    <a href="app/reset" class="button">Reset Database</a>
+            <div class="three columns">
+                <div class="nobox">
+                    <h2><span class="entypo lifebuoy"></span> Help</h2>
+                    <ul class="tools">
+                        <li><a>What is <strong>new</strong> since 1.2</a></li>
+                        <li><a>How do I use my <strong>tools</strong></a></li>
+                        <li><a>Where are my <strong>templates</strong></a></li>
+                        <li><a>How do I <strong>cite</strong> this resource</a></li>
+                    </ul>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="six columns">
-                <ul class="pricing-table">
-                    <li class="title">What it does now</li>
-                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>
-                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>
-                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>
-                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>
-                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>
-                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>
-                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>
-                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>
-                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>
-                    <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>
-                    <li class="bullet-item">Permissive input <strong>filtering</strong> of tools listing</li>
-                    <li class="bullet-item">Tool labels have extra <strong>keywords</strong> associated as alternatives for search</li>
-                    <li class="bullet-item">Showing only tool labels that have a <em>weight</em> higher than 10</li>
-                    <li class="bullet-item">Tool actions can have <strong>help</strong> text associated with them</li>
-                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>
-                </ul>
+            <div class="four columns">
+                <div class="box">
+                    <h2><span class="entypo crossroads"></span> Tools</h2>
+                    <!-- populate next steps here -->
+                    <div id="next"></div>
+                </div>
             </div>
-            <div class="six columns">
-                <ul class="tabs-content">
-                    <li class="active">
-                        <dl class="tabs contained">
-                            <dd class="active"><a>Example Tool Config</a></dd>
-                        </dl>
-                        <ul class="tabs-content contained">
-                            <li class="active">
-                                <pre><code class="code rainbow" data-language="json">{
-    <span class="string">"i:haveList"</span>: [
-        {
-            <span class="string">"slug"</span>: <span class="string">"enrich-list-tool"</span>,
-            <span class="string">"label"</span>: <span class="string">"**Enrich** this list"</span>,
-            <span class="string">"category"</span>: <span class="string">"Category 1"</span>,
-            <span class="string">"keywords"</span>: [
-                <span class="string">"chart"</span>,
-                <span class="string">"widget"</span>
-            ],
-            <span class="string">"weight"</span>: <span class="constant numeric">9</span>,
-            <span class="string">"help"</span>: <span class="string">"A help text can go here."</span>
-        }
-    ]
-}</code></pre>
+            <div class="five columns">
+                <div class="box">
+                    <table class="tabs">
+                        <tr>
+                            <td class="active labeled"><h3>Messages</h3><span class="count">9</span></td>
+                            <td class="inactive"><h3>Continue research</h3></td>
+                        </tr>
+                    </table>
+                    <div class="content">
+                        <ul class="timeline">
+                            <li>
+                                <div class="head">
+                                    <span class="right ago">3m ago</span>
+                                    <span class="entypo database"></span><h5>System upgrade</h5>
+                                </div>
+                                <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>
+                            </li>
+                            <li>
+                                <div class="head">
+                                    <span class="right ago">A day ago</span>
+                                    <span class="entypo download"></span><h5>Shared list</h5>
+                                </div>
+                                <p>A list <a>Secret Research Genes</a> has been shared with you.</p>
+                            </li>
+                            <li>
+                                <div class="head">
+                                    <span class="right ago">Jan 27</span>
+                                    <span class="entypo database"></span><h5>System upgrade</h5>
+                                </div>
+                                <p>The system will go down in 30 minutes.</p>
+                            </li>
+                            <li>
+                                <div class="head">
+                                    <span class="right ago">Jan 26</span>
+                                    <span class="entypo clipboard"></span><h5>Job finished</h5>
+                                </div>
+                                <p>Your job <a>Enriching a List</a> has finished.</p>
                             </li>
                         </ul>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

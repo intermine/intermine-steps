@@ -5,10 +5,11 @@
 /** ============== Vars ============== */
 
 $colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagrn #339966) (kimberly #666699)
-$entypo = (lock "\1f512") (backintime "\e771") (lightup "\1f506") (rightopen "\e762") (clippy "\1f4ce") (crossroads "\e723") (flowbranch "\1F569") (openbook "\1f4d6") (lifebuoy "\e788") (comment "\e718") (help "\2753")
+$entypo = (lock "\1f512") (backintime "\e771") (lightup "\1f506") (rightopen "\e762") (clippy "\1f4ce") (crossroads "\e723") (flowbranch "\1F569") (openbook "\1f4d6") (lifebuoy "\e788") (comment "\e718") (help "\2753") (database "\1F4F8") (clipboard "\1F4CB") (download "\1F4E5") (popup "\E74C")
 $text_color = #68718A
 $link_color = #579ED7
 $border_color = #BCCAD5
+$table_border = #E0E3ED
 
 /** ============== Fonts ============== */
 
@@ -46,10 +47,11 @@ body, html
 body
     margin: 0
     -webkit-font-smoothing: antialiased
-    background: #DADEE9 url('../img/bg.png') repeat-y top left
+    background: darken(#FFF, 3%)
 
-    > div
-        height: 100%
+    // on app pages
+    &.app
+        background: #DADEE9 url('../img/bg.png') repeat-y top left
 
 body, h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
     font-family: Lato
@@ -81,6 +83,13 @@ code
     font-size: 10px
     background: inherit
 
+p
+    margin: 0
+
+    code
+        font-weight: normal
+        font-size: 11px
+
 ::-webkit-input-placeholder
     color: lighten(#5b617d, 50%)
 
@@ -93,6 +102,10 @@ input.filter
 .help, .help:before
     color: rgba(0,0,0,0.2)
     cursor: pointer
+
+div.panel
+    border-radius: 2px
+    border: 1px solid $border_color
 
 .button
     background: linear-gradient(#71B9EC, #54A1E7)
@@ -108,35 +121,179 @@ input.filter
         color: #838B9F
         text-shadow: 1px 1px #FFF
 
+table
+    margin: 0
+
 table.table
     border-collapse: collapse
     border: 0
 
     tbody
-        border: 1px solid #E0E3ED
-        border-left: 3px solid #E0E3ED
+        border: 1px solid $table_border
+        border-left: 3px solid $table_border
 
     tr
         th
             background: #FFF
-            border-bottom: 1px solid #E0E3ED
+            border-bottom: 1px solid $table_border
 
         &:nth-child(odd)
             td
-                border-bottom: 1px solid #E0E3ED
+                border-bottom: 1px solid $table_border
 
         &:nth-child(even)
             td
                 background: #F5F6F9
 
+table.tabs
+    background: inherit
+    border: 0
+    border-collapse: collapse
+
+    td
+        padding: 0
+        cursor: pointer
+        position: relative
+
+        h3
+            text-transform: uppercase
+            font-weight: bold
+            margin: 15px 10px 10px 15px
+
+        &.labeled
+            padding-right: 15px
+
+            .count
+                text-shadow: -1px -1px rgba(0,0,0,0.2)
+                position: absolute
+                top: 12px
+                right: 10px
+                background: #5AA4E0
+                box-shadow: inset 0 1px 2px rgba(0,0,0,0.25)
+                border-radius: 2px
+                color: #FFF
+                padding: 0 6px 1px 6px
+
+        &:before
+            display: inline-block
+            content: ""
+            width: 100%
+            height: 5px
+            position: absolute
+
+        &.active
+            border-right: 1px solid #CAD6DF
+            border-bottom-color: #F5F6F9
+
+            h3
+                color: $text_color
+
+            &:before
+                background: linear-gradient(#74BCF0, #56A7EC)
+                border-right: 5px solid #7C98AB
+
+        &.inactive
+            box-shadow: inset 2px 1px 5px 0 rgba(0,0,0,0.1)
+            background: linear-gradient(#F7F9FD, #ECEEF3)
+            border-bottom: 1px solid #CAD6DF
+
+            h3
+                color: #A7B4C7
+                text-shadow: 1px 1px rgba(255,255,255,0.5)
+
+            &:before
+                background: linear-gradient(#AFBED4, #A3B4CE)
+
 // used on showing a listing of tools
-ul.alternating
+ul.tools
     list-style-type: square !important
 
     li
         for color in $colors
             &.{color[0]}
                 color: color[1]
+
+        a
+            cursor: pointer
+            color: #5B617D
+            text-shadow: 1px 1px rgba(255,255,255,0.5)
+            display: block
+            padding: 0
+            border-top: 1px solid transparent
+            border-bottom: 1px solid transparent
+            transition: color 100ms ease-out
+
+            &:hover
+                background: linear-gradient(#8AC8F1, #59A6E8)
+                border-top: 1px solid #5FA4DE
+                border-bottom: 1px solid #4D93D8
+                color: #FFF
+                text-shadow: 1px 1px #4D93D8
+                margin: 0 -10px
+                padding: 0 10px
+                box-shadow: inset 0 0 2px 0 rgba(255,255,255,0.5)
+
+ul.timeline
+    margin: 0
+
+    li
+        padding: 8px 15px
+        position: relative
+
+        &:nth-child(even)
+            background: #F5F6F9
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.7)
+
+        &:not(:last-child)
+            border-bottom: 1px solid #DBE7EF
+
+        &.scooter
+            background: rgba(#2EC6C8, 0.05)
+
+            a
+                color: darken(#2EC6C8, 20%)
+
+        .head
+            h5
+                margin: 0
+                font-size: 14px
+                display: inline-block
+                color: rgba($text_color, 0.9)
+
+            span
+                &.ago
+                    font-size: 12px
+                    color: rgba($text_color, 0.7)
+
+                &.entypo
+                    display: inline-block
+                    margin-right: 4px
+                    color: rgba($text_color, 0.7)
+
+        p
+            margin: 0
+
+.noactions
+    display: none
+    font-size: 13px
+    font-style: italic
+
+.popup
+    font-size: 10px
+    padding: 0px 4px
+    border-radius: 2px
+    position: absolute
+    top: 5px
+    right: 5px
+    background: linear-gradient(#fafbfd, #e8ecf1)
+    border: 1px solid #BFCFDA
+    color: #838B9F
+    text-shadow: 1px 1px #FFF
+    cursor: pointer
+    opacity: 0.75
+
+    &:hover
+        opacity: 1
 
 .row
     width: auto
@@ -157,15 +314,13 @@ header#top
     box-shadow: 0 0 1px 1px #888
     text-shadow: -1px -1px rgba(0,0,0,0.2)
 
+    .row
+        width: 1000px
+
     a
         color: #FFF
 
-    .first, .second, .third
-        display: inline-block
-
     .first
-        width: 272px
-
         a
             color: inherit
 
@@ -182,25 +337,41 @@ header#top
 
     .second
         vertical-align: top
-        padding-left: 20px
-        border-left: 1px solid rgba(0,0,0,0.25)
 
         input#search
             margin: 10px 10px 10px 0
-            width: 400px
+            width: 100%
 
     .third
-        padding: 10px
-        float: right
-        width: 250px
         text-align: right
         line-height: 30px
+        padding: 10px
 
         span
             display: inline-block
             margin: 0 4px
             font-size: 8px
             height: 18px
+
+// only on app pages
+body.app
+    header#top
+        .first, .second, .third
+            display: inline-block
+
+        .first
+            width: 272px
+
+        .second
+            padding-left: 20px
+            border-left: 1px solid rgba(0,0,0,0.25)
+
+            input#search
+                width: 400px
+
+        .third
+            float: right
+            width: 250px
 
 section#middle
     width: 100%
@@ -236,6 +407,43 @@ section#middle
     .hidden
         display: none !important
 
+    .box
+        background: #FEFEFE
+        border-radius: 2px
+        border: 1px solid $border_color
+        box-shadow: -3px 3px 3px rgba(0,0,0,0.05)
+
+        h2
+            margin: 0
+            padding: 4px 15px
+            border-radius: 2px 2px 0 0
+            background: linear-gradient(#f6f8fc, #eceef3)
+            border-bottom: 1px solid #cbd8e2
+
+        h3
+            text-transform: uppercase
+            font-size: 12px
+
+        div.tools
+            padding: 15px
+
+            ul
+                margin: 0
+
+            h4
+                margin-bottom: 10px
+
+        .noactions
+            margin: -15px 15px 15px 15px
+
+        .content
+            border-radius: 0 0 2px 2px 
+
+    .nobox
+        h2
+            margin-top: 0
+
+
     aside
         position: absolute
         top: 0
@@ -264,26 +472,6 @@ section#middle
             h3
                 margin: 20px 10px
 
-        a
-            cursor: pointer
-            color: #5B617D
-            text-shadow: 1px 1px rgba(255,255,255,0.5)
-            display: block
-            padding: 0
-            border-top: 1px solid transparent
-            border-bottom: 1px solid transparent
-            transition: color 100ms ease-out
-
-            &:hover
-                background: linear-gradient(#8AC8F1, #59A6E8)
-                border-top: 1px solid #5FA4DE
-                border-bottom: 1px solid #4D93D8
-                color: #FFF
-                text-shadow: 1px 1px #4D93D8
-                margin: 0 -10px
-                padding: 0 10px
-                box-shadow: inset 0 0 2px 0 rgba(255,255,255,0.5)
-
         h3
             text-transform: uppercase
             font-size: 12px
@@ -299,51 +487,6 @@ section#middle
             li
                 background-repeat: no-repeat
                 background-position: 0 3px
-
-        table.tabs
-            background: inherit
-            border: 0
-            border-collapse: collapse
-
-            td
-                padding: 0
-                cursor: pointer
-                position: relative
-
-                h3
-                    text-transform: uppercase
-                    font-weight: bold
-                    margin: 15px 10px 10px 15px
-
-                &:before
-                    display: inline-block
-                    content: ""
-                    width: 100%
-                    height: 5px
-                    position: absolute
-
-                &.active
-                    border-right: 1px solid #CAD6DF
-                    border-bottom-color: #F5F6F9
-
-                    h3
-                        color: $text_color
-
-                    &:before
-                        background: linear-gradient(#74BCF0, #56A7EC)
-                        border-right: 5px solid #7C98AB
-
-                &.inactive
-                    box-shadow: inset 2px 1px 5px 0 rgba(0,0,0,0.1)
-                    background: linear-gradient(#F7F9FD, #ECEEF3)
-                    border-bottom: 1px solid #CAD6DF
-
-                    h3
-                        color: #A7B4C7
-                        text-shadow: 1px 1px rgba(255,255,255,0.5)
-
-                    &:before
-                        background: linear-gradient(#AFBED4, #A3B4CE)
 
     div#widget
         overflow: hidden
@@ -379,7 +522,7 @@ section#middle
                     padding: 0 4px
 
         div.head
-            background: #E0E3ED
+            background: $table_border
             box-shadow: inset 0 3px 5px rgba(0,0,0,0.03)
 
             h1
@@ -425,6 +568,7 @@ section#middle
             padding: 0
             border: 1px solid $border_color
             box-shadow: -3px 3px 3px rgba(0,0,0,0.05)
+            position: relative
 
         .half
             float: left
@@ -510,7 +654,7 @@ div#history
 
     div.head
         padding: 10px
-        background: #e0e3ed
+        background: $table_border
         margin-bottom: 20px
         border-bottom: 1px solid $border_color
         
@@ -665,7 +809,7 @@ footer
         margin: 0
         color: $text_color
         text-shadow: 1px 1px rgba(255,255,255,0.8)
-        background: #e0e3ed
+        background: $table_border
         padding: 10px
         border-bottom: 1px solid $border_color
         border-radius: 2px 2px 0 0
@@ -676,55 +820,6 @@ footer
     .close-reveal-modal
         color: $text_color
         margin-top: 15px
-
-.pricing-table
-    border: solid 1px #DDD
-    margin-left: 0
-    margin-bottom: 20px
-    
-    *
-        list-style: none
-        line-height: 1
-
-    .title
-        background-color: #DDD
-        padding: 15px 20px
-        text-align: center
-        color: #333
-        font-weight: bold
-        font-size: 16px
-    
-    .price
-        background-color: #EEE
-        padding: 15px 20px
-        text-align: center
-        color: #333
-        font-weight: normal
-        font-size: 20px
-    
-    .description
-        background-color: #FFF
-        padding: 15px
-        text-align: center
-        color: #777
-        font-size: 12px
-        font-weight: normal
-        line-height: 1.4
-        border-bottom: dotted 1px #DDD
-    
-    .bullet-item
-        background-color: #FFF
-        padding: 15px
-        text-align: center
-        color: #333
-        font-size: 14px
-        font-weight: normal
-        border-bottom: dotted 1px #DDD
-    
-    .cta-button
-        background-color: whitesmoke
-        text-align: center
-        padding: 20px
 
 /** ============== Icon fonts ============== */
 

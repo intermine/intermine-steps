@@ -1534,7 +1534,7 @@ window.require.register("chaplin/templates/landing", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow container">\n        <div class="row">\n            <div class="four columns">\n                <h2><span class="entypo crossroads"></span> Tools</h2>\n                <!-- populate next steps here -->\n                <div id="next"></div>\n            </div>\n            <div class="four columns">\n                <h2><span class="entypo lifebuoy"></span> Help</h2>\n                <ul>\n                    <li>Lorem ipsum dolor</li>\n                    <li>Sed ut perspiciatis</li>\n                    <li>At vero eos et accusamus</li>\n                </ul>\n            </div>\n            <div class="four columns">\n                <div class="panel">\n                    <h5>System Actions</h5>\n                    <p>Use the following action to clear\n                        <code>Backbone.js Collection</code> and associated\n                        <code>LocalStorage</code>:</p>\n                    <a href="app/reset" class="button">Reset Database</a>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="six columns">\n                <ul class="pricing-table">\n                    <li class="title">What it does now</li>\n                    <li class="bullet-item">Concept of a tool consisting of multiple steps</li>\n                    <li class="bullet-item"><strong>Linking</strong> between multiple tools through events</li>\n                    <li class="bullet-item">Dynamically updating used tool timestamps (time ago)</li>\n                    <li class="bullet-item"><strong>Serialization</strong> of history to the server (and locally)</li>\n                    <li class="bullet-item">Efficiently using local (rather than server) data when multiple tabbing</li>\n                    <li class="bullet-item"><strong>Multiple</strong> streams of history, splits, all rendered in a <strong>grid</strong></li>\n                    <li class="bullet-item"><strong>Back button</strong> to visit steps saved in the past</li>\n                    <li class="bullet-item"><strong>Multiple tabs</strong> to have an eyeball*</li>\n                    <li class="bullet-item">Latest breadcrumbs and history grid in all tabs</li>\n                    <li class="bullet-item">Extra parameter accepted for tools to reuse and preset them</li>\n                    <li class="bullet-item">Permissive input <strong>filtering</strong> of tools listing</li>\n                    <li class="bullet-item">Tool labels have extra <strong>keywords</strong> associated as alternatives for search</li>\n                    <li class="bullet-item">Showing only tool labels that have a <em>weight</em> higher than 10</li>\n                    <li class="bullet-item">Tool actions can have <strong>help</strong> text associated with them</li>\n                    <li class="description">* sync all tabs a user has opened in a browser on 1Hz schedule</li>\n                </ul>\n            </div>\n            <div class="six columns">\n                <ul class="tabs-content">\n                    <li class="active">\n                        <dl class="tabs contained">\n                            <dd class="active"><a>Example Tool Config</a></dd>\n                        </dl>\n                        <ul class="tabs-content contained">\n                            <li class="active">\n                                <pre><code class="code rainbow" data-language="json">{\n    <span class="string">"i:haveList"</span>: [\n        {\n            <span class="string">"slug"</span>: <span class="string">"enrich-list-tool"</span>,\n            <span class="string">"label"</span>: <span class="string">"**Enrich** this list"</span>,\n            <span class="string">"category"</span>: <span class="string">"Category 1"</span>,\n            <span class="string">"keywords"</span>: [\n                <span class="string">"chart"</span>,\n                <span class="string">"widget"</span>\n            ],\n            <span class="string">"weight"</span>: <span class="constant numeric">9</span>,\n            <span class="string">"help"</span>: <span class="string">"A help text can go here."</span>\n        }\n    ]\n}</code></pre>\n                            </li>\n                        </ul>\n                    </li>\n                </ul>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first three columns">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second four columns">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n            <div class="third five columns">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow container">\n        <div class="row">\n            <div class="three columns">\n                <div class="nobox">\n                    <h2><span class="entypo lifebuoy"></span> Help</h2>\n                    <ul class="tools">\n                        <li><a>What is <strong>new</strong> since 1.2</a></li>\n                        <li><a>How do I use my <strong>tools</strong></a></li>\n                        <li><a>Where are my <strong>templates</strong></a></li>\n                        <li><a>How do I <strong>cite</strong> this resource</a></li>\n                    </ul>\n                </div>\n            </div>\n            <div class="four columns">\n                <div class="box">\n                    <h2><span class="entypo crossroads"></span> Tools</h2>\n                    <!-- populate next steps here -->\n                    <div id="next"></div>\n                </div>\n            </div>\n            <div class="five columns">\n                <div class="box">\n                    <table class="tabs">\n                        <tr>\n                            <td class="active labeled"><h3>Messages</h3><span class="count">9</span></td>\n                            <td class="inactive"><h3>Continue research</h3></td>\n                        </tr>\n                    </table>\n                    <div class="content">\n                        <ul class="timeline">\n                            <li>\n                                <div class="head">\n                                    <span class="right ago">3m ago</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="right ago">A day ago</span>\n                                    <span class="entypo download"></span><h5>Shared list</h5>\n                                </div>\n                                <p>A list <a>Secret Research Genes</a> has been shared with you.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="right ago">Jan 27</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system will go down in 30 minutes.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="right ago">Jan 26</span>\n                                    <span class="entypo clipboard"></span><h5>Job finished</h5>\n                                </div>\n                                <p>Your job <a>Enriching a List</a> has finished.</p>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
       
       }).call(this);
       
@@ -1634,7 +1634,7 @@ window.require.register("chaplin/templates/next-steps", function(exports, requir
     (function() {
       (function() {
       
-        __out.push('<div class="tools"><!-- tool labels go here --></div>\n<a class="tiny secondary button show hidden">&hellip;</a>');
+        __out.push('<div class="tools"><!-- tool labels go here --></div>\n<a class="tiny secondary button show hidden">&hellip;</a>\n<p class="noactions">The filter matched no actions.</p>');
       
       }).call(this);
       
@@ -1684,7 +1684,7 @@ window.require.register("chaplin/templates/sidebar-left", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="wrap">\n    <h3><span class="entypo crossroads"></span> Start new history</h3>\n    <div id="next"></div>\n</div>');
+        __out.push('<div class="wrap">\n    <span class="entypo popup"></span>\n    <h3><span class="entypo crossroads"></span> Start new history</h3>\n    <div id="next"></div>\n</div>');
       
       }).call(this);
       
@@ -1785,7 +1785,7 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
       (function() {
         var i, title, _ref;
       
-        __out.push('<div class="wrap sidebar">\n\n    <!-- dynamically populated with event handling -->\n    <ul class="breadcrumbs"></ul>\n\n    <div class="head">\n        <h1 class="');
+        __out.push('<div class="wrap sidebar">\n    <span class="entypo popup"></span>\n\n    <!-- dynamically populated with event handling -->\n    <ul class="breadcrumbs"></ul>\n\n    <div class="head">\n        <h1 class="');
       
         __out.push(__sanitize(this.type));
       
@@ -1953,6 +1953,7 @@ window.require.register("chaplin/views/App", function(exports, require, module) 
       this.delegate('keyup', 'input#search', function(e) {
         return Mediator.publish('app:search', $(e.target).val());
       });
+      $('body').addClass('app');
       return this;
     };
 
@@ -2382,6 +2383,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
       this.delegate('keyup', 'input#search', function(e) {
         return Mediator.publish('app:search', $(e.target).val());
       });
+      $('body').removeClass('app');
       return this;
     };
 
@@ -2555,7 +2557,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     NextStepsView.prototype.attach = function() {
       NextStepsView.__super__.attach.apply(this, arguments);
       Mediator.subscribe('app:search', this.filterLabels, this);
-      return this.delegate('click', '.show', this.showHidden);
+      this.delegate('click', '.show', this.showHidden);
+      return this.noActions = $(this.el).find('p.noactions');
     };
 
     NextStepsView.prototype.add = function(_arg) {
@@ -2574,7 +2577,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
           'text': category
         }));
         target.append(this.list[category] = $('<ul/>', {
-          'class': 'alternating'
+          'class': 'tools'
         }));
       }
       if (!(function(views) {
@@ -2612,7 +2615,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
         clearTimeout(this.timeout);
       }
       return this.timeout = setTimeout((function() {
-        var part, re, view, _i, _len, _ref, _results;
+        var part, re, view, _i, _j, _len, _len1, _ref, _ref1;
         _this.showHidden();
         query = _.uniq($.trim(query.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase()).split(' '));
         if (!root.Utils.arrayEql(query, _this.query)) {
@@ -2627,18 +2630,27 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
             return _results;
           })()).join('|'), 'i');
           _ref = _this.views;
-          _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             view = _ref[_i];
             if (view.keywords.match(re)) {
-              _results.push($(view.el).show());
+              $(view.el).show();
             } else {
-              _results.push($(view.el).hide());
+              $(view.el).hide();
             }
           }
-          return _results;
         }
-      }), 500);
+        if (_this.views.length !== 0) {
+          _this.noActions.hide();
+          _ref1 = _this.views;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            view = _ref1[_j];
+            if ($(view.el).is(':visible')) {
+              return;
+            }
+          }
+          return _this.noActions.show();
+        }
+      }), 0);
     };
 
     NextStepsView.prototype.showHidden = function(e) {

@@ -26,6 +26,9 @@ module.exports = class AppView extends View
         # App search.
         @delegate 'keyup', 'input#search', (e) -> Mediator.publish 'app:search', $(e.target).val()
 
+        # Set our class.
+        $('body').addClass('app')
+
         @
 
     historyToggle: (e) ->

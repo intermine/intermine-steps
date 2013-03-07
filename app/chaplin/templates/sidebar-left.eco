@@ -1,4 +1,5 @@
 <div class="wrap">
+    <span class="entypo popup"></span>
     <h3><span class="entypo crossroads"></span> Start new history</h3>
     <div id="next"></div>
 </div>

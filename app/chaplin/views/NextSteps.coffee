@@ -28,6 +28,9 @@ module.exports = class NextStepsView extends View
         # Show hidden tools.
         @delegate 'click', '.show', @showHidden
 
+        # Link to no actions text.
+        @noActions = $(@el).find('p.noactions')
+
     # Add a link to a tool from its model.
     add: ({ slug, label, category, type, guid, extra, keywords, weight, help }) =>
         assert @method, 'We do not know which linking `method` to use'
@@ -47,7 +50,7 @@ module.exports = class NextStepsView extends View
             # Create the title.
             target.append $ '<h4/>', 'text': category
             # Add a list saving it under our category.
-            target.append @list[category] = $('<ul/>', 'class': 'alternating')
+            target.append @list[category] = $('<ul/>', 'class': 'tools')
 
         # Do we already have this label?
         unless ( (views) ->
@@ -86,7 +89,7 @@ module.exports = class NextStepsView extends View
             
             # Remove extra whitespace, trim, keep only unique words
             query = _.uniq( $.trim( query.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase() ).split(' ') )
-            
+
             unless root.Utils.arrayEql query, @query
                 # Do the actual filtering.
                 @query = query
@@ -98,7 +101,15 @@ module.exports = class NextStepsView extends View
                 for view in @views
                     if view.keywords.match(re) then $(view.el).show()
                     else $(view.el).hide()
-        ), 500
+
+            # Is there anything left?
+            if @views.length isnt 0
+                @noActions.hide()
+                for view in @views
+                    return if $(view.el).is(':visible')
+                @noActions.show()
+
+        ), 0
 
     # Show hidden tools.
     showHidden: (e) =>

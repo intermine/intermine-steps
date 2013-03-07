@@ -24,4 +24,7 @@ module.exports = class LandingView extends View
         # App search.
         @delegate 'keyup', 'input#search', (e) -> Mediator.publish 'app:search', $(e.target).val()
 
+        # Remove app class if present.
+        $('body').removeClass('app')
+
         @
