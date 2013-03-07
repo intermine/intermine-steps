@@ -342,7 +342,7 @@ ul.timeline li p {
   -webkit-border-radius: 2px;
   border-radius: 2px;
   position: absolute;
-  top: 5px;
+  top: 7px;
   right: 5px;
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafbfd), color-stop(1, #e8ecf1));
   background: -webkit-linear-gradient(top, #fafbfd 0%, #e8ecf1 100%);
