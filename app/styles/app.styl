@@ -5,7 +5,7 @@
 /** ============== Vars ============== */
 
 $colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagrn #339966) (kimberly #666699)
-$entypo = (lock "\1f512") (backintime "\e771") (lightup "\1f506") (rightopen "\e762") (clippy "\1f4ce") (crossroads "\e723") (flowbranch "\1F569") (openbook "\1f4d6") (lifebuoy "\e788") (comment "\e718") (help "\2753") (database "\1F4F8") (clipboard "\1F4CB") (download "\1F4E5") (popup "\E74C")
+$entypo = (lock "\1f512") (backintime "\e771") (lightup "\1f506") (rightopen "\e762") (clippy "\1f4ce") (crossroads "\e723") (flowbranch "\1F569") (openbook "\1f4d6") (lifebuoy "\e788") (comment "\e718") (help "\2753") (database "\1F4F8") (clipboard "\1F4CB") (download "\1F4E5") (popup "\E74C") (cog "\2699")
 $text_color = #68718A
 $link_color = #579ED7
 $border_color = #BCCAD5
@@ -374,9 +374,6 @@ body.app
             width: 250px
 
 section#middle
-    width: 100%
-    padding: 0 0 100px
-    height: 100%
     position: relative
 
     &:after
@@ -637,6 +634,31 @@ section#middle
                         background: #FFF
                         display: block
 
+    code#example
+        overflow: hidden
+        display: block
+        line-height: 14px
+        font-size: 11px
+
+    .description
+        p
+            margin: 10px 0 5px 0
+
+        dl
+            margin-top: 10px
+
+            dt
+                font-size: 11px
+                font-family: monospace
+                margin-bottom: 5px
+
+            dd
+                padding-left: 20px
+                line-height: 16px
+
+                &:not(:last-child)
+                    margin-bottom: 15px
+
 div#history
     position: absolute
     bottom: 0
@@ -772,7 +794,7 @@ footer
 
     &#wide
         width: 100%
-        padding-top: 100px
+        background: linear-gradient(rgba(247,247,247,0), #FFF 50%)
 
         p
             text-align: center

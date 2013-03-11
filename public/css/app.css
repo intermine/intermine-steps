@@ -445,9 +445,6 @@ body.app header#top .third {
   width: 250px;
 }
 section#middle {
-  width: 100%;
-  padding: 0 0 100px;
-  height: 100%;
   position: relative;
 }
 section#middle:after {
@@ -771,6 +768,30 @@ section#middle div#widget ul.accordion > li.active .content {
   background: #fff;
   display: block;
 }
+section#middle code#example {
+  overflow: hidden;
+  display: block;
+  line-height: 14px;
+  font-size: 11px;
+}
+section#middle .description p {
+  margin: 10px 0 5px 0;
+}
+section#middle .description dl {
+  margin-top: 10px;
+}
+section#middle .description dl dt {
+  font-size: 11px;
+  font-family: monospace;
+  margin-bottom: 5px;
+}
+section#middle .description dl dd {
+  padding-left: 20px;
+  line-height: 16px;
+}
+section#middle .description dl dd:not(:last-child) {
+  margin-bottom: 15px;
+}
 div#history {
   position: absolute;
   bottom: 0;
@@ -1023,7 +1044,12 @@ footer {
 }
 footer#wide {
   width: 100%;
-  padding-top: 100px;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(247,247,247,0)), color-stop(0.5, #fff));
+  background: -webkit-linear-gradient(top, rgba(247,247,247,0) 0%, #fff 50%);
+  background: -moz-linear-gradient(top, rgba(247,247,247,0) 0%, #fff 50%);
+  background: -o-linear-gradient(top, rgba(247,247,247,0) 0%, #fff 50%);
+  background: -ms-linear-gradient(top, rgba(247,247,247,0) 0%, #fff 50%);
+  background: linear-gradient(top, rgba(247,247,247,0) 0%, #fff 50%);
 }
 footer#wide p {
   text-align: center;
@@ -1124,4 +1150,7 @@ footer#bottom .wrap {
 }
 .entypo.popup:before {
   content: "\E74C";
+}
+.entypo.cog:before {
+  content: "\2699";
 }

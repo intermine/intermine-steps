@@ -76,6 +76,37 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="seven columns">
+                <div>
+                    <h2><span class="entypo cog"></span> Example tool config</h2>
+                    <pre><code class="code" data-language="json" id="example"></code></pre>
+                </div>
+            </div>
+            <div class="five columns">
+                <div class="description">
+                    <p>You are looking at an example app UI with some dummy tools configured. No data are sent to
+                        the server and everything is working from your browser.</p>
+                    <p>On the left is an example JSON config of a tool action. It is configured to show on this,
+                        the landing page.</p>
+                    <dl>
+                        <dt>label</dt>
+                        <dd>A <a href="http://daringfireball.net/projects/markdown/" target="_blank">Markdown</a>
+                            enriched tool link label to show.</dd>
+                        <dt>category</dt>
+                        <dd>Which group does this tool belong to?</dd>
+                        <dt>keywords</dt>
+                        <dd>Extra keywords that make this tool link show up when we type these keywords into
+                            search box.</dd>
+                        <dt>weight</dt>
+                        <dd>Tools are shown in a category based on their weight. The bigger the "higher" up.
+                            Anything below 10 will be trimmed from the initial listing.</dd>
+                        <dt>help</dt>
+                        <dd>A piece of HTML to show when someone clicks on the tool's question mark icon.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
 
