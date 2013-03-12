@@ -373,35 +373,49 @@ window.require.register("chaplin/core/Application", function(exports, require, m
     };
 
     InterMineSteps.prototype.initRegistry = function() {
-      var key, map, _results,
-        _this = this;
-      _results = [];
-      for (key in Registry) {
-        map = Registry[key];
-        _results.push((function(key, map) {
-          return Mediator.subscribe("context:" + key, function(guid) {
-            var Model, model, name, obj, _i, _len, _results1;
+      var _this = this;
+      return Mediator.subscribe('context:new', function(context, guid) {
+        var Model, key, model, obj, tool, variant, _i, _len, _results;
+        assert(context && context instanceof Array, 'No context provided or context not a list of terms');
+        _results = [];
+        for (_i = 0, _len = Registry.length; _i < _len; _i++) {
+          tool = Registry[_i];
+          _results.push((function() {
+            var _j, _k, _len1, _len2, _ref, _ref1, _results1;
+            _ref = tool.labels;
             _results1 = [];
-            for (_i = 0, _len = map.length; _i < _len; _i++) {
-              obj = map[_i];
-              name = window.Utils.hyphenToPascal(obj.slug);
-              try {
-                Model = require("/tools/" + name + "/Model");
-                model = new Model();
-              } catch (e) {
-                _this.publishEvent('!router:routeByName', 500);
-                assert(false, "Unknown tool `" + name + "`");
+            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+              variant = _ref[_j];
+              if (_.difference(variant.context, context).length === 0) {
+                obj = _.clone(variant);
+                obj.name = window.Utils.hyphenToPascal(tool.slug);
+                _ref1 = ['slug', 'help'];
+                for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+                  key = _ref1[_k];
+                  obj[key] = tool[key];
+                }
+                try {
+                  Model = require("/tools/" + obj.name + "/Model");
+                  model = new Model();
+                } catch (e) {
+                  this.publishEvent('!router:routeByName', 500);
+                  assert(false, "Unknown tool `" + obj.name + "`");
+                }
+                obj.type = model.get('type');
+                if (guid) {
+                  obj.guid = guid;
+                }
+                model.dispose();
+                _results1.push(Mediator.publish('context:render', context, obj));
+              } else {
+                _results1.push(void 0);
               }
-              obj.type = model.get('type');
-              obj.guid = guid;
-              model.dispose();
-              _results1.push(Mediator.publish("contextRender:" + key, obj));
             }
             return _results1;
-          }, _this);
-        })(key, map));
-      }
-      return _results;
+          }).call(_this));
+        }
+        return _results;
+      }, this);
     };
 
     return InterMineSteps;
@@ -2386,7 +2400,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
         return Mediator.publish('app:search', $(e.target).val());
       });
       $('body').removeClass('app');
-      $(this.el).find('#example').html(JSON.stringify(Registry['i:onHomepage'].slice(0, 2), null, 4));
+      $(this.el).find('#example').html(JSON.stringify(Registry[0], null, 4));
       Rainbow.color();
       return this;
     };
@@ -2672,13 +2686,15 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
   
 });
 window.require.register("chaplin/views/NextStepsLanding", function(exports, require, module) {
-  var Mediator, NextStepsLandingView, NextStepsView,
+  var Mediator, NextStepsLandingView, NextStepsView, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Mediator = require('chaplin/core/Mediator');
 
   NextStepsView = require('chaplin/views/NextSteps');
+
+  root = this;
 
   module.exports = NextStepsLandingView = (function(_super) {
 
@@ -2692,14 +2708,21 @@ window.require.register("chaplin/views/NextStepsLanding", function(exports, requ
 
     NextStepsLandingView.prototype.method = 'new';
 
+    NextStepsLandingView.prototype.context = ['homepage', 'bar', 'baz'];
+
     NextStepsLandingView.prototype.initialize = function() {
+      var _this = this;
       NextStepsLandingView.__super__.initialize.apply(this, arguments);
-      return Mediator.subscribe('contextRender:i:onHomepage', this.add, this);
+      return Mediator.subscribe('context:render', function(context, obj) {
+        if (root.Utils.arrayEql(context, _this.context)) {
+          return _this.add(obj);
+        }
+      }, this);
     };
 
     NextStepsLandingView.prototype.attach = function() {
       NextStepsLandingView.__super__.attach.apply(this, arguments);
-      Mediator.publish('context:i:onHomepage');
+      Mediator.publish('context:new', this.context);
       return this;
     };
 
@@ -2709,13 +2732,15 @@ window.require.register("chaplin/views/NextStepsLanding", function(exports, requ
   
 });
 window.require.register("chaplin/views/NextStepsLeft", function(exports, require, module) {
-  var Mediator, NextStepsLeftView, NextStepsView,
+  var Mediator, NextStepsLeftView, NextStepsView, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Mediator = require('chaplin/core/Mediator');
 
   NextStepsView = require('chaplin/views/NextSteps');
+
+  root = this;
 
   module.exports = NextStepsLeftView = (function(_super) {
 
@@ -2729,14 +2754,21 @@ window.require.register("chaplin/views/NextStepsLeft", function(exports, require
 
     NextStepsLeftView.prototype.method = 'new';
 
+    NextStepsLeftView.prototype.context = ['homepage', 'bar', 'baz'];
+
     NextStepsLeftView.prototype.initialize = function() {
+      var _this = this;
       NextStepsLeftView.__super__.initialize.apply(this, arguments);
-      return Mediator.subscribe('contextRender:i:onLeft', this.add, this);
+      return Mediator.subscribe('context:render', function(context, obj) {
+        if (root.Utils.arrayEql(context, _this.context)) {
+          return _this.add(obj);
+        }
+      }, this);
     };
 
     NextStepsLeftView.prototype.attach = function() {
       NextStepsLeftView.__super__.attach.apply(this, arguments);
-      Mediator.publish('context:i:onLeft');
+      Mediator.publish('context:new', this.context);
       return this;
     };
 
@@ -2872,21 +2904,8 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     };
 
     ToolView.prototype.initialize = function() {
-      var label, name, _fn, _ref,
-        _this = this;
+      var _this = this;
       ToolView.__super__.initialize.apply(this, arguments);
-      if (this.contexts) {
-        _ref = this.contexts;
-        _fn = function(name, label) {
-          return Mediator.subscribe("context:" + name, function(next) {
-            return next.add(_this.model.get('slug'), label);
-          }, _this);
-        };
-        for (name in _ref) {
-          label = _ref[name];
-          _fn(name, label);
-        }
-      }
       this.step = this.options.step || 1;
       return Mediator.subscribe('tool:step', function(step) {
         _this.step = step;
@@ -3009,7 +3028,7 @@ window.require.register("tools/BlastSearchTool/View", function(exports, require,
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 2:
-          Mediator.publish('context:i:haveList', this.model.get('guid'));
+          Mediator.publish('context:new', ['iHaveList'], this.model.get('guid'));
       }
       this.delegate('click', '#submit', function() {
         var item;
@@ -3260,7 +3279,7 @@ window.require.register("tools/EnrichListTool/View", function(exports, require, 
           break;
         case 2:
           assert(this.model.get('data'), 'List not provided');
-          Mediator.publish('context:i:haveList', this.model.get('guid'));
+          Mediator.publish('context:new', ['iHaveList'], this.model.get('guid'));
       }
       this.delegate('click', 'input.check', this.selectList);
       this.delegate('click', '#submit', this.enrichList);
@@ -3675,82 +3694,98 @@ window.require.register("tools/ExportTool/step-2", function(exports, require, mo
   }
 });
 window.require.register("tools/Registry", function(exports, require, module) {
-  var config, label;
+  var config;
 
-  config = {
-    'i:onHomepage': [
-      {
-        'slug': 'enrich-list-tool',
-        'label': '**Enrich** an existing list',
-        'category': 'Category 1',
-        'keywords': ['chart', 'widget', 'graph'],
-        'weight': 15,
-        'help': 'Contrary to popular belief, <em>Lorem Ipsum</em> is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.'
-      }, {
-        'slug': 'blast-search-tool',
-        'label': '**BLAST** search',
-        'category': 'Category 1',
-        'keywords': ['search'],
-        'weight': 20
-      }, {
-        'slug': 'report-widget-tool',
-        'label': '**Publications** for a *Gene*',
-        'extra': 'publications-displayer',
-        'category': 'Category 1',
-        'weight': 2
-      }, {
-        'slug': 'upload-list-tool',
-        'label': '**Upload** a new list',
-        'category': 'Category 1',
-        'weight': 7,
-        'help': 'Contrary to popular belief, <em>Lorem Ipsum</em> is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.'
-      }
-    ],
-    'i:haveList': [
-      {
-        'slug': 'results-table-tool',
-        'label': 'See list in a **table**',
-        'category': 'Category 1',
-        'keywords': ['results'],
-        'weight': 15,
-        'help': 'Nothing much to say really'
-      }, {
-        'slug': 'enrich-list-tool',
-        'label': '**Enrich** this list',
-        'category': 'Category 1',
-        'keywords': ['chart', 'widget'],
-        'weight': 11
-      }
-    ],
-    'i:canExport': [
-      {
-        'slug': 'export-tool',
-        'label': 'Export to **Galaxy**',
-        'extra': 'galaxy',
-        'category': 'Data Export',
-        'keywords': ['output', 'dump'],
-        'weight': 2
-      }, {
-        'slug': 'export-tool',
-        'label': 'Export to a **CSV** file',
-        'extra': 'csv',
-        'category': 'Data Export',
-        'keywords': ['spreadsheet', 'tab', 'excel'],
-        'weight': 1
-      }
-    ]
-  };
-
-  config['i:onLeft'] = (function() {
-    var _i, _len, _ref, _results;
-    _ref = config['i:onHomepage'];
-    _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      label = _ref[_i];
-      _results.push((label.weight = 10, label));
+  config = [
+    {
+      'slug': 'enrich-list-tool',
+      'help': 'Contrary to popular belief, <em>Lorem Ipsum</em> is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.',
+      'labels': [
+        {
+          'label': '**Enrich** an existing list',
+          'category': 'Category 1',
+          'weight': 15,
+          'keywords': ['chart', 'widget', 'graph'],
+          'context': ['bar', 'homepage']
+        }
+      ]
+    }, {
+      'slug': 'blast-search-tool',
+      'labels': [
+        {
+          'label': '**BLAST** search',
+          'category': 'Category 1',
+          'weight': 20,
+          'keywords': ['search'],
+          'context': ['homepage']
+        }
+      ]
+    }, {
+      'slug': 'report-widget-tool',
+      'labels': [
+        {
+          'label': '**Publications** for a *Gene*',
+          'category': 'Category 1',
+          'extra': 'publications-displayer',
+          'weight': 11,
+          'context': ['homepage']
+        }
+      ]
+    }, {
+      'slug': 'upload-list-tool',
+      'help': 'Contrary to popular belief, <em>Lorem Ipsum</em> is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.',
+      'labels': [
+        {
+          'label': '**Upload** a new list',
+          'category': 'Category 1',
+          'weight': 18,
+          'context': ['homepage']
+        }
+      ]
+    }, {
+      'slug': 'results-table-tool',
+      'help': 'Nothing much to say really',
+      'labels': [
+        {
+          'label': 'See list in a **table**',
+          'category': 'Category 1',
+          'weight': 15,
+          'keywords': ['results'],
+          'context': ['iHaveList']
+        }
+      ]
+    }, {
+      'slug': 'enrich-list-tool',
+      'labels': [
+        {
+          'label': '**Enrich** this list',
+          'category': 'Category 1',
+          'weight': 11,
+          'keywords': ['chart', 'widget'],
+          'context': ['iHaveList']
+        }
+      ]
+    }, {
+      'slug': 'export-tool',
+      'labels': [
+        {
+          'label': 'Export to **Galaxy**',
+          'category': 'Data Export',
+          'extra': 'galaxy',
+          'weight': 20,
+          'keywords': ['output', 'dump'],
+          'context': ['iHaveList']
+        }, {
+          'label': 'Export to a **CSV** file',
+          'category': 'Data Export',
+          'extra': 'csv',
+          'weight': 18,
+          'keywords': ['spreadsheet', 'tab', 'excel'],
+          'context': ['iHaveList']
+        }
+      ]
     }
-    return _results;
-  })();
+  ];
 
   module.exports = config;
   
@@ -3902,7 +3937,7 @@ window.require.register("tools/ResultsTableTool/View", function(exports, require
 
     ResultsTableTool.prototype.attach = function() {
       ResultsTableTool.__super__.attach.apply(this, arguments);
-      return Mediator.publish('context:i:canExport', this.model.get('parent'));
+      return Mediator.publish('context:new', ['iHaveList'], this.model.get('parent'));
     };
 
     return ResultsTableTool;
@@ -4025,7 +4060,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 2:
-          Mediator.publish('context:i:haveList', this.model.get('guid'));
+          Mediator.publish('context:new', ['iHaveList'], this.model.get('guid'));
       }
       this.delegate('click', '#submit', function() {
         this.model.set('data', {

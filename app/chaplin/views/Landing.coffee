@@ -30,7 +30,7 @@ module.exports = class LandingView extends View
         $('body').removeClass('app')
 
         # Load the registry of tools as an example of a config.
-        $(@el).find('#example').html JSON.stringify Registry['i:onHomepage'][0...2], null, 4
+        $(@el).find('#example').html JSON.stringify Registry[0], null, 4
         Rainbow.color()
 
         @

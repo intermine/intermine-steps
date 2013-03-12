@@ -44,32 +44,40 @@ module.exports = class InterMineSteps extends Chaplin.Application
             'title': @title
             'openExternalToBlank': true
 
-    # Listen to context changes.
     initRegistry: ->
-        for key, map of Registry then do (key, map) =>
-            # This is what we have.
-            Mediator.subscribe "context:#{key}", (guid) =>
-                for obj in map
-                    # Convert to PascalCase to get the name.
-                    name = window.Utils.hyphenToPascal obj.slug
+        # Listen to context changes.
+        Mediator.subscribe 'context:new', (context, guid) =>
+            assert context and context instanceof Array, 'No context provided or context not a list of terms'
 
-                    # Grab the Model.
-                    try
-                        Model =  require "/tools/#{name}/Model"
-                        model = new Model()
-                    catch e
-                        @publishEvent '!router:routeByName', 500
-                        assert false, "Unknown tool `#{name}`"
+            # Find all tools that fully match part or all of the context.
+            for tool in Registry
+                for variant in tool.labels
+                    if _.difference(variant.context, context).length is 0
+                        # Form the new object.
+                        obj = _.clone variant
 
-                    # Enhance the obj with extra info from the model.
-                    obj.type = model.get('type')
+                        # Convert to PascalCase to get the name.
+                        obj.name = window.Utils.hyphenToPascal tool.slug
+                        # Parent keys.
+                        ( obj[key] = tool[key] for key in [ 'slug', 'help' ] )
 
-                    # Add the guid information (when continuing).
-                    obj.guid = guid
+                        # Grab the Model.
+                        try
+                            Model =  require "/tools/#{obj.name}/Model"
+                            model = new Model()
+                        catch e
+                            @publishEvent '!router:routeByName', 500
+                            assert false, "Unknown tool `#{obj.name}`"
 
-                    # Cleanup.
-                    model.dispose()
+                        # Enhance the obj with extra info from the Model.
+                        obj.type = model.get('type')
 
-                    # These guys might like this.
-                    Mediator.publish "contextRender:#{key}", obj
-            , @
+                        # Add the guid information (when continuing).
+                        obj.guid = guid if guid
+
+                        # Cleanup.
+                        model.dispose()
+
+                        # Fire this object to no one in particular.
+                        Mediator.publish 'context:render', context, obj
+        , @
