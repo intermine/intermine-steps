@@ -24,15 +24,6 @@ module.exports = class ToolView extends GenericToolView
     initialize: ->
         super
 
-        # # Do we have contexts for a tool?
-        # if @contexts
-        #     # Register listener.
-        #     for name, label of @contexts then do (name, label) =>
-        #         Mediator.subscribe "context:#{name}", (next) =>
-        #             # Add a link to us.
-        #             next.add @model.get('slug'), label
-        #         , @
-
         # Set the step.
         @step = @options.step or 1
 

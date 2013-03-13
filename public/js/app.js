@@ -2590,22 +2590,32 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
       return this.noActions = $(this.el).find('p.noactions');
     };
 
-    NextStepsView.prototype.add = function(_arg) {
-      var category, extra, guid, help, keywords, label, slug, suffix, target, type, view, weight;
-      slug = _arg.slug, label = _arg.label, category = _arg.category, type = _arg.type, guid = _arg.guid, extra = _arg.extra, keywords = _arg.keywords, weight = _arg.weight, help = _arg.help;
+    NextStepsView.prototype.add = function() {
+      var context, obj, suffix, target, view;
       assert(this.method, 'We do not know which linking `method` to use');
+      switch (arguments.length) {
+        case 1:
+          obj = arguments[0];
+          break;
+        case 2:
+          context = arguments[0], obj = arguments[1];
+          assert(context && context instanceof Array, 'Context not a list');
+          break;
+        default:
+          assert(false, 'Incorrect number of parameters');
+      }
       $(this.el).find('input.filter').show();
       suffix = '';
       if (this.method === 'continue') {
-        assert(guid, 'Have not provided `guid` parameter, who my daddy?');
-        suffix = "/" + guid;
+        assert(obj.guid, 'Have not provided `guid` parameter, who my daddy?');
+        suffix = "/" + obj.guid;
       }
-      if (!this.list[category]) {
-        target = $(this.el).find('.tools');
+      if (!this.list[obj.category]) {
+        target = $(this.el).find('div.tools');
         target.append($('<h4/>', {
-          'text': category
+          'html': obj.category
         }));
-        target.append(this.list[category] = $('<ul/>', {
+        target.append(this.list[obj.category] = $('<ul/>', {
           'class': 'tools'
         }));
       }
@@ -2613,25 +2623,19 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
         var view, _i, _len;
         for (_i = 0, _len = views.length; _i < _len; _i++) {
           view = views[_i];
-          if (view.options.label === label) {
+          if (view.options.label === obj.label) {
             return true;
           }
         }
         return false;
       })(this.views)) {
-        this.views.push(view = new Action({
-          'slug': slug,
-          'type': type,
-          'label': label,
+        this.views.push(view = new Action(_.extend(obj, {
           'method': this.method,
           'suffix': suffix,
-          'extra': extra,
-          'weight': weight,
-          'help': help,
-          'keywords': keywords || []
-        }));
-        this.list[category].append(view.el);
-        if (weight < 10) {
+          'keywords': obj.keywords || []
+        })));
+        this.list[obj.category].append(view.el);
+        if (obj.weight < 10) {
           return $(this.el).find('.show.hidden').removeClass('hidden');
         }
       }
@@ -2748,17 +2752,8 @@ window.require.register("chaplin/views/NextStepsRight", function(exports, requir
     NextStepsRightView.prototype.method = 'continue';
 
     NextStepsRightView.prototype.initialize = function() {
-      var key, map, _results,
-        _this = this;
       NextStepsRightView.__super__.initialize.apply(this, arguments);
-      _results = [];
-      for (key in Registry) {
-        map = Registry[key];
-        _results.push((function(key, map) {
-          return Mediator.subscribe("contextRender:" + key, _this.add, _this);
-        })(key, map));
-      }
-      return _results;
+      return Mediator.subscribe('context:render', this.add, this);
     };
 
     return NextStepsRightView;
@@ -3695,7 +3690,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': 'See list in a **table**',
-          'category': 'Category 1',
+          'category': 'Visualization &amp; Display',
           'weight': 15,
           'keywords': ['results'],
           'context': ['iHaveList']
@@ -3706,7 +3701,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': '**Enrich** this list',
-          'category': 'Category 1',
+          'category': 'Enrichment',
           'weight': 11,
           'keywords': ['chart', 'widget'],
           'context': ['iHaveList']

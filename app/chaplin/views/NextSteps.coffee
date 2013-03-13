@@ -44,8 +44,18 @@ module.exports = class NextStepsView extends View
         @noActions = $(@el).find('p.noactions')
 
     # Add a link to a tool from its model.
-    add: ({ slug, label, category, type, guid, extra, keywords, weight, help }) =>
+    add: =>
         assert @method, 'We do not know which linking `method` to use'
+
+        # Process the arguments.
+        switch arguments.length
+            when 1
+                obj = arguments[0]
+            when 2
+                [ context, obj ] = arguments
+                assert context and context instanceof Array, 'Context not a list'
+            else
+                assert false, 'Incorrect number of parameters'
 
         # Show the input filter.
         $(@el).find('input.filter').show()
@@ -53,40 +63,34 @@ module.exports = class NextStepsView extends View
         # Get the current tool guid?
         suffix = ''
         if @method is 'continue'
-            assert guid, 'Have not provided `guid` parameter, who my daddy?'
-            suffix = "/#{guid}"
+            assert obj.guid, 'Have not provided `guid` parameter, who my daddy?'
+            suffix = "/#{obj.guid}"
 
         # Do we have this category?
-        unless @list[category]
-            target = $(@el).find('.tools')
+        unless @list[obj.category]
+            target = $(@el).find('div.tools') # do not forget the el name!
             # Create the title.
-            target.append $ '<h4/>', 'text': category
+            target.append $ '<h4/>', 'html': obj.category
             # Add a list saving it under our category.
-            target.append @list[category] = $('<ul/>', 'class': 'tools')
+            target.append @list[obj.category] = $('<ul/>', 'class': 'tools')
 
         # Do we already have this label?
         unless ( (views) ->
             for view in views
-                if view.options.label is label then return true
+                if view.options.label is obj.label then return true
             false
         ) @views
             # Render the View for this action.
-            @views.push view = new Action
-                'slug':     slug
-                'type':     type
-                'label':    label
+            @views.push view = new Action _.extend obj,
                 'method':   @method
                 'suffix':   suffix
-                'extra':    extra
-                'weight':   weight
-                'help':     help
-                'keywords': keywords or []
+                'keywords': obj.keywords or []
 
             # Append the link to an existing category.
-            @list[category].append view.el
+            @list[obj.category].append view.el
 
             # Do we have a hidden label now?
-            if weight < 10
+            if obj.weight < 10
                 $(@el).find('.show.hidden').removeClass('hidden')
 
     filterLabels: (query) =>

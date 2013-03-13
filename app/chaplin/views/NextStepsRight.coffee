@@ -12,6 +12,5 @@ module.exports = class NextStepsRightView extends NextStepsView
     initialize: ->
         super
 
-        # I understand these conditions.
-        for key, map of Registry then do (key, map) =>
-            Mediator.subscribe "contextRender:#{key}", @add, @
+        # Render all incoming on us.
+        Mediator.subscribe 'context:render', @add, @

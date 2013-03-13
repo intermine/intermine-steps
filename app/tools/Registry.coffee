@@ -50,7 +50,7 @@ config = [
         'labels': [
             {
                 'label': 'See list in a **table**'
-                'category': 'Category 1'
+                'category': 'Visualization &amp; Display'
                 'weight': 15
                 'keywords': [ 'results' ]
                 'context': [ 'iHaveList' ]
@@ -61,7 +61,7 @@ config = [
         'labels': [
             {
                 'label': '**Enrich** this list'
-                'category': 'Category 1'
+                'category': 'Enrichment'
                 'weight': 11
                 'keywords': [ 'chart', 'widget' ]
                 'context': [ 'iHaveList' ]
