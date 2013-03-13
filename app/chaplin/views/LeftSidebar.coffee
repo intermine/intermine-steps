@@ -1,6 +1,6 @@
 View = require 'chaplin/core/View'
 
-NextStepsLeftView = require 'chaplin/views/NextStepsLeft'
+NextStepsAllView = require 'chaplin/views/NextStepsAll'
 
 module.exports = class LeftSidebarView extends View
 
@@ -14,6 +14,6 @@ module.exports = class LeftSidebarView extends View
         super
 
         # Load the appropriate Next Steps.
-        @views.push new NextStepsLeftView()
+        @views.push new NextStepsAllView()
 
         @

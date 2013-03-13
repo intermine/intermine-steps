@@ -2359,7 +2359,7 @@ window.require.register("chaplin/views/HistoryTool", function(exports, require, 
   
 });
 window.require.register("chaplin/views/Landing", function(exports, require, module) {
-  var Chaplin, LandingView, Mediator, NextStepsLandingView, Registry, View, root,
+  var Chaplin, LandingView, Mediator, NextStepsAllView, Registry, View, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2369,7 +2369,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
 
   View = require('chaplin/core/View');
 
-  NextStepsLandingView = require('chaplin/views/NextStepsLanding');
+  NextStepsAllView = require('chaplin/views/NextStepsAll');
 
   Registry = require('tools/Registry');
 
@@ -2395,7 +2395,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
 
     LandingView.prototype.attach = function() {
       LandingView.__super__.attach.apply(this, arguments);
-      this.views.push(new NextStepsLandingView());
+      this.views.push(new NextStepsAllView());
       this.delegate('keyup', 'input#search', function(e) {
         return Mediator.publish('app:search', $(e.target).val());
       });
@@ -2411,13 +2411,13 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
   
 });
 window.require.register("chaplin/views/LeftSidebar", function(exports, require, module) {
-  var LeftSidebarView, NextStepsLeftView, View,
+  var LeftSidebarView, NextStepsAllView, View,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('chaplin/core/View');
 
-  NextStepsLeftView = require('chaplin/views/NextStepsLeft');
+  NextStepsAllView = require('chaplin/views/NextStepsAll');
 
   module.exports = LeftSidebarView = (function(_super) {
 
@@ -2439,7 +2439,7 @@ window.require.register("chaplin/views/LeftSidebar", function(exports, require, 
 
     LeftSidebarView.prototype.attach = function() {
       LeftSidebarView.__super__.attach.apply(this, arguments);
-      this.views.push(new NextStepsLeftView());
+      this.views.push(new NextStepsAllView());
       return this;
     };
 
@@ -2568,12 +2568,23 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     };
 
     NextStepsView.prototype.initialize = function() {
+      var _this = this;
       NextStepsView.__super__.initialize.apply(this, arguments);
-      return this.list = {};
+      this.list = {};
+      if (this.context && this.context instanceof Array) {
+        return Mediator.subscribe('context:render', function(context, obj) {
+          if (root.Utils.arrayEql(context, _this.context)) {
+            return _this.add(obj);
+          }
+        }, this);
+      }
     };
 
     NextStepsView.prototype.attach = function() {
       NextStepsView.__super__.attach.apply(this, arguments);
+      if (this.context && this.context instanceof Array) {
+        Mediator.publish('context:new', this.context);
+      }
       Mediator.subscribe('app:search', this.filterLabels, this);
       this.delegate('click', '.show', this.showHidden);
       return this.noActions = $(this.el).find('p.noactions');
@@ -2685,8 +2696,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
   })(View);
   
 });
-window.require.register("chaplin/views/NextStepsLanding", function(exports, require, module) {
-  var Mediator, NextStepsLandingView, NextStepsView, root,
+window.require.register("chaplin/views/NextStepsAll", function(exports, require, module) {
+  var Mediator, NextStepsAllView, NextStepsView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2694,85 +2705,21 @@ window.require.register("chaplin/views/NextStepsLanding", function(exports, requ
 
   NextStepsView = require('chaplin/views/NextSteps');
 
-  root = this;
+  module.exports = NextStepsAllView = (function(_super) {
 
-  module.exports = NextStepsLandingView = (function(_super) {
+    __extends(NextStepsAllView, _super);
 
-    __extends(NextStepsLandingView, _super);
-
-    function NextStepsLandingView() {
-      return NextStepsLandingView.__super__.constructor.apply(this, arguments);
+    function NextStepsAllView() {
+      return NextStepsAllView.__super__.constructor.apply(this, arguments);
     }
 
-    NextStepsLandingView.prototype.container = '#next';
+    NextStepsAllView.prototype.container = '#next';
 
-    NextStepsLandingView.prototype.method = 'new';
+    NextStepsAllView.prototype.method = 'new';
 
-    NextStepsLandingView.prototype.context = ['homepage', 'bar', 'baz'];
+    NextStepsAllView.prototype.context = ['homepage', 'bar', 'baz'];
 
-    NextStepsLandingView.prototype.initialize = function() {
-      var _this = this;
-      NextStepsLandingView.__super__.initialize.apply(this, arguments);
-      return Mediator.subscribe('context:render', function(context, obj) {
-        if (root.Utils.arrayEql(context, _this.context)) {
-          return _this.add(obj);
-        }
-      }, this);
-    };
-
-    NextStepsLandingView.prototype.attach = function() {
-      NextStepsLandingView.__super__.attach.apply(this, arguments);
-      Mediator.publish('context:new', this.context);
-      return this;
-    };
-
-    return NextStepsLandingView;
-
-  })(NextStepsView);
-  
-});
-window.require.register("chaplin/views/NextStepsLeft", function(exports, require, module) {
-  var Mediator, NextStepsLeftView, NextStepsView, root,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Mediator = require('chaplin/core/Mediator');
-
-  NextStepsView = require('chaplin/views/NextSteps');
-
-  root = this;
-
-  module.exports = NextStepsLeftView = (function(_super) {
-
-    __extends(NextStepsLeftView, _super);
-
-    function NextStepsLeftView() {
-      return NextStepsLeftView.__super__.constructor.apply(this, arguments);
-    }
-
-    NextStepsLeftView.prototype.container = '#next';
-
-    NextStepsLeftView.prototype.method = 'new';
-
-    NextStepsLeftView.prototype.context = ['homepage', 'bar', 'baz'];
-
-    NextStepsLeftView.prototype.initialize = function() {
-      var _this = this;
-      NextStepsLeftView.__super__.initialize.apply(this, arguments);
-      return Mediator.subscribe('context:render', function(context, obj) {
-        if (root.Utils.arrayEql(context, _this.context)) {
-          return _this.add(obj);
-        }
-      }, this);
-    };
-
-    NextStepsLeftView.prototype.attach = function() {
-      NextStepsLeftView.__super__.attach.apply(this, arguments);
-      Mediator.publish('context:new', this.context);
-      return this;
-    };
-
-    return NextStepsLeftView;
+    return NextStepsAllView;
 
   })(NextStepsView);
   

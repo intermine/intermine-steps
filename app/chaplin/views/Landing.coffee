@@ -3,7 +3,7 @@ Chaplin = require 'chaplin'
 Mediator = require 'chaplin/core/Mediator'
 View = require 'chaplin/core/View'
 
-NextStepsLandingView = require 'chaplin/views/NextStepsLanding'
+NextStepsAllView = require 'chaplin/views/NextStepsAll'
 
 Registry = require 'tools/Registry'
 
@@ -21,7 +21,7 @@ module.exports = class LandingView extends View
         super
 
         # Load the appropriate Next Steps.
-        @views.push new NextStepsLandingView()
+        @views.push new NextStepsAllView()
 
         # App search.
         @delegate 'keyup', 'input#search', (e) -> Mediator.publish 'app:search', $(e.target).val()

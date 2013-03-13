@@ -19,8 +19,20 @@ module.exports = class NextStepsView extends View
         # Representation of the list of actions.
         @list = {}
 
+        # Do we have a context to listen to?
+        if @context and @context instanceof Array
+            # Render tool labels on us
+            Mediator.subscribe 'context:render', (context, obj) =>
+                if root.Utils.arrayEql context, @context
+                    @add obj
+            , @
+
     attach: ->
         super
+
+        # Directly render tool labels on us.
+        if @context and @context instanceof Array
+            Mediator.publish 'context:new', @context
 
         # Filter the tool labels.
         Mediator.subscribe 'app:search', @filterLabels, @
