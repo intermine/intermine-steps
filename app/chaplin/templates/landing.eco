@@ -37,8 +37,16 @@
                 <div class="box">
                     <table class="tabs">
                         <tr>
-                            <td class="active labeled"><h3>Messages</h3><span class="count">9</span></td>
-                            <td class="inactive"><h3>Continue research</h3></td>
+                            <td class="active labeled">
+                                <div>
+                                    <h3>Messages</h3><span class="count">9</span>
+                                </div>
+                            </td>
+                            <td class="inactive">
+                                <div>
+                                    <h3>Continue research</h3>
+                                </div>
+                            </td>
                         </tr>
                     </table>
                     <div class="content">

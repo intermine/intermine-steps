@@ -1,7 +1,7 @@
 <table class="tabs">
     <tr>
-        <td class="active"><h3>Next Steps</h3></td>
-        <td class="inactive"><h3>Research Notes</h3></td>
+        <td class="active"><div><h3>Next Steps</h3></div></td>
+        <td class="inactive"><div><h3>Research Notes</h3></div></td>
     </tr>
 </table>
 <div class="content">

@@ -152,66 +152,85 @@ table.tabs
 
     td
         padding: 0
-        cursor: pointer
-        position: relative
+        vertical-align: bottom
+        height: 38px
 
-        h3
-            text-transform: uppercase
-            font-weight: bold
-            margin: 15px 10px 10px 15px
+        div
+            height: 100%
+            cursor: pointer
+            position: relative
+
+            &:before
+                display: inline-block
+                content: ""
+                width: 100%
+                height: 5px
+                position: absolute
+                top: 0
+                left: 0
+
+            h3
+                text-transform: uppercase
+                font-weight: bold
+                margin: 0 15px
+                padding-top: 15px
 
         &.labeled
-            padding-right: 15px
+            div
+                padding-right: 15px
 
-            .count
-                text-shadow: -1px -1px rgba(0,0,0,0.2)
-                position: absolute
-                top: 12px
-                right: 10px
-                background: #5AA4E0
-                box-shadow: inset 0 1px 2px rgba(0,0,0,0.25)
-                border-radius: 2px
-                color: #FFF
-                padding: 0 6px 1px 6px
-
-        &:before
-            display: inline-block
-            content: ""
-            width: 100%
-            height: 5px
-            position: absolute
+                .count
+                    text-shadow: -1px -1px rgba(0,0,0,0.2)
+                    position: absolute
+                    top: 12px
+                    right: 10px
+                    background: #5AA4E0
+                    box-shadow: inset 0 1px 2px rgba(0,0,0,0.25)
+                    border-radius: 2px
+                    color: #FFF
+                    padding: 0 6px 1px 6px
 
         &.active
             border-right: 1px solid #CAD6DF
             border-bottom-color: #F5F6F9
 
-            h3
-                color: $text_color
-
-            &:before
-                background: linear-gradient(#74BCF0, #56A7EC)
-                border-right: 5px solid #7C98AB
+            div
+                h3
+                    color: $text_color
+                
+                &:before
+                    background: linear-gradient(#74BCF0, #56A7EC)
+                    border-right: 1px solid #7C98AB
 
         &.inactive
             box-shadow: inset 2px 1px 5px 0 rgba(0,0,0,0.1)
             background: linear-gradient(#F7F9FD, #ECEEF3)
             border-bottom: 1px solid #CAD6DF
 
-            h3
-                color: #A7B4C7
-                text-shadow: 1px 1px rgba(255,255,255,0.5)
+            div
+                h3
+                    color: #A7B4C7
+                    text-shadow: 1px 1px rgba(255,255,255,0.5)
 
-            &:before
-                background: linear-gradient(#AFBED4, #A3B4CE)
+                &:before
+                    background: linear-gradient(#AFBED4, #A3B4CE)
 
 // used on showing a listing of tools
 ul.tools
-    list-style-type: square !important
+    //list-style-type: none
 
     li
+        margin: 0 -10px
+
         for clr in $colors
             &.{clr[0]}
-                color: clr[1]
+                a:before
+                    background: clr[1]
+
+        span.entypo
+            position: relative
+            z-index: 1
+            margin-right: 5px
 
         a
             cursor: pointer
@@ -222,6 +241,18 @@ ul.tools
             border-top: 1px solid transparent
             border-bottom: 1px solid transparent
             transition: color 100ms ease-out
+            position: relative
+            padding: 0 10px 0 24px
+
+            &:before
+                display: block
+                content: ""
+                width: 5px
+                height: 5px
+                position: absolute
+                top: 9px
+                left: 10px
+                background: #5b617d
 
             &:hover
                 background: linear-gradient(#8AC8F1, #59A6E8)
@@ -229,8 +260,6 @@ ul.tools
                 border-bottom: 1px solid #4D93D8
                 color: #FFF
                 text-shadow: 1px 1px #4D93D8
-                margin: 0 -10px
-                padding: 0 10px
                 box-shadow: inset 0 0 2px 0 rgba(255,255,255,0.5)
 
 ul.timeline
@@ -297,7 +326,7 @@ ul.timeline
 
 .row
     width: auto
-    min-width: auto
+    min-width: 0
 
 /** ============== Elements ============== */
 
@@ -855,3 +884,9 @@ footer
     for font in $entypo
         &.{font[0]}:before
             content: font[1]
+
+/** ============== Hacks ============== */
+
+// Opera.
+doesnotexist:-o-prefocus, div#history #tools svg.canvas line.connector
+    stroke-width: 2px
