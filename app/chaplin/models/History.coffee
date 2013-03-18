@@ -5,6 +5,8 @@ Controller = require 'chaplin/core/Controller'
 
 Tool = require 'chaplin/models/Tool'
 
+root = @
+
 module.exports = class History extends Collection
 
     'model': Tool
@@ -35,14 +37,14 @@ module.exports = class History extends Collection
                     # Save in LocalStorage.
                     coll.each (model) => @storage.add model.toJSON()
                     # Start checking storage.
-                    @checkStorage()
+                    root.Utils.inFocus @checkStorage
                     # Callback.
                     cb coll
         else
             # Save the models on us then.
             ( @add(obj) for obj in data )
             # Start checking storage.
-            @checkStorage()
+            root.Utils.inFocus @checkStorage
             # Return us.
             cb @
 
@@ -61,15 +63,12 @@ module.exports = class History extends Collection
                 else
                     assert false, 'Cannot have more than 1 object with the same `guid`'
 
-        # Check again later on.
-        @timeouts.push setTimeout @checkStorage, 1000
-
     # Add a tool to our collection (following a user action).
     addTool: (model, redirect=true) =>
         # Generate unused guid.
         notfound = true
         while notfound
-            guid = window.Utils.guid()
+            guid = root.Utils.guid()
             # Check not in our collection already.
             if @where({ 'guid': guid }).length is 0 then notfound = false
         # Set our uid.
@@ -88,22 +87,9 @@ module.exports = class History extends Collection
         @add model
         # Further, save this model into a LocalStorage collection.
         @storage.add model.toJSON()
-
-        # # Was this model locked and having a parent?
-        # if locked? and parent = model.get('parent')
-        #     # window.App.router.changeURL "/tool/#{model.get('slug')}/continue/#{parent}"
-        #     @controller.redirectToRoute 'cont', { 'slug': model.get('slug'), 'guid': parent }
-        # else
-        #     # Give us the url of this saved tool.
-        #     @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': guid }
-
+        
         if redirect?
             @controller.redirectToRoute 'old', { 'slug': model.get('slug'), 'guid': guid }
-
-        # Say the View needs to update.
-        # Mediator.publish 'history:render', model
-        # 'Activate' this model (will bolden the box in History).
-        # Mediator.publish 'history:activate', guid
 
     # Duplicate a model, preserve data about "us" though!
     dupe: (model) ->

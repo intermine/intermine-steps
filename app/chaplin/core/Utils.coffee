@@ -15,3 +15,34 @@
     'arrayEql': (a, b) ->
         return false if not a or not b
         not (a < b or b < a)
+
+    # Callback when window comes back to focus.
+    'inFocus': (cb) ->
+        hidden = false
+
+        onchange = (evt=window.event) ->        
+            switch evt.type
+                # Everyone but standards.
+                when 'focus', 'focusin' then hidden = false
+                when 'blur', 'focusout' then hidden = true
+                # Standards.
+                else hidden = !hidden
+
+            cb() unless hidden
+
+        # Standards.
+        props = [
+            [ 'hidden', 'visibilitychange' ]
+            [ 'mozHidden', 'mozvisibilitychange' ]
+            [ 'webkitHidden', 'webkitvisibilitychange' ]
+            [ 'msHidden', 'msvisibilitychange' ]
+        ]
+        for [ prop, change ] in props
+            if prop of document
+                return document.addEventListener change, onchange
+
+        # <= IE 9.
+        if 'onfocusin' of document then return document.onfocusin = document.onfocusout = onchange
+        
+        # Everyone else.
+        window.onfocus = window.onblur = onchange

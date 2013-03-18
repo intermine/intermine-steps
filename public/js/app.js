@@ -805,6 +805,41 @@ window.require.register("chaplin/core/Utils", function(exports, require, module)
         return false;
       }
       return !(a < b || b < a);
+    },
+    'inFocus': function(cb) {
+      var change, hidden, onchange, prop, props, _i, _len, _ref;
+      hidden = false;
+      onchange = function(evt) {
+        if (evt == null) {
+          evt = window.event;
+        }
+        switch (evt.type) {
+          case 'focus':
+          case 'focusin':
+            hidden = false;
+            break;
+          case 'blur':
+          case 'focusout':
+            hidden = true;
+            break;
+          default:
+            hidden = !hidden;
+        }
+        if (!hidden) {
+          return cb();
+        }
+      };
+      props = [['hidden', 'visibilitychange'], ['mozHidden', 'mozvisibilitychange'], ['webkitHidden', 'webkitvisibilitychange'], ['msHidden', 'msvisibilitychange']];
+      for (_i = 0, _len = props.length; _i < _len; _i++) {
+        _ref = props[_i], prop = _ref[0], change = _ref[1];
+        if (prop in document) {
+          return document.addEventListener(change, onchange);
+        }
+      }
+      if ('onfocusin' in document) {
+        return document.onfocusin = document.onfocusout = onchange;
+      }
+      return window.onfocus = window.onblur = onchange;
     }
   };
   
@@ -890,7 +925,7 @@ window.require.register("chaplin/initialize", function(exports, require, module)
   
 });
 window.require.register("chaplin/models/History", function(exports, require, module) {
-  var Collection, Controller, History, LocalStorage, Mediator, Tool,
+  var Collection, Controller, History, LocalStorage, Mediator, Tool, root,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -904,6 +939,8 @@ window.require.register("chaplin/models/History", function(exports, require, mod
   Controller = require('chaplin/core/Controller');
 
   Tool = require('chaplin/models/Tool');
+
+  root = this;
 
   module.exports = History = (function(_super) {
 
@@ -940,7 +977,7 @@ window.require.register("chaplin/models/History", function(exports, require, mod
             coll.each(function(model) {
               return _this.storage.add(model.toJSON());
             });
-            _this.checkStorage();
+            root.Utils.inFocus(_this.checkStorage);
             return cb(coll);
           }
         });
@@ -949,14 +986,15 @@ window.require.register("chaplin/models/History", function(exports, require, mod
           obj = data[_i];
           this.add(obj);
         }
-        this.checkStorage();
+        root.Utils.inFocus(this.checkStorage);
         return cb(this);
       }
     };
 
     History.prototype.checkStorage = function() {
-      var guid, obj, _i, _len, _ref;
+      var guid, obj, _i, _len, _ref, _results;
       _ref = this.storage.findAll();
+      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         obj = _ref[_i];
         guid = obj.guid;
@@ -966,15 +1004,15 @@ window.require.register("chaplin/models/History", function(exports, require, mod
             }).length) {
           case 0:
             console.log("Adding `" + guid + "`");
-            this.add(obj);
+            _results.push(this.add(obj));
             break;
           case 1:
             break;
           default:
-            assert(false, 'Cannot have more than 1 object with the same `guid`');
+            _results.push(assert(false, 'Cannot have more than 1 object with the same `guid`'));
         }
       }
-      return this.timeouts.push(setTimeout(this.checkStorage, 1000));
+      return _results;
     };
 
     History.prototype.addTool = function(model, redirect) {
@@ -984,7 +1022,7 @@ window.require.register("chaplin/models/History", function(exports, require, mod
       }
       notfound = true;
       while (notfound) {
-        guid = window.Utils.guid();
+        guid = root.Utils.guid();
         if (this.where({
           'guid': guid
         }).length === 0) {
