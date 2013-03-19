@@ -2292,7 +2292,7 @@ window.require.register("chaplin/views/History", function(exports, require, modu
         'col': col,
         'row': row
       };
-      $(this.el).find('#tools table.grid').css('width', 120 * this.cols);
+      $(this.el).find('#tools > *').css('width', 120 * this.cols);
       return $(this.el).find('p.message').hide();
     };
 

@@ -154,8 +154,8 @@ module.exports = class HistoryView extends View
         # Save the guid in a list.
         @guids[model.get('guid')] = 'col': col, 'row': row
 
-        # Update the width of the table.
-        $(@el).find('#tools table.grid').css('width', 120 * @cols)
+        # Update the width of the table & lines underneath.
+        $(@el).find('#tools > *').css('width', 120 * @cols)
 
         # We have added a tool, hide the info message.
         $(@el).find('p.message').hide()
