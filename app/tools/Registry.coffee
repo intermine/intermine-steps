@@ -53,7 +53,7 @@ config = [
         'labels': [
             {
                 'label': 'See list in a **table**'
-                'category': 'Visualization &amp; Display'
+                'category': [ 'Visualization &amp; Display' ]
                 'weight': 15
                 'keywords': [ 'results' ]
                 'context': [ 'iHaveList' ]
@@ -64,7 +64,7 @@ config = [
         'labels': [
             {
                 'label': '**Enrich** this list'
-                'category': 'Enrichment'
+                'category': [ 'Enrichment' ]
                 'weight': 11
                 'keywords': [ 'chart', 'widget' ]
                 'context': [ 'iHaveList' ]
@@ -75,14 +75,14 @@ config = [
         'labels': [
             {
                 'label': 'Export to **Galaxy**'
-                'category': 'Data Export'
+                'category': [ 'Data Export' ]
                 'extra': 'galaxy'
                 'weight': 20
                 'keywords': [ 'output', 'dump' ]
                 'context': [ 'iHaveList' ]
             }, {
                 'label': 'Export to a **CSV** file'
-                'category': 'Data Export'
+                'category': [ 'Data Export' ]
                 'extra': 'csv'
                 'weight': 18
                 'keywords': [ 'spreadsheet', 'tab', 'excel' ]

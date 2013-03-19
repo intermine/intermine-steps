@@ -2657,9 +2657,6 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     NextStepsView.prototype.initialize = function() {
       var _this = this;
       NextStepsView.__super__.initialize.apply(this, arguments);
-      this.list = {
-        'children': {}
-      };
       if (this.context && this.context instanceof Array) {
         return Mediator.subscribe('context:render', function(context, obj) {
           if (root.Utils.arrayEql(context, _this.context)) {
@@ -2670,7 +2667,15 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     };
 
     NextStepsView.prototype.attach = function() {
+      var list;
       NextStepsView.__super__.attach.apply(this, arguments);
+      this.list = {
+        'children': {},
+        'entries': list = $('<ul/>', {
+          'class': 'tools'
+        })
+      };
+      $(this.el).find('div.tools').append(list);
       if (this.context) {
         assert(this.context instanceof Array, 'Context not an Array');
         Mediator.publish('context:new', this.context);
@@ -2700,28 +2705,30 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
       } else {
         suffix = 'new';
       }
-      assert(obj.category instanceof Array, 'Category not an Array');
-      dom = this.list;
-      target = $(this.el).find('div.tools');
-      _ref = obj.category;
-      for (i in _ref) {
-        cat = _ref[i];
-        dom = dom.children;
-        if (!dom[cat]) {
-          console.log("Creating `" + cat + "`");
-          target.append($('<h4/>', {
-            'html': cat,
-            'class': "size-" + i
-          }));
-          dom[cat] = {
-            'children': {},
-            'entries': list = $('<ul/>', {
-              'class': "tools size-" + i
-            })
-          };
-          target.append(list);
+      if (obj.category && obj.category instanceof Array) {
+        dom = this.list;
+        target = $(this.el).find('div.tools');
+        _ref = obj.category;
+        for (i in _ref) {
+          cat = _ref[i];
+          dom = dom.children;
+          if (!dom[cat]) {
+            target.append($('<h4/>', {
+              'html': cat,
+              'class': "size-" + i
+            }));
+            dom[cat] = {
+              'children': {},
+              'entries': list = $('<ul/>', {
+                'class': "tools size-" + i
+              })
+            };
+            target.append(list);
+          }
+          dom = dom[cat];
         }
-        dom = dom[cat];
+      } else {
+        dom = this.list;
       }
       if (!(function(views) {
         var view, _i, _len;
@@ -3828,7 +3835,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': 'See list in a **table**',
-          'category': 'Visualization &amp; Display',
+          'category': ['Visualization &amp; Display'],
           'weight': 15,
           'keywords': ['results'],
           'context': ['iHaveList']
@@ -3839,7 +3846,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': '**Enrich** this list',
-          'category': 'Enrichment',
+          'category': ['Enrichment'],
           'weight': 11,
           'keywords': ['chart', 'widget'],
           'context': ['iHaveList']
@@ -3850,14 +3857,14 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': 'Export to **Galaxy**',
-          'category': 'Data Export',
+          'category': ['Data Export'],
           'extra': 'galaxy',
           'weight': 20,
           'keywords': ['output', 'dump'],
           'context': ['iHaveList']
         }, {
           'label': 'Export to a **CSV** file',
-          'category': 'Data Export',
+          'category': ['Data Export'],
           'extra': 'csv',
           'weight': 18,
           'keywords': ['spreadsheet', 'tab', 'excel'],

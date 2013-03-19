@@ -15,9 +15,6 @@ module.exports = class NextStepsView extends View
 
     initialize: ->
         super
-        
-        # Representation of the list of actions.
-        @list = 'children': {} # top level does not allow uncategorized labels
 
         # Do we have a context to listen to?
         if @context and @context instanceof Array
@@ -30,6 +27,10 @@ module.exports = class NextStepsView extends View
 
     attach: ->
         super
+
+        # Representation of the list of actions & top level category.
+        @list = 'children': {}, 'entries': list = $('<ul/>', 'class': 'tools')
+        $(@el).find('div.tools').append list
 
         # Directly render tool labels on us.
         if @context
@@ -68,28 +69,30 @@ module.exports = class NextStepsView extends View
         else
             suffix = 'new'
 
-        # Get the category list
-        assert obj.category instanceof Array, 'Category not an Array'
+        # If we have provided a category array.
+        if obj.category and obj.category instanceof Array
+            # Traverse the category hierarchy.
+            dom = @list ; target = $(@el).find('div.tools') # do not forget the el name!
+            for i, cat of obj.category
+                # Get the children.
+                dom = dom.children
 
-        # Traverse the category hierarchy.
-        dom = @list ; target = $(@el).find('div.tools') # do not forget the el name!
-        for i, cat of obj.category
-            # Get the children.
-            dom = dom.children
+                # Unless we have the category.
+                unless dom[cat]
+                    # Create the title.
+                    target.append $ '<h4/>', 'html': cat, 'class': "size-#{i}"
+                    # Add a list saving it under our category.
+                    dom[cat] =
+                        'children': {}
+                        'entries': list = $('<ul/>', 'class': "tools size-#{i}")
+                    target.append list
 
-            # Unless we have the category.
-            unless dom[cat]
-                console.log "Creating `#{cat}`"
-                # Create the title.
-                target.append $ '<h4/>', 'html': cat, 'class': "size-#{i}"
-                # Add a list saving it under our category.
-                dom[cat] =
-                    'children': {}
-                    'entries': list = $('<ul/>', 'class': "tools size-#{i}")
-                target.append list
+                # We are now the parent.
+                dom = dom[cat]
 
-            # We are now the parent.
-            dom = dom[cat]
+        # Directly on top (maybe a header link)?
+        else
+            dom = @list
 
         # Do we already have this label?
         unless ( (views) ->
