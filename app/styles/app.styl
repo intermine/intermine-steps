@@ -47,11 +47,11 @@ body, html
 body
     margin: 0
     -webkit-font-smoothing: antialiased
-    background: darken(#FFF, 3%)
+    background: #F0F0F0
 
-    // on app pages
-    &.app
-        background: #DADEE9// url('../img/bg.png') repeat-y top left
+    // // on app pages
+    // &.app
+    //     background: #DADEE9 url('../img/bg.png') repeat-y top left
 
 body, h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
     font-family: Lato
@@ -370,6 +370,32 @@ header#top
         input#search
             margin: 10px 10px 10px 0
             width: 100%
+            float: left
+
+        #always-on
+            float: left
+
+            h4, .button, p.noactions
+                display: none
+
+            ul.tools
+                list-style-type: none
+                margin: 14px 0
+
+                li
+                    margin: 0
+                    display: inline-block
+
+                    span.entypo
+                        text-shadow: none
+
+                    a
+                        white-space: nowrap
+                        text-shadow: none
+                        padding-right: 25px
+
+                        &:hover
+                            border-radius: 2px
 
     .third
         text-align: right
@@ -388,8 +414,8 @@ body.app
         .first, .second, .third
             display: inline-block
 
-        .first
-            width: 272px
+        // .first
+        //     width: 272px
 
         .second
             padding-left: 20px

@@ -42,6 +42,9 @@ config = [
                 'category': 'Category 1'
                 'weight': 18
                 'context': [ 'homepage' ]
+            }, {
+                'label': '**Upload** a new list'
+                'context': [ 'header' ]
             }
         ]
     }, {

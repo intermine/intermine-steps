@@ -5,7 +5,7 @@
 
 <!-- the link -->
 <% if @extra: %>
-    <a href="/tool/<%= @slug %>/<%= @extra %>/<%= @method %><%= @suffix %>"><%- @label %></a>
+    <a href="/tool/<%= @slug %>/<%= @extra %>/<%= @suffix %>"><%- @label %></a>
 <% else: %>
-    <a href="/tool/<%= @slug %>/<%= @method %><%= @suffix %>"><%- @label %></a>
+    <a href="/tool/<%= @slug %>/<%= @suffix %>"><%- @label %></a>
 <% end %>

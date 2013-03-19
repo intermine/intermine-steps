@@ -3,6 +3,7 @@ Controller = require 'chaplin/core/Controller'
 Mediator = require 'chaplin/core/Mediator'
 
 AppView = require 'chaplin/views/App'
+NextStepsHeaderView = require 'chaplin/views/NextStepsHeader'
 LeftSidebarView = require 'chaplin/views/LeftSidebar'
 RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
@@ -19,6 +20,7 @@ module.exports = class ToolsController extends Controller
     # Init the chrome.
     _chrome: ->
         @views.push new AppView()
+        @views.push new NextStepsHeaderView()
         @views.push new HistoryView 'collection': @collection
         # @views.push new LeftSidebarView()
         @views.push new RightSidebarView()

@@ -63,10 +63,10 @@ module.exports = class NextStepsView extends View
         $(@el).find('input.filter').show()
 
         # Get the current tool guid?
-        suffix = ''
-        if @method is 'continue'
-            assert obj.guid, 'Have not provided `guid` parameter, who my daddy?'
-            suffix = "/#{obj.guid}"
+        if @method is 'continue' and obj.guid # guid is coming from a Tool
+            suffix = "continue/#{obj.guid}"
+        else
+            suffix = 'new'
 
         # Do we have this category?
         unless @list[obj.category]
@@ -84,7 +84,6 @@ module.exports = class NextStepsView extends View
         ) @views
             # Render the View for this action.
             @views.push view = new Action _.extend obj,
-                'method':   @method
                 'suffix':   suffix
                 'keywords': obj.keywords or []
 

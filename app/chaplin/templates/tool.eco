@@ -1,5 +1,5 @@
 <div class="wrap sidebar">
-    <span class="entypo popup"></span>
+    <!--<span class="entypo popup"></span>-->
 
     <!-- dynamically populated with event handling -->
     <ul class="breadcrumbs"></ul>

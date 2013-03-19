@@ -43,7 +43,7 @@ module.exports = class InterMineSteps extends Chaplin.Application
             'openExternalToBlank': true
 
     initRegistry: ->
-        # Listen to context changes.
+        # Listen to context changes e.g.: we have a list.
         Mediator.subscribe 'context:new', (context, guid) =>
             assert context and context instanceof Array, 'No context provided or context not a list of terms'
 

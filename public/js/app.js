@@ -193,7 +193,7 @@ window.require.register("chaplin/controllers/landing", function(exports, require
   
 });
 window.require.register("chaplin/controllers/tools", function(exports, require, module) {
-  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, ModalView, RightSidebarView, ToolsController, root,
+  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, ModalView, NextStepsHeaderView, RightSidebarView, ToolsController, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -202,6 +202,8 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
   Mediator = require('chaplin/core/Mediator');
 
   AppView = require('chaplin/views/App');
+
+  NextStepsHeaderView = require('chaplin/views/NextStepsHeader');
 
   LeftSidebarView = require('chaplin/views/LeftSidebar');
 
@@ -229,6 +231,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
 
     ToolsController.prototype._chrome = function() {
       this.views.push(new AppView());
+      this.views.push(new NextStepsHeaderView());
       this.views.push(new HistoryView({
         'collection': this.collection
       }));
@@ -1133,7 +1136,6 @@ window.require.register("chaplin/templates/action", function(exports, require, m
           __out.push('/');
           __out.push(__sanitize(this.extra));
           __out.push('/');
-          __out.push(__sanitize(this.method));
           __out.push(__sanitize(this.suffix));
           __out.push('">');
           __out.push(this.label);
@@ -1142,7 +1144,6 @@ window.require.register("chaplin/templates/action", function(exports, require, m
           __out.push('\n    <a href="/tool/');
           __out.push(__sanitize(this.slug));
           __out.push('/');
-          __out.push(__sanitize(this.method));
           __out.push(__sanitize(this.suffix));
           __out.push('">');
           __out.push(this.label);
@@ -1197,7 +1198,7 @@ window.require.register("chaplin/templates/app", function(exports, require, modu
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <aside id="left"></aside>\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>\n\n<!-- history toggler fixed to bottom -->\n<!--\n<footer id="bottom">\n    <div class="wrap">\n        ');
+        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <aside id="left"></aside>\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>\n\n<!-- history toggler fixed to bottom -->\n<!--\n<footer id="bottom">\n    <div class="wrap">\n        ');
       
         if (this.showHistory) {
           __out.push('\n            <a class="button" data-show="1" data-action="history-toggle">Hide history</a>\n        ');
@@ -1644,6 +1645,56 @@ window.require.register("chaplin/templates/modal", function(exports, require, mo
     return __out.join('');
   }
 });
+window.require.register("chaplin/templates/next-steps-header", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="tools"><!-- tool labels go here --></div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
 window.require.register("chaplin/templates/next-steps", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -1836,7 +1887,7 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
       (function() {
         var i, title, _ref;
       
-        __out.push('<div class="wrap sidebar">\n    <span class="entypo popup"></span>\n\n    <!-- dynamically populated with event handling -->\n    <ul class="breadcrumbs"></ul>\n\n    <div class="head">\n        <h1 class="');
+        __out.push('<div class="wrap sidebar">\n    <!--<span class="entypo popup"></span>-->\n\n    <!-- dynamically populated with event handling -->\n    <ul class="breadcrumbs"></ul>\n\n    <div class="head">\n        <h1 class="');
       
         __out.push(__sanitize(this.type));
       
@@ -2642,10 +2693,10 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
           assert(false, 'Incorrect number of parameters');
       }
       $(this.el).find('input.filter').show();
-      suffix = '';
-      if (this.method === 'continue') {
-        assert(obj.guid, 'Have not provided `guid` parameter, who my daddy?');
-        suffix = "/" + obj.guid;
+      if (this.method === 'continue' && obj.guid) {
+        suffix = "continue/" + obj.guid;
+      } else {
+        suffix = 'new';
       }
       if (!this.list[obj.category]) {
         target = $(this.el).find('div.tools');
@@ -2667,7 +2718,6 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
         return false;
       })(this.views)) {
         this.views.push(view = new Action(_.extend(obj, {
-          'method': this.method,
           'suffix': suffix,
           'keywords': obj.keywords || []
         })));
@@ -2761,6 +2811,38 @@ window.require.register("chaplin/views/NextStepsAll", function(exports, require,
     NextStepsAllView.prototype.context = ['homepage', 'bar', 'baz'];
 
     return NextStepsAllView;
+
+  })(NextStepsView);
+  
+});
+window.require.register("chaplin/views/NextStepsHeader", function(exports, require, module) {
+  var Mediator, NextStepsHeaderView, NextStepsView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  NextStepsView = require('chaplin/views/NextSteps');
+
+  module.exports = NextStepsHeaderView = (function(_super) {
+
+    __extends(NextStepsHeaderView, _super);
+
+    function NextStepsHeaderView() {
+      return NextStepsHeaderView.__super__.constructor.apply(this, arguments);
+    }
+
+    NextStepsHeaderView.prototype.container = '#always-on';
+
+    NextStepsHeaderView.prototype.method = 'new';
+
+    NextStepsHeaderView.prototype.context = ['header'];
+
+    NextStepsHeaderView.prototype.getTemplateFunction = function() {
+      return require('chaplin/templates/next-steps-header');
+    };
+
+    return NextStepsHeaderView;
 
   })(NextStepsView);
   
@@ -3719,6 +3801,9 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'category': 'Category 1',
           'weight': 18,
           'context': ['homepage']
+        }, {
+          'label': '**Upload** a new list',
+          'context': ['header']
         }
       ]
     }, {

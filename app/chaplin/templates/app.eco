@@ -10,6 +10,7 @@
             </div>
             <div class="second">
                 <input id="search" type="text" placeholder="e.g. list upload, PPARG" />
+                <div id="always-on"></div>
             </div>
         </div>
     </header>
