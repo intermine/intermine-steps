@@ -23,6 +23,7 @@ module.exports = class NextStepsView extends View
         if @context and @context instanceof Array
             # Render tool labels on us
             Mediator.subscribe 'context:render', (context, obj) =>
+                # Does this context fit us?
                 if root.Utils.arrayEql context, @context
                     @add obj
             , @
@@ -31,7 +32,8 @@ module.exports = class NextStepsView extends View
         super
 
         # Directly render tool labels on us.
-        if @context and @context instanceof Array
+        if @context
+            assert @context instanceof Array, 'Context not an Array'
             Mediator.publish 'context:new', @context
 
         # Filter the tool labels.

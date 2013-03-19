@@ -28,6 +28,7 @@
 <div id="history"></div>
 
 <!-- history toggler fixed to bottom -->
+<!--
 <footer id="bottom">
     <div class="wrap">
         <% if @showHistory: %>
@@ -37,6 +38,7 @@
         <% end %>
     </div>
 </footer>
+-->
 
 <!-- finally the almighty modal -->
 <div id="modal"></div>

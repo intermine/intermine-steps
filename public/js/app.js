@@ -232,7 +232,6 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       this.views.push(new HistoryView({
         'collection': this.collection
       }));
-      this.views.push(new LeftSidebarView());
       this.views.push(new RightSidebarView());
       return this.views.push(new ModalView());
     };
@@ -1198,7 +1197,7 @@ window.require.register("chaplin/templates/app", function(exports, require, modu
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <aside id="left"></aside>\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>\n\n<!-- history toggler fixed to bottom -->\n<footer id="bottom">\n    <div class="wrap">\n        ');
+        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <aside id="left"></aside>\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>\n\n<!-- history toggler fixed to bottom -->\n<!--\n<footer id="bottom">\n    <div class="wrap">\n        ');
       
         if (this.showHistory) {
           __out.push('\n            <a class="button" data-show="1" data-action="history-toggle">Hide history</a>\n        ');
@@ -1206,7 +1205,7 @@ window.require.register("chaplin/templates/app", function(exports, require, modu
           __out.push('\n            <a class="button" data-show="0" data-action="history-toggle">Show history</a>\n        ');
         }
       
-        __out.push('\n    </div>\n</footer>\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
+        __out.push('\n    </div>\n</footer>\n-->\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
       
       }).call(this);
       
@@ -2189,7 +2188,6 @@ window.require.register("chaplin/views/History", function(exports, require, modu
       var height,
         _this = this;
       HistoryView.__super__.attach.apply(this, arguments);
-      $(this.el).css('width', $(window).width() - $('footer#bottom').outerWidth() - 40).addClass('container');
       this.tools = $(this.el).find('#tools');
       (height = function() {
         return _this.tools.css('height', ($(window).height() * .33) - 85);
@@ -2620,7 +2618,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
 
     NextStepsView.prototype.attach = function() {
       NextStepsView.__super__.attach.apply(this, arguments);
-      if (this.context && this.context instanceof Array) {
+      if (this.context) {
+        assert(this.context instanceof Array, 'Context not an Array');
         Mediator.publish('context:new', this.context);
       }
       Mediator.subscribe('app:search', this.filterLabels, this);
@@ -2828,7 +2827,7 @@ window.require.register("chaplin/views/RightSidebar", function(exports, require,
 
     RightSidebarView.prototype.attach = function() {
       RightSidebarView.__super__.attach.apply(this, arguments);
-      this.views.push(new NextStepsRightView);
+      this.views.push(new NextStepsRightView());
       return this;
     };
 

@@ -30,7 +30,7 @@ body {
   background: #f7f7f7;
 }
 body.app {
-  background: #dadee9 url("../img/bg.png") repeat-y top left;
+  background: #dadee9;
 }
 body,
 h1,
@@ -458,7 +458,6 @@ body.app header#top .first {
 }
 body.app header#top .second {
   padding-left: 20px;
-  border-left: 1px solid rgba(0,0,0,0.25);
 }
 body.app header#top .second input#search {
   width: 400px;
@@ -704,8 +703,7 @@ section#middle div#widget h2 {
 section#middle div#widget .wrap {
   -webkit-border-radius: 4px;
   border-radius: 4px;
-  margin: 20px 295px;
-  margin-bottom: 0;
+  margin: 20px 295px 0 20px;
   padding: 0;
   border: 1px solid #bccad5;
   -webkit-box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
@@ -818,8 +816,12 @@ section#middle .description dl dd:not(:last-child) {
 div#history {
   position: absolute;
   bottom: 0;
-  left: 275px;
+  width: 100%;
   height: 33%;
+  background: #fff;
+  border-top: 1px solid #bccad5;
+  -webkit-box-shadow: -10px 0 10px rgba(0,0,0,0.2);
+  box-shadow: -10px 0 10px rgba(0,0,0,0.2);
 }
 div#history div.container {
   background: #fff;

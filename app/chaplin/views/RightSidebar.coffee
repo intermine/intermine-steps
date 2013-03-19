@@ -14,6 +14,6 @@ module.exports = class RightSidebarView extends View
         super
 
         # Load the appropriate Next Steps.
-        @views.push new NextStepsRightView
+        @views.push new NextStepsRightView()
 
         @

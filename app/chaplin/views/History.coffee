@@ -39,7 +39,7 @@ module.exports = class HistoryView extends View
         super
 
         # Hide by default and set width to how much space we have on screen. Add a class.
-        $(@el).css('width', $(window).width() - $('footer#bottom').outerWidth() - 40).addClass('container')
+        # $(@el).css('width', $(window).width() - $('footer#bottom').outerWidth() - 40).addClass('container')
 
         @tools = $(@el).find('#tools')
 

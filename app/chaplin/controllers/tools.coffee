@@ -20,7 +20,7 @@ module.exports = class ToolsController extends Controller
     _chrome: ->
         @views.push new AppView()
         @views.push new HistoryView 'collection': @collection
-        @views.push new LeftSidebarView()
+        # @views.push new LeftSidebarView()
         @views.push new RightSidebarView()
         @views.push new ModalView()
 

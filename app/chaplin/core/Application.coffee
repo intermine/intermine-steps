@@ -38,8 +38,6 @@ module.exports = class InterMineSteps extends Chaplin.Application
 
     # Override standard layout initializer.
     initLayout: ->
-        # Use an application-specific Layout class. Currently this adds
-        # no features to the standard Chaplin Layout, it’s an empty placeholder.
         @layout = new Layout
             'title': @title
             'openExternalToBlank': true
