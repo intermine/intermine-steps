@@ -17,7 +17,7 @@ module.exports = class NextStepsView extends View
         super
         
         # Representation of the list of actions.
-        @list = {}
+        @list = 'children': {} # top level does not allow uncategorized labels
 
         # Do we have a context to listen to?
         if @context and @context instanceof Array
@@ -68,13 +68,28 @@ module.exports = class NextStepsView extends View
         else
             suffix = 'new'
 
-        # Do we have this category?
-        unless @list[obj.category]
-            target = $(@el).find('div.tools') # do not forget the el name!
-            # Create the title.
-            target.append $ '<h4/>', 'html': obj.category
-            # Add a list saving it under our category.
-            target.append @list[obj.category] = $('<ul/>', 'class': 'tools')
+        # Get the category list
+        assert obj.category instanceof Array, 'Category not an Array'
+
+        # Traverse the category hierarchy.
+        dom = @list ; target = $(@el).find('div.tools') # do not forget the el name!
+        for i, cat of obj.category
+            # Get the children.
+            dom = dom.children
+
+            # Unless we have the category.
+            unless dom[cat]
+                console.log "Creating `#{cat}`"
+                # Create the title.
+                target.append $ '<h4/>', 'html': cat, 'class': "size-#{i}"
+                # Add a list saving it under our category.
+                dom[cat] =
+                    'children': {}
+                    'entries': list = $('<ul/>', 'class': "tools size-#{i}")
+                target.append list
+
+            # We are now the parent.
+            dom = dom[cat]
 
         # Do we already have this label?
         unless ( (views) ->
@@ -87,8 +102,8 @@ module.exports = class NextStepsView extends View
                 'suffix':   suffix
                 'keywords': obj.keywords or []
 
-            # Append the link to an existing category.
-            @list[obj.category].append view.el
+            # Append the link to an existing category.            
+            dom.entries.append view.el
 
             # Do we have a hidden label now?
             if obj.weight < 10

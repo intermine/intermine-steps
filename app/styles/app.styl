@@ -479,11 +479,26 @@ section#middle
         div.tools
             padding: 15px
 
-            ul
+            ul.tools
                 margin: 0
+
+                for size in 0...10
+                    &.size-{size}
+                        margin-left: size * 10 px                
 
             h4
                 margin-bottom: 10px
+
+                &:not(:first-child)
+                    margin-top: 10px
+
+                for size in 0...10
+                    &.size-{size}
+                        font-size: 16 - (size * 3) px
+                        margin-left: size * 10 px
+
+                        if size isnt 0
+                            font-weight: normal
 
         .noactions
             margin: -15px 15px 15px 15px

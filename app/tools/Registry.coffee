@@ -5,7 +5,7 @@ config = [
         'labels': [
             {
                 'label': '**Enrich** an existing list'
-                'category': 'Category 1'
+                'category': [ 'Category 1', 'Subcategory 1' ]
                 'weight': 15
                 'keywords': [ 'chart', 'widget', 'graph' ]
                 'context': [ 'bar', 'homepage' ]
@@ -16,7 +16,7 @@ config = [
         'labels': [
             {
                 'label': '**BLAST** search'
-                'category': 'Category 1'
+                'category': [ 'Category 1' ]
                 'weight': 20
                 'keywords': [ 'search' ]
                 'context': [ 'homepage' ]
@@ -27,7 +27,7 @@ config = [
         'labels': [
             {
                 'label': '**Publications** for a *Gene*'
-                'category': 'Category 1'
+                'category': [ 'Category 1' ]
                 'extra': 'publications-displayer'
                 'weight': 11
                 'context': [ 'homepage' ]
@@ -39,7 +39,7 @@ config = [
         'labels': [
             {
                 'label': '**Upload** a new list'
-                'category': 'Category 1'
+                'category': [ 'Category 1', 'Subcategory 2', ]
                 'weight': 18
                 'context': [ 'homepage' ]
             }, {

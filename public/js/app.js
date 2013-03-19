@@ -2657,7 +2657,9 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     NextStepsView.prototype.initialize = function() {
       var _this = this;
       NextStepsView.__super__.initialize.apply(this, arguments);
-      this.list = {};
+      this.list = {
+        'children': {}
+      };
       if (this.context && this.context instanceof Array) {
         return Mediator.subscribe('context:render', function(context, obj) {
           if (root.Utils.arrayEql(context, _this.context)) {
@@ -2679,7 +2681,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     };
 
     NextStepsView.prototype.add = function() {
-      var context, obj, suffix, target, view;
+      var cat, context, dom, i, list, obj, suffix, target, view, _ref;
       assert(this.method, 'We do not know which linking `method` to use');
       switch (arguments.length) {
         case 1:
@@ -2698,14 +2700,28 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
       } else {
         suffix = 'new';
       }
-      if (!this.list[obj.category]) {
-        target = $(this.el).find('div.tools');
-        target.append($('<h4/>', {
-          'html': obj.category
-        }));
-        target.append(this.list[obj.category] = $('<ul/>', {
-          'class': 'tools'
-        }));
+      assert(obj.category instanceof Array, 'Category not an Array');
+      dom = this.list;
+      target = $(this.el).find('div.tools');
+      _ref = obj.category;
+      for (i in _ref) {
+        cat = _ref[i];
+        dom = dom.children;
+        if (!dom[cat]) {
+          console.log("Creating `" + cat + "`");
+          target.append($('<h4/>', {
+            'html': cat,
+            'class': "size-" + i
+          }));
+          dom[cat] = {
+            'children': {},
+            'entries': list = $('<ul/>', {
+              'class': "tools size-" + i
+            })
+          };
+          target.append(list);
+        }
+        dom = dom[cat];
       }
       if (!(function(views) {
         var view, _i, _len;
@@ -2721,7 +2737,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
           'suffix': suffix,
           'keywords': obj.keywords || []
         })));
-        this.list[obj.category].append(view.el);
+        dom.entries.append(view.el);
         if (obj.weight < 10) {
           return $(this.el).find('.show.hidden').removeClass('hidden');
         }
@@ -3764,7 +3780,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': '**Enrich** an existing list',
-          'category': 'Category 1',
+          'category': ['Category 1', 'Subcategory 1'],
           'weight': 15,
           'keywords': ['chart', 'widget', 'graph'],
           'context': ['bar', 'homepage']
@@ -3775,7 +3791,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': '**BLAST** search',
-          'category': 'Category 1',
+          'category': ['Category 1'],
           'weight': 20,
           'keywords': ['search'],
           'context': ['homepage']
@@ -3786,7 +3802,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': '**Publications** for a *Gene*',
-          'category': 'Category 1',
+          'category': ['Category 1'],
           'extra': 'publications-displayer',
           'weight': 11,
           'context': ['homepage']
@@ -3798,7 +3814,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
       'labels': [
         {
           'label': '**Upload** a new list',
-          'category': 'Category 1',
+          'category': ['Category 1', 'Subcategory 2'],
           'weight': 18,
           'context': ['homepage']
         }, {
