@@ -110,3 +110,6 @@ module.exports = class ToolsController extends Controller
 
         # Change the title.
         @adjustTitle model.get 'title'
+
+# Reuse old for results so we get app reload on change.
+ToolsController::results = ToolsController::old

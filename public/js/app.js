@@ -319,6 +319,8 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
     return ToolsController;
 
   })(Controller);
+
+  ToolsController.prototype.results = ToolsController.prototype.old;
   
 });
 window.require.register("chaplin/core/Application", function(exports, require, module) {
@@ -764,6 +766,9 @@ window.require.register("chaplin/core/Routes", function(exports, require, module
     match('tool/id/:guid', 'tools#old', {
       name: 'old'
     });
+    match('tool/id/:guid/results', 'tools#results', {
+      name: 'results'
+    });
     match('error/404', 'error#404', {
       name: 404
     });
@@ -1042,7 +1047,7 @@ window.require.register("chaplin/models/History", function(exports, require, mod
       this.add(model);
       this.storage.add(model.toJSON());
       if (redirect != null) {
-        return this.controller.redirectToRoute('old', {
+        return this.controller.redirectToRoute('results', {
           'slug': model.get('slug'),
           'guid': guid
         });
