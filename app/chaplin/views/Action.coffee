@@ -19,7 +19,7 @@ module.exports = class ActionView extends View
 
         $(@el).addClass =>
             # Apply class that corresponds to the type of the tool.
-            classes = [ @options.type ]
+            classes = [ @options.type, @options.labelClass ]
             # Do we hide it?
             if @options.weight < 10 then classes.push 'hidden'
             classes.join(' ')

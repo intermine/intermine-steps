@@ -1987,7 +1987,7 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
       ActionView.__super__.attach.apply(this, arguments);
       $(this.el).addClass(function() {
         var classes;
-        classes = [_this.options.type];
+        classes = [_this.options.type, _this.options.labelClass];
         if (_this.options.weight < 10) {
           classes.push('hidden');
         }
@@ -2747,7 +2747,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
       })(this.views)) {
         this.views.push(view = new Action(_.extend(obj, {
           'suffix': suffix,
-          'keywords': obj.keywords || []
+          'keywords': obj.keywords || [],
+          'labelClass': this.labelClass || ''
         })));
         dom.entries.append(view.el);
         if (obj.weight < 10) {
@@ -2865,6 +2866,8 @@ window.require.register("chaplin/views/NextStepsHeader", function(exports, requi
     NextStepsHeaderView.prototype.method = 'new';
 
     NextStepsHeaderView.prototype.context = ['header'];
+
+    NextStepsHeaderView.prototype.labelClass = 'button';
 
     NextStepsHeaderView.prototype.getTemplateFunction = function() {
       return require('chaplin/templates/next-steps-header');

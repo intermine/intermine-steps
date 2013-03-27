@@ -375,7 +375,7 @@ header#top
         #always-on
             float: left
 
-            h4, .button, p.noactions
+            h4, .button.show, p.noactions
                 display: none
 
             ul.tools
@@ -387,7 +387,7 @@ header#top
                     display: inline-block
 
                     span.entypo
-                        text-shadow: none
+                        display: none
 
                     a
                         white-space: nowrap
@@ -396,6 +396,17 @@ header#top
 
                         &:hover
                             border-radius: 2px
+
+                    &.button
+                        padding: 0
+
+                        a, a:hover
+                            padding: 6px 15px 6px 25px
+                            background: none
+                            border: 0
+                            text-shadow: 1px 1px rgba(0,0,0,0.25)
+                            box-shadow: none
+                            border-radius: 0
 
     .third
         text-align: right
@@ -668,7 +679,7 @@ section#middle
                         margin: 0;
                     
                     &:after
-                        content: ""
+                        //content: ""
                         display: block
                         width: 0
                         height: 0
@@ -694,7 +705,7 @@ section#middle
                         padding-top: 13px
                         
                         &:after
-                            content: ""
+                            //content: ""
                             display: block
                             width: 0
                             height: 0

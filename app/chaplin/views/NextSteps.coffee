@@ -102,8 +102,9 @@ module.exports = class NextStepsView extends View
         ) @views
             # Render the View for this action.
             @views.push view = new Action _.extend obj,
-                'suffix':   suffix
-                'keywords': obj.keywords or []
+                'suffix':     suffix
+                'keywords':   obj.keywords or []
+                'labelClass': @labelClass or ''
 
             # Append the link to an existing category.            
             dom.entries.append view.el

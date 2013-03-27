@@ -439,7 +439,7 @@ header#top .second #always-on {
   float: left;
 }
 header#top .second #always-on h4,
-header#top .second #always-on .button,
+header#top .second #always-on .button.show,
 header#top .second #always-on p.noactions {
   display: none;
 }
@@ -452,7 +452,7 @@ header#top .second #always-on ul.tools li {
   display: inline-block;
 }
 header#top .second #always-on ul.tools li span.entypo {
-  text-shadow: none;
+  display: none;
 }
 header#top .second #always-on ul.tools li a {
   white-space: nowrap;
@@ -462,6 +462,20 @@ header#top .second #always-on ul.tools li a {
 header#top .second #always-on ul.tools li a:hover {
   -webkit-border-radius: 2px;
   border-radius: 2px;
+}
+header#top .second #always-on ul.tools li.button {
+  padding: 0;
+}
+header#top .second #always-on ul.tools li.button a,
+header#top .second #always-on ul.tools li.button a:hover {
+  padding: 6px 15px 6px 25px;
+  background: none;
+  border: 0;
+  text-shadow: 1px 1px rgba(0,0,0,0.25);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  -webkit-border-radius: 0;
+  border-radius: 0;
 }
 header#top .third {
   text-align: right;
@@ -853,7 +867,6 @@ section#middle div#widget ul.accordion > li > div.title h5 {
   margin: 0;
 }
 section#middle div#widget ul.accordion > li > div.title:after {
-  content: "";
   display: block;
   width: 0;
   height: 0;
@@ -883,7 +896,6 @@ section#middle div#widget ul.accordion > li.active .title {
   padding-top: 13px;
 }
 section#middle div#widget ul.accordion > li.active .title:after {
-  content: "";
   display: block;
   width: 0;
   height: 0;
