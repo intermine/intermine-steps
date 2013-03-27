@@ -27,7 +27,7 @@ html {
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
-  background: #f0f0f0;
+  background: url("../img/p6.png");
 }
 body,
 h1,
