@@ -1,9 +1,9 @@
 Tool = require 'chaplin/models/Tool'
 
-module.exports = class ReportWidgetTool extends Tool
+module.exports = class ListWidgetTool extends Tool
 
     defaults:
-        'slug': 'report-widget-tool'
-        'name': 'ReportWidgetTool'
+        'slug': 'list-widget-tool'
+        'name': 'ListWidgetTool'
         'type': 'deyork'
         'steps': [ 'Choose input', 'See widget' ]

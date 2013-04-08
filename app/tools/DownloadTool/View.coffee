@@ -1,7 +1,7 @@
 Mediator = require 'chaplin/core/Mediator'
 ToolView = require 'chaplin/views/Tool'
 
-module.exports = class ExportToolView extends ToolView
+module.exports = class DownloadToolView extends ToolView
 
     attach: ->
         super

@@ -7,4 +7,4 @@ module.exports = class NextStepsAllView extends NextStepsView
     container: '#next' # where to render
     method:    'new'   # are we making a new step or continue previous?
 
-    context: [ 'homepage', 'bar', 'baz' ]
+    context: [ 'place:homepage' ]

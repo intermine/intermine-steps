@@ -7,4 +7,4 @@ module.exports = class ResultsTableTool extends ToolView
         super
 
         # Say we can export and we are a pass-thru entity.
-        Mediator.publish 'context:new', [ 'iHaveList' ], @model.get('parent')
+        Mediator.publish 'context:new', [ 'have:list' ], @model.get('parent')

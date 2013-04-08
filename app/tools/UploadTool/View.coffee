@@ -10,7 +10,7 @@ module.exports = class UploadListToolView extends ToolView
         switch @step
             when 2
                 # We have a list!
-                Mediator.publish 'context:new', [ 'iHaveList' ], @model.get('guid')
+                Mediator.publish 'context:new', [ 'have:list' ], @model.get('guid')
 
         @delegate 'click', '#submit', ->
             # Get the DOM data.

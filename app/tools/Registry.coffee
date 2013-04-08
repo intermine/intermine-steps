@@ -1,92 +1,415 @@
 config = [
     {
-        'slug': 'enrich-list-tool'
-        'help': 'Contrary to popular belief, <em>Lorem Ipsum</em> is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.'
+        'slug': 'upload-tool'
+        'help': 'On first step choose between list, template, region search that changes the form on step 1'
         'labels': [
             {
-                'label': '**Enrich** an existing list'
-                'category': [ 'Category 1', 'Subcategory 1' ]
-                'weight': 15
-                'keywords': [ 'chart', 'widget', 'graph' ]
-                'context': [ 'bar', 'homepage' ]
+                'label': 'Upload'
+                'weight': 10
+                'context': [ 'place:header' ]
+                'keywords': [ 'list', 'template', 'region' ]
+            }, {
+                'label': 'Upload list, template or a region'
+                'weight': 10
+                'context': [ 'place:homepage' ]
+                'keywords': [ 'list', 'template', 'region' ]
             }
         ]
     }, {
-        'slug': 'blast-search-tool'
+        'slug': 'search-tool'
+        'help': 'Filter tools on the page & run quick search on the server'
         'labels': [
             {
-                'label': '**BLAST** search'
-                'category': [ 'Category 1' ]
-                'weight': 20
-                'keywords': [ 'search' ]
-                'context': [ 'homepage' ]
+                'label': 'Search'
+                'weight': 10
+                'context': [ 'place:header' ]
+                'keywords': [ 'filter' ]
+            }
+        ]
+    }, {
+        'slug': 'query-builder-tool'
+        'help': 'A query builder or a tool that suggest a query based on your input'
+        'labels': [
+            {
+                'label': 'Build some stuff'
+                'weight': 10
+                'context': []
+                'category': [ 'Start again' ]
+                'keywords': [ 'query', 'builder', 'suggest' ]
+            }
+        ]
+    }, {
+        'slug': 'blast-tool'
+        'help': 'Concordia example tool'
+        'labels': [
+            {
+                'label': 'BLAST from the past'
+                'weight': 10
+                'context': []
+                'category': [ 'Start again' ]
+                'keywords': [ 'concordia' ]
+            }
+        ]
+    }, {
+        'slug': 'set-operations-tool'
+        'help': 'You can always do set operations on a list'
+        'labels': [
+            {
+                'label': 'Do set operations'
+                'weight': 10
+                'context': []
+                'category': [ 'Start again' ]
+                'keywords': [ 'union', 'intersection', 'subtraction' ]
+            }, {
+                'label': 'List union'
+                'weight': 10
+                'context': [ 'have:list' ]
+                'category': [ 'Set operations' ]
+                'extra': 'union'
+            }, {
+                'label': 'List intersection'
+                'weight': 10
+                'context': [ 'have:list' ]
+                'category': [ 'Set operations' ]
+                'extra': 'intersection'
+            }, {
+                'label': 'List subtraction'
+                'weight': 10
+                'context': [ 'have:list' ]
+                'category': [ 'Set operations' ]
+                'extra': 'subtraction'
+            }
+        ]
+    }, {
+        'slug': 'download-tool'
+        'help': 'tab, csv, sequence (fasta), gff3, xml, json, bed'
+        'labels': [
+            {
+                'label': 'Download in TAB format'
+                'weight': 10
+                'context': [ 'can:download' ]
+                'category': [ 'Download' ]
+                'extra': 'tab'
+                'keywords': [ 'export' ]
+            }, {
+                'label': 'Download in CSV format'
+                'weight': 10
+                'context': [ 'can:download' ]
+                'category': [ 'Download' ]
+                'extra': 'csv'
+                'keywords': [ 'export' ]
+            }, {
+                'label': 'Download in sequence format (FASTA)'
+                'weight': 10
+                'context': [ 'can:download' ]
+                'category': [ 'Download' ]
+                'extra': 'fasta'
+                'keywords': [ 'export' ]
+            }, {
+                'label': 'Download in GFF3 format'
+                'weight': 10
+                'context': [ 'can:download' ]
+                'category': [ 'Download' ]
+                'extra': 'gff3'
+                'keywords': [ 'export' ]
+            }, {
+                'label': 'Download in XML format'
+                'weight': 10
+                'context': [ 'can:download' ]
+                'category': [ 'Download' ]
+                'extra': 'xml'
+                'keywords': [ 'export' ]
+            }, {
+                'label': 'Download in JSON format'
+                'weight': 10
+                'context': [ 'can:download' ]
+                'category': [ 'Download' ]
+                'extra': 'json'
+                'keywords': [ 'export' ]
+            }, {
+                'label': 'Download in BED format'
+                'weight': 10
+                'context': [ 'can:download' ]
+                'category': [ 'Download' ]
+                'extra': 'bed'
+                'keywords': [ 'export' ]
+            }
+        ]
+    }, {
+        'slug': 'save-tool'
+        'help': 'when something is saveable, usually it will be a list'
+        'labels': [
+            {
+                'label': 'Save'
+                'weight': 10
+                'context': [ 'can:save' ]
+                'category': [ 'Save' ]
+                'keywords': [ 'list' ]
+            }
+        ]
+    }, {
+        'slug': 'generate-code-tool'
+        'help': 'python, js, ruby, java, perl'
+        'labels': [
+            {
+                'label': 'Generate code in Python'
+                'weight': 10
+                'context': [ 'can:code' ]
+                'category': [ 'Code' ]
+                'extra': 'python'
+            }, {
+                'label': 'Generate code in JavaScript'
+                'weight': 10
+                'context': [ 'can:code' ]
+                'category': [ 'Code' ]
+                'extra': 'js'
+            }, {
+                'label': 'Generate code in Ruby'
+                'weight': 10
+                'context': [ 'can:code' ]
+                'category': [ 'Code' ]
+                'extra': 'ruby'
+            }, {
+                'label': 'Generate code in Java'
+                'weight': 10
+                'context': [ 'can:code' ]
+                'category': [ 'Code' ]
+                'extra': 'java'
+            }, {
+                'label': 'Generate code in Perl'
+                'weight': 10
+                'context': [ 'can:code' ]
+                'category': [ 'Code' ]
+                'extra': 'perl'
+            }
+        ]
+    }, {
+        'slug': 'linkout-tool'
+        'help': 'not a tool per se, a link is one provided by config; has an icon to show this fact'
+        'labels': [
+            {
+                'label': 'ArrayExpress Atlas'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://www.ebi.ac.uk/gxa/gene/<%= @id %>'
+                'keywords': [ 'ebi' ]
+            }, {
+                'label': 'UniGene'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=unigene&cmd=search&term=<%= @symbol %>+AND+<%= @taxon %>[orgn]'
+                'keywords': [ 'ncbi', 'entrez' ]
+            }, {
+                'label': 'FlyExpress'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://www.flyexpress.net/search.php?type=image&search=<%= @id %>'
+            }, {
+                'label': 'FlyBase'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://www.flybase.org/.bin/fbidq.html?<%= @id %>'
+            }, {
+                'label': 'GenomeRNAi'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://genomernai.de/GenomeRNAi/genedetails/<%= @id %>'
+            }, {
+                'label': 'ensembl'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://www.ensembl.org/Drosophila_melanogaster/geneview?db=core&gene=<%= @id %>'
+                'keywords': [ 'drosophila' ]
+            }, {
+                'label': 'BDGP in situ'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://www.fruitfly.org/cgi-bin/ex/bquery.pl?qtype=report&find=<%= @id %>&searchfield=CG'
+                'keywords': [ 'fruitfly' ]
+            }, {
+                'label': 'Entrez Gene'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=full_report&list_uids=<%= @id %>'
+                'keywords': [ 'ncbi', 'entrez' ]
+            }, {
+                'label': 'FlyAtlas'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://flyatlas.org/atlas.cgi?name=<%= @id %>'
+            }, {
+                'label': 'Homologene'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&cmd=detailssearch&term=<%= @taxon %>[orgn]+<%= @symbol %>[Gene]'
+                'keywords': [ 'ncbi' ]
+            }, {
+                'label': 'BioGRID'
+                'weight': 10
+                'context': [ 'place:linkout', 'can:linkout' ]
+                'category': [ 'Linkouts' ]
+                'href': 'http://thebiogrid.org/search.php?search=<%= @id %>&organism=<%= @organism %>'
+            }
+        ]
+    }, {
+        'slug': 'list-widget-tool'
+        'help': 'List Widgets'
+        'labels': [
+            {
+                'label': 'Enrichment'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Gene ontology' ]
+                'extra': 'enrichment'
+                'keywords': [ 'gene', 'ontology', 'enrich', 'widget' ]
+            }, {
+                'label': 'Visualization'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Gene ontology' ]
+                'extra': 'chart'
+                'keywords': [ 'gene', 'ontology', 'chart', 'graph', 'widget' ]
+            }, {
+                'label': 'Enrichment'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Pathways' ]
+                'extra': 'enrichment'
+                'keywords': [ 'pathways', 'enrich', 'widget' ]
+            }, {
+                'label': 'Visualization'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Pathways' ]
+                'extra': 'chart'
+                'keywords': [ 'pathways', 'chart', 'graph', 'widget' ]
+            }, {
+                'label': 'Enrichment'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Literature' ]
+                'extra': 'enrichment'
+                'keywords': [ 'literature', 'publications', 'enrich', 'widget' ]
+            }, {
+                'label': 'Enrichment'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'fly-FISH expression experiment' ]
+                'extra': 'enrichment'
+                'keywords': [ 'flyfish', 'expression', 'enrich', 'widget' ]
+            }, {
+                'label': 'Visualization'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'fly-FISH expression experiment' ]
+                'extra': 'chart'
+                'keywords': [ 'flyfish', 'expression', 'chart', 'graph', 'widget' ]
+            }, {
+                'label': 'Enrichment'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'BDGP' ]
+                'extra': 'enrichment'
+                'keywords': [ 'bdgp', 'enrich', 'widget' ]
+            }, {
+                'label': 'Visualization'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'BDGP' ]
+                'extra': 'chart'
+                'keywords': [ 'bdgp', 'chart', 'graph', 'widget' ]
+            }, {
+                'label': 'Visualization'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Homologue' ]
+                'extra': 'chart'
+                'keywords': [ 'homologue', 'chart', 'graph', 'widget' ]
+            }, {
+                'label': 'Chromosome distribution'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Genes' ]
+                'extra': 'chart'
+                'keywords': [ 'gene', 'chart', 'graph', 'widget' ]
+            }, {
+                'label': 'Chromosome distribution'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Sequence Features' ]
+                'extra': 'chart'
+                'keywords': [ 'sequence', 'chart', 'graph', 'widget' ]
+            }
+        ]
+    }, {
+        'slug': 'query-tool'
+        'labels': [
+            {
+                'label': 'Query'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Gene ontology' ]
+                'keywords': [ 'gene', 'ontology' ]
+            }
+        ]
+    }, {
+        'slug': 'report-tool'
+        'labels': [
+            {
+                'label': 'Show gene summary'
+                'weight': 10
+                'context': [ 'type:gene', 'n:1' ]
+                'category': [ 'Genes' ]
+                'keywords': [ 'report' ]
+            }, {
+                'label': 'Show gene summary'
+                'weight': 10
+                'context': [ 'type:gene', 'n:1' ]
+                'category': [ 'Sequence Features' ]
+                'keywords': [ 'report' ]
             }
         ]
     }, {
         'slug': 'report-widget-tool'
         'labels': [
             {
-                'label': '**Publications** for a *Gene*'
-                'category': [ 'Category 1' ]
-                'extra': 'publications-displayer'
-                'weight': 11
-                'context': [ 'homepage' ]
-            }
-        ]
-    }, {
-        'slug': 'upload-list-tool'
-        'help': 'Contrary to popular belief, <em>Lorem Ipsum</em> is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old.'
-        'labels': [
-            {
-                'label': '**Upload** a new list'
-                'category': [ 'Category 1', 'Subcategory 2', ]
-                'weight': 18
-                'context': [ 'homepage' ]
+                'label': 'Cytoscape network'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Interactions' ]
+                'keywords': [ 'report', 'widget' ]
             }, {
-                'label': '**Upload** a new list'
-                'context': [ 'header' ]
+                'label': 'Visualization'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Regulation' ]
+                'keywords': [ 'report', 'widget', 'regulation' ]
+            }, {
+                'label': 'Rat diseases'
+                'weight': 10
+                'context': [ 'type:gene' ]
+                'category': [ 'Diseases' ]
+                'keywords': [ 'report', 'widget', 'disease' ]
             }
         ]
     }, {
         'slug': 'results-table-tool'
-        'help': 'Nothing much to say really'
         'labels': [
             {
-                'label': 'See list in a **table**'
-                'category': [ 'Visualization &amp; Display' ]
-                'weight': 15
+                'label': 'Show in a table'
+                'weight': 10
+                'context': [ 'have:list' ]
                 'keywords': [ 'results' ]
-                'context': [ 'iHaveList' ]
-            }
-        ]
-    }, {
-        'slug': 'enrich-list-tool'
-        'labels': [
-            {
-                'label': '**Enrich** this list'
-                'category': [ 'Enrichment' ]
-                'weight': 11
-                'keywords': [ 'chart', 'widget' ]
-                'context': [ 'iHaveList' ]
-            }
-        ]
-    }, {
-        'slug': 'export-tool'
-        'labels': [
-            {
-                'label': 'Export to **Galaxy**'
-                'category': [ 'Data Export' ]
-                'extra': 'galaxy'
-                'weight': 20
-                'keywords': [ 'output', 'dump' ]
-                'context': [ 'iHaveList' ]
-            }, {
-                'label': 'Export to a **CSV** file'
-                'category': [ 'Data Export' ]
-                'extra': 'csv'
-                'weight': 18
-                'keywords': [ 'spreadsheet', 'tab', 'excel' ]
-                'context': [ 'iHaveList' ]
             }
         ]
     }
