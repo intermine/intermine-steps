@@ -233,6 +233,7 @@ table.tabs td.inactive div:before {
 }
 ul.tools li {
   margin: 0 -10px;
+  clear: both;
 }
 ul.tools li.terracotta a:before {
   background: #e2674a;
