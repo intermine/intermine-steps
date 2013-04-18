@@ -44,13 +44,14 @@ module.exports = class InterMineSteps extends Chaplin.Application
 
     initRegistry: ->
         # Listen to context changes e.g.: we have a list.
-        Mediator.subscribe 'context:new', (context, guid) =>
-            assert context and context instanceof Array, 'No context provided or context not a list of terms'
-
+        Mediator.subscribe 'context:new', (context=[], guid) =>
             # Find all tools that fully match part or all of the context.
             for tool in Registry
                 for variant in tool.labels
-                    if _.difference(variant.context, context).length is 0
+                    assert variant.place, 'Placement for a tool variant not provided'
+
+                    # Match? Accept empty context.
+                    if !_.difference(variant.context or [], context).length
                         # Form the new object.
                         obj = _.clone variant
 
@@ -77,5 +78,5 @@ module.exports = class InterMineSteps extends Chaplin.Application
                         model.dispose()
 
                         # Fire this object to no one in particular.
-                        Mediator.publish 'context:render', context, obj
+                        Mediator.publish 'context:render', variant.place, context, obj
         , @

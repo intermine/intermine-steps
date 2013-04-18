@@ -16,14 +16,15 @@ module.exports = class NextStepsView extends View
     initialize: ->
         super
 
-        # Do we have a context to listen to?
-        if @context and @context instanceof Array
-            # Render tool labels on us
-            Mediator.subscribe 'context:render', (context, obj) =>
-                # Does this context fit us?
-                if root.Utils.arrayEql context, @context
-                    @add obj
-            , @
+        # Make sure we have placement.
+        assert @place, 'Placement for these NextSteps not defined'
+
+        # Render tool labels on us
+        Mediator.subscribe 'context:render', (place, context, obj) =>
+            # Does this context and place fit us?
+            if @place is place
+                @add obj
+        , @
 
     attach: ->
         super
@@ -32,10 +33,8 @@ module.exports = class NextStepsView extends View
         @list = 'children': {}, 'entries': list = $('<ul/>', 'class': 'tools')
         $(@el).find('div.tools').append list
 
-        # Directly render tool labels on us.
-        if @context
-            assert @context instanceof Array, 'Context not an Array'
-            Mediator.publish 'context:new', @context
+        # Ask for tools on us.
+        Mediator.publish 'context:new'
 
         # Filter the tool labels.
         Mediator.subscribe 'app:search', @filterLabels, @

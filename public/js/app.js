@@ -380,7 +380,9 @@ window.require.register("chaplin/core/Application", function(exports, require, m
       var _this = this;
       return Mediator.subscribe('context:new', function(context, guid) {
         var Model, key, model, obj, tool, variant, _i, _len, _results;
-        assert(context && context instanceof Array, 'No context provided or context not a list of terms');
+        if (context == null) {
+          context = [];
+        }
         _results = [];
         for (_i = 0, _len = Registry.length; _i < _len; _i++) {
           tool = Registry[_i];
@@ -390,7 +392,8 @@ window.require.register("chaplin/core/Application", function(exports, require, m
             _results1 = [];
             for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
               variant = _ref[_j];
-              if (_.difference(variant.context, context).length === 0) {
+              assert(variant.place, 'Placement for a tool variant not provided');
+              if (!_.difference(variant.context || [], context).length) {
                 obj = _.clone(variant);
                 obj.name = window.Utils.hyphenToPascal(tool.slug);
                 _ref1 = ['slug', 'help'];
@@ -410,7 +413,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
                   obj.guid = guid;
                 }
                 model.dispose();
-                _results1.push(Mediator.publish('context:render', context, obj));
+                _results1.push(Mediator.publish('context:render', variant.place, context, obj));
               } else {
                 _results1.push(void 0);
               }
@@ -2662,13 +2665,12 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     NextStepsView.prototype.initialize = function() {
       var _this = this;
       NextStepsView.__super__.initialize.apply(this, arguments);
-      if (this.context && this.context instanceof Array) {
-        return Mediator.subscribe('context:render', function(context, obj) {
-          if (root.Utils.arrayEql(context, _this.context)) {
-            return _this.add(obj);
-          }
-        }, this);
-      }
+      assert(this.place, 'Placement for these NextSteps not defined');
+      return Mediator.subscribe('context:render', function(place, context, obj) {
+        if (_this.place === place) {
+          return _this.add(obj);
+        }
+      }, this);
     };
 
     NextStepsView.prototype.attach = function() {
@@ -2681,10 +2683,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
         })
       };
       $(this.el).find('div.tools').append(list);
-      if (this.context) {
-        assert(this.context instanceof Array, 'Context not an Array');
-        Mediator.publish('context:new', this.context);
-      }
+      Mediator.publish('context:new');
       Mediator.subscribe('app:search', this.filterLabels, this);
       this.delegate('click', '.show', this.showHidden);
       return this.noActions = $(this.el).find('p.noactions');
@@ -2837,7 +2836,7 @@ window.require.register("chaplin/views/NextStepsAll", function(exports, require,
 
     NextStepsAllView.prototype.method = 'new';
 
-    NextStepsAllView.prototype.context = ['place:homepage'];
+    NextStepsAllView.prototype.place = 'home';
 
     return NextStepsAllView;
 
@@ -2865,7 +2864,7 @@ window.require.register("chaplin/views/NextStepsHeader", function(exports, requi
 
     NextStepsHeaderView.prototype.method = 'new';
 
-    NextStepsHeaderView.prototype.context = ['place:header'];
+    NextStepsHeaderView.prototype.place = 'header';
 
     NextStepsHeaderView.prototype.labelClass = 'button';
 
@@ -2901,10 +2900,7 @@ window.require.register("chaplin/views/NextStepsRight", function(exports, requir
 
     NextStepsRightView.prototype.method = 'continue';
 
-    NextStepsRightView.prototype.initialize = function() {
-      NextStepsRightView.__super__.initialize.apply(this, arguments);
-      return Mediator.subscribe('context:render', this.add, this);
-    };
+    NextStepsRightView.prototype.place = 'right';
 
     return NextStepsRightView;
 
@@ -4348,12 +4344,12 @@ window.require.register("tools/Registry", function(exports, require, module) {
         {
           'label': 'Upload',
           'weight': 10,
-          'context': ['place:header'],
+          'place': 'header',
           'keywords': ['list', 'template', 'region']
         }, {
           'label': 'Upload list, template or a region',
           'weight': 10,
-          'context': ['place:homepage'],
+          'place': 'home',
           'keywords': ['list', 'template', 'region']
         }
       ]
@@ -4364,7 +4360,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
         {
           'label': 'Search',
           'weight': 10,
-          'context': ['place:header'],
+          'place': 'header',
           'keywords': ['filter']
         }
       ]
@@ -4375,7 +4371,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
         {
           'label': 'Build some stuff',
           'weight': 10,
-          'context': [],
+          'place': 'right',
           'category': ['Start again'],
           'keywords': ['query', 'builder', 'suggest']
         }
@@ -4387,7 +4383,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
         {
           'label': 'BLAST from the past',
           'weight': 10,
-          'context': [],
+          'place': 'right',
           'category': ['Start again'],
           'keywords': ['concordia']
         }
@@ -4399,25 +4395,28 @@ window.require.register("tools/Registry", function(exports, require, module) {
         {
           'label': 'Do set operations',
           'weight': 10,
-          'context': [],
+          'place': 'right',
           'category': ['Start again'],
           'keywords': ['union', 'intersection', 'subtraction']
         }, {
           'label': 'List union',
           'weight': 10,
           'context': ['have:list'],
+          'place': 'right',
           'category': ['Set operations'],
           'extra': 'union'
         }, {
           'label': 'List intersection',
           'weight': 10,
           'context': ['have:list'],
+          'place': 'right',
           'category': ['Set operations'],
           'extra': 'intersection'
         }, {
           'label': 'List subtraction',
           'weight': 10,
           'context': ['have:list'],
+          'place': 'right',
           'category': ['Set operations'],
           'extra': 'subtraction'
         }
@@ -4430,6 +4429,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Download in TAB format',
           'weight': 10,
           'context': ['can:download'],
+          'place': 'right',
           'category': ['Download'],
           'extra': 'tab',
           'keywords': ['export']
@@ -4437,6 +4437,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Download in CSV format',
           'weight': 10,
           'context': ['can:download'],
+          'place': 'right',
           'category': ['Download'],
           'extra': 'csv',
           'keywords': ['export']
@@ -4444,6 +4445,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Download in sequence format (FASTA)',
           'weight': 10,
           'context': ['can:download'],
+          'place': 'right',
           'category': ['Download'],
           'extra': 'fasta',
           'keywords': ['export']
@@ -4451,6 +4453,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Download in GFF3 format',
           'weight': 10,
           'context': ['can:download'],
+          'place': 'right',
           'category': ['Download'],
           'extra': 'gff3',
           'keywords': ['export']
@@ -4458,6 +4461,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Download in XML format',
           'weight': 10,
           'context': ['can:download'],
+          'place': 'right',
           'category': ['Download'],
           'extra': 'xml',
           'keywords': ['export']
@@ -4465,6 +4469,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Download in JSON format',
           'weight': 10,
           'context': ['can:download'],
+          'place': 'right',
           'category': ['Download'],
           'extra': 'json',
           'keywords': ['export']
@@ -4472,6 +4477,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Download in BED format',
           'weight': 10,
           'context': ['can:download'],
+          'place': 'right',
           'category': ['Download'],
           'extra': 'bed',
           'keywords': ['export']
@@ -4485,6 +4491,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Save',
           'weight': 10,
           'context': ['can:save'],
+          'place': 'right',
           'category': ['Save'],
           'keywords': ['list']
         }
@@ -4497,30 +4504,35 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Generate code in Python',
           'weight': 10,
           'context': ['can:code'],
+          'place': 'right',
           'category': ['Code'],
           'extra': 'python'
         }, {
           'label': 'Generate code in JavaScript',
           'weight': 10,
           'context': ['can:code'],
+          'place': 'right',
           'category': ['Code'],
           'extra': 'js'
         }, {
           'label': 'Generate code in Ruby',
           'weight': 10,
           'context': ['can:code'],
+          'place': 'right',
           'category': ['Code'],
           'extra': 'ruby'
         }, {
           'label': 'Generate code in Java',
           'weight': 10,
           'context': ['can:code'],
+          'place': 'right',
           'category': ['Code'],
           'extra': 'java'
         }, {
           'label': 'Generate code in Perl',
           'weight': 10,
           'context': ['can:code'],
+          'place': 'right',
           'category': ['Code'],
           'extra': 'perl'
         }
@@ -4532,73 +4544,84 @@ window.require.register("tools/Registry", function(exports, require, module) {
         {
           'label': 'ArrayExpress Atlas',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://www.ebi.ac.uk/gxa/gene/<%= @id %>',
           'keywords': ['ebi']
         }, {
           'label': 'UniGene',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=unigene&cmd=search&term=<%= @symbol %>+AND+<%= @taxon %>[orgn]',
           'keywords': ['ncbi', 'entrez']
         }, {
           'label': 'FlyExpress',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://www.flyexpress.net/search.php?type=image&search=<%= @id %>'
         }, {
           'label': 'FlyBase',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://www.flybase.org/.bin/fbidq.html?<%= @id %>'
         }, {
           'label': 'GenomeRNAi',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://genomernai.de/GenomeRNAi/genedetails/<%= @id %>'
         }, {
           'label': 'ensembl',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://www.ensembl.org/Drosophila_melanogaster/geneview?db=core&gene=<%= @id %>',
           'keywords': ['drosophila']
         }, {
           'label': 'BDGP in situ',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://www.fruitfly.org/cgi-bin/ex/bquery.pl?qtype=report&find=<%= @id %>&searchfield=CG',
           'keywords': ['fruitfly']
         }, {
           'label': 'Entrez Gene',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=full_report&list_uids=<%= @id %>',
           'keywords': ['ncbi', 'entrez']
         }, {
           'label': 'FlyAtlas',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://flyatlas.org/atlas.cgi?name=<%= @id %>'
         }, {
           'label': 'Homologene',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&cmd=detailssearch&term=<%= @taxon %>[orgn]+<%= @symbol %>[Gene]',
           'keywords': ['ncbi']
         }, {
           'label': 'BioGRID',
           'weight': 10,
-          'context': ['place:linkout', 'can:linkout'],
+          'context': ['can:linkout'],
+          'place': 'linkout',
           'category': ['Linkouts'],
           'href': 'http://thebiogrid.org/search.php?search=<%= @id %>&organism=<%= @organism %>'
         }
@@ -4611,6 +4634,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Enrichment',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Gene ontology'],
           'extra': 'enrichment',
           'keywords': ['gene', 'ontology', 'enrich', 'widget']
@@ -4618,6 +4642,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Visualization',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Gene ontology'],
           'extra': 'chart',
           'keywords': ['gene', 'ontology', 'chart', 'graph', 'widget']
@@ -4625,6 +4650,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Enrichment',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Pathways'],
           'extra': 'enrichment',
           'keywords': ['pathways', 'enrich', 'widget']
@@ -4632,6 +4658,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Visualization',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Pathways'],
           'extra': 'chart',
           'keywords': ['pathways', 'chart', 'graph', 'widget']
@@ -4639,6 +4666,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Enrichment',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Literature'],
           'extra': 'enrichment',
           'keywords': ['literature', 'publications', 'enrich', 'widget']
@@ -4646,6 +4674,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Enrichment',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['fly-FISH expression experiment'],
           'extra': 'enrichment',
           'keywords': ['flyfish', 'expression', 'enrich', 'widget']
@@ -4653,6 +4682,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Visualization',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['fly-FISH expression experiment'],
           'extra': 'chart',
           'keywords': ['flyfish', 'expression', 'chart', 'graph', 'widget']
@@ -4660,6 +4690,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Enrichment',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['BDGP'],
           'extra': 'enrichment',
           'keywords': ['bdgp', 'enrich', 'widget']
@@ -4667,6 +4698,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Visualization',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['BDGP'],
           'extra': 'chart',
           'keywords': ['bdgp', 'chart', 'graph', 'widget']
@@ -4674,6 +4706,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Visualization',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Homologue'],
           'extra': 'chart',
           'keywords': ['homologue', 'chart', 'graph', 'widget']
@@ -4681,6 +4714,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Chromosome distribution',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Genes'],
           'extra': 'chart',
           'keywords': ['gene', 'chart', 'graph', 'widget']
@@ -4688,6 +4722,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Chromosome distribution',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Sequence Features'],
           'extra': 'chart',
           'keywords': ['sequence', 'chart', 'graph', 'widget']
@@ -4700,6 +4735,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Query',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Gene ontology'],
           'keywords': ['gene', 'ontology']
         }
@@ -4711,12 +4747,14 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Show gene summary',
           'weight': 10,
           'context': ['type:gene', 'n:1'],
+          'place': 'right',
           'category': ['Genes'],
           'keywords': ['report']
         }, {
           'label': 'Show gene summary',
           'weight': 10,
           'context': ['type:gene', 'n:1'],
+          'place': 'right',
           'category': ['Sequence Features'],
           'keywords': ['report']
         }
@@ -4728,18 +4766,21 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Cytoscape network',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Interactions'],
           'keywords': ['report', 'widget']
         }, {
           'label': 'Visualization',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Regulation'],
           'keywords': ['report', 'widget', 'regulation']
         }, {
           'label': 'Rat diseases',
           'weight': 10,
           'context': ['type:gene'],
+          'place': 'right',
           'category': ['Diseases'],
           'keywords': ['report', 'widget', 'disease']
         }
@@ -4751,6 +4792,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Show in a table',
           'weight': 10,
           'context': ['have:list'],
+          'place': 'right',
           'keywords': ['results']
         }
       ]
