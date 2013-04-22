@@ -3890,7 +3890,7 @@ window.require.register("tools/LinkoutTool/Model", function(exports, require, mo
     LinkoutTool.prototype.defaults = {
       'slug': 'linkout-tool',
       'name': 'LinkoutTool',
-      'type': 'deyork'
+      'type': 'goldentainoi'
     };
 
     return LinkoutTool;
@@ -3915,62 +3915,16 @@ window.require.register("tools/LinkoutTool/View", function(exports, require, mod
       return LinkoutToolView.__super__.constructor.apply(this, arguments);
     }
 
+    LinkoutToolView.prototype.attach = function() {
+      return LinkoutToolView.__super__.attach.apply(this, arguments);
+    };
+
     return LinkoutToolView;
 
   })(ToolView);
   
 });
 window.require.register("tools/LinkoutTool/step-1", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-      
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/LinkoutTool/step-2", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
     var __out = [], __capture = function(callback) {
@@ -4530,7 +4484,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'ArrayExpress Atlas',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://www.ebi.ac.uk/gxa/gene/<%= @id %>',
           'keywords': ['ebi']
@@ -4538,7 +4492,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'UniGene',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=unigene&cmd=search&term=<%= @symbol %>+AND+<%= @taxon %>[orgn]',
           'keywords': ['ncbi', 'entrez']
@@ -4546,28 +4500,28 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'FlyExpress',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://www.flyexpress.net/search.php?type=image&search=<%= @id %>'
         }, {
           'label': 'FlyBase',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://www.flybase.org/.bin/fbidq.html?<%= @id %>'
         }, {
           'label': 'GenomeRNAi',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://genomernai.de/GenomeRNAi/genedetails/<%= @id %>'
         }, {
           'label': 'ensembl',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://www.ensembl.org/Drosophila_melanogaster/geneview?db=core&gene=<%= @id %>',
           'keywords': ['drosophila']
@@ -4575,7 +4529,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'BDGP in situ',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://www.fruitfly.org/cgi-bin/ex/bquery.pl?qtype=report&find=<%= @id %>&searchfield=CG',
           'keywords': ['fruitfly']
@@ -4583,7 +4537,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'Entrez Gene',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=full_report&list_uids=<%= @id %>',
           'keywords': ['ncbi', 'entrez']
@@ -4591,14 +4545,14 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'FlyAtlas',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://flyatlas.org/atlas.cgi?name=<%= @id %>'
         }, {
           'label': 'Homologene',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&cmd=detailssearch&term=<%= @taxon %>[orgn]+<%= @symbol %>[Gene]',
           'keywords': ['ncbi']
@@ -4606,7 +4560,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'label': 'BioGRID',
           'weight': 10,
           'context': ['can:linkout'],
-          'place': 'linkout',
+          'place': 'right',
           'category': ['Linkouts'],
           'href': 'http://thebiogrid.org/search.php?search=<%= @id %>&organism=<%= @organism %>'
         }
@@ -5133,7 +5087,7 @@ window.require.register("tools/ResultsTableTool/View", function(exports, require
 
     ResultsTableTool.prototype.attach = function() {
       ResultsTableTool.__super__.attach.apply(this, arguments);
-      return Mediator.publish('context:new', ['have:list', 'can:download'], this.model.get('parent'));
+      return Mediator.publish('context:new', ['have:list', 'can:download', 'can:linkout'], this.model.get('parent'));
     };
 
     return ResultsTableTool;
@@ -5540,7 +5494,7 @@ window.require.register("tools/SetOperationsTool/Model", function(exports, requi
     SetOperationsTool.prototype.defaults = {
       'slug': 'set-operations-tool',
       'name': 'SetOperationsTool',
-      'type': 'deyork',
+      'type': 'kimberly',
       'steps': ['Choose lists and operation', 'See result']
     };
 

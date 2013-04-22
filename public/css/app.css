@@ -452,6 +452,9 @@ header#top .second #always-on ul.tools li {
   margin: 0;
   display: inline-block;
 }
+header#top .second #always-on ul.tools li:not(:last-child) {
+  margin-right: 6px;
+}
 header#top .second #always-on ul.tools li span.entypo {
   display: none;
 }
@@ -670,6 +673,7 @@ section#middle aside#left {
   width: 275px;
 }
 section#middle aside#right {
+  z-index: 2;
   background: #f5f6f9;
   -webkit-border-radius: 2px;
   border-radius: 2px;
@@ -932,12 +936,16 @@ section#middle .description dl dd:not(:last-child) {
   margin-bottom: 15px;
 }
 div#history {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%;
   height: 33%;
+}
+div#history > div {
+  margin-right: 295px;
   background: #fff;
-  border-top: 1px solid #bccad5;
+  border: 1px solid #bccad5;
+  border-width: 1px 1px 0 0;
   -webkit-box-shadow: -10px 0 10px rgba(0,0,0,0.2);
   box-shadow: -10px 0 10px rgba(0,0,0,0.2);
 }
