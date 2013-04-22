@@ -1830,7 +1830,7 @@ window.require.register("chaplin/templates/sidebar-right", function(exports, req
     (function() {
       (function() {
       
-        __out.push('<table class="tabs">\n    <tr>\n        <td class="active"><div><h3>Next Steps</h3></div></td>\n        <td class="inactive"><div><h3>Research Notes</h3></div></td>\n    </tr>\n</table>\n<div class="content">\n    <p class="description">The next steps you can take from here will be shown here.</p>\n    <div id="continue"></div>\n</div>');
+        __out.push('<table class="tabs">\n    <tr>\n        <td class="active"><div><h3>Next Steps</h3></div></td>\n        <td class="inactive"><div><h3>Research Notes</h3></div></td>\n    </tr>\n</table>\n<div class="content">\n    <div id="continue"></div>\n</div>');
       
       }).call(this);
       
@@ -3051,6 +3051,154 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
 
   })(GenericToolView);
   
+});
+window.require.register("tools/BlastTool/Model", function(exports, require, module) {
+  var BlastTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = BlastTool = (function(_super) {
+
+    __extends(BlastTool, _super);
+
+    function BlastTool() {
+      return BlastTool.__super__.constructor.apply(this, arguments);
+    }
+
+    BlastTool.prototype.defaults = {
+      'slug': 'blast-tool',
+      'name': 'BlastTool',
+      'type': 'deyork'
+    };
+
+    return BlastTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/BlastTool/View", function(exports, require, module) {
+  var BlastToolView, Mediator, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = BlastToolView = (function(_super) {
+
+    __extends(BlastToolView, _super);
+
+    function BlastToolView() {
+      return BlastToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return BlastToolView;
+
+  })(ToolView);
+  
+});
+window.require.register("tools/BlastTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+      
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/BlastTool/step-2", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+      
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
 });
 window.require.register("tools/DownloadTool/Model", function(exports, require, module) {
   var DownloadTool, Tool,
@@ -4985,7 +5133,7 @@ window.require.register("tools/ResultsTableTool/View", function(exports, require
 
     ResultsTableTool.prototype.attach = function() {
       ResultsTableTool.__super__.attach.apply(this, arguments);
-      return Mediator.publish('context:new', ['have:list'], this.model.get('parent'));
+      return Mediator.publish('context:new', ['have:list', 'can:download'], this.model.get('parent'));
     };
 
     return ResultsTableTool;
