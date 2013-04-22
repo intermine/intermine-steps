@@ -209,7 +209,7 @@ config = [
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://www.ebi.ac.uk/gxa/gene/<%= @id %>'
+                'extra': 'arrayexpress'
                 'keywords': [ 'ebi' ]
             }, {
                 'label': 'UniGene'
@@ -217,7 +217,7 @@ config = [
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=unigene&cmd=search&term=<%= @symbol %>+AND+<%= @taxon %>[orgn]'
+                'extra': 'unigene'
                 'keywords': [ 'ncbi', 'entrez' ]
             }, {
                 'label': 'FlyExpress'
@@ -225,28 +225,28 @@ config = [
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://www.flyexpress.net/search.php?type=image&search=<%= @id %>'
+                'extra': 'flyexpress'
             }, {
                 'label': 'FlyBase'
                 'weight': 10
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://www.flybase.org/.bin/fbidq.html?<%= @id %>'
+                'extra': 'flybase'
             }, {
                 'label': 'GenomeRNAi'
                 'weight': 10
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://genomernai.de/GenomeRNAi/genedetails/<%= @id %>'
+                'extra': 'genomernai'
             }, {
                 'label': 'ensembl'
                 'weight': 10
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://www.ensembl.org/Drosophila_melanogaster/geneview?db=core&gene=<%= @id %>'
+                'extra': 'ensembl'
                 'keywords': [ 'drosophila' ]
             }, {
                 'label': 'BDGP in situ'
@@ -254,7 +254,7 @@ config = [
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://www.fruitfly.org/cgi-bin/ex/bquery.pl?qtype=report&find=<%= @id %>&searchfield=CG'
+                'extra': 'bdgp'
                 'keywords': [ 'fruitfly' ]
             }, {
                 'label': 'Entrez Gene'
@@ -262,7 +262,7 @@ config = [
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=full_report&list_uids=<%= @id %>'
+                'extra': 'entrez'
                 'keywords': [ 'ncbi', 'entrez' ]
             }, {
                 'label': 'FlyAtlas'
@@ -270,14 +270,14 @@ config = [
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://flyatlas.org/atlas.cgi?name=<%= @id %>'
+                'extra': 'flyatlas'
             }, {
                 'label': 'Homologene'
                 'weight': 10
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&cmd=detailssearch&term=<%= @taxon %>[orgn]+<%= @symbol %>[Gene]'
+                'extra': 'homologene'
                 'keywords': [ 'ncbi' ]
             }, {
                 'label': 'BioGRID'
@@ -285,7 +285,7 @@ config = [
                 'context': [ 'can:linkout' ]
                 'place': 'right'
                 'category': [ 'Linkouts' ]
-                'href': 'http://thebiogrid.org/search.php?search=<%= @id %>&organism=<%= @organism %>'
+                'extra': 'biogrid'
             }
         ]
     }, {

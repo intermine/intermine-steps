@@ -3070,7 +3070,7 @@ window.require.register("tools/BlastTool/Model", function(exports, require, modu
     BlastTool.prototype.defaults = {
       'slug': 'blast-tool',
       'name': 'BlastTool',
-      'type': 'deyork'
+      'type': 'terracotta'
     };
 
     return BlastTool;
@@ -3890,7 +3890,9 @@ window.require.register("tools/LinkoutTool/Model", function(exports, require, mo
     LinkoutTool.prototype.defaults = {
       'slug': 'linkout-tool',
       'name': 'LinkoutTool',
-      'type': 'goldentainoi'
+      'title': 'Linking out',
+      'type': 'goldentainoi',
+      'steps': ['Please standby ...']
     };
 
     return LinkoutTool;
@@ -3916,7 +3918,31 @@ window.require.register("tools/LinkoutTool/View", function(exports, require, mod
     }
 
     LinkoutToolView.prototype.attach = function() {
-      return LinkoutToolView.__super__.attach.apply(this, arguments);
+      LinkoutToolView.__super__.attach.apply(this, arguments);
+      switch (this.options.extra) {
+        case 'arrayexpress':
+          return console.log('http://www.ebi.ac.uk/gxa/gene/<%= @id %>');
+        case 'unigene':
+          return console.log('http://www.ncbi.nlm.nih.gov/sites/entrez?db=unigene&cmd=search&term=<%= @symbol %>+AND+<%= @taxon %>[orgn]');
+        case 'flyexpress':
+          return console.log('http://www.flyexpress.net/search.php?type=image&search=<%= @id %>');
+        case 'flybase':
+          return console.log('http://www.flybase.org/.bin/fbidq.html?<%= @id %>');
+        case 'genomernai':
+          return console.log('http://genomernai.de/GenomeRNAi/genedetails/<%= @id %>');
+        case 'ensembl':
+          return console.log('http://www.ensembl.org/Drosophila_melanogaster/geneview?db=core&gene=<%= @id %>');
+        case 'bdgp':
+          return console.log('http://www.fruitfly.org/cgi-bin/ex/bquery.pl?qtype=report&find=<%= @id %>&searchfield=CG');
+        case 'entrez':
+          return console.log('http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=full_report&list_uids=<%= @id %>');
+        case 'flyatlas':
+          return console.log('http://flyatlas.org/atlas.cgi?name=<%= @id %>');
+        case 'homologene':
+          return console.log('http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&cmd=detailssearch&term=<%= @taxon %>[orgn]+<%= @symbol %>[Gene]');
+        case 'biogrid':
+          return console.log('http://thebiogrid.org/search.php?search=<%= @id %>&organism=<%= @organism %>');
+      }
     };
 
     return LinkoutToolView;
@@ -4486,7 +4512,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://www.ebi.ac.uk/gxa/gene/<%= @id %>',
+          'extra': 'arrayexpress',
           'keywords': ['ebi']
         }, {
           'label': 'UniGene',
@@ -4494,7 +4520,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=unigene&cmd=search&term=<%= @symbol %>+AND+<%= @taxon %>[orgn]',
+          'extra': 'unigene',
           'keywords': ['ncbi', 'entrez']
         }, {
           'label': 'FlyExpress',
@@ -4502,28 +4528,28 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://www.flyexpress.net/search.php?type=image&search=<%= @id %>'
+          'extra': 'flyexpress'
         }, {
           'label': 'FlyBase',
           'weight': 10,
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://www.flybase.org/.bin/fbidq.html?<%= @id %>'
+          'extra': 'flybase'
         }, {
           'label': 'GenomeRNAi',
           'weight': 10,
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://genomernai.de/GenomeRNAi/genedetails/<%= @id %>'
+          'extra': 'genomernai'
         }, {
           'label': 'ensembl',
           'weight': 10,
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://www.ensembl.org/Drosophila_melanogaster/geneview?db=core&gene=<%= @id %>',
+          'extra': 'ensembl',
           'keywords': ['drosophila']
         }, {
           'label': 'BDGP in situ',
@@ -4531,7 +4557,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://www.fruitfly.org/cgi-bin/ex/bquery.pl?qtype=report&find=<%= @id %>&searchfield=CG',
+          'extra': 'bdgp',
           'keywords': ['fruitfly']
         }, {
           'label': 'Entrez Gene',
@@ -4539,7 +4565,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=full_report&list_uids=<%= @id %>',
+          'extra': 'entrez',
           'keywords': ['ncbi', 'entrez']
         }, {
           'label': 'FlyAtlas',
@@ -4547,14 +4573,14 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://flyatlas.org/atlas.cgi?name=<%= @id %>'
+          'extra': 'flyatlas'
         }, {
           'label': 'Homologene',
           'weight': 10,
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&cmd=detailssearch&term=<%= @taxon %>[orgn]+<%= @symbol %>[Gene]',
+          'extra': 'homologene',
           'keywords': ['ncbi']
         }, {
           'label': 'BioGRID',
@@ -4562,7 +4588,7 @@ window.require.register("tools/Registry", function(exports, require, module) {
           'context': ['can:linkout'],
           'place': 'right',
           'category': ['Linkouts'],
-          'href': 'http://thebiogrid.org/search.php?search=<%= @id %>&organism=<%= @organism %>'
+          'extra': 'biogrid'
         }
       ]
     }, {
