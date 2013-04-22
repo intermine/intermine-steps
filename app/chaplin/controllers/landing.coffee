@@ -6,8 +6,6 @@ ModalView = require 'chaplin/views/Modal'
 
 module.exports = class LandingController extends Controller
 
-    historyURL: (params) -> ''
-
     index: (params) ->
         @views.push new LandingView()
         @views.push new ModalView()

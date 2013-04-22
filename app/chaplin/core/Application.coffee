@@ -22,16 +22,25 @@ module.exports = class InterMineSteps extends Chaplin.Application
     initialize: ->
         super
 
-        @dispatcher = new Dispatcher
+        # Register all routes.
+        @initRouter Routes
+
+        # Dispatcher listens for routing events and initialises controllers.
+        @initDispatcher
             'controllerPath':   'chaplin/controllers/'
             'controllerSuffix': ''
-        
+
+        # Layout listens for click events & delegates internal links to router.
         @initLayout()
 
+        # Composer grants the ability for views and stuff to be persisted.
+        @initComposer()
+
+        # Listen for context changes.
         @initRegistry()
 
-        # Register all routes and start routing
-        @initRouter Routes
+        # Actually start routing.
+        @startRouting()
 
         # Freeze the application instance to prevent further changes
         # Object.freeze? @
@@ -65,7 +74,7 @@ module.exports = class InterMineSteps extends Chaplin.Application
                             Model =  require "/tools/#{obj.name}/Model"
                             model = new Model()
                         catch e
-                            @publishEvent '!router:routeByName', 500
+                            @publishEvent '!router:routeByName', '500'
                             assert false, "Unknown tool `#{obj.name}`"
 
                         # Enhance the obj with extra info from the Model.

@@ -2,13 +2,11 @@ Controller = require 'chaplin/core/Controller'
 
 module.exports = class AppController extends Controller
 
-    historyURL: (params) -> ''
-
     afterAction:
         # If we have executed db reset...
         'reset': ->
             # ... redirect back to the landing page
-            @redirectToRoute('landing')
+            @redirectToRoute 'landing'
 
     # Reset the database.
     reset: (params) ->

@@ -13,9 +13,7 @@ root = @
 
 module.exports = class ToolsController extends Controller
 
-    historyURL: (params) -> ''
-
-    collection: root.History
+    'collection': root.History
 
     # Init the chrome.
     _chrome: ->
@@ -40,7 +38,7 @@ module.exports = class ToolsController extends Controller
             # Require the View.
             Clazz = require "tools/#{name}/View"
         catch e
-            @redirectToRoute 404
+            @redirectToRoute '404'
             assert false, "Unknown tool `#{name}`"
 
         # Render the View.
@@ -63,13 +61,13 @@ module.exports = class ToolsController extends Controller
             # Require the View.
             Clazz = require "tools/#{name}/View"
         catch e
-            @redirectToRoute 500
+            @redirectToRoute '500'
             assert false, "Unknown tool `#{name}`"
 
         previous = (@collection.where({ 'guid': guid })).pop()
         # Did we actually have a previous step?
         unless previous
-            @redirectToRoute 500
+            @redirectToRoute '500'
             assert false, 'No previous step'
 
         # Set the parent on us.
@@ -85,7 +83,7 @@ module.exports = class ToolsController extends Controller
         # Find the model in question.
         [ model ] = @collection.where 'guid': guid
         unless model
-            @redirectToRoute 500
+            @redirectToRoute '500'
             assert false, 'We do not have this Model in History'
 
         @_chrome()
@@ -96,7 +94,7 @@ module.exports = class ToolsController extends Controller
             # Require the View.
             Clazz = require "tools/#{name}/View"
         catch e
-            @redirectToRoute 500
+            @redirectToRoute '500'
             assert false, "Unknown tool `#{name}`"
 
         # Dupe so we set new data on a new model.

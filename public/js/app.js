@@ -94,10 +94,6 @@ window.require.register("chaplin/controllers/app", function(exports, require, mo
       return AppController.__super__.constructor.apply(this, arguments);
     }
 
-    AppController.prototype.historyURL = function(params) {
-      return '';
-    };
-
     AppController.prototype.afterAction = {
       'reset': function() {
         return this.redirectToRoute('landing');
@@ -132,10 +128,6 @@ window.require.register("chaplin/controllers/error", function(exports, require, 
     function ErrorController() {
       return ErrorController.__super__.constructor.apply(this, arguments);
     }
-
-    ErrorController.prototype.historyURL = function(params) {
-      return '';
-    };
 
     ErrorController.prototype[404] = function(params) {
       this.views.push(new ErrorView({
@@ -176,10 +168,6 @@ window.require.register("chaplin/controllers/landing", function(exports, require
     function LandingController() {
       return LandingController.__super__.constructor.apply(this, arguments);
     }
-
-    LandingController.prototype.historyURL = function(params) {
-      return '';
-    };
 
     LandingController.prototype.index = function(params) {
       this.views.push(new LandingView());
@@ -223,11 +211,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       return ToolsController.__super__.constructor.apply(this, arguments);
     }
 
-    ToolsController.prototype.historyURL = function(params) {
-      return '';
-    };
-
-    ToolsController.prototype.collection = root.History;
+    ToolsController.prototype['collection'] = root.History;
 
     ToolsController.prototype._chrome = function() {
       this.views.push(new AppView());
@@ -249,7 +233,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
         model = new Clazz();
         Clazz = require("tools/" + name + "/View");
       } catch (e) {
-        this.redirectToRoute(404);
+        this.redirectToRoute('404');
         assert(false, "Unknown tool `" + name + "`");
       }
       this.views.push(new Clazz({
@@ -269,14 +253,14 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
         model = new Clazz();
         Clazz = require("tools/" + name + "/View");
       } catch (e) {
-        this.redirectToRoute(500);
+        this.redirectToRoute('500');
         assert(false, "Unknown tool `" + name + "`");
       }
       previous = (this.collection.where({
         'guid': guid
       })).pop();
       if (!previous) {
-        this.redirectToRoute(500);
+        this.redirectToRoute('500');
         assert(false, 'No previous step');
       }
       model.set({
@@ -297,7 +281,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
         'guid': guid
       })[0];
       if (!model) {
-        this.redirectToRoute(500);
+        this.redirectToRoute('500');
         assert(false, 'We do not have this Model in History');
       }
       this._chrome();
@@ -305,7 +289,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       try {
         Clazz = require("tools/" + name + "/View");
       } catch (e) {
-        this.redirectToRoute(500);
+        this.redirectToRoute('500');
         assert(false, "Unknown tool `" + name + "`");
       }
       model = this.collection.dupe(model);
@@ -360,13 +344,15 @@ window.require.register("chaplin/core/Application", function(exports, require, m
 
     InterMineSteps.prototype.initialize = function() {
       InterMineSteps.__super__.initialize.apply(this, arguments);
-      this.dispatcher = new Dispatcher({
+      this.initRouter(Routes);
+      this.initDispatcher({
         'controllerPath': 'chaplin/controllers/',
         'controllerSuffix': ''
       });
       this.initLayout();
+      this.initComposer();
       this.initRegistry();
-      return this.initRouter(Routes);
+      return this.startRouting();
     };
 
     InterMineSteps.prototype.initLayout = function() {
@@ -405,7 +391,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
                   Model = require("/tools/" + obj.name + "/Model");
                   model = new Model();
                 } catch (e) {
-                  this.publishEvent('!router:routeByName', 500);
+                  this.publishEvent('!router:routeByName', '500');
                   assert(false, "Unknown tool `" + obj.name + "`");
                 }
                 obj.type = model.get('type');
@@ -773,10 +759,10 @@ window.require.register("chaplin/core/Routes", function(exports, require, module
       name: 'results'
     });
     match('error/404', 'error#404', {
-      name: 404
+      name: '404'
     });
     match('error/500', 'error#500', {
-      name: 500
+      name: '500'
     });
     return match('app/reset', 'app#reset', {
       name: 'reset'
@@ -3066,105 +3052,94 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
   })(GenericToolView);
   
 });
-window.require.register("tools/BlastTool/step-1", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
+window.require.register("tools/DownloadTool/Model", function(exports, require, module) {
+  var DownloadTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = DownloadTool = (function(_super) {
+
+    __extends(DownloadTool, _super);
+
+    function DownloadTool() {
+      return DownloadTool.__super__.constructor.apply(this, arguments);
     }
-    (function() {
-      (function() {
-      
-      
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
+
+    DownloadTool.prototype.defaults = {
+      'slug': 'download-tool',
+      'name': 'DownloadTool',
+      'type': 'turq',
+      'steps': ['Choose export format', 'Download exported data']
+    };
+
+    return DownloadTool;
+
+  })(Tool);
+  
 });
-window.require.register("tools/BlastTool/step-2", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
+window.require.register("tools/DownloadTool/View", function(exports, require, module) {
+  var DownloadToolView, Mediator, ToolView,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = DownloadToolView = (function(_super) {
+
+    __extends(DownloadToolView, _super);
+
+    function DownloadToolView() {
+      this.exportData = __bind(this.exportData, this);
+      return DownloadToolView.__super__.constructor.apply(this, arguments);
     }
-    (function() {
-      (function() {
-      
-      
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
+
+    DownloadToolView.prototype.attach = function() {
+      var data, format, list, _ref, _ref1, _ref2, _ref3,
+        _this = this;
+      DownloadToolView.__super__.attach.apply(this, arguments);
+      switch (this.step) {
+        case 1:
+          data = {};
+          list = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0;
+          if (list) {
+            data.pq = "<xml key=\"" + list.key + "\"><item select=\"random\"></item></xml>";
+          }
+          format = (_ref3 = this.options) != null ? _ref3.extra : void 0;
+          if (format) {
+            data.format = format;
+          }
+          if (data.pq && data.format) {
+            this.exportData(data);
+          }
+      }
+      return this.delegate('click', '#submit', function() {
+        var dom;
+        dom = _this.getDOM();
+        return _this.exportData({
+          'pq': dom.find('textarea.pq').val(),
+          'format': dom.find('select.format').val()
+        });
+      });
+    };
+
+    DownloadToolView.prototype.exportData = function(data) {
+      assert(data, 'No input data provided');
+      this.model.set({
+        'data': data
+      });
+      Mediator.publish('history:add', this.model);
+      return Mediator.publish('tool:step', this.step += 1);
+    };
+
+    return DownloadToolView;
+
+  })(ToolView);
+  
 });
 window.require.register("tools/DownloadTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
@@ -3291,6 +3266,152 @@ window.require.register("tools/DownloadTool/step-2", function(exports, require, 
     __obj.safe = __objSafe, __obj.escape = __escape;
     return __out.join('');
   }
+});
+window.require.register("tools/EnrichListTool/Model", function(exports, require, module) {
+  var EnrichListTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = EnrichListTool = (function(_super) {
+
+    __extends(EnrichListTool, _super);
+
+    function EnrichListTool() {
+      return EnrichListTool.__super__.constructor.apply(this, arguments);
+    }
+
+    EnrichListTool.prototype.defaults = {
+      'slug': 'enrich-list-tool',
+      'name': 'EnrichListTool',
+      'title': 'Enrich a List',
+      'description': 'Show a list enrichment chart',
+      'type': 'crail',
+      'steps': ['Choose a list', 'See Chart']
+    };
+
+    return EnrichListTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/EnrichListTool/View", function(exports, require, module) {
+  var EnrichListToolView, Mediator, ToolView, lists,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  lists = [
+    {
+      key: 'acme',
+      name: 'ACME/Herman Inc.',
+      items: ['Scott Golden', 'Ronan Buckley', 'Bevis Herman', 'Linus Melendez', 'Jameson Maddox']
+    }, {
+      key: 'caldwell',
+      name: 'The Caldwell Trust',
+      items: ['Caldwell Little', 'Hyatt Dudley', 'Herman Parks', 'Abdul Owens', 'Tyrone Banks']
+    }
+  ];
+
+  module.exports = EnrichListToolView = (function(_super) {
+
+    __extends(EnrichListToolView, _super);
+
+    function EnrichListToolView() {
+      this.enrichList = __bind(this.enrichList, this);
+
+      this.selectList = __bind(this.selectList, this);
+      return EnrichListToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    EnrichListToolView.prototype.getTemplateData = function() {
+      var found, l, list, _i, _len, _ref, _ref1;
+      switch (this.step) {
+        case 1:
+          list = (_ref = this.model.get('data')) != null ? _ref.list : void 0;
+          if (list) {
+            found = false;
+            _ref1 = this.lists;
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              l = _ref1[_i];
+              if (!found) {
+                if (l.key === list.key) {
+                  l.selected = true;
+                  found = true;
+                }
+              }
+            }
+            if (!found) {
+              list.selected = true;
+              this.lists.push(list);
+            }
+            this.selected = list;
+          }
+          return _.extend(EnrichListToolView.__super__.getTemplateData.apply(this, arguments), {
+            'lists': this.lists
+          });
+        default:
+          return EnrichListToolView.__super__.getTemplateData.apply(this, arguments);
+      }
+    };
+
+    EnrichListToolView.prototype.initialize = function() {
+      EnrichListToolView.__super__.initialize.apply(this, arguments);
+      return this.lists = this.property(lists);
+    };
+
+    EnrichListToolView.prototype.attach = function() {
+      var list, _ref, _ref1, _ref2;
+      EnrichListToolView.__super__.attach.apply(this, arguments);
+      switch (this.step) {
+        case 1:
+          list = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0;
+          if (list) {
+            this.selected = list;
+            this.enrichList();
+          }
+          break;
+        case 2:
+          assert(this.model.get('data'), 'List not provided');
+          Mediator.publish('context:new', ['have:list'], this.model.get('guid'));
+      }
+      this.delegate('click', 'input.check', this.selectList);
+      this.delegate('click', '#submit', this.enrichList);
+      return this;
+    };
+
+    EnrichListToolView.prototype.selectList = function(e) {
+      $(this.el).find('table input.check').prop('checked', false);
+      this.selected = this.lists[$(e.target).attr('data-key')];
+      return $(e.target).prop('checked', true);
+    };
+
+    EnrichListToolView.prototype.enrichList = function() {
+      if (!this.selected) {
+        return Mediator.publish('modal:render', {
+          'title': 'Oops &hellip;',
+          'text': 'You have not selected any lists.'
+        });
+      } else {
+        this.model.set({
+          'data': {
+            'list': this.selected
+          }
+        });
+        Mediator.publish('history:add', this.model);
+        return Mediator.publish('tool:step', this.step += 1);
+      }
+    };
+
+    return EnrichListToolView;
+
+  })(ToolView);
+  
 });
 window.require.register("tools/EnrichListTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
@@ -3454,6 +3575,55 @@ window.require.register("tools/EnrichListTool/step-2", function(exports, require
     return __out.join('');
   }
 });
+window.require.register("tools/GenerateCodeTool/Model", function(exports, require, module) {
+  var GenerateCodeTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = GenerateCodeTool = (function(_super) {
+
+    __extends(GenerateCodeTool, _super);
+
+    function GenerateCodeTool() {
+      return GenerateCodeTool.__super__.constructor.apply(this, arguments);
+    }
+
+    GenerateCodeTool.prototype.defaults = {
+      'slug': 'generate-code-tool',
+      'name': 'GenerateCodeTool',
+      'type': 'deyork',
+      'steps': ['Choose input', 'See code']
+    };
+
+    return GenerateCodeTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/GenerateCodeTool/View", function(exports, require, module) {
+  var GenerateCodeToolView, Mediator, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = GenerateCodeToolView = (function(_super) {
+
+    __extends(GenerateCodeToolView, _super);
+
+    function GenerateCodeToolView() {
+      return GenerateCodeToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return GenerateCodeToolView;
+
+  })(ToolView);
+  
+});
 window.require.register("tools/GenerateCodeTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -3553,6 +3723,54 @@ window.require.register("tools/GenerateCodeTool/step-2", function(exports, requi
     __obj.safe = __objSafe, __obj.escape = __escape;
     return __out.join('');
   }
+});
+window.require.register("tools/LinkoutTool/Model", function(exports, require, module) {
+  var LinkoutTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = LinkoutTool = (function(_super) {
+
+    __extends(LinkoutTool, _super);
+
+    function LinkoutTool() {
+      return LinkoutTool.__super__.constructor.apply(this, arguments);
+    }
+
+    LinkoutTool.prototype.defaults = {
+      'slug': 'linkout-tool',
+      'name': 'LinkoutTool',
+      'type': 'deyork'
+    };
+
+    return LinkoutTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/LinkoutTool/View", function(exports, require, module) {
+  var LinkoutToolView, Mediator, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = LinkoutToolView = (function(_super) {
+
+    __extends(LinkoutToolView, _super);
+
+    function LinkoutToolView() {
+      return LinkoutToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return LinkoutToolView;
+
+  })(ToolView);
+  
 });
 window.require.register("tools/LinkoutTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
@@ -3654,6 +3872,55 @@ window.require.register("tools/LinkoutTool/step-2", function(exports, require, m
     return __out.join('');
   }
 });
+window.require.register("tools/ListWidgetTool/Model", function(exports, require, module) {
+  var ListWidgetTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = ListWidgetTool = (function(_super) {
+
+    __extends(ListWidgetTool, _super);
+
+    function ListWidgetTool() {
+      return ListWidgetTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ListWidgetTool.prototype.defaults = {
+      'slug': 'list-widget-tool',
+      'name': 'ListWidgetTool',
+      'type': 'deyork',
+      'steps': ['Choose input', 'See widget']
+    };
+
+    return ListWidgetTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/ListWidgetTool/View", function(exports, require, module) {
+  var ListWidgetToolView, Mediator, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = ListWidgetToolView = (function(_super) {
+
+    __extends(ListWidgetToolView, _super);
+
+    function ListWidgetToolView() {
+      return ListWidgetToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return ListWidgetToolView;
+
+  })(ToolView);
+  
+});
 window.require.register("tools/ListWidgetTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -3753,6 +4020,55 @@ window.require.register("tools/ListWidgetTool/step-2", function(exports, require
     __obj.safe = __objSafe, __obj.escape = __escape;
     return __out.join('');
   }
+});
+window.require.register("tools/QueryBuilderTool/Model", function(exports, require, module) {
+  var QueryBuilderTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = QueryBuilderTool = (function(_super) {
+
+    __extends(QueryBuilderTool, _super);
+
+    function QueryBuilderTool() {
+      return QueryBuilderTool.__super__.constructor.apply(this, arguments);
+    }
+
+    QueryBuilderTool.prototype.defaults = {
+      'slug': 'query-builder-tool',
+      'name': 'QueryBuilderTool',
+      'type': 'deyork',
+      'steps': ['Build query', 'See query']
+    };
+
+    return QueryBuilderTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/QueryBuilderTool/View", function(exports, require, module) {
+  var Mediator, QueryBuilderView, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = QueryBuilderView = (function(_super) {
+
+    __extends(QueryBuilderView, _super);
+
+    function QueryBuilderView() {
+      return QueryBuilderView.__super__.constructor.apply(this, arguments);
+    }
+
+    return QueryBuilderView;
+
+  })(ToolView);
+  
 });
 window.require.register("tools/QueryBuilderTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
@@ -3854,6 +4170,524 @@ window.require.register("tools/QueryBuilderTool/step-2", function(exports, requi
     return __out.join('');
   }
 });
+window.require.register("tools/Registry", function(exports, require, module) {
+  var config;
+
+  config = [
+    {
+      'slug': 'upload-tool',
+      'help': 'On first step choose between list, template, region search that changes the form on step 1',
+      'labels': [
+        {
+          'label': 'Upload',
+          'weight': 10,
+          'place': 'header',
+          'keywords': ['list', 'template', 'region']
+        }, {
+          'label': 'Upload list, template or a region',
+          'weight': 10,
+          'place': 'home',
+          'keywords': ['list', 'template', 'region']
+        }
+      ]
+    }, {
+      'slug': 'search-tool',
+      'help': 'Filter tools on the page & run quick search on the server',
+      'labels': [
+        {
+          'label': 'Search',
+          'weight': 10,
+          'place': 'header',
+          'keywords': ['filter']
+        }
+      ]
+    }, {
+      'slug': 'query-builder-tool',
+      'help': 'A query builder or a tool that suggest a query based on your input',
+      'labels': [
+        {
+          'label': 'Build some stuff',
+          'weight': 10,
+          'place': 'right',
+          'category': ['Start again'],
+          'keywords': ['query', 'builder', 'suggest']
+        }
+      ]
+    }, {
+      'slug': 'blast-tool',
+      'help': 'Concordia example tool',
+      'labels': [
+        {
+          'label': 'BLAST from the past',
+          'weight': 10,
+          'place': 'right',
+          'category': ['Start again'],
+          'keywords': ['concordia']
+        }
+      ]
+    }, {
+      'slug': 'set-operations-tool',
+      'help': 'You can always do set operations on a list',
+      'labels': [
+        {
+          'label': 'Do set operations',
+          'weight': 10,
+          'place': 'right',
+          'category': ['Start again'],
+          'keywords': ['union', 'intersection', 'subtraction']
+        }, {
+          'label': 'List union',
+          'weight': 10,
+          'context': ['have:list'],
+          'place': 'right',
+          'category': ['Set operations'],
+          'extra': 'union'
+        }, {
+          'label': 'List intersection',
+          'weight': 10,
+          'context': ['have:list'],
+          'place': 'right',
+          'category': ['Set operations'],
+          'extra': 'intersection'
+        }, {
+          'label': 'List subtraction',
+          'weight': 10,
+          'context': ['have:list'],
+          'place': 'right',
+          'category': ['Set operations'],
+          'extra': 'subtraction'
+        }
+      ]
+    }, {
+      'slug': 'download-tool',
+      'help': 'tab, csv, sequence (fasta), gff3, xml, json, bed',
+      'labels': [
+        {
+          'label': 'Download in TAB format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'tab',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in CSV format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'csv',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in sequence format (FASTA)',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'fasta',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in GFF3 format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'gff3',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in XML format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'xml',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in JSON format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'json',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in BED format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'bed',
+          'keywords': ['export']
+        }
+      ]
+    }, {
+      'slug': 'save-tool',
+      'help': 'when something is saveable, usually it will be a list',
+      'labels': [
+        {
+          'label': 'Save',
+          'weight': 10,
+          'context': ['can:save'],
+          'place': 'right',
+          'category': ['Save'],
+          'keywords': ['list']
+        }
+      ]
+    }, {
+      'slug': 'generate-code-tool',
+      'help': 'python, js, ruby, java, perl',
+      'labels': [
+        {
+          'label': 'Generate code in Python',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'python'
+        }, {
+          'label': 'Generate code in JavaScript',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'js'
+        }, {
+          'label': 'Generate code in Ruby',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'ruby'
+        }, {
+          'label': 'Generate code in Java',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'java'
+        }, {
+          'label': 'Generate code in Perl',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'perl'
+        }
+      ]
+    }, {
+      'slug': 'linkout-tool',
+      'help': 'not a tool per se, a link is one provided by config; has an icon to show this fact',
+      'labels': [
+        {
+          'label': 'ArrayExpress Atlas',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://www.ebi.ac.uk/gxa/gene/<%= @id %>',
+          'keywords': ['ebi']
+        }, {
+          'label': 'UniGene',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=unigene&cmd=search&term=<%= @symbol %>+AND+<%= @taxon %>[orgn]',
+          'keywords': ['ncbi', 'entrez']
+        }, {
+          'label': 'FlyExpress',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://www.flyexpress.net/search.php?type=image&search=<%= @id %>'
+        }, {
+          'label': 'FlyBase',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://www.flybase.org/.bin/fbidq.html?<%= @id %>'
+        }, {
+          'label': 'GenomeRNAi',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://genomernai.de/GenomeRNAi/genedetails/<%= @id %>'
+        }, {
+          'label': 'ensembl',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://www.ensembl.org/Drosophila_melanogaster/geneview?db=core&gene=<%= @id %>',
+          'keywords': ['drosophila']
+        }, {
+          'label': 'BDGP in situ',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://www.fruitfly.org/cgi-bin/ex/bquery.pl?qtype=report&find=<%= @id %>&searchfield=CG',
+          'keywords': ['fruitfly']
+        }, {
+          'label': 'Entrez Gene',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?db=gene&cmd=Retrieve&dopt=full_report&list_uids=<%= @id %>',
+          'keywords': ['ncbi', 'entrez']
+        }, {
+          'label': 'FlyAtlas',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://flyatlas.org/atlas.cgi?name=<%= @id %>'
+        }, {
+          'label': 'Homologene',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://www.ncbi.nlm.nih.gov/sites/entrez?Db=homologene&cmd=detailssearch&term=<%= @taxon %>[orgn]+<%= @symbol %>[Gene]',
+          'keywords': ['ncbi']
+        }, {
+          'label': 'BioGRID',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'linkout',
+          'category': ['Linkouts'],
+          'href': 'http://thebiogrid.org/search.php?search=<%= @id %>&organism=<%= @organism %>'
+        }
+      ]
+    }, {
+      'slug': 'list-widget-tool',
+      'help': 'List Widgets',
+      'labels': [
+        {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Gene ontology'],
+          'extra': 'enrichment',
+          'keywords': ['gene', 'ontology', 'enrich', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Gene ontology'],
+          'extra': 'chart',
+          'keywords': ['gene', 'ontology', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Pathways'],
+          'extra': 'enrichment',
+          'keywords': ['pathways', 'enrich', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Pathways'],
+          'extra': 'chart',
+          'keywords': ['pathways', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Literature'],
+          'extra': 'enrichment',
+          'keywords': ['literature', 'publications', 'enrich', 'widget']
+        }, {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['fly-FISH expression experiment'],
+          'extra': 'enrichment',
+          'keywords': ['flyfish', 'expression', 'enrich', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['fly-FISH expression experiment'],
+          'extra': 'chart',
+          'keywords': ['flyfish', 'expression', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['BDGP'],
+          'extra': 'enrichment',
+          'keywords': ['bdgp', 'enrich', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['BDGP'],
+          'extra': 'chart',
+          'keywords': ['bdgp', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Homologue'],
+          'extra': 'chart',
+          'keywords': ['homologue', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Chromosome distribution',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Genes'],
+          'extra': 'chart',
+          'keywords': ['gene', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Chromosome distribution',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Sequence Features'],
+          'extra': 'chart',
+          'keywords': ['sequence', 'chart', 'graph', 'widget']
+        }
+      ]
+    }, {
+      'slug': 'query-tool',
+      'labels': [
+        {
+          'label': 'Query',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Gene ontology'],
+          'keywords': ['gene', 'ontology']
+        }
+      ]
+    }, {
+      'slug': 'report-tool',
+      'labels': [
+        {
+          'label': 'Show gene summary',
+          'weight': 10,
+          'context': ['type:gene', 'n:1'],
+          'place': 'right',
+          'category': ['Genes'],
+          'keywords': ['report']
+        }, {
+          'label': 'Show gene summary',
+          'weight': 10,
+          'context': ['type:gene', 'n:1'],
+          'place': 'right',
+          'category': ['Sequence Features'],
+          'keywords': ['report']
+        }
+      ]
+    }, {
+      'slug': 'report-widget-tool',
+      'labels': [
+        {
+          'label': 'Cytoscape network',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Interactions'],
+          'keywords': ['report', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Regulation'],
+          'keywords': ['report', 'widget', 'regulation']
+        }, {
+          'label': 'Rat diseases',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Diseases'],
+          'keywords': ['report', 'widget', 'disease']
+        }
+      ]
+    }, {
+      'slug': 'results-table-tool',
+      'labels': [
+        {
+          'label': 'Show in a table',
+          'weight': 10,
+          'context': ['have:list'],
+          'place': 'right',
+          'keywords': ['results']
+        }
+      ]
+    }
+  ];
+
+  module.exports = config;
+  
+});
+window.require.register("tools/ReportTool/Model", function(exports, require, module) {
+  var ReportTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = ReportTool = (function(_super) {
+
+    __extends(ReportTool, _super);
+
+    function ReportTool() {
+      return ReportTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ReportTool.prototype.defaults = {
+      'slug': 'report-tool',
+      'name': 'ReportTool',
+      'type': 'deyork',
+      'steps': ['Choose input object', 'See report page']
+    };
+
+    return ReportTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/ReportTool/View", function(exports, require, module) {
+  var Mediator, ReportToolView, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = ReportToolView = (function(_super) {
+
+    __extends(ReportToolView, _super);
+
+    function ReportToolView() {
+      return ReportToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return ReportToolView;
+
+  })(ToolView);
+  
+});
 window.require.register("tools/ReportTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -3953,6 +4787,55 @@ window.require.register("tools/ReportTool/step-2", function(exports, require, mo
     __obj.safe = __objSafe, __obj.escape = __escape;
     return __out.join('');
   }
+});
+window.require.register("tools/ReportWidgetTool/Model", function(exports, require, module) {
+  var ReportWidgetTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = ReportWidgetTool = (function(_super) {
+
+    __extends(ReportWidgetTool, _super);
+
+    function ReportWidgetTool() {
+      return ReportWidgetTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ReportWidgetTool.prototype.defaults = {
+      'slug': 'report-widget-tool',
+      'name': 'ReportWidgetTool',
+      'type': 'deyork',
+      'steps': ['Choose input', 'See widget']
+    };
+
+    return ReportWidgetTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/ReportWidgetTool/View", function(exports, require, module) {
+  var Mediator, ReportWidgetToolView, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = ReportWidgetToolView = (function(_super) {
+
+    __extends(ReportWidgetToolView, _super);
+
+    function ReportWidgetToolView() {
+      return ReportWidgetToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return ReportWidgetToolView;
+
+  })(ToolView);
+  
 });
 window.require.register("tools/ReportWidgetTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
@@ -4054,6 +4937,62 @@ window.require.register("tools/ReportWidgetTool/step-2", function(exports, requi
     return __out.join('');
   }
 });
+window.require.register("tools/ResultsTableTool/Model", function(exports, require, module) {
+  var ResultsTableTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = ResultsTableTool = (function(_super) {
+
+    __extends(ResultsTableTool, _super);
+
+    function ResultsTableTool() {
+      return ResultsTableTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ResultsTableTool.prototype.defaults = {
+      'slug': 'results-table-tool',
+      'name': 'ResultsTableTool',
+      'title': 'Results Table',
+      'description': 'Show a table of results',
+      'type': 'curiousblue',
+      'steps': ['See Table']
+    };
+
+    return ResultsTableTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/ResultsTableTool/View", function(exports, require, module) {
+  var Mediator, ResultsTableTool, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = ResultsTableTool = (function(_super) {
+
+    __extends(ResultsTableTool, _super);
+
+    function ResultsTableTool() {
+      return ResultsTableTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ResultsTableTool.prototype.attach = function() {
+      ResultsTableTool.__super__.attach.apply(this, arguments);
+      return Mediator.publish('context:new', ['have:list'], this.model.get('parent'));
+    };
+
+    return ResultsTableTool;
+
+  })(ToolView);
+  
+});
 window.require.register("tools/ResultsTableTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -4118,6 +5057,55 @@ window.require.register("tools/ResultsTableTool/step-1", function(exports, requi
     __obj.safe = __objSafe, __obj.escape = __escape;
     return __out.join('');
   }
+});
+window.require.register("tools/SaveTool/Model", function(exports, require, module) {
+  var SaveTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = SaveTool = (function(_super) {
+
+    __extends(SaveTool, _super);
+
+    function SaveTool() {
+      return SaveTool.__super__.constructor.apply(this, arguments);
+    }
+
+    SaveTool.prototype.defaults = {
+      'slug': 'save-tool',
+      'name': 'SaveTool',
+      'type': 'deyork',
+      'steps': ['Choose input', 'Save data']
+    };
+
+    return SaveTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/SaveTool/View", function(exports, require, module) {
+  var Mediator, SaveToolView, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = SaveToolView = (function(_super) {
+
+    __extends(SaveToolView, _super);
+
+    function SaveToolView() {
+      return SaveToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return SaveToolView;
+
+  })(ToolView);
+  
 });
 window.require.register("tools/SaveTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
@@ -4237,6 +5225,55 @@ window.require.register("tools/SaveTool/step-2", function(exports, require, modu
     return __out.join('');
   }
 });
+window.require.register("tools/SearchTool/Model", function(exports, require, module) {
+  var SearchTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = SearchTool = (function(_super) {
+
+    __extends(SearchTool, _super);
+
+    function SearchTool() {
+      return SearchTool.__super__.constructor.apply(this, arguments);
+    }
+
+    SearchTool.prototype.defaults = {
+      'slug': 'search-tool',
+      'name': 'SearchTool',
+      'type': 'deyork',
+      'steps': ['Input query', 'See result']
+    };
+
+    return SearchTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/SearchTool/View", function(exports, require, module) {
+  var Mediator, SearchToolView, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = SearchToolView = (function(_super) {
+
+    __extends(SearchToolView, _super);
+
+    function SearchToolView() {
+      return SearchToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return SearchToolView;
+
+  })(ToolView);
+  
+});
 window.require.register("tools/SearchTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -4337,6 +5374,55 @@ window.require.register("tools/SearchTool/step-2", function(exports, require, mo
     return __out.join('');
   }
 });
+window.require.register("tools/SetOperationsTool/Model", function(exports, require, module) {
+  var SetOperationsTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = SetOperationsTool = (function(_super) {
+
+    __extends(SetOperationsTool, _super);
+
+    function SetOperationsTool() {
+      return SetOperationsTool.__super__.constructor.apply(this, arguments);
+    }
+
+    SetOperationsTool.prototype.defaults = {
+      'slug': 'set-operations-tool',
+      'name': 'SetOperationsTool',
+      'type': 'deyork',
+      'steps': ['Choose lists and operation', 'See result']
+    };
+
+    return SetOperationsTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/SetOperationsTool/View", function(exports, require, module) {
+  var Mediator, SetOperationsToolView, ToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = SetOperationsToolView = (function(_super) {
+
+    __extends(SetOperationsToolView, _super);
+
+    function SetOperationsToolView() {
+      return SetOperationsToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    return SetOperationsToolView;
+
+  })(ToolView);
+  
+});
 window.require.register("tools/SetOperationsTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -4436,6 +5522,77 @@ window.require.register("tools/SetOperationsTool/step-2", function(exports, requ
     __obj.safe = __objSafe, __obj.escape = __escape;
     return __out.join('');
   }
+});
+window.require.register("tools/UploadTool/Model", function(exports, require, module) {
+  var Tool, UploadListTool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = UploadListTool = (function(_super) {
+
+    __extends(UploadListTool, _super);
+
+    function UploadListTool() {
+      return UploadListTool.__super__.constructor.apply(this, arguments);
+    }
+
+    UploadListTool.prototype.defaults = {
+      'slug': 'upload-tool',
+      'name': 'UploadTool',
+      'title': 'Upload a List',
+      'description': 'Upload a list of identifiers',
+      'type': 'deyork',
+      'steps': ['Input Identifiers', 'See Result']
+    };
+
+    return UploadListTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/UploadTool/View", function(exports, require, module) {
+  var Mediator, ToolView, UploadListToolView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  module.exports = UploadListToolView = (function(_super) {
+
+    __extends(UploadListToolView, _super);
+
+    function UploadListToolView() {
+      return UploadListToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    UploadListToolView.prototype.attach = function() {
+      UploadListToolView.__super__.attach.apply(this, arguments);
+      switch (this.step) {
+        case 2:
+          Mediator.publish('context:new', ['have:list'], this.model.get('guid'));
+      }
+      this.delegate('click', '#submit', function() {
+        this.model.set('data', {
+          'list': {
+            key: 'temp',
+            name: 'Just uploaded',
+            items: this.getDOM().find('form textarea').val().split(' ')
+          }
+        });
+        Mediator.publish('history:add', this.model);
+        return Mediator.publish('tool:step', this.step += 1);
+      });
+      return this;
+    };
+
+    return UploadListToolView;
+
+  })(ToolView);
+  
 });
 window.require.register("tools/UploadTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {

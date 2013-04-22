@@ -2,14 +2,13 @@ exports.config =
     files:
         javascripts:
             joinTo:
-                'js/app.js': /^app\/chaplin/
-                'js/tools.js': /^tools/
+                'js/app.js': /^app\/(chaplin|tools)/
                 'js/vendor.js': /^vendor\/js/
             order:
                 before: [
                     'vendor/js/jquery-1.9.1.js',
                     'vendor/js/underscore-1.4.4.js',
-                    'vendor/js/backbone-0.9.10.js',
+                    'vendor/js/backbone-1.0.0.js',
                     'vendor/js/rainbow.js'
                 ]
 
