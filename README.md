@@ -10,6 +10,8 @@ The following will install dependencies, get tools as a submodule and start the 
 
 ```bash
 $ npm install
+$ git submodule init
+$ git submodule update
 $ NODE_ENV=dev node start.js
 ```
 
