@@ -1,3 +1,0 @@
-[submodule "app/tools"]
-	path = app/tools
-	url = git://github.com/intermine/intermine-steps-tools.git
