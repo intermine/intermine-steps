@@ -94,17 +94,15 @@ window.require.register("chaplin/controllers/app", function(exports, require, mo
       return AppController.__super__.constructor.apply(this, arguments);
     }
 
-    AppController.prototype.afterAction = {
-      'reset': function() {
-        return this.redirectToRoute('landing');
-      }
-    };
-
     AppController.prototype.reset = function(params) {
-      var collection;
+      var collection,
+        _this = this;
       collection = window.History;
       collection.storage.reset();
-      return collection.reset();
+      collection.reset();
+      return setTimeout(function() {
+        return _this.redirectToRoute('landing');
+      }, 0);
     };
 
     return AppController;
@@ -5248,16 +5246,27 @@ window.require.register("tools/UploadTool/View", function(exports, require, modu
     };
 
     UploadListToolView.prototype.attach = function() {
+      var _this = this;
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
           $(this.el).foundationCustomForms();
           this.delegate('click', '#submit', function() {
-            this.model.set('data', {
-              'identifiers': this.getDOM().find('form textarea').val().split(' ')
+            var ids;
+            ids = _this.clean(_this.getDOM().find('form textarea').val());
+            if (ids.length === 0) {
+              return Mediator.publish('modal:render', {
+                'title': 'Oops &hellip;',
+                'text': 'No identifiers have been provided.'
+              });
+            }
+            _this.model.set('data', {
+              'identifiers': ids,
+              'type': _this.getDOM().find('select[name="type"]').val(),
+              'organism': _this.getDOM().find('select[name="organism"]').val()
             });
-            Mediator.publish('history:add', this.model);
-            return Mediator.publish('tool:step', this.step += 1);
+            Mediator.publish('history:add', _this.model);
+            return Mediator.publish('tool:step', _this.step += 1);
           });
           break;
         case 2:
@@ -5267,6 +5276,14 @@ window.require.register("tools/UploadTool/View", function(exports, require, modu
           Mediator.publish('context:new', ['have:list'], this.model.get('guid'));
       }
       return this;
+    };
+
+    UploadListToolView.prototype.clean = function(value) {
+      value = value.replace(/^\s+|\s+$/g, '').replace(/\s{2,}/g, ' ');
+      if (value === '') {
+        return [];
+      }
+      return value.split(/\s/g);
     };
 
     return UploadListToolView;
@@ -5316,21 +5333,19 @@ window.require.register("tools/UploadTool/step-1", function(exports, require, mo
       (function() {
         var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Type/paste in identifiers that are whitespace (comma, space, tab etc.) separated.</p>\n        </div>\n    </div>\n    <div class="row">\n        <form class="custom">\n            <div class="six columns">\n                <label>List of identifiers</label>\n                ');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="row">\n        <form class="custom">\n            <div class="six columns">\n                <label>List of identifiers</label>\n                ');
       
         if (this.data && this.data.identifiers) {
-          __out.push('\n                    <textarea name="identifiers">\n                        ');
+          __out.push('\n                    <textarea name="identifiers">');
           _ref = this.data.identifiers;
           for (i in _ref) {
             id = _ref[i];
-            __out.push('\n                            ');
             __out.push(__sanitize(id));
             if (parseInt(i) !== this.data.identifiers.length - 1) {
               __out.push(' ');
             }
-            __out.push('\n                        ');
           }
-          __out.push('\n                    </textarea>\n                ');
+          __out.push('</textarea>\n                ');
         } else {
           __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD</textarea>\n                ');
         }

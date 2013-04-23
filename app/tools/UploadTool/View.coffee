@@ -36,12 +36,23 @@ module.exports = class UploadListToolView extends ToolView
                 $(@el).foundationCustomForms()
 
                 # Capture submit clicks.
-                @delegate 'click', '#submit', ->
-                    # Get the DOM data.
-                    @model.set 'data',
-                        'identifiers': @getDOM().find('form textarea').val().split(' ')
+                @delegate 'click', '#submit', =>
+                    # Get the identifiers.
+                    ids = @clean @getDOM().find('form textarea').val()
 
-                    # Update the history.
+                    # Do we have any?
+                    if ids.length is 0
+                        return Mediator.publish 'modal:render',
+                            'title': 'Oops &hellip;'
+                            'text': 'No identifiers have been provided.'
+
+                    # Set the DOM data on the Model.
+                    @model.set 'data',
+                        'identifiers': ids
+                        'type':        @getDOM().find('select[name="type"]').val()
+                        'organism':    @getDOM().find('select[name="organism"]').val()
+
+                    # Update the history, we are set.
                     Mediator.publish 'history:add', @model
                     # Change the step.
                     Mediator.publish 'tool:step', @step += 1
@@ -56,3 +67,13 @@ module.exports = class UploadListToolView extends ToolView
                 Mediator.publish 'context:new', [ 'have:list' ], @model.get('guid')
 
         @
+
+    # Cleanup textarea input.
+    clean: (value) ->
+        value = value
+        .replace(/^\s+|\s+$/g, '') # trim leading and ending whitespace
+        .replace(/\s{2,}/g, ' ')   # remove multiple whitespace
+        
+        return [] if value is ''   # useless whitespace input
+
+        value.split /\s/g          # split on whitespace

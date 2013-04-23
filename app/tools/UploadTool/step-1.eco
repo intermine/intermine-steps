@@ -1,7 +1,7 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <p>Type/paste in identifiers that are whitespace (comma, space, tab etc.) separated.</p>
+            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>
         </div>
     </div>
     <div class="row">
@@ -9,11 +9,7 @@
             <div class="six columns">
                 <label>List of identifiers</label>
                 <% if @data and @data.identifiers: %>
-                    <textarea name="identifiers">
-                        <% for i, id of @data.identifiers: %>
-                            <%= id %><% if parseInt(i) isnt @data.identifiers.length - 1: %> <% end %>
-                        <% end %>
-                    </textarea>
+                    <textarea name="identifiers"><% for i, id of @data.identifiers: %><%= id %><% if parseInt(i) isnt @data.identifiers.length - 1: %> <% end %><% end %></textarea>
                 <% else: %>
                     <textarea name="identifiers">PPARG ZEN MAD</textarea>
                 <% end %>

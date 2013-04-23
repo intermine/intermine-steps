@@ -522,6 +522,9 @@ section#middle:after {
   visibility: hidden;
   height: 0;
 }
+section#middle.narrow {
+  margin-top: 20px;
+}
 section#middle.narrow div.row {
   width: 1000px;
 }
