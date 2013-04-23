@@ -308,7 +308,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
   
 });
 window.require.register("chaplin/core/Application", function(exports, require, module) {
-  var Chaplin, Dispatcher, InterMineSteps, Layout, Mediator, Registry, Routes,
+  var Chaplin, Dispatcher, InterMineSteps, Layout, Mediator, Routes, registry,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -328,7 +328,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
 
   Routes = require('chaplin/core/Routes');
 
-  Registry = require('tools/Registry');
+  registry = require('tools/config').registry;
 
   module.exports = InterMineSteps = (function(_super) {
 
@@ -370,8 +370,8 @@ window.require.register("chaplin/core/Application", function(exports, require, m
           context = [];
         }
         _results = [];
-        for (_i = 0, _len = Registry.length; _i < _len; _i++) {
-          tool = Registry[_i];
+        for (_i = 0, _len = registry.length; _i < _len; _i++) {
+          tool = registry[_i];
           _results.push((function() {
             var _j, _k, _len1, _len2, _ref, _ref1, _results1;
             _ref = tool.labels;
@@ -2440,7 +2440,7 @@ window.require.register("chaplin/views/HistoryTool", function(exports, require, 
   
 });
 window.require.register("chaplin/views/Landing", function(exports, require, module) {
-  var Chaplin, LandingView, Mediator, NextStepsAllView, Registry, View, root,
+  var Chaplin, LandingView, Mediator, NextStepsAllView, View, registry, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2452,7 +2452,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
 
   NextStepsAllView = require('chaplin/views/NextStepsAll');
 
-  Registry = require('tools/Registry');
+  registry = require('tools/config').registry;
 
   root = this;
 
@@ -2481,7 +2481,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
         return Mediator.publish('app:search', $(e.target).val());
       });
       $('body').removeClass('app');
-      $(this.el).find('#example').html(JSON.stringify(Registry[0], null, 4));
+      $(this.el).find('#example').html(JSON.stringify(registry[0], null, 4));
       Rainbow.color();
       return this;
     };
@@ -2864,13 +2864,11 @@ window.require.register("chaplin/views/NextStepsHeader", function(exports, requi
   
 });
 window.require.register("chaplin/views/NextStepsRight", function(exports, require, module) {
-  var Mediator, NextStepsRightView, NextStepsView, Registry,
+  var Mediator, NextStepsRightView, NextStepsView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Mediator = require('chaplin/core/Mediator');
-
-  Registry = require('tools/Registry');
 
   NextStepsView = require('chaplin/views/NextSteps');
 
@@ -3070,7 +3068,10 @@ window.require.register("tools/BlastTool/Model", function(exports, require, modu
     BlastTool.prototype.defaults = {
       'slug': 'blast-tool',
       'name': 'BlastTool',
-      'type': 'terracotta'
+      'title': 'BLAST Search',
+      'description': 'Conduct a BLAST search',
+      'type': 'terracotta',
+      'steps': ['Input search query', 'See Result']
     };
 
     return BlastTool;
@@ -4298,475 +4299,6 @@ window.require.register("tools/QueryBuilderTool/step-2", function(exports, requi
     return __out.join('');
   }
 });
-window.require.register("tools/Registry", function(exports, require, module) {
-  var config;
-
-  config = [
-    {
-      'slug': 'upload-tool',
-      'help': 'On first step choose between list, template, region search that changes the form on step 1',
-      'labels': [
-        {
-          'label': 'Upload',
-          'weight': 10,
-          'place': 'header',
-          'keywords': ['list', 'template', 'region']
-        }, {
-          'label': 'Upload list, template or a region',
-          'weight': 10,
-          'place': 'home',
-          'keywords': ['list', 'template', 'region']
-        }
-      ]
-    }, {
-      'slug': 'search-tool',
-      'help': 'Filter tools on the page & run quick search on the server',
-      'labels': [
-        {
-          'label': 'Search',
-          'weight': 10,
-          'place': 'header',
-          'keywords': ['filter']
-        }
-      ]
-    }, {
-      'slug': 'query-builder-tool',
-      'help': 'A query builder or a tool that suggest a query based on your input',
-      'labels': [
-        {
-          'label': 'Build some stuff',
-          'weight': 10,
-          'place': 'right',
-          'category': ['Start again'],
-          'keywords': ['query', 'builder', 'suggest']
-        }
-      ]
-    }, {
-      'slug': 'blast-tool',
-      'help': 'Concordia example tool',
-      'labels': [
-        {
-          'label': 'BLAST from the past',
-          'weight': 10,
-          'place': 'right',
-          'category': ['Start again'],
-          'keywords': ['concordia']
-        }
-      ]
-    }, {
-      'slug': 'set-operations-tool',
-      'help': 'You can always do set operations on a list',
-      'labels': [
-        {
-          'label': 'Do set operations',
-          'weight': 10,
-          'place': 'right',
-          'category': ['Start again'],
-          'keywords': ['union', 'intersection', 'subtraction']
-        }, {
-          'label': 'List union',
-          'weight': 10,
-          'context': ['have:list'],
-          'place': 'right',
-          'category': ['Set operations'],
-          'extra': 'union'
-        }, {
-          'label': 'List intersection',
-          'weight': 10,
-          'context': ['have:list'],
-          'place': 'right',
-          'category': ['Set operations'],
-          'extra': 'intersection'
-        }, {
-          'label': 'List subtraction',
-          'weight': 10,
-          'context': ['have:list'],
-          'place': 'right',
-          'category': ['Set operations'],
-          'extra': 'subtraction'
-        }
-      ]
-    }, {
-      'slug': 'download-tool',
-      'help': 'tab, csv, sequence (fasta), gff3, xml, json, bed',
-      'labels': [
-        {
-          'label': 'Download in TAB format',
-          'weight': 10,
-          'context': ['can:download'],
-          'place': 'right',
-          'category': ['Download'],
-          'extra': 'tab',
-          'keywords': ['export']
-        }, {
-          'label': 'Download in CSV format',
-          'weight': 10,
-          'context': ['can:download'],
-          'place': 'right',
-          'category': ['Download'],
-          'extra': 'csv',
-          'keywords': ['export']
-        }, {
-          'label': 'Download in sequence format (FASTA)',
-          'weight': 10,
-          'context': ['can:download'],
-          'place': 'right',
-          'category': ['Download'],
-          'extra': 'fasta',
-          'keywords': ['export']
-        }, {
-          'label': 'Download in GFF3 format',
-          'weight': 10,
-          'context': ['can:download'],
-          'place': 'right',
-          'category': ['Download'],
-          'extra': 'gff3',
-          'keywords': ['export']
-        }, {
-          'label': 'Download in XML format',
-          'weight': 10,
-          'context': ['can:download'],
-          'place': 'right',
-          'category': ['Download'],
-          'extra': 'xml',
-          'keywords': ['export']
-        }, {
-          'label': 'Download in JSON format',
-          'weight': 10,
-          'context': ['can:download'],
-          'place': 'right',
-          'category': ['Download'],
-          'extra': 'json',
-          'keywords': ['export']
-        }, {
-          'label': 'Download in BED format',
-          'weight': 10,
-          'context': ['can:download'],
-          'place': 'right',
-          'category': ['Download'],
-          'extra': 'bed',
-          'keywords': ['export']
-        }
-      ]
-    }, {
-      'slug': 'save-tool',
-      'help': 'when something is saveable, usually it will be a list',
-      'labels': [
-        {
-          'label': 'Save',
-          'weight': 10,
-          'context': ['can:save'],
-          'place': 'right',
-          'category': ['Save'],
-          'keywords': ['list']
-        }
-      ]
-    }, {
-      'slug': 'generate-code-tool',
-      'help': 'python, js, ruby, java, perl',
-      'labels': [
-        {
-          'label': 'Generate code in Python',
-          'weight': 10,
-          'context': ['can:code'],
-          'place': 'right',
-          'category': ['Code'],
-          'extra': 'python'
-        }, {
-          'label': 'Generate code in JavaScript',
-          'weight': 10,
-          'context': ['can:code'],
-          'place': 'right',
-          'category': ['Code'],
-          'extra': 'js'
-        }, {
-          'label': 'Generate code in Ruby',
-          'weight': 10,
-          'context': ['can:code'],
-          'place': 'right',
-          'category': ['Code'],
-          'extra': 'ruby'
-        }, {
-          'label': 'Generate code in Java',
-          'weight': 10,
-          'context': ['can:code'],
-          'place': 'right',
-          'category': ['Code'],
-          'extra': 'java'
-        }, {
-          'label': 'Generate code in Perl',
-          'weight': 10,
-          'context': ['can:code'],
-          'place': 'right',
-          'category': ['Code'],
-          'extra': 'perl'
-        }
-      ]
-    }, {
-      'slug': 'linkout-tool',
-      'help': 'not a tool per se, a link is one provided by config; has an icon to show this fact',
-      'labels': [
-        {
-          'label': 'ArrayExpress Atlas',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'arrayexpress',
-          'keywords': ['ebi']
-        }, {
-          'label': 'UniGene',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'unigene',
-          'keywords': ['ncbi', 'entrez']
-        }, {
-          'label': 'FlyExpress',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'flyexpress'
-        }, {
-          'label': 'FlyBase',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'flybase'
-        }, {
-          'label': 'GenomeRNAi',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'genomernai'
-        }, {
-          'label': 'ensembl',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'ensembl',
-          'keywords': ['drosophila']
-        }, {
-          'label': 'BDGP in situ',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'bdgp',
-          'keywords': ['fruitfly']
-        }, {
-          'label': 'Entrez Gene',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'entrez',
-          'keywords': ['ncbi', 'entrez']
-        }, {
-          'label': 'FlyAtlas',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'flyatlas'
-        }, {
-          'label': 'Homologene',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'homologene',
-          'keywords': ['ncbi']
-        }, {
-          'label': 'BioGRID',
-          'weight': 10,
-          'context': ['can:linkout'],
-          'place': 'right',
-          'category': ['Linkouts'],
-          'extra': 'biogrid'
-        }
-      ]
-    }, {
-      'slug': 'list-widget-tool',
-      'help': 'List Widgets',
-      'labels': [
-        {
-          'label': 'Enrichment',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Gene ontology'],
-          'extra': 'enrichment',
-          'keywords': ['gene', 'ontology', 'enrich', 'widget']
-        }, {
-          'label': 'Visualization',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Gene ontology'],
-          'extra': 'chart',
-          'keywords': ['gene', 'ontology', 'chart', 'graph', 'widget']
-        }, {
-          'label': 'Enrichment',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Pathways'],
-          'extra': 'enrichment',
-          'keywords': ['pathways', 'enrich', 'widget']
-        }, {
-          'label': 'Visualization',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Pathways'],
-          'extra': 'chart',
-          'keywords': ['pathways', 'chart', 'graph', 'widget']
-        }, {
-          'label': 'Enrichment',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Literature'],
-          'extra': 'enrichment',
-          'keywords': ['literature', 'publications', 'enrich', 'widget']
-        }, {
-          'label': 'Enrichment',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['fly-FISH expression experiment'],
-          'extra': 'enrichment',
-          'keywords': ['flyfish', 'expression', 'enrich', 'widget']
-        }, {
-          'label': 'Visualization',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['fly-FISH expression experiment'],
-          'extra': 'chart',
-          'keywords': ['flyfish', 'expression', 'chart', 'graph', 'widget']
-        }, {
-          'label': 'Enrichment',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['BDGP'],
-          'extra': 'enrichment',
-          'keywords': ['bdgp', 'enrich', 'widget']
-        }, {
-          'label': 'Visualization',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['BDGP'],
-          'extra': 'chart',
-          'keywords': ['bdgp', 'chart', 'graph', 'widget']
-        }, {
-          'label': 'Visualization',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Homologue'],
-          'extra': 'chart',
-          'keywords': ['homologue', 'chart', 'graph', 'widget']
-        }, {
-          'label': 'Chromosome distribution',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Genes'],
-          'extra': 'chart',
-          'keywords': ['gene', 'chart', 'graph', 'widget']
-        }, {
-          'label': 'Chromosome distribution',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Sequence Features'],
-          'extra': 'chart',
-          'keywords': ['sequence', 'chart', 'graph', 'widget']
-        }
-      ]
-    }, {
-      'slug': 'query-tool',
-      'labels': [
-        {
-          'label': 'Query',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Gene ontology'],
-          'keywords': ['gene', 'ontology']
-        }
-      ]
-    }, {
-      'slug': 'report-tool',
-      'labels': [
-        {
-          'label': 'Show gene summary',
-          'weight': 10,
-          'context': ['type:gene', 'n:1'],
-          'place': 'right',
-          'category': ['Genes'],
-          'keywords': ['report']
-        }, {
-          'label': 'Show gene summary',
-          'weight': 10,
-          'context': ['type:gene', 'n:1'],
-          'place': 'right',
-          'category': ['Sequence Features'],
-          'keywords': ['report']
-        }
-      ]
-    }, {
-      'slug': 'report-widget-tool',
-      'labels': [
-        {
-          'label': 'Cytoscape network',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Interactions'],
-          'keywords': ['report', 'widget']
-        }, {
-          'label': 'Visualization',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Regulation'],
-          'keywords': ['report', 'widget', 'regulation']
-        }, {
-          'label': 'Rat diseases',
-          'weight': 10,
-          'context': ['type:gene'],
-          'place': 'right',
-          'category': ['Diseases'],
-          'keywords': ['report', 'widget', 'disease']
-        }
-      ]
-    }, {
-      'slug': 'results-table-tool',
-      'labels': [
-        {
-          'label': 'Show in a table',
-          'weight': 10,
-          'context': ['have:list'],
-          'place': 'right',
-          'keywords': ['results']
-        }
-      ]
-    }
-  ];
-
-  module.exports = config;
-  
-});
 window.require.register("tools/ReportTool/Model", function(exports, require, module) {
   var ReportTool, Tool,
     __hasProp = {}.hasOwnProperty,
@@ -5681,13 +5213,19 @@ window.require.register("tools/UploadTool/Model", function(exports, require, mod
   
 });
 window.require.register("tools/UploadTool/View", function(exports, require, module) {
-  var Mediator, ToolView, UploadListToolView,
+  var Mediator, ToolView, UploadListToolView, config, organisms, types,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Mediator = require('chaplin/core/Mediator');
 
   ToolView = require('chaplin/views/Tool');
+
+  config = require('tools/config').config;
+
+  types = ['Genes', 'Proteins'];
+
+  organisms = ['Caenorhabditis elegans', 'Danio rerio', 'Drosophila melanogaster', 'Homo sapiens', 'Mus musculus', 'Rattus norvegicus', 'Saccharomyces cerevisiae'];
 
   module.exports = UploadListToolView = (function(_super) {
 
@@ -5697,23 +5235,37 @@ window.require.register("tools/UploadTool/View", function(exports, require, modu
       return UploadListToolView.__super__.constructor.apply(this, arguments);
     }
 
+    UploadListToolView.prototype.getTemplateData = function() {
+      switch (this.step) {
+        case 1:
+          return _.extend(UploadListToolView.__super__.getTemplateData.apply(this, arguments), {
+            'types': types,
+            'organisms': organisms
+          });
+        default:
+          return UploadListToolView.__super__.getTemplateData.apply(this, arguments);
+      }
+    };
+
     UploadListToolView.prototype.attach = function() {
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
+        case 1:
+          $(this.el).foundationCustomForms();
+          this.delegate('click', '#submit', function() {
+            this.model.set('data', {
+              'identifiers': this.getDOM().find('form textarea').val().split(' ')
+            });
+            Mediator.publish('history:add', this.model);
+            return Mediator.publish('tool:step', this.step += 1);
+          });
+          break;
         case 2:
+          1 + 1;
+          break;
+        case 3:
           Mediator.publish('context:new', ['have:list'], this.model.get('guid'));
       }
-      this.delegate('click', '#submit', function() {
-        this.model.set('data', {
-          'list': {
-            key: 'temp',
-            name: 'Just uploaded',
-            items: this.getDOM().find('form textarea').val().split(' ')
-          }
-        });
-        Mediator.publish('history:add', this.model);
-        return Mediator.publish('tool:step', this.step += 1);
-      });
       return this;
     };
 
@@ -5762,26 +5314,72 @@ window.require.register("tools/UploadTool/step-1", function(exports, require, mo
     }
     (function() {
       (function() {
-        var i, id, _ref;
+        var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Select the type of list to create and either enter in a list\n                of identifiers or upload identifiers from a file. A search will\n                be performed for all the identifiers in your list.</p>\n        </div>\n    </div>\n    <form class="row custom">\n        <div class="six columns">\n            <label>List of identifiers</label>\n            ');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Type/paste in identifiers that are whitespace (comma, space, tab etc.) separated.</p>\n        </div>\n    </div>\n    <div class="row">\n        <form class="custom">\n            <div class="six columns">\n                <label>List of identifiers</label>\n                ');
       
-        if (this.data && this.data.list) {
-          __out.push('\n                <textarea>');
-          _ref = this.data.list.items;
+        if (this.data && this.data.identifiers) {
+          __out.push('\n                    <textarea name="identifiers">\n                        ');
+          _ref = this.data.identifiers;
           for (i in _ref) {
             id = _ref[i];
+            __out.push('\n                            ');
             __out.push(__sanitize(id));
-            if (parseInt(i) !== this.data.list.items.length - 1) {
+            if (parseInt(i) !== this.data.identifiers.length - 1) {
               __out.push(' ');
             }
+            __out.push('\n                        ');
           }
-          __out.push('</textarea>\n            ');
+          __out.push('\n                    </textarea>\n                ');
         } else {
-          __out.push('\n                <textarea>PPARG ZEN MAD</textarea>\n            ');
+          __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD</textarea>\n                ');
         }
       
-        __out.push('\n        </div>\n        <div class="six columns">\n            <label>Identifier type</label>\n            <select class="three">\n                <option>Genes</option>\n                <option>Proteins</option>\n            </select>\n        </div>\n    </form>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('\n            </div>\n            <div class="two columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
+      
+        _ref1 = this.types;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          type = _ref1[_i];
+          __out.push('\n                        ');
+          if (this.data && this.data.type && this.data.type === type) {
+            __out.push('\n                            <option value="');
+            __out.push(__sanitize(type));
+            __out.push('" selected="selected">');
+            __out.push(__sanitize(type));
+            __out.push('</option>\n                        ');
+          } else {
+            __out.push('\n                            <option value="');
+            __out.push(__sanitize(type));
+            __out.push('">');
+            __out.push(__sanitize(type));
+            __out.push('</option>\n                        ');
+          }
+          __out.push('\n                    ');
+        }
+      
+        __out.push('\n                </select>\n            </div>\n            <div class="four columns">\n                <label>Organism</label>\n                <select name="organism" class="expand">\n                    ');
+      
+        _ref2 = this.organisms;
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+          organism = _ref2[_j];
+          __out.push('\n                        ');
+          if (this.data && this.data.organism && this.data.organism === organism) {
+            __out.push('\n                            <option value="');
+            __out.push(__sanitize(organism));
+            __out.push('" selected="selected">');
+            __out.push(__sanitize(organism));
+            __out.push('</option>\n                        ');
+          } else {
+            __out.push('\n                            <option value="');
+            __out.push(__sanitize(organism));
+            __out.push('">');
+            __out.push(__sanitize(organism));
+            __out.push('</option>\n                        ');
+          }
+          __out.push('\n                    ');
+        }
+      
+        __out.push('\n                </select>\n            </div>\n        </form>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -5839,4 +5437,474 @@ window.require.register("tools/UploadTool/step-2", function(exports, require, mo
     __obj.safe = __objSafe, __obj.escape = __escape;
     return __out.join('');
   }
+});
+window.require.register("tools/config", function(exports, require, module) {
+  
+  exports.config = {
+    'mine': 'http://test.metabolicmine.org/mastermine-test'
+  };
+
+  exports.registry = [
+    {
+      'slug': 'upload-tool',
+      'help': 'On first step choose between list, template, region search that changes the form on step 1',
+      'labels': [
+        {
+          'label': 'Upload',
+          'weight': 10,
+          'place': 'header',
+          'keywords': ['list', 'template', 'region']
+        }, {
+          'label': 'Upload list, template or a region',
+          'weight': 10,
+          'place': 'home',
+          'keywords': ['list', 'template', 'region']
+        }
+      ]
+    }, {
+      'slug': 'search-tool',
+      'help': 'Filter tools on the page & run quick search on the server',
+      'labels': [
+        {
+          'label': 'Search',
+          'weight': 10,
+          'place': 'header',
+          'keywords': ['filter']
+        }
+      ]
+    }, {
+      'slug': 'query-builder-tool',
+      'help': 'A query builder or a tool that suggest a query based on your input',
+      'labels': [
+        {
+          'label': 'Build some stuff',
+          'weight': 10,
+          'place': 'right',
+          'category': ['Start again'],
+          'keywords': ['query', 'builder', 'suggest']
+        }
+      ]
+    }, {
+      'slug': 'blast-tool',
+      'help': 'Concordia example tool',
+      'labels': [
+        {
+          'label': 'BLAST from the past',
+          'weight': 10,
+          'place': 'right',
+          'category': ['Start again'],
+          'keywords': ['concordia']
+        }
+      ]
+    }, {
+      'slug': 'set-operations-tool',
+      'help': 'You can always do set operations on a list',
+      'labels': [
+        {
+          'label': 'Do set operations',
+          'weight': 10,
+          'place': 'right',
+          'category': ['Start again'],
+          'keywords': ['union', 'intersection', 'subtraction']
+        }, {
+          'label': 'List union',
+          'weight': 10,
+          'context': ['have:list'],
+          'place': 'right',
+          'category': ['Set operations'],
+          'extra': 'union'
+        }, {
+          'label': 'List intersection',
+          'weight': 10,
+          'context': ['have:list'],
+          'place': 'right',
+          'category': ['Set operations'],
+          'extra': 'intersection'
+        }, {
+          'label': 'List subtraction',
+          'weight': 10,
+          'context': ['have:list'],
+          'place': 'right',
+          'category': ['Set operations'],
+          'extra': 'subtraction'
+        }
+      ]
+    }, {
+      'slug': 'download-tool',
+      'help': 'tab, csv, sequence (fasta), gff3, xml, json, bed',
+      'labels': [
+        {
+          'label': 'Download in TAB format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'tab',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in CSV format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'csv',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in sequence format (FASTA)',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'fasta',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in GFF3 format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'gff3',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in XML format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'xml',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in JSON format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'json',
+          'keywords': ['export']
+        }, {
+          'label': 'Download in BED format',
+          'weight': 10,
+          'context': ['can:download'],
+          'place': 'right',
+          'category': ['Download'],
+          'extra': 'bed',
+          'keywords': ['export']
+        }
+      ]
+    }, {
+      'slug': 'save-tool',
+      'help': 'when something is saveable, usually it will be a list',
+      'labels': [
+        {
+          'label': 'Save',
+          'weight': 10,
+          'context': ['can:save'],
+          'place': 'right',
+          'category': ['Save'],
+          'keywords': ['list']
+        }
+      ]
+    }, {
+      'slug': 'generate-code-tool',
+      'help': 'python, js, ruby, java, perl',
+      'labels': [
+        {
+          'label': 'Generate code in Python',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'python'
+        }, {
+          'label': 'Generate code in JavaScript',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'js'
+        }, {
+          'label': 'Generate code in Ruby',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'ruby'
+        }, {
+          'label': 'Generate code in Java',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'java'
+        }, {
+          'label': 'Generate code in Perl',
+          'weight': 10,
+          'context': ['can:code'],
+          'place': 'right',
+          'category': ['Code'],
+          'extra': 'perl'
+        }
+      ]
+    }, {
+      'slug': 'linkout-tool',
+      'help': 'not a tool per se, a link is one provided by config; has an icon to show this fact',
+      'labels': [
+        {
+          'label': 'ArrayExpress Atlas',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'arrayexpress',
+          'keywords': ['ebi']
+        }, {
+          'label': 'UniGene',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'unigene',
+          'keywords': ['ncbi', 'entrez']
+        }, {
+          'label': 'FlyExpress',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'flyexpress'
+        }, {
+          'label': 'FlyBase',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'flybase'
+        }, {
+          'label': 'GenomeRNAi',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'genomernai'
+        }, {
+          'label': 'ensembl',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'ensembl',
+          'keywords': ['drosophila']
+        }, {
+          'label': 'BDGP in situ',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'bdgp',
+          'keywords': ['fruitfly']
+        }, {
+          'label': 'Entrez Gene',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'entrez',
+          'keywords': ['ncbi', 'entrez']
+        }, {
+          'label': 'FlyAtlas',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'flyatlas'
+        }, {
+          'label': 'Homologene',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'homologene',
+          'keywords': ['ncbi']
+        }, {
+          'label': 'BioGRID',
+          'weight': 10,
+          'context': ['can:linkout'],
+          'place': 'right',
+          'category': ['Linkouts'],
+          'extra': 'biogrid'
+        }
+      ]
+    }, {
+      'slug': 'list-widget-tool',
+      'help': 'List Widgets',
+      'labels': [
+        {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Gene ontology'],
+          'extra': 'enrichment',
+          'keywords': ['gene', 'ontology', 'enrich', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Gene ontology'],
+          'extra': 'chart',
+          'keywords': ['gene', 'ontology', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Pathways'],
+          'extra': 'enrichment',
+          'keywords': ['pathways', 'enrich', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Pathways'],
+          'extra': 'chart',
+          'keywords': ['pathways', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Literature'],
+          'extra': 'enrichment',
+          'keywords': ['literature', 'publications', 'enrich', 'widget']
+        }, {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['fly-FISH expression experiment'],
+          'extra': 'enrichment',
+          'keywords': ['flyfish', 'expression', 'enrich', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['fly-FISH expression experiment'],
+          'extra': 'chart',
+          'keywords': ['flyfish', 'expression', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Enrichment',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['BDGP'],
+          'extra': 'enrichment',
+          'keywords': ['bdgp', 'enrich', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['BDGP'],
+          'extra': 'chart',
+          'keywords': ['bdgp', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Homologue'],
+          'extra': 'chart',
+          'keywords': ['homologue', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Chromosome distribution',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Genes'],
+          'extra': 'chart',
+          'keywords': ['gene', 'chart', 'graph', 'widget']
+        }, {
+          'label': 'Chromosome distribution',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Sequence Features'],
+          'extra': 'chart',
+          'keywords': ['sequence', 'chart', 'graph', 'widget']
+        }
+      ]
+    }, {
+      'slug': 'query-tool',
+      'labels': [
+        {
+          'label': 'Query',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Gene ontology'],
+          'keywords': ['gene', 'ontology']
+        }
+      ]
+    }, {
+      'slug': 'report-tool',
+      'labels': [
+        {
+          'label': 'Show gene summary',
+          'weight': 10,
+          'context': ['type:gene', 'n:1'],
+          'place': 'right',
+          'category': ['Genes'],
+          'keywords': ['report']
+        }, {
+          'label': 'Show gene summary',
+          'weight': 10,
+          'context': ['type:gene', 'n:1'],
+          'place': 'right',
+          'category': ['Sequence Features'],
+          'keywords': ['report']
+        }
+      ]
+    }, {
+      'slug': 'report-widget-tool',
+      'labels': [
+        {
+          'label': 'Cytoscape network',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Interactions'],
+          'keywords': ['report', 'widget']
+        }, {
+          'label': 'Visualization',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Regulation'],
+          'keywords': ['report', 'widget', 'regulation']
+        }, {
+          'label': 'Rat diseases',
+          'weight': 10,
+          'context': ['type:gene'],
+          'place': 'right',
+          'category': ['Diseases'],
+          'keywords': ['report', 'widget', 'disease']
+        }
+      ]
+    }, {
+      'slug': 'results-table-tool',
+      'labels': [
+        {
+          'label': 'Show in a table',
+          'weight': 10,
+          'context': ['have:list'],
+          'place': 'right',
+          'keywords': ['results']
+        }
+      ]
+    }
+  ];
+  
 });

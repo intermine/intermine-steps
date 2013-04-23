@@ -1,28 +1,49 @@
 <div class="container">
     <div class="row">
         <div class="twelve columns">
-            <p>Select the type of list to create and either enter in a list
-                of identifiers or upload identifiers from a file. A search will
-                be performed for all the identifiers in your list.</p>
+            <p>Type/paste in identifiers that are whitespace (comma, space, tab etc.) separated.</p>
         </div>
     </div>
-    <form class="row custom">
-        <div class="six columns">
-            <label>List of identifiers</label>
-            <% if @data and @data.list: %>
-                <textarea><% for i, id of @data.list.items: %><%= id %><% if parseInt(i) isnt @data.list.items.length - 1: %> <% end %><% end %></textarea>
-            <% else: %>
-                <textarea>PPARG ZEN MAD</textarea>
-            <% end %>
-        </div>
-        <div class="six columns">
-            <label>Identifier type</label>
-            <select class="three">
-                <option>Genes</option>
-                <option>Proteins</option>
-            </select>
-        </div>
-    </form>
+    <div class="row">
+        <form class="custom">
+            <div class="six columns">
+                <label>List of identifiers</label>
+                <% if @data and @data.identifiers: %>
+                    <textarea name="identifiers">
+                        <% for i, id of @data.identifiers: %>
+                            <%= id %><% if parseInt(i) isnt @data.identifiers.length - 1: %> <% end %>
+                        <% end %>
+                    </textarea>
+                <% else: %>
+                    <textarea name="identifiers">PPARG ZEN MAD</textarea>
+                <% end %>
+            </div>
+            <div class="two columns">
+                <label>Type</label>
+                <select name="type" class="expand">
+                    <% for type in @types: %>
+                        <% if @data and @data.type and @data.type is type: %>
+                            <option value="<%= type %>" selected="selected"><%= type %></option>
+                        <% else: %>
+                            <option value="<%= type %>"><%= type %></option>
+                        <% end %>
+                    <% end %>
+                </select>
+            </div>
+            <div class="four columns">
+                <label>Organism</label>
+                <select name="organism" class="expand">
+                    <% for organism in @organisms: %>
+                        <% if @data and @data.organism and @data.organism is organism: %>
+                            <option value="<%= organism %>" selected="selected"><%= organism %></option>
+                        <% else: %>
+                            <option value="<%= organism %>"><%= organism %></option>
+                        <% end %>
+                    <% end %>
+                </select>
+            </div>
+        </form>
+    </div>
     <div class="row">
         <div class="twelve columns">
             <a id="submit" class="button">Upload a list</span></a>

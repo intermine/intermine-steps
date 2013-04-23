@@ -1,4 +1,10 @@
-config = [
+# Core configuration.
+exports.config =
+    # Root URL for all mine requests (for now we only work with 1 mine).
+    'mine': 'http://test.metabolicmine.org/mastermine-test'
+
+# Tool configuration based on the user logged in.
+exports.registry = [
     {
         'slug': 'upload-tool'
         'help': 'On first step choose between list, template, region search that changes the form on step 1'
@@ -460,5 +466,3 @@ config = [
         ]
     }
 ]
-
-module.exports = config

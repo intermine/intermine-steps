@@ -9,7 +9,7 @@ Mediator = require 'chaplin/core/Mediator'
 Layout = require 'chaplin/core/Layout'
 Routes = require 'chaplin/core/Routes'
 
-Registry = require 'tools/Registry'
+{ registry } = require 'tools/config'
 
 # The application object.
 module.exports = class InterMineSteps extends Chaplin.Application
@@ -55,7 +55,7 @@ module.exports = class InterMineSteps extends Chaplin.Application
         # Listen to context changes e.g.: we have a list.
         Mediator.subscribe 'context:new', (context=[], guid) =>
             # Find all tools that fully match part or all of the context.
-            for tool in Registry
+            for tool in registry
                 for variant in tool.labels
                     assert variant.place, 'Placement for a tool variant not provided'
 

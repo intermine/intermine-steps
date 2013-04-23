@@ -1,7 +1,5 @@
 Mediator = require 'chaplin/core/Mediator'
 
-Registry = require 'tools/Registry'
-
 NextStepsView = require 'chaplin/views/NextSteps'
 
 module.exports = class NextStepsRightView extends NextStepsView

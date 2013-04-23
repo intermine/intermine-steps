@@ -5,7 +5,7 @@ View = require 'chaplin/core/View'
 
 NextStepsAllView = require 'chaplin/views/NextStepsAll'
 
-Registry = require 'tools/Registry'
+{ registry } = require 'tools/config'
 
 root = @
 
@@ -30,7 +30,7 @@ module.exports = class LandingView extends View
         $('body').removeClass('app')
 
         # Load the registry of tools as an example of a config.
-        $(@el).find('#example').html JSON.stringify Registry[0], null, 4
+        $(@el).find('#example').html JSON.stringify registry[0], null, 4
         Rainbow.color()
 
         @

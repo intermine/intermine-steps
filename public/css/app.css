@@ -90,6 +90,11 @@ input[type="checkbox"] {
 input.filter {
   display: none;
 }
+textarea {
+  color: #141414;
+  font-family: 'Lato';
+  font-size: 14px;
+}
 .help,
 .help:before {
   color: rgba(0,0,0,0.2);
@@ -520,9 +525,6 @@ section#middle:after {
 section#middle.narrow div.row {
   width: 1000px;
 }
-section#middle div.row {
-  margin-top: 20px;
-}
 section#middle div.row h2 {
   font-size: 20px;
 }
@@ -533,6 +535,9 @@ section#middle div.row h4 {
 }
 section#middle div.row ul {
   list-style-type: none;
+}
+section#middle div.row:not(:last-child) {
+  margin-bottom: 15px;
 }
 section#middle .hidden {
   display: none !important;
