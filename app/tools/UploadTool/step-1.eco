@@ -19,9 +19,9 @@
                 <select name="type" class="expand">
                     <% for type in @types: %>
                         <% if @data and @data.type and @data.type is type: %>
-                            <option value="<%= type %>" selected="selected"><%= type %></option>
+                            <option value="<%= type %>" selected="selected"><%= owl.pluralize type %></option>
                         <% else: %>
-                            <option value="<%= type %>"><%= type %></option>
+                            <option value="<%= type %>"><%= owl.pluralize type %></option>
                         <% end %>
                     <% end %>
                 </select>

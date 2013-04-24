@@ -948,6 +948,49 @@ footer
         color: $text_color
         margin-top: 15px
 
+/** ============== Progress/loading bar ============== */
+div.loading
+    background: url('../img/loading.gif') no-repeat center
+    width: 100%
+    height: 19px
+
+div.progress
+    padding: 2px
+    margin-bottom: 10px
+    border: 1px solid #CCC
+    height: 25px
+    
+    .meter
+        background: #2ba6cb
+        height: 100%
+        display: block
+        width: 50%
+    
+    &.secondary
+        .meter
+            background: #e9e9e9
+
+    &.success
+        .meter
+            background: #5da423
+
+    &.alert
+        .meter
+            background: #c60f13
+
+    
+    &.radius
+        border-radius: 3px
+
+        .meter
+            border-radius: 2px
+
+    &.round
+        border-radius: 1000px
+
+        .meter
+            border-radius: 1000px
+
 /** ============== Icon fonts ============== */
 
 .entypo

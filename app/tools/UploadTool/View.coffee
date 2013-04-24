@@ -1,9 +1,10 @@
-Mediator   = require 'chaplin/core/Mediator'
-ToolView   = require 'chaplin/views/Tool'
-{ config } = require 'tools/config'
+Mediator = require 'chaplin/core/Mediator'
+ToolView = require 'chaplin/views/Tool'
+
+App = @App
 
 # Fetch these from a mine instead.
-types = [ 'Genes', 'Proteins' ]
+types = [ 'Gene', 'Protein' ]
 organisms = [
     'Caenorhabditis elegans'
     'Danio rerio'
@@ -49,8 +50,8 @@ module.exports = class UploadListToolView extends ToolView
                     # Set the DOM data on the Model.
                     @model.set 'data',
                         'identifiers': ids
-                        'type':        @getDOM().find('select[name="type"]').val()
                         'organism':    @getDOM().find('select[name="organism"]').val()
+                        'type':        @getDOM().find('select[name="type"]').val()
 
                     # Update the history, we are set.
                     Mediator.publish 'history:add', @model
@@ -59,10 +60,24 @@ module.exports = class UploadListToolView extends ToolView
 
             # Upload identifiers, loading stage...
             when 2
-                1+1
+                # Grab the data.
+                { identifiers, type } = @model.get 'data'
+
+                # Resolve IDs.
+                (App.service.resolveIds
+                    'identifiers': identifiers
+                    'type':        type
+                ).then (job) =>
+                    job.poll().then (@results) =>
+                        # Change the step.
+                        setTimeout =>
+                            Mediator.publish 'tool:step', @step += 1
+                        , 500
             
             # We have resolved the identifiers.
             when 3
+                return console.log @results
+
                 # We have a list!
                 Mediator.publish 'context:new', [ 'have:list' ], @model.get('guid')
 

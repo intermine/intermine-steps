@@ -306,7 +306,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
   
 });
 window.require.register("chaplin/core/Application", function(exports, require, module) {
-  var Chaplin, Dispatcher, InterMineSteps, Layout, Mediator, Routes, registry,
+  var Chaplin, Controller, Dispatcher, InterMineSteps, Layout, Mediator, Routes, config, registry, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -326,7 +326,9 @@ window.require.register("chaplin/core/Application", function(exports, require, m
 
   Routes = require('chaplin/core/Routes');
 
-  registry = require('tools/config').registry;
+  Controller = require('chaplin/core/Controller');
+
+  _ref = require('tools/config'), registry = _ref.registry, config = _ref.config;
 
   module.exports = InterMineSteps = (function(_super) {
 
@@ -341,7 +343,15 @@ window.require.register("chaplin/core/Application", function(exports, require, m
     InterMineSteps.prototype.showHistory = true;
 
     InterMineSteps.prototype.initialize = function() {
+      var _this = this;
       InterMineSteps.__super__.initialize.apply(this, arguments);
+      this.service = new intermine.Service({
+        'root': config.mine,
+        'errorHandler': function(err) {
+          (new Controller).redirectToRoute('500');
+          return assert(false, err);
+        }
+      });
       this.initRouter(Routes);
       this.initDispatcher({
         'controllerPath': 'chaplin/controllers/',
@@ -371,18 +381,18 @@ window.require.register("chaplin/core/Application", function(exports, require, m
         for (_i = 0, _len = registry.length; _i < _len; _i++) {
           tool = registry[_i];
           _results.push((function() {
-            var _j, _k, _len1, _len2, _ref, _ref1, _results1;
-            _ref = tool.labels;
+            var _j, _k, _len1, _len2, _ref1, _ref2, _results1;
+            _ref1 = tool.labels;
             _results1 = [];
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              variant = _ref[_j];
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              variant = _ref1[_j];
               assert(variant.place, 'Placement for a tool variant not provided');
               if (!_.difference(variant.context || [], context).length) {
                 obj = _.clone(variant);
                 obj.name = window.Utils.hyphenToPascal(tool.slug);
-                _ref1 = ['slug', 'help'];
-                for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-                  key = _ref1[_k];
+                _ref2 = ['slug', 'help'];
+                for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+                  key = _ref2[_k];
                   obj[key] = tool[key];
                 }
                 try {
@@ -5202,7 +5212,7 @@ window.require.register("tools/UploadTool/Model", function(exports, require, mod
       'title': 'Upload a List',
       'description': 'Upload a list of identifiers',
       'type': 'deyork',
-      'steps': ['Input Identifiers', 'See Result']
+      'steps': ['Input Identifiers', 'Resolve Identifiers', 'See Results']
     };
 
     return UploadListTool;
@@ -5211,7 +5221,7 @@ window.require.register("tools/UploadTool/Model", function(exports, require, mod
   
 });
 window.require.register("tools/UploadTool/View", function(exports, require, module) {
-  var Mediator, ToolView, UploadListToolView, config, organisms, types,
+  var App, Mediator, ToolView, UploadListToolView, organisms, types,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -5219,9 +5229,9 @@ window.require.register("tools/UploadTool/View", function(exports, require, modu
 
   ToolView = require('chaplin/views/Tool');
 
-  config = require('tools/config').config;
+  App = this.App;
 
-  types = ['Genes', 'Proteins'];
+  types = ['Gene', 'Protein'];
 
   organisms = ['Caenorhabditis elegans', 'Danio rerio', 'Drosophila melanogaster', 'Homo sapiens', 'Mus musculus', 'Rattus norvegicus', 'Saccharomyces cerevisiae'];
 
@@ -5246,7 +5256,8 @@ window.require.register("tools/UploadTool/View", function(exports, require, modu
     };
 
     UploadListToolView.prototype.attach = function() {
-      var _this = this;
+      var identifiers, type, _ref,
+        _this = this;
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
@@ -5262,17 +5273,29 @@ window.require.register("tools/UploadTool/View", function(exports, require, modu
             }
             _this.model.set('data', {
               'identifiers': ids,
-              'type': _this.getDOM().find('select[name="type"]').val(),
-              'organism': _this.getDOM().find('select[name="organism"]').val()
+              'organism': _this.getDOM().find('select[name="organism"]').val(),
+              'type': _this.getDOM().find('select[name="type"]').val()
             });
             Mediator.publish('history:add', _this.model);
             return Mediator.publish('tool:step', _this.step += 1);
           });
           break;
         case 2:
-          1 + 1;
+          _ref = this.model.get('data'), identifiers = _ref.identifiers, type = _ref.type;
+          (App.service.resolveIds({
+            'identifiers': identifiers,
+            'type': type
+          })).then(function(job) {
+            return job.poll().then(function(results) {
+              _this.results = results;
+              return setTimeout(function() {
+                return Mediator.publish('tool:step', _this.step += 1);
+              }, 500);
+            });
+          });
           break;
         case 3:
+          return console.log(this.results);
           Mediator.publish('context:new', ['have:list'], this.model.get('guid'));
       }
       return this;
@@ -5360,13 +5383,13 @@ window.require.register("tools/UploadTool/step-1", function(exports, require, mo
             __out.push('\n                            <option value="');
             __out.push(__sanitize(type));
             __out.push('" selected="selected">');
-            __out.push(__sanitize(type));
+            __out.push(__sanitize(owl.pluralize(type)));
             __out.push('</option>\n                        ');
           } else {
             __out.push('\n                            <option value="');
             __out.push(__sanitize(type));
             __out.push('">');
-            __out.push(__sanitize(type));
+            __out.push(__sanitize(owl.pluralize(type)));
             __out.push('</option>\n                        ');
           }
           __out.push('\n                    ');
@@ -5444,7 +5467,57 @@ window.require.register("tools/UploadTool/step-2", function(exports, require, mo
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>You have uploaded a list. Maybe some of the steps on the right take your fancy?</p>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/UploadTool/step-3", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            Lorem ipsum data &hellip;\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       

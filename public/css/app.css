@@ -1258,6 +1258,49 @@ footer#bottom .wrap {
   color: #68718a;
   margin-top: 15px;
 }
+/** ============== Progress/loading bar ============== */
+div.loading {
+  background: url("../img/loading.gif") no-repeat center;
+  width: 100%;
+  height: 19px;
+}
+div.progress {
+  padding: 2px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  height: 25px;
+}
+div.progress .meter {
+  background: #2ba6cb;
+  height: 100%;
+  display: block;
+  width: 50%;
+}
+div.progress.secondary .meter {
+  background: #e9e9e9;
+}
+div.progress.success .meter {
+  background: #5da423;
+}
+div.progress.alert .meter {
+  background: #c60f13;
+}
+div.progress.radius {
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+div.progress.radius .meter {
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+}
+div.progress.round {
+  -webkit-border-radius: 1000px;
+  border-radius: 1000px;
+}
+div.progress.round .meter {
+  -webkit-border-radius: 1000px;
+  border-radius: 1000px;
+}
 /** ============== Icon fonts ============== */
 .entypo:before {
   font-family: "Entypo";

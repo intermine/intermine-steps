@@ -6,9 +6,10 @@ exports.config =
                 'js/vendor.js': /^vendor\/js/
             order:
                 before: [
-                    'vendor/js/jquery-1.9.1.js',
-                    'vendor/js/underscore-1.4.4.js',
-                    'vendor/js/backbone-1.0.0.js',
+                    'vendor/js/setImmediate-1.0.1.js'
+                    'vendor/js/jquery-1.9.1.js'
+                    'vendor/js/underscore-1.4.4.js'
+                    'vendor/js/backbone-1.0.0.js'
                     'vendor/js/rainbow.js'
                 ]
 

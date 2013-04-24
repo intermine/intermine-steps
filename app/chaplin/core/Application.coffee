@@ -5,11 +5,12 @@ require 'chaplin/core/Console'         # console
 require 'chaplin/core/Utils'           # utilities
 
 Dispatcher = require 'chaplin/core/Dispatcher'
-Mediator = require 'chaplin/core/Mediator'
-Layout = require 'chaplin/core/Layout'
-Routes = require 'chaplin/core/Routes'
+Mediator   = require 'chaplin/core/Mediator'
+Layout     = require 'chaplin/core/Layout'
+Routes     = require 'chaplin/core/Routes'
+Controller = require 'chaplin/core/Controller'
 
-{ registry } = require 'tools/config'
+{ registry, config } = require 'tools/config'
 
 # The application object.
 module.exports = class InterMineSteps extends Chaplin.Application
@@ -21,6 +22,13 @@ module.exports = class InterMineSteps extends Chaplin.Application
 
     initialize: ->
         super
+
+        # Make a connection to the mine globally available.
+        @service = new intermine.Service
+            'root': config.mine
+            'errorHandler': (err) =>
+                (new Controller).redirectToRoute '500'
+                assert false, err
 
         # Register all routes.
         @initRouter Routes
