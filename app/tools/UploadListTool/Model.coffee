@@ -3,8 +3,8 @@ Tool = require 'chaplin/models/Tool'
 module.exports = class UploadListTool extends Tool
 
     defaults:
-        'slug': 'upload-tool'
-        'name': 'UploadTool'
+        'slug': 'upload-list-tool'
+        'name': 'UploadListTool'
         'title': 'Upload a List'
         'description': 'Upload a list of identifiers'
         'type': 'deyork'

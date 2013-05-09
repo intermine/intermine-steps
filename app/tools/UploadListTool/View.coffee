@@ -3,7 +3,7 @@ ToolView = require 'chaplin/views/Tool'
 
 App = @App
 
-# Fetch these from a mine instead.
+# Should be fetched from the mine instead.
 types = [ 'Gene', 'Protein' ]
 organisms = [
     'Caenorhabditis elegans'
@@ -17,13 +17,15 @@ organisms = [
 
 module.exports = class UploadListToolView extends ToolView
 
+    # Switch template based on the step we are on.
     getTemplateData: ->
         switch @step
+            # Pass on the types & organisms that can be used to the edit form.
             when 1
-                # Pass on the types & organisms that can be used.
                 _.extend super,
                     'types': types
                     'organisms': organisms
+            # Just give us the default.
             else
                 super
 
@@ -39,44 +41,47 @@ module.exports = class UploadListToolView extends ToolView
                 # Capture submit clicks.
                 @delegate 'click', '#submit', =>
                     # Get the identifiers.
-                    ids = @clean @getDOM().find('form textarea').val()
+                    @ids = @clean @getDOM().find('form textarea').val()
 
                     # Do we have any?
-                    if ids.length is 0
+                    if @ids.length is 0
                         return Mediator.publish 'modal:render',
                             'title': 'Oops &hellip;'
                             'text': 'No identifiers have been provided.'
 
-                    # Set the DOM data on the Model.
-                    @model.set 'data',
-                        'identifiers': ids
-                        'organism':    @getDOM().find('select[name="organism"]').val()
-                        'type':        @getDOM().find('select[name="type"]').val()
+                    # Get the DOM data.
+                    @organism = @getDOM().find('select[name="organism"]').val()
+                    @type = @getDOM().find('select[name="type"]').val()
 
-                    # Update the history, we are set.
-                    Mediator.publish 'history:add', @model
                     # Change the step.
-                    Mediator.publish 'tool:step', @step += 1
+                    @nextStep()
 
-            # Upload identifiers, loading stage...
+            # Upload identifiers & save as a Model.
             when 2
-                # Grab the data.
-                { identifiers, type } = @model.get 'data'
-
                 # Resolve IDs.
                 (App.service.resolveIds
-                    'identifiers': identifiers
-                    'type':        type
+                    'identifiers': @ids
+                    'type':        @type
                 ).then (job) =>
-                    job.poll().then (@results) =>
+                    job.poll().then (results) =>
+                        # Save the input proper.
+                        @model.set 'data',
+                            'identifiers': @ids
+                            'organism':    @organism
+                            'type':        @type
+                            'results':     results
+
                         # Change the step.
                         setTimeout =>
-                            Mediator.publish 'tool:step', @step += 1
+                            # Update the history, we are set.
+                            Mediator.publish 'history:add', @model
+                            # Next step.
+                            @nextStep()
                         , 500
             
             # We have resolved the identifiers.
             when 3
-                return console.log @results
+                console.log @model.toJSON()
 
                 # We have a list!
                 Mediator.publish 'context:new', [ 'have:list' ], @model.get('guid')
