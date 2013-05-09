@@ -1,6 +1,7 @@
 Chaplin = require 'chaplin'
-
 Mediator = require 'chaplin/core/Mediator'
+
+root = @
 
 module.exports = class View extends Chaplin.View
 
@@ -35,4 +36,4 @@ module.exports = class View extends Chaplin.View
         super
 
     # Set a property on us.
-    property: (data) -> _.cloneDeep data
+    property: (data) -> root.Utils.cloneDeep data

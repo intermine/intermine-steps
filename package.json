@@ -9,7 +9,6 @@
         "union": "0.3.7",
         "connect": "2.7.3",
         "send": "0.0.4",
-        "procstreams": "0.3.0",
         "brunch": "1.5.3",
         "javascript-brunch": "1.5.0",
         "coffee-script-brunch": "1.5.0",

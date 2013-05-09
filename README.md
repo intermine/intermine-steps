@@ -35,12 +35,13 @@ Library | Version | Use
 `chaplin` | 0.8.1 | Gives structure & memory management to `Backbone`
 `d3` | 3.0.6 | History view SVG lines rendering
 `im` | 2.5.1 | Client side API for InterMine calls
+`imtables` | 1.2.0 | InterMine Results Tables
 `jquery` | 1.9.1 | Selector magic
 `jquery-foundation-forms` | - | Makes forms less sucky
 `jquery-foundation-reveal` | - | Popover views
-`modernizr` | 2.6.2 |  Detect support for `LocalStorage` & `PushState` APIs
+`lodash` | 1.2.1 | Frequently used utility functions & better than `underscore`
+`modernizr` | 2.6.2 | Detect support for `LocalStorage` & `PushState` APIs
 `moment` | 1.7.2 | Nice formating of time into "ago" form
 `pluralize` | - | Pluralize strings like *types* into their plural form
 `rainbow` | 1.1.8 | Syntax highlighting
 `setImmediate` | 1.0.1 | Cross-browser & JS engine implementation of `nextTick` & `setImmediate`
-`underscore` | 1.4.4 | Frequently used utility functions

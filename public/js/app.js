@@ -844,18 +844,23 @@ window.require.register("chaplin/core/Utils", function(exports, require, module)
         return document.onfocusin = document.onfocusout = onchange;
       }
       return window.onfocus = window.onblur = onchange;
+    },
+    'cloneDeep': function(val) {
+      return JSON.parse(JSON.stringify(val));
     }
   };
   
 });
 window.require.register("chaplin/core/View", function(exports, require, module) {
-  var Chaplin, Mediator, View,
+  var Chaplin, Mediator, View, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Chaplin = require('chaplin');
 
   Mediator = require('chaplin/core/Mediator');
+
+  root = this;
 
   module.exports = View = (function(_super) {
 
@@ -896,7 +901,7 @@ window.require.register("chaplin/core/View", function(exports, require, module) 
     };
 
     View.prototype.property = function(data) {
-      return _.cloneDeep(data);
+      return root.Utils.cloneDeep(data);
     };
 
     return View;
@@ -1973,7 +1978,7 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
     };
 
     ActionView.prototype.getTemplateData = function() {
-      return _.extend(_.cloneDeep(this.options), {
+      return _.extend(root.Utils.cloneDeep(this.options), {
         'label': this.markup(this.options.label)
       });
     };

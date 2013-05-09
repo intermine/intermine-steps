@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 if (process.env.NODE_ENV == 'dev') {
-    p = require('procstreams');
-    p('./node_modules/.bin/brunch watch --server').out();
+    // Watch in development mode.
+    var watch = require('./node_modules/brunch/lib/commands/watch.js');
+    watch(true, { '0': 'watch', 'server': true, 'port': process.env.PORT || 0 });
 } else {
+    // Server the /public through our server.
     require('coffee-script');
-    server = require('./server.coffee');
-    server.startServer(process.env.PORT);
+    (require('./server.coffee')).startServer(process.env.PORT);
 }

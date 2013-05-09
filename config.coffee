@@ -8,9 +8,10 @@ exports.config =
                 before: [
                     'vendor/js/setImmediate-1.0.1.js'
                     'vendor/js/jquery-1.9.1.js'
-                    'vendor/js/underscore-1.4.4.js'
+                    'vendor/js/lodash.underscore-1.2.1.js'
                     'vendor/js/backbone-1.0.0.js'
-                    'vendor/js/rainbow.js'
+                    'vendor/js/rainbow-1.1.8.js'
+                    'vendor/js/im-2.5.1.js'
                 ]
 
         stylesheets:
@@ -31,5 +32,4 @@ exports.config =
 
     server:
         path: 'server.coffee'
-        port: 9034
         run: yes

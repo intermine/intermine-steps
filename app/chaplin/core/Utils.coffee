@@ -46,3 +46,6 @@
         
         # Everyone else.
         window.onfocus = window.onblur = onchange
+
+    # Deep clone.
+    'cloneDeep': (val) -> JSON.parse JSON.stringify val
