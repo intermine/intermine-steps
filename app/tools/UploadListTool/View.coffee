@@ -81,7 +81,32 @@ module.exports = class UploadListToolView extends ToolView
             
             # We have resolved the identifiers.
             when 3
-                console.log @model.toJSON()
+                # Expand on us.
+                { type, results } = @model.get('data')
+
+                # Where to?
+                target = $(@el).find('.im-table')
+
+                # Do we have anything?
+                if _.keys(results).length is 0
+                    return target.append $('<p/>', { 'text': 'No identifiers were resolved.' })
+
+                # Form the query constraining on type.
+                query =
+                    'model':
+                        'name': 'genomic'
+                    'select': [
+                        "#{type}.*"
+                    ]
+                    'constraints': [
+                        { 'path': "#{type}.id", 'op': 'ONE OF', 'values': _.keys results }
+                    ]
+
+                # Show a minimal Results Table.
+                target.imWidget
+                    'type': 'minimal'
+                    'service': App.service
+                    'query': query
 
                 # We have a list!
                 Mediator.publish 'context:new', [ 'have:list' ], @model.get('guid')

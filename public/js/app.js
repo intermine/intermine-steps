@@ -1543,7 +1543,7 @@ window.require.register("chaplin/templates/history", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div class="head">\n    <a id="serialize" class="button">Serialize</a>\n    <a href="/app/reset" class="button secondary" style="margin-right:10px">Clear</a>\n    <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
+        __out.push('<div class="head">\n    <a class="serialize button">Serialize</a>\n    <a class="hide secondary button" style="margin-right:10px">Hide</a>\n    <a href="/app/reset" class="button secondary" style="margin-right:10px">Clear</a>\n    <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
       
       }).call(this);
       
@@ -2252,7 +2252,8 @@ window.require.register("chaplin/views/History", function(exports, require, modu
       })();
       $(window).resize(height);
       this.checkCollection();
-      this.delegate('click', '#serialize', this.serializeHistory);
+      this.delegate('click', '.serialize', this.serializeHistory);
+      this.delegate('click', '.hide', this.toggleHistory);
       if (!root.App.showHistory) {
         $(this.el).hide();
       }
@@ -3255,7 +3256,8 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
     };
 
     UploadListToolView.prototype.attach = function() {
-      var _this = this;
+      var query, results, target, type, _ref,
+        _this = this;
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
@@ -3293,7 +3295,31 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
           });
           break;
         case 3:
-          console.log(this.model.toJSON());
+          _ref = this.model.get('data'), type = _ref.type, results = _ref.results;
+          target = $(this.el).find('.im-table');
+          if (_.keys(results).length === 0) {
+            return target.append($('<p/>', {
+              'text': 'No identifiers were resolved.'
+            }));
+          }
+          query = {
+            'model': {
+              'name': 'genomic'
+            },
+            'select': ["" + type + ".*"],
+            'constraints': [
+              {
+                'path': "" + type + ".id",
+                'op': 'ONE OF',
+                'values': _.keys(results)
+              }
+            ]
+          };
+          target.imWidget({
+            'type': 'minimal',
+            'service': App.service,
+            'query': query
+          });
           Mediator.publish('context:new', ['have:list'], this.model.get('guid'));
       }
       return this;
@@ -3515,7 +3541,7 @@ window.require.register("tools/UploadListTool/step-3", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            Lorem ipsum data &hellip;\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="im-table intermine"></div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       

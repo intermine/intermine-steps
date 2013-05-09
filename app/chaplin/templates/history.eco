@@ -1,5 +1,6 @@
 <div class="head">
-    <a id="serialize" class="button">Serialize</a>
+    <a class="serialize button">Serialize</a>
+    <a class="hide secondary button" style="margin-right:10px">Hide</a>
     <a href="/app/reset" class="button secondary" style="margin-right:10px">Clear</a>
     <h1><span class="entypo flowbranch"></span> History</h1>
     <p class="message">Steps you have taken will be populated here as you work with this app.</p>

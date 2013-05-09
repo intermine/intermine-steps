@@ -53,7 +53,10 @@ module.exports = class HistoryView extends View
         @checkCollection()
 
         # Capture serialization requests.
-        @delegate 'click', '#serialize', @serializeHistory
+        @delegate 'click', '.serialize', @serializeHistory
+
+        # Hide the view.
+        @delegate 'click', '.hide', @toggleHistory
 
         # Show us?
         unless root.App.showHistory then $(@el).hide()
