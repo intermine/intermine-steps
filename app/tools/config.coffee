@@ -1,7 +1,9 @@
 # Core configuration.
 exports.config =
     # Root URL for all mine requests (for now we only work with 1 mine).
-    'mine': 'http://test.metabolicmine.org/mastermine-test'
+    'mine': 'http://beta.flymine.org/beta'
+    # A token so we can be creating lists in the background (throwaway account).
+    'token': 'x1P35eUaqcr9pcDdCaCe'
 
 # Tool configuration based on the user logged in.
 exports.registry = [

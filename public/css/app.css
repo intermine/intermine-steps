@@ -947,7 +947,6 @@ div#history {
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 33%;
 }
 div#history > div {
   margin-right: 295px;

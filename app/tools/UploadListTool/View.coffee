@@ -1,7 +1,9 @@
 Mediator = require 'chaplin/core/Mediator'
 ToolView = require 'chaplin/views/Tool'
 
-App = @App
+root = @
+
+App = root.App
 
 # Should be fetched from the mine instead.
 types = [ 'Gene', 'Protein' ]
@@ -64,32 +66,55 @@ module.exports = class UploadListToolView extends ToolView
                     'type':        @type
                 ).then (job) =>
                     job.poll().then (results) =>
+                        keys = _.keys results
+
+                        # Do we have anything?
+                        if keys.length is 0
+                            return $(@el).find('.target').append $('<p/>', { 'text': 'No identifiers were resolved.' })
+
+                        # Form a query.
+                        @query =
+                            'model':
+                                'name': 'genomic'
+                            'select': [
+                                "#{@type}.*"
+                            ]
+                            'constraints': [
+                                { 'path': "#{@type}.id", 'op': 'ONE OF', 'values': keys }
+                            ]
+
+                        @nextStep()
+            
+            # Convert identifiers into a list too.
+            when 3
+                # Turn a Query into a Query Object.
+                App.service.query @query, (q) =>
+                    # Generate a practically unique list name.
+                    name = root.Utils.guid()
+                    # Save as a list.
+                    q.saveAsList {'name': name}, (l) =>
                         # Save the input proper.
                         @model.set 'data',
                             'identifiers': @ids
                             'organism':    @organism
                             'type':        @type
-                            'results':     results
+                            'query':       @query
+                            'list':        name
 
-                        # Change the step.
-                        setTimeout =>
-                            # Update the history, we are set.
-                            Mediator.publish 'history:add', @model
-                            # Next step.
-                            @nextStep()
-                        , 500
-            
-            # We have resolved the identifiers.
-            when 3
+
+                        # Update the history, we are set.
+                        Mediator.publish 'history:add', @model
+
+                        # Next step.
+                        @nextStep()
+
+            # We have resolved the identifiers & have a list reference.
+            when 4
                 # Expand on us.
-                { type, results } = @model.get('data')
+                { type, list } = @model.get('data')
 
                 # Where to?
                 target = $(@el).find('.im-table')
-
-                # Do we have anything?
-                if _.keys(results).length is 0
-                    return target.append $('<p/>', { 'text': 'No identifiers were resolved.' })
 
                 # Form the query constraining on type.
                 query =
@@ -99,7 +124,7 @@ module.exports = class UploadListToolView extends ToolView
                         "#{type}.*"
                     ]
                     'constraints': [
-                        { 'path': "#{type}.id", 'op': 'ONE OF', 'values': _.keys results }
+                        { 'path': type, 'op': 'IN', 'value': list }
                     ]
 
                 # Show a minimal Results Table.

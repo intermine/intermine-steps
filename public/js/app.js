@@ -347,6 +347,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
       InterMineSteps.__super__.initialize.apply(this, arguments);
       this.service = new intermine.Service({
         'root': config.mine,
+        'token': config.token,
         'errorHandler': function(err) {
           (new Controller).redirectToRoute('500');
           return assert(false, err);
@@ -3212,7 +3213,7 @@ window.require.register("tools/UploadListTool/Model", function(exports, require,
       'title': 'Upload a List',
       'description': 'Upload a list of identifiers',
       'type': 'deyork',
-      'steps': ['Input Identifiers', 'Resolve Identifiers', 'See Results']
+      'steps': ['Input Identifiers', 'Resolve Identifiers', 'Convert to a List', 'See Results']
     };
 
     return UploadListTool;
@@ -3221,7 +3222,7 @@ window.require.register("tools/UploadListTool/Model", function(exports, require,
   
 });
 window.require.register("tools/UploadListTool/View", function(exports, require, module) {
-  var App, Mediator, ToolView, UploadListToolView, organisms, types,
+  var App, Mediator, ToolView, UploadListToolView, organisms, root, types,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3229,7 +3230,9 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
 
   ToolView = require('chaplin/views/Tool');
 
-  App = this.App;
+  root = this;
+
+  App = root.App;
 
   types = ['Gene', 'Protein'];
 
@@ -3256,7 +3259,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
     };
 
     UploadListToolView.prototype.attach = function() {
-      var query, results, target, type, _ref,
+      var list, query, target, type, _ref,
         _this = this;
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
@@ -3281,27 +3284,52 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
             'type': this.type
           })).then(function(job) {
             return job.poll().then(function(results) {
-              _this.model.set('data', {
-                'identifiers': _this.ids,
-                'organism': _this.organism,
-                'type': _this.type,
-                'results': results
-              });
-              return setTimeout(function() {
-                Mediator.publish('history:add', _this.model);
-                return _this.nextStep();
-              }, 500);
+              var keys;
+              keys = _.keys(results);
+              if (keys.length === 0) {
+                return $(_this.el).find('.target').append($('<p/>', {
+                  'text': 'No identifiers were resolved.'
+                }));
+              }
+              _this.query = {
+                'model': {
+                  'name': 'genomic'
+                },
+                'select': ["" + _this.type + ".*"],
+                'constraints': [
+                  {
+                    'path': "" + _this.type + ".id",
+                    'op': 'ONE OF',
+                    'values': keys
+                  }
+                ]
+              };
+              return _this.nextStep();
             });
           });
           break;
         case 3:
-          _ref = this.model.get('data'), type = _ref.type, results = _ref.results;
+          App.service.query(this.query, function(q) {
+            var name;
+            name = root.Utils.guid();
+            return q.saveAsList({
+              'name': name
+            }, function(l) {
+              _this.model.set('data', {
+                'identifiers': _this.ids,
+                'organism': _this.organism,
+                'type': _this.type,
+                'query': _this.query,
+                'list': name
+              });
+              Mediator.publish('history:add', _this.model);
+              return _this.nextStep();
+            });
+          });
+          break;
+        case 4:
+          _ref = this.model.get('data'), type = _ref.type, list = _ref.list;
           target = $(this.el).find('.im-table');
-          if (_.keys(results).length === 0) {
-            return target.append($('<p/>', {
-              'text': 'No identifiers were resolved.'
-            }));
-          }
           query = {
             'model': {
               'name': 'genomic'
@@ -3309,9 +3337,9 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
             'select': ["" + type + ".*"],
             'constraints': [
               {
-                'path': "" + type + ".id",
-                'op': 'ONE OF',
-                'values': _.keys(results)
+                'path': type,
+                'op': 'IN',
+                'value': list
               }
             ]
           };
@@ -3541,6 +3569,56 @@ window.require.register("tools/UploadListTool/step-3", function(exports, require
     (function() {
       (function() {
       
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/UploadListTool/step-4", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
         __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="im-table intermine"></div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
@@ -3553,7 +3631,8 @@ window.require.register("tools/UploadListTool/step-3", function(exports, require
 window.require.register("tools/config", function(exports, require, module) {
   
   exports.config = {
-    'mine': 'http://test.metabolicmine.org/mastermine-test'
+    'mine': 'http://beta.flymine.org/beta',
+    'token': 'x1P35eUaqcr9pcDdCaCe'
   };
 
   exports.registry = [
