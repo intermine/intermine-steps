@@ -16647,3895 +16647,953 @@ window['Rainbow'] = (function() {
 // still be referenced from outside this library.
 Rainbow["onHighlight"] = Rainbow.onHighlight;
 Rainbow["addClass"] = Rainbow.addClass;;
-/*! imjs - v2.5.1 - 2013-04-23 */
+/*global setImmediate: false, setTimeout: false, console: false */
+(function () {
 
-/**
-This library is open source software according to the definition of the
-GNU Lesser General Public Licence, Version 3, (LGPLv3) a copy of which is
-included with this software. All use of this software is covered according to
-the terms of the LGPLv3.
+    var async = {};
 
-The copyright is held by InterMine (www.intermine.org) and Alex Kalderimis (alex@intermine.org).
+    // global on the server, window in the browser
+    var root, previous_async;
 
-Thu Jun 14 13:18:14 BST 2012
-**/
-
-(function() {
-  var IS_NODE, data, fs, imjs, intermine, path, pkg, _ref, _ref1;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  if (IS_NODE) {
-    imjs = exports;
-  } else {
-    intermine = ((_ref = this.intermine) != null ? _ref : this.intermine = {});
-    imjs = ((_ref1 = intermine.imjs) != null ? _ref1 : intermine.imjs = {});
-  }
-
-  imjs.VERSION = "unknown";
-
-  if (IS_NODE) {
-    fs = require('fs');
-    path = require('path');
-    if (process.mainModule != null) {
-      data = fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8');
-      pkg = JSON.parse(data);
-      imjs.VERSION = pkg.version;
+    root = this;
+    if (root != null) {
+      previous_async = root.async;
     }
-  } else {
-    imjs.VERSION = "2.5.1";
-  }
 
-}).call(this);
+    async.noConflict = function () {
+        root.async = previous_async;
+        return async;
+    };
 
-(function() {
-  var HAS_CONSOLE, HAS_JSON, IS_NODE, NOT_ENUM, hasDontEnumBug, hasOwnProperty, m, _fn, _i, _len, _ref, _ref1, _ref2, _ref3;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  HAS_CONSOLE = typeof console !== 'undefined';
-
-  HAS_JSON = typeof JSON !== 'undefined';
-
-  NOT_ENUM = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'];
-
-  if (!IS_NODE) {
-    if (!HAS_JSON) {
-      jQuery.getScript('http://cdn.intermine.org/js/json3/3.2.2/json3.min.js');
-    }
-    if (Object.keys == null) {
-      hasOwnProperty = Object.prototype.hasOwnProperty;
-      hasDontEnumBug = !{
-        toString: null
-      }.propertyIsEnumerable("toString");
-      Object.keys = function(o) {
-        var keys, name, nonEnum, _i, _len;
-        if (typeof o !== "object" && typeof o !== "" || o === null) {
-          throw new TypeError("Object.keys called on a non-object");
+    function only_once(fn) {
+        var called = false;
+        return function() {
+            if (called) throw new Error("Callback was already called.");
+            called = true;
+            fn.apply(root, arguments);
         }
-        keys = (function() {
-          var _results;
-          _results = [];
-          for (name in o) {
-            if (hasOwnProperty.call(o, name)) {
-              _results.push(name);
+    }
+
+    //// cross-browser compatiblity functions ////
+
+    var _each = function (arr, iterator) {
+        if (arr.forEach) {
+            return arr.forEach(iterator);
+        }
+        for (var i = 0; i < arr.length; i += 1) {
+            iterator(arr[i], i, arr);
+        }
+    };
+
+    var _map = function (arr, iterator) {
+        if (arr.map) {
+            return arr.map(iterator);
+        }
+        var results = [];
+        _each(arr, function (x, i, a) {
+            results.push(iterator(x, i, a));
+        });
+        return results;
+    };
+
+    var _reduce = function (arr, iterator, memo) {
+        if (arr.reduce) {
+            return arr.reduce(iterator, memo);
+        }
+        _each(arr, function (x, i, a) {
+            memo = iterator(memo, x, i, a);
+        });
+        return memo;
+    };
+
+    var _keys = function (obj) {
+        if (Object.keys) {
+            return Object.keys(obj);
+        }
+        var keys = [];
+        for (var k in obj) {
+            if (obj.hasOwnProperty(k)) {
+                keys.push(k);
             }
-          }
-          return _results;
-        })();
-        if (hasDontEnumBug) {
-          for (_i = 0, _len = NOT_ENUM.length; _i < _len; _i++) {
-            nonEnum = NOT_ENUM[_i];
-            if (hasOwnProperty.call(o, nonEnum)) {
-              keys.push(nonEnum);
-            }
-          }
         }
         return keys;
-      };
-    }
-    if (Array.prototype.map == null) {
-      Array.prototype.map = function(f) {
-        var x, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = this.length; _i < _len; _i++) {
-          x = this[_i];
-          _results.push(f(x));
+    };
+
+    //// exported async module functions ////
+
+    //// nextTick implementation with browser-compatible fallback ////
+    if (typeof process === 'undefined' || !(process.nextTick)) {
+        if (typeof setImmediate === 'function') {
+            async.setImmediate = setImmediate;
+            async.nextTick = setImmediate;
         }
-        return _results;
-      };
-    }
-    if (Array.prototype.filter == null) {
-      Array.prototype.filter = function(f) {
-        var x, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = this.length; _i < _len; _i++) {
-          x = this[_i];
-          if (f(x)) {
-            _results.push(x);
-          }
+        else {
+            async.setImmediate = async.nextTick;
+            async.nextTick = function (fn) {
+                setTimeout(fn, 0);
+            };
         }
-        return _results;
-      };
     }
-    if (Array.prototype.reduce == null) {
-      Array.prototype.reduce = function(f, initValue) {
-        var ret, x, xs, _i, _len;
-        xs = this.slice();
-        ret = arguments.length < 2 ? xs.pop() : initValue;
-        for (_i = 0, _len = xs.length; _i < _len; _i++) {
-          x = xs[_i];
-          ret = f(ret, x);
+    else {
+        async.nextTick = process.nextTick;
+        async.setImmediate = setImmediate;
+    }
+
+    async.each = function (arr, iterator, callback) {
+        callback = callback || function () {};
+        if (!arr.length) {
+            return callback();
         }
-        return ret;
-      };
-    }
-    if (Array.prototype.forEach == null) {
-      Array.prototype.forEach = function(f, ctx) {
-        var i, x, _i, _len, _results;
-        if (!f) {
-          throw new Error("No function provided");
-        }
-        _results = [];
-        for (i = _i = 0, _len = this.length; _i < _len; i = ++_i) {
-          x = this[i];
-          _results.push(f.call(ctx != null ? ctx : this, x, i, this));
-        }
-        return _results;
-      };
-    }
-    if (!HAS_CONSOLE) {
-      this.console = {
-        log: (function() {}),
-        error: (function() {}),
-        debug: (function() {})
-      };
-      if (typeof window !== "undefined" && window !== null) {
-        window.console = this.console;
-      }
-    }
-    if ((_ref = console.log) == null) {
-      console.log = function() {};
-    }
-    if ((_ref1 = console.error) == null) {
-      console.error = function() {};
-    }
-    if ((_ref2 = console.debug) == null) {
-      console.debug = function() {};
-    }
-    if (console.log.apply == null) {
-      console.log("Your console needs patching.");
-      _ref3 = ['log', 'error', 'debug'];
-      _fn = function(m) {
-        var oldM;
-        oldM = console[m];
-        return console[m] = function(args) {
-          return oldM(args);
-        };
-      };
-      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-        m = _ref3[_i];
-        _fn(m);
-      }
-    }
-  }
-
-}).call(this);
-
-(function(root, undefined) {
-  var _ = root._,
-      jQuery = root.jQuery;
-  if (typeof jQuery === 'undefined') {
-    return null; 
-  }
-  var $ = jQuery;
-  // jQuery.XDomainRequest.js
-  // Author: Jason Moon - @JSONMOON
-  // IE8+
-  // see: https://github.com/MoonScript/jQuery-ajaxTransport-XDomainRequest
-  if (!$.support.cors && window.XDomainRequest) {
-    console.log("Patching IE x-domain request support");
-    var httpRegEx = /^https?:\/\//i;
-    var getOrPostRegEx = /^get|post$/i;
-    var sameSchemeRegEx = new RegExp('^'+location.protocol, 'i');
-    var jsonRegEx = /\/json/i;
-    var xmlRegEx = /\/xml/i;
-
-    var XDomainTransporter = function (userOptions, options) {
-      this.userOptions = userOptions;
-      this.options = options;
-      this.userType = (userOptions.dataType||'').toLowerCase();
-      _.bindAll(this); // make sure we can use onLoad
-    };
-    XDomainTransporter.prototype.constructor = XDomainTransporter;
-    XDomainTransporter.prototype.send = function(headers, complete) {
-      this.xdr = new XDomainRequest();
-      this.complete = complete;
-      var xdr = this.xdr;
-      if (/^\d+$/.test(this.userOptions.timeout)) {
-        xdr.timeout = this.userOptions.timeout;
-      }
-      xdr.ontimeout = function() {
-        complete(500, 'timeout');
-      };
-      xdr.onerror = function() {
-        complete(500, 'error', { text: xdr.responseText });
-      };
-      xdr.onload = this.onLoad;
-      var postData = (this.userOptions.data && $.param(this.userOptions.data)) || '';
-      xdr.open(this.options.type, this.options.url);
-      xdr.send(postData);
-    };
-    XDomainTransporter.prototype.respond = function(status, statusText, responses, responseHeaders) {
-      var xdr = this.xdr;
-      xdr.onload = xdr.onerror = xdr.ontimeout = xdr.onprogress = jQuery.noop;
-      delete this.xdr;
-      jQuery.event.trigger('ajaxStop');
-      this.complete(status, statusText, responses, responseHeaders);
-    };
-    XDomainTransporter.prototype.abort = function() {
-      if (xdr) {
-        xdr.abort();
-      }
-    };
-    XDomainTransporter.prototype.onLoad = function() {
-        var xdr = this.xdr;
-        var allResponseHeaders = 'Content-Length: ' + xdr.responseText.length + '\r\nContent-Type: ' + xdr.contentType;
-        var status = {code: 200, message: 'success'};
-        var responses = {text: xdr.responseText};
-        try {
-          if ((this.userType === 'json') || ((this.userType !== 'text') && jsonRegEx.test(xdr.contentType))) {
-            try {
-              responses.json = $.parseJSON(xdr.responseText);
-            } catch (e) {
-              status.code = 500;
-              status.message = 'parseerror';
-            }
-          } else if ((this.userType === 'xml') || ((this.userType !== 'text') && xmlRegEx.test(xdr.contentType))) {
-            var doc = new ActiveXObject('Microsoft.XMLDOM');
-            doc.async = false;
-            try {
-              doc.loadXML(xdr.responseText);
-            } catch(e) {
-              doc = undefined;
-            }
-            if (!doc || !doc.documentElement || doc.getElementsByTagName('parsererror').length) {
-              status.code = 500;
-              status.message = 'parseerror';
-              throw 'Invalid XML: ' + xdr.responseText;
-            }
-            responses.xml = doc;
-          }
-        } catch (parseMessage) {
-          throw parseMessage;
-        } finally {
-          this.complete(status.code, status.message, responses, allResponseHeaders);
-        }
-    };
-
-    // ajaxTransport exists in jQuery 1.5+
-    jQuery.ajaxTransport('text html xml json', function(options, userOptions, jqXHR){
-      // XDomainRequests must be: asynchronous, GET or POST methods, HTTP or HTTPS protocol, and same scheme as calling page
-      if (options.crossDomain && options.async && getOrPostRegEx.test(options.type) && httpRegEx.test(userOptions.url) && sameSchemeRegEx.test(userOptions.url)) {
-        return new XDomainTransporter(userOptions, options);
-      } 
-    });
-    jQuery.support.cors = true;
-  }
-}).call(this, typeof exports === 'undefined' ? this : exports);
-
-(function() {
-  var IS_NODE, constants, intermine, _ref, _ref1;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  if (IS_NODE) {
-    constants = exports;
-  } else {
-    intermine = ((_ref = this.intermine) != null ? _ref : this.intermine = {});
-    constants = ((_ref1 = intermine.constants) != null ? _ref1 : intermine.constants = {});
-  }
-
-  constants.ACCEPT_HEADER = {
-    'json': 'application/json',
-    'jsonobjects': 'application/json;type=objects',
-    'jsontable': 'application/json;type=table',
-    'jsonrows': 'application/json;type=rows',
-    'jsoncount': 'application/json;type=count',
-    'jsonp': 'application/javascript',
-    'jsonpobjects': 'application/javascript;type=objects',
-    'jsonptable': 'application/javascript;type=table',
-    'jsonprows': 'application/javascript;type=rows',
-    'jsonpcount': 'application/javascript;type=count'
-  };
-
-}).call(this);
-
-(function() {
-  var Deferred, IS_NODE, REQUIRES, curry, fold, id, pairFold, root, success, thenFold, _, _base, _ref, _ref1,
-    __slice = [].slice,
-    __hasProp = {}.hasOwnProperty;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  root = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    Deferred = require('underscore.deferred').Deferred;
-    _ = require('underscore')._;
-  } else {
-    Deferred = root.jQuery.Deferred;
-    _ = root._;
-    if ((_ref = root.intermine) == null) {
-      root.intermine = {};
-    }
-    if ((_ref1 = (_base = root.intermine).funcutils) == null) {
-      _base.funcutils = {};
-    }
-    root = root.intermine.funcutils;
-  }
-
-  root.curry = curry = function() {
-    var args, f;
-    f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-    return function() {
-      var rest;
-      rest = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      return f.apply(null, args.concat(rest));
-    };
-  };
-
-  root.error = function(e) {
-    return Deferred(function() {
-      return this.reject(new Error(e));
-    }).promise();
-  };
-
-  root.success = success = function() {
-    var args;
-    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    return Deferred(function() {
-      return this.resolve.apply(this, args);
-    }).promise();
-  };
-
-  root.fold = fold = function(f) {
-    return function(init, xs) {
-      var k, ret, v;
-      if (xs.reduce != null) {
-        return xs.reduce(f, init);
-      } else {
-        ret = init;
-        for (k in xs) {
-          v = xs[k];
-          ret = ret != null ? f(ret, k, v) : {
-            k: v
-          };
-        }
-        return ret;
-      }
-    };
-  };
-
-  root.take = function(n) {
-    return function(xs) {
-      if (n != null) {
-        return xs.slice(0, (n - 1) + 1 || 9e9);
-      } else {
-        return xs;
-      }
-    };
-  };
-
-  root.filter = function(f) {
-    return function(xs) {
-      var x, _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = xs.length; _i < _len; _i++) {
-        x = xs[_i];
-        if (f(x)) {
-          _results.push(x);
-        }
-      }
-      return _results;
-    };
-  };
-
-  root.omap = function(f) {
-    var merger;
-    merger = fold(function(a, oldk, oldv) {
-      var newk, newv, _ref2;
-      _ref2 = f(oldk, oldv), newk = _ref2[0], newv = _ref2[1];
-      a[newk] = newv;
-      return a;
-    });
-    return function(xs) {
-      return merger({}, xs);
-    };
-  };
-
-  root.copy = root.omap(function(k, v) {
-    return [k, v];
-  });
-
-  root.partition = function(f) {
-    return function(xs) {
-      var falses, trues, x, _i, _len;
-      trues = [];
-      falses = [];
-      for (_i = 0, _len = xs.length; _i < _len; _i++) {
-        x = xs[_i];
-        if (f(x)) {
-          trues.push(x);
-        } else {
-          falses.push(x);
-        }
-      }
-      return [trues, falses];
-    };
-  };
-
-  root.id = id = function(x) {
-    return x;
-  };
-
-  root.concatMap = function(f) {
-    return function(xs) {
-      var fx, k, ret, v, x, _i, _len;
-      ret = void 0;
-      for (_i = 0, _len = xs.length; _i < _len; _i++) {
-        x = xs[_i];
-        fx = f(x);
-        ret = (function() {
-          var _ref2;
-          if (ret === void 0) {
-            return fx;
-          } else if ((_ref2 = typeof fx) === 'string' || _ref2 === 'number') {
-            return ret + fx;
-          } else if (fx.slice != null) {
-            return ret.concat(fx);
-          } else {
-            for (k in fx) {
-              v = fx[k];
-              ret[k] = v;
-            }
-            return ret;
-          }
-        })();
-      }
-      return ret;
-    };
-  };
-
-  root.flatMap = root.concatMap;
-
-  root.sum = root.concatMap(id);
-
-  root.AND = function(a, b) {
-    return a && b;
-  };
-
-  root.OR = function(a, b) {
-    return a || b;
-  };
-
-  root.NOT = function(x) {
-    return !x;
-  };
-
-  root.any = function(xs, f) {
-    var x, _i, _len;
-    if (f == null) {
-      f = id;
-    }
-    for (_i = 0, _len = xs.length; _i < _len; _i++) {
-      x = xs[_i];
-      if (f(x)) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  root.invoke = function() {
-    var args, name;
-    name = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-    return function(obj) {
-      var _ref2;
-      if ((_ref2 = obj[name]) != null ? _ref2.apply : void 0) {
-        return obj[name].apply(obj, args);
-      } else {
-        return Deferred().reject("No method: " + name).promise();
-      }
-    };
-  };
-
-  root.invokeWith = function(name, args, ctx) {
-    if (args == null) {
-      args = [];
-    }
-    if (ctx == null) {
-      ctx = null;
-    }
-    return function(o) {
-      return o[name].apply(ctx || o, args);
-    };
-  };
-
-  root.get = function(name) {
-    return function(obj) {
-      return obj[name];
-    };
-  };
-
-  root.set = function(name, value) {
-    return function(obj) {
-      var k, v;
-      if (arguments.length === 2) {
-        obj[name] = value;
-      } else {
-        for (k in name) {
-          if (!__hasProp.call(name, k)) continue;
-          v = name[k];
-          obj[k] = v;
-        }
-      }
-      return obj;
-    };
-  };
-
-  root.flip = function(f) {
-    return function() {
-      var args;
-      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      return f.apply(null, args.reverse());
-    };
-  };
-
-  REQUIRES = function(required, got) {
-    return "This service requires a service at version " + required + " or above. This one is at " + got;
-  };
-
-  root.REQUIRES_VERSION = function(s, n, f) {
-    return s.fetchVersion().pipe(function(v) {
-      if (v >= n) {
-        return f();
-      } else {
-        return error(REQUIRES(n, v));
-      }
-    });
-  };
-
-  root.dejoin = function(q) {
-    var parts, view, _i, _len, _ref2;
-    _ref2 = q.views;
-    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-      view = _ref2[_i];
-      parts = view.split('.');
-      if (parts.length > 2) {
-        q.addJoin(parts.slice(1, -1).join('.'));
-      }
-    }
-    return q;
-  };
-
-  thenFold = fold(function(p, f) {
-    return p.then(f);
-  });
-
-  root.sequence = function() {
-    var fns;
-    fns = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    return thenFold(success(), _.flatten(fns));
-  };
-
-  pairFold = fold(function(o, _arg) {
-    var k, v;
-    k = _arg[0], v = _arg[1];
-    if (o[k] != null) {
-      throw new Error("Duplicate key: " + k);
-    }
-    o[k] = v;
-    return o;
-  });
-
-  root.pairsToObj = function(pairs) {
-    return pairFold({}, pairs);
-  };
-
-}).call(this);
-
-(function() {
-  var IS_NODE, buildArray, buildDict, intermine, __root__, _ref,
-    __slice = [].slice;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    intermine = __root__;
-  } else {
-    intermine = __root__.intermine;
-    if (intermine == null) {
-      intermine = __root__.intermine = {};
-    }
-  }
-
-  if ((_ref = intermine.compression) == null) {
-    intermine.compression = {};
-  }
-
-  buildDict = function(size) {
-    var dict, i, _i;
-    dict = {};
-    for (i = _i = 0; 0 <= size ? _i <= size : _i >= size; i = 0 <= size ? ++_i : --_i) {
-      dict[String.fromCharCode(i)] = i;
-    }
-    return dict;
-  };
-
-  buildArray = function(size) {
-    var x, _i, _results;
-    _results = [];
-    for (x = _i = 0; 0 <= size ? _i <= size : _i >= size; x = 0 <= size ? ++_i : --_i) {
-      _results.push(String.fromCharCode(x));
-    }
-    return _results;
-  };
-
-  intermine.compression.LZW = {
-    encode: function(s) {
-      var char, currPhrase, data, dict, dictSize, out, phrase, _i, _len;
-      data = (s + "").split("");
-      out = [];
-      phrase = '';
-      dictSize = 256;
-      dict = buildDict(dictSize);
-      for (_i = 0, _len = data.length; _i < _len; _i++) {
-        char = data[_i];
-        currPhrase = phrase + char;
-        if (currPhrase in dict) {
-          phrase = currPhrase;
-        } else {
-          out.push(dict[phrase]);
-          dict[currPhrase] = dictSize++;
-          phrase = String(char);
-        }
-      }
-      if (phrase !== '') {
-        out.push(dict[phrase]);
-      }
-      return out;
-    },
-    decode: function(data) {
-      var code, dict, dictSize, entry, head, result, tail, word, _i, _len;
-      dictSize = 256;
-      dict = buildArray(dictSize);
-      entry = '';
-      head = data[0], tail = 2 <= data.length ? __slice.call(data, 1) : [];
-      word = String.fromCharCode(head);
-      result = [word];
-      for (_i = 0, _len = tail.length; _i < _len; _i++) {
-        code = tail[_i];
-        entry = (function() {
-          if (dict[code]) {
-            return dict[code];
-          } else if (code === dictSize) {
-            return word + word.charAt(0);
-          } else {
-            throw new Error("Key is " + code);
-          }
-        })();
-        result.push(entry);
-        dict[dictSize++] = word + entry.charAt(0);
-        word = entry;
-      }
-      return result.join('');
-    }
-  };
-
-}).call(this);
-
-(function() {
-  var ACCEPT_HEADER, CHECKING_PIPE, ERROR_PIPE, XDomainRequest, error, get, http, inIE9, intermine, jQuery, mappingForIE, wrapCbs, _, _ref, _ref1;
-
-  jQuery = this.jQuery, _ = this._, intermine = this.intermine, XDomainRequest = this.XDomainRequest;
-
-  http = ((_ref = intermine.http) != null ? _ref : intermine.http = {});
-
-  ACCEPT_HEADER = intermine.constants.ACCEPT_HEADER;
-
-  _ref1 = intermine.funcutils, get = _ref1.get, error = _ref1.error;
-
-  (function() {
-    var converters, format, header;
-    converters = {};
-    for (format in ACCEPT_HEADER) {
-      header = ACCEPT_HEADER[format];
-      converters["text " + format] = jQuery.parseJSON;
-    }
-    return jQuery.ajaxSetup({
-      accepts: ACCEPT_HEADER,
-      contents: {
-        json: /json/
-      },
-      converters: converters
-    });
-  })();
-
-  CHECKING_PIPE = function(response) {
-    return jQuery.Deferred(function() {
-      if (response.wasSuccessful) {
-        return this.resolve(response);
-      } else {
-        return this.reject(response.error, response);
-      }
-    });
-  };
-
-  ERROR_PIPE = function(xhr, textStatus, e) {
-    try {
-      return JSON.parse(xhr.responseText).error;
-    } catch (e) {
-      return textStatus;
-    }
-  };
-
-  inIE9 = XDomainRequest != null;
-
-  mappingForIE = {
-    PUT: 'POST',
-    DELETE: 'GET'
-  };
-
-  if (inIE9) {
-    http.getMethod = function(x) {
-      var _ref2;
-      return (_ref2 = mappingForIE[x]) != null ? _ref2 : x;
-    };
-    http.supports = function(m) {
-      return !(m in mappingForIE);
-    };
-  } else {
-    http.getMethod = function(x) {
-      return x;
-    };
-    http.supports = function() {
-      return true;
-    };
-  }
-
-  wrapCbs = function(cbs) {
-    var atEnd, doThis, err, _doThis;
-    if (_.isArray(cbs)) {
-      if (!cbs.length) {
-        return [];
-      }
-      doThis = cbs[0], err = cbs[1], atEnd = cbs[2];
-      _doThis = function(rows) {
-        return _.each(rows, doThis != null ? doThis : function() {});
-      };
-      return [_doThis, err, atEnd];
-    } else {
-      _doThis = function(rows) {
-        return _.each(rows, cbs != null ? cbs : function() {});
-      };
-      return [_doThis];
-    }
-  };
-
-  http.iterReq = function(method, path, fmt) {
-    return function(q, page, doThis, onErr, onEnd) {
-      var req, _doThis, _ref2;
-      if (page == null) {
-        page = {};
-      }
-      if (doThis == null) {
-        doThis = (function() {});
-      }
-      if (onErr == null) {
-        onErr = (function() {});
-      }
-      if (onEnd == null) {
-        onEnd = (function() {});
-      }
-      if (arguments.length === 2 && _.isFunction(page)) {
-        _ref2 = [page, {}], doThis = _ref2[0], page = _ref2[1];
-      }
-      req = _.extend({
-        format: fmt
-      }, page, {
-        query: q.toXML()
-      });
-      _doThis = function(rows) {
-        return rows.forEach(doThis);
-      };
-      return this.makeRequest(method, path, req).fail(onErr).pipe(get('results')).done(doThis).done(onEnd);
-    };
-  };
-
-  http.doReq = function(opts) {
-    var errBack;
-    errBack = opts.error || this.errorHandler;
-    opts.error = _.compose(errBack, ERROR_PIPE);
-    return jQuery.ajax(opts).pipe(CHECKING_PIPE).fail(errBack);
-  };
-
-}).call(this);
-
-(function() {
-  var DOMParser, IS_NODE, domParser, intermine, jQuery, parse, __root__, _ref;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  if (IS_NODE) {
-    DOMParser = require('xmldom').DOMParser;
-    __root__ = exports;
-    domParser = new DOMParser;
-    parse = function(xml) {
-      var ret;
-      if (!(xml != null ? xml.match('<.*>') : void 0)) {
-        xml = xml + '>';
-      }
-      try {
-        if (xml) {
-          ret = domParser.parseFromString(xml, 'text/xml');
-        }
-      } catch (e) {
-        ret = void 0;
-      }
-      if ((!ret) || (!ret.documentElement) || (ret.getElementsByTagName('parsererror').length)) {
-        throw new Error('Invalid xml: ' + xml);
-      }
-      return ret;
-    };
-  } else {
-    jQuery = this.jQuery, intermine = this.intermine;
-    __root__ = ((_ref = intermine.xml) != null ? _ref : intermine.xml = {});
-    parse = jQuery.parseXML;
-  }
-
-  __root__.parse = parse;
-
-}).call(this);
-
-(function() {
-  var IS_NODE, Table, merge, properties, __root__, _ref;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : ((_ref = this.intermine) != null ? _ref : this.intermine = {});
-
-  merge = function(src, dest) {
-    var k, v, _results;
-    _results = [];
-    for (k in src) {
-      v = src[k];
-      _results.push(dest[k] = v);
-    }
-    return _results;
-  };
-
-  properties = ['attributes', 'references', 'collections'];
-
-  Table = (function() {
-
-    function Table(_arg) {
-      var c, prop, _, _i, _len, _ref1;
-      this.name = _arg.name, this.attributes = _arg.attributes, this.references = _arg.references, this.collections = _arg.collections;
-      this.fields = {};
-      this.__parents__ = arguments[0]['extends'];
-      for (_i = 0, _len = properties.length; _i < _len; _i++) {
-        prop = properties[_i];
-        merge(this[prop], this.fields);
-      }
-      _ref1 = this.collections;
-      for (_ in _ref1) {
-        c = _ref1[_];
-        c.isCollection = true;
-      }
-    }
-
-    Table.prototype.toString = function() {
-      var n, _;
-      return "[Table name=" + this.name + ", fields=[" + ((function() {
-        var _ref1, _results;
-        _ref1 = this.fields;
-        _results = [];
-        for (n in _ref1) {
-          _ = _ref1[n];
-          _results.push(n);
-        }
-        return _results;
-      }).call(this)) + "]]";
-    };
-
-    Table.prototype.parents = function() {
-      var _ref1;
-      return ((_ref1 = this.__parents__) != null ? _ref1 : []).slice();
-    };
-
-    return Table;
-
-  })();
-
-  __root__.Table = Table;
-
-}).call(this);
-
-(function() {
-  var $, Deferred, IS_NODE, NAMES, PARSED, PathInfo, any, concatMap, copy, error, get, intermine, makeKey, set, success, utils, _, __root__,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    intermine = __root__;
-    _ = require('underscore')._;
-    Deferred = ($ = require('underscore.deferred')).Deferred;
-    utils = require('./util');
-  } else {
-    _ = __root__._;
-    Deferred = ($ = __root__.jQuery).Deferred;
-    intermine = __root__.intermine;
-    utils = intermine.funcutils;
-  }
-
-  concatMap = utils.concatMap, get = utils.get, any = utils.any, set = utils.set, copy = utils.copy, success = utils.success, error = utils.error;
-
-  NAMES = {};
-
-  PARSED = {};
-
-  makeKey = function(model, path, subclasses) {
-    var k, v, _ref;
-    return "" + (model != null ? model.name : void 0) + "|" + (model != null ? (_ref = model.service) != null ? _ref.root : void 0 : void 0) + "|" + path + ":" + ((function() {
-      var _results;
-      _results = [];
-      for (k in subclasses) {
-        v = subclasses[k];
-        _results.push("" + k + "=" + v);
-      }
-      return _results;
-    })());
-  };
-
-  PathInfo = (function() {
-
-    function PathInfo(_arg) {
-      var _ref;
-      this.root = _arg.root, this.model = _arg.model, this.descriptors = _arg.descriptors, this.subclasses = _arg.subclasses, this.displayName = _arg.displayName, this.ident = _arg.ident;
-      this.allDescriptors = __bind(this.allDescriptors, this);
-
-      this.getChildNodes = __bind(this.getChildNodes, this);
-
-      this.getDisplayName = __bind(this.getDisplayName, this);
-
-      this.isa = __bind(this.isa, this);
-
-      this.append = __bind(this.append, this);
-
-      this.getParent = __bind(this.getParent, this);
-
-      this.getEndClass = __bind(this.getEndClass, this);
-
-      this.containsCollection = __bind(this.containsCollection, this);
-
-      this.isCollection = __bind(this.isCollection, this);
-
-      this.isReference = __bind(this.isReference, this);
-
-      this.isClass = __bind(this.isClass, this);
-
-      this.isAttribute = __bind(this.isAttribute, this);
-
-      this.isRoot = __bind(this.isRoot, this);
-
-      this.end = _.last(this.descriptors);
-      if ((_ref = this.ident) == null) {
-        this.ident = makeKey(this.model, this, this.subclasses);
-      }
-    }
-
-    PathInfo.prototype.isRoot = function() {
-      return this.descriptors.length === 0;
-    };
-
-    PathInfo.prototype.isAttribute = function() {
-      return (this.end != null) && !(this.end.referencedType != null);
-    };
-
-    PathInfo.prototype.isClass = function() {
-      return this.isRoot() || (this.end.referencedType != null);
-    };
-
-    PathInfo.prototype.isReference = function() {
-      var _ref;
-      return ((_ref = this.end) != null ? _ref.referencedType : void 0) != null;
-    };
-
-    PathInfo.prototype.isCollection = function() {
-      var _ref, _ref1;
-      return (_ref = (_ref1 = this.end) != null ? _ref1.isCollection : void 0) != null ? _ref : false;
-    };
-
-    PathInfo.prototype.containsCollection = function() {
-      return any(this.descriptors, function(x) {
-        return x.isCollection;
-      });
-    };
-
-    PathInfo.prototype.getEndClass = function() {
-      var _ref;
-      return this.model.classes[this.subclasses[this.toString()] || ((_ref = this.end) != null ? _ref.referencedType : void 0)] || this.root;
-    };
-
-    PathInfo.prototype.getParent = function() {
-      var data;
-      if (this.isRoot()) {
-        throw new Error("Root paths do not have parents");
-      }
-      data = {
-        root: this.root,
-        model: this.model,
-        descriptors: _.initial(this.descriptors),
-        subclasses: this.subclasses
-      };
-      return new PathInfo(data);
-    };
-
-    PathInfo.prototype.append = function(attr) {
-      var data, fld;
-      if (this.isAttribute()) {
-        throw new Error("" + this + " is an attribute.");
-      }
-      fld = _.isString(attr) ? this.getType().fields[attr] : attr;
-      if (fld == null) {
-        throw new Error("" + attr + " is not a field of " + (this.getType()));
-      }
-      data = {
-        root: this.root,
-        model: this.model,
-        descriptors: this.descriptors.concat(fld),
-        subclasses: this.subclasses
-      };
-      return new PathInfo(data);
-    };
-
-    PathInfo.prototype.isa = function(clazz) {
-      var name, type;
-      if (this.isAttribute()) {
-        return this.getType() === clazz;
-      } else {
-        name = clazz.name ? clazz.name : '' + clazz;
-        type = this.getType();
-        return (name === type.name) || (__indexOf.call(this.model.getAncestorsOf(type), name) >= 0);
-      }
-    };
-
-    PathInfo.prototype.getDisplayName = function(cb) {
-      var cached, custom, params, path, _ref,
-        _this = this;
-      if (custom = this.displayName) {
-        return success(custom);
-      }
-      if ((_ref = this.namePromise) == null) {
-        this.namePromise = (cached = NAMES[this.ident]) ? success(cached) : !(this.model.service != null) ? error("No service") : (path = 'model' + (concatMap(function(d) {
-          return '/' + d.name;
-        }))(this.allDescriptors()), params = (set({
-          format: 'json'
-        }))(copy(this.subclasses)), this.model.service.get(path, params).then(get('display')).done(function(n) {
-          var _name, _ref1;
-          return (_ref1 = NAMES[_name = _this.ident]) != null ? _ref1 : NAMES[_name] = n;
-        }));
-      }
-      return this.namePromise.done(cb);
-    };
-
-    PathInfo.prototype.getChildNodes = function() {
-      var fld, name, _ref, _ref1, _results;
-      _ref1 = ((_ref = this.getEndClass()) != null ? _ref.fields : void 0) || {};
-      _results = [];
-      for (name in _ref1) {
-        fld = _ref1[name];
-        _results.push(this.append(fld));
-      }
-      return _results;
-    };
-
-    PathInfo.prototype.allDescriptors = function() {
-      return [this.root].concat(this.descriptors);
-    };
-
-    PathInfo.prototype.toString = function() {
-      return this.allDescriptors().map(get('name')).join('.');
-    };
-
-    PathInfo.prototype.equals = function(other) {
-      return other && (other.ident != null) && this.ident === other.ident;
-    };
-
-    PathInfo.prototype.getType = function() {
-      var _ref, _ref1;
-      return ((_ref = this.end) != null ? (_ref1 = _ref.type) != null ? _ref1.replace(/java\.lang\./, '') : void 0 : void 0) || this.getEndClass();
-    };
-
-    return PathInfo;
-
-  })();
-
-  PathInfo.prototype.toPathString = PathInfo.prototype.toString;
-
-  PathInfo.parse = function(model, path, subclasses) {
-    var cached, cd, descriptors, fld, ident, keyPath, part, parts, root;
-    if (subclasses == null) {
-      subclasses = {};
-    }
-    ident = makeKey(model, path, subclasses);
-    if (cached = PARSED[ident]) {
-      return cached;
-    }
-    parts = (path + '').split('.');
-    root = cd = model.classes[parts.shift()];
-    keyPath = root.name;
-    descriptors = (function() {
-      var _i, _len, _ref, _results;
-      _results = [];
-      for (_i = 0, _len = parts.length; _i < _len; _i++) {
-        part = parts[_i];
-        fld = (cd != null ? cd.fields[part] : void 0) || ((_ref = (cd = model.classes[subclasses[keyPath]])) != null ? _ref.fields[part] : void 0);
-        if (!fld) {
-          throw new Error("Could not find " + part + " in " + cd + " when parsing " + path);
-        }
-        keyPath += "." + part;
-        cd = model.classes[fld.type || fld.referencedType];
-        _results.push(fld);
-      }
-      return _results;
-    })();
-    return PARSED[ident] = new PathInfo({
-      root: root,
-      model: model,
-      descriptors: descriptors,
-      subclasses: subclasses,
-      ident: ident
-    });
-  };
-
-  PathInfo.flushCache = function() {
-    PARSED = {};
-    return NAMES = {};
-  };
-
-  intermine.PathInfo = PathInfo;
-
-}).call(this);
-
-(function() {
-  var $, Deferred, IS_NODE, Model, PathInfo, Table, flatten, intermine, intersection, liftToTable, omap, _, __root__, _ref,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    intermine = __root__;
-    _ = require('underscore')._;
-    Deferred = ($ = require('underscore.deferred')).Deferred;
-    Table = require('./table').Table;
-    PathInfo = require('./path').PathInfo;
-    omap = require('./util').omap;
-  } else {
-    _ = __root__._;
-    Deferred = ($ = __root__.jQuery).Deferred;
-    intermine = ((_ref = __root__.intermine) != null ? _ref : __root__.intermine = {});
-    Table = intermine.Table, PathInfo = intermine.PathInfo;
-    omap = intermine.funcutils.omap;
-  }
-
-  flatten = _.flatten, intersection = _.intersection;
-
-  liftToTable = omap(function(k, v) {
-    return [k, new Table(v)];
-  });
-
-  Model = (function() {
-
-    function Model(_arg) {
-      var classes;
-      this.name = _arg.name, classes = _arg.classes;
-      this.findCommonType = __bind(this.findCommonType, this);
-
-      this.findSharedAncestor = __bind(this.findSharedAncestor, this);
-
-      this.getAncestorsOf = __bind(this.getAncestorsOf, this);
-
-      this.getSubclassesOf = __bind(this.getSubclassesOf, this);
-
-      this.getPathInfo = __bind(this.getPathInfo, this);
-
-      this.classes = liftToTable(classes);
-    }
-
-    Model.prototype.getPathInfo = function(path, subcls) {
-      return PathInfo.parse(this, path, subcls);
-    };
-
-    Model.prototype.getSubclassesOf = function(cls) {
-      var cd, clazz, ret, _ref1, _ref2;
-      clazz = cls && cls.name ? cls : this.classes[cls];
-      if (clazz == null) {
-        throw new Error("" + cls + " is not a table");
-      }
-      ret = [clazz.name];
-      _ref1 = this.classes;
-      for (_ in _ref1) {
-        cd = _ref1[_];
-        if (_ref2 = clazz.name, __indexOf.call(cd.parents(), _ref2) >= 0) {
-          ret = ret.concat(this.getSubclassesOf(cd));
-        }
-      }
-      return ret;
-    };
-
-    Model.prototype.getAncestorsOf = function(cls) {
-      var ancestors, clazz, superC, _i, _len;
-      clazz = cls && cls.name ? cls : this.classes[cls];
-      if (clazz == null) {
-        throw new Error("" + cls + " is not a table");
-      }
-      ancestors = clazz.parents();
-      for (_i = 0, _len = ancestors.length; _i < _len; _i++) {
-        superC = ancestors[_i];
-        ancestors.push(this.getAncestorsOf(superC));
-      }
-      return flatten(ancestors);
-    };
-
-    Model.prototype.findSharedAncestor = function(classA, classB) {
-      var a_ancestry, b_ancestry, _ref1;
-      if (classB === null || classA === null) {
-        return null;
-      }
-      if (classA === classB) {
-        return classA;
-      }
-      a_ancestry = this.getAncestorsOf(classA);
-      if (__indexOf.call(a_ancestry, classB) >= 0) {
-        return classB;
-      }
-      b_ancestry = this.getAncestorsOf(classB);
-      if (__indexOf.call(b_ancestry, classA) >= 0) {
-        return classA;
-      }
-      return (_ref1 = intersection(a_ancestry, b_ancestry).shift()) != null ? _ref1 : null;
-    };
-
-    Model.prototype.findCommonType = function(xs) {
-      if (xs == null) {
-        xs = [];
-      }
-      return xs.reduce(this.findSharedAncestor);
-    };
-
-    return Model;
-
-  })();
-
-  Model.prototype.makePath = Model.prototype.getPathInfo;
-
-  Model.prototype.findCommonTypeOfMultipleClasses = Model.prototype.findCommonType;
-
-  Model.load = function(data) {
-    return new Model(data);
-  };
-
-  Model.INTEGRAL_TYPES = ["int", "Integer", "long", "Long"];
-
-  Model.FRACTIONAL_TYPES = ["double", "Double", "float", "Float"];
-
-  Model.NUMERIC_TYPES = Model.INTEGRAL_TYPES.concat(Model.FRACTIONAL_TYPES);
-
-  Model.BOOLEAN_TYPES = ["boolean", "Boolean"];
-
-  intermine.Model = Model;
-
-}).call(this);
-
-(function() {
-  var Deferred, IS_NODE, User, do_pref_req, error, intermine, _, __root__,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    Deferred = require('underscore.deferred').Deferred;
-    _ = require('underscore')._;
-    error = require('./util').error;
-    intermine = __root__;
-  } else {
-    _ = __root__._;
-    Deferred = __root__.jQuery.Deferred;
-    intermine = __root__.intermine;
-    error = intermine.funcutils.error;
-  }
-
-  do_pref_req = function(user, data, method) {
-    return user.service.manageUserPreferences(method, data).done(function(prefs) {
-      return user.preferences = prefs;
-    });
-  };
-
-  User = (function() {
-
-    function User(service, _arg) {
-      var _ref;
-      this.service = service;
-      this.username = _arg.username, this.preferences = _arg.preferences;
-      this.refresh = __bind(this.refresh, this);
-
-      this.clearPreferences = __bind(this.clearPreferences, this);
-
-      this.clearPreference = __bind(this.clearPreference, this);
-
-      this.setPreferences = __bind(this.setPreferences, this);
-
-      this.setPreference = __bind(this.setPreference, this);
-
-      this.hasPreferences = this.preferences != null;
-      if ((_ref = this.preferences) == null) {
-        this.preferences = {};
-      }
-    }
-
-    User.prototype.setPreference = function(key, value) {
-      var data;
-      if (_.isString(key)) {
-        data = {};
-        data[key] = value;
-      } else if (!(value != null)) {
-        data = key;
-      } else {
-        error("Incorrect arguments to setPreference");
-      }
-      return this.setPreferences(data);
-    };
-
-    User.prototype.setPreferences = function(prefs) {
-      return do_pref_req(this, prefs, 'POST');
-    };
-
-    User.prototype.clearPreference = function(key) {
-      return do_pref_req(this, {
-        key: key
-      }, 'DELETE');
-    };
-
-    User.prototype.clearPreferences = function() {
-      return do_pref_req(this, {}, 'DELETE');
-    };
-
-    User.prototype.refresh = function() {
-      return do_pref_req(this, {}, 'GET');
-    };
-
-    return User;
-
-  })();
-
-  intermine.User = User;
-
-}).call(this);
-
-(function() {
-  var INVITES, IS_NODE, List, REQUIRES_VERSION, SHARES, TAGS_PATH, dejoin, funcutils, get, getFolderName, intermine, invoke, isFolder, set, _, __root__,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    _ = require('underscore')._;
-    funcutils = require('./util');
-    intermine = __root__;
-  } else {
-    _ = __root__._, intermine = __root__.intermine;
-    funcutils = intermine.funcutils;
-  }
-
-  get = funcutils.get, invoke = funcutils.invoke, REQUIRES_VERSION = funcutils.REQUIRES_VERSION, set = funcutils.set, dejoin = funcutils.dejoin;
-
-  TAGS_PATH = "list/tags";
-
-  SHARES = "lists/shares";
-
-  INVITES = 'lists/invitations';
-
-  isFolder = function(t) {
-    return t.substr(0, t.indexOf(':')) === '__folder__';
-  };
-
-  getFolderName = function(t) {
-    return s.substr(t.indexOf(':') + 1);
-  };
-
-  List = (function() {
-
-    function List(properties, service) {
-      var k, v;
-      this.service = service;
-      this.hasTag = __bind(this.hasTag, this);
-
-      for (k in properties) {
-        if (!__hasProp.call(properties, k)) continue;
-        v = properties[k];
-        this[k] = v;
-      }
-      this.dateCreated = (this.dateCreated != null) ? new Date(this.dateCreated) : null;
-      this.folders = this.tags.filter(isFolder).map(getFolderName);
-    }
-
-    List.prototype.hasTag = function(t) {
-      return __indexOf.call(this.tags, t) >= 0;
-    };
-
-    List.prototype.query = function(view) {
-      if (view == null) {
-        view = ['*'];
-      }
-      return this.service.query({
-        select: view,
-        from: this.type,
-        where: [[this.type, 'IN', this.name]]
-      });
-    };
-
-    List.prototype.del = function(cb) {
-      return this.service.makeRequest('DELETE', 'lists', {
-        name: this.name
-      }, cb);
-    };
-
-    List.prototype.fetchTags = function(cb) {
-      var _this = this;
-      return this.service.makeRequest('GET', 'list/tags', {
-        name: this.name
-      }).pipe(function(resp) {
-        return resp.tags;
-      }).done(function(tags) {
-        _this.tags = tags;
-        return _this.folders.filter(isFolder).map(getFolderName);
-      }).done(cb);
-    };
-
-    List.prototype.addTags = function(tags, cb) {
-      var _this = this;
-      return this.service.makeRequest('POST', 'list/tags', {
-        name: this.name,
-        tags: tags
-      }).pipe(function(resp) {
-        return resp.tags;
-      }).done(function(tags) {
-        _this.tags = tags;
-        return _this.folders.filter(isFolder).map(getFolderName);
-      }).done(cb);
-    };
-
-    List.prototype.removeTags = function(tags, cb) {
-      var _this = this;
-      return this.service.makeRequest('DELETE', 'list/tags', {
-        name: this.name,
-        tags: tags
-      }).pipe(function(resp) {
-        return resp.tags;
-      }).done(function(tags) {
-        _this.tags = tags;
-        return _this.folders.filter(isFolder).map(getFolderName);
-      }).done(cb);
-    };
-
-    List.prototype.contents = function(cb) {
-      return this.query().pipe(dejoin).pipe(invoke('records')).done(cb);
-    };
-
-    List.prototype.rename = function(newName, cb) {
-      var _this = this;
-      return this.service.post('lists/rename', {
-        oldname: this.name,
-        newname: newName
-      }).pipe(get('listName')).done(function(n) {
-        return _this.name = n;
-      }).pipe(this.service.fetchList).done(cb);
-    };
-
-    List.prototype.copy = function(opts, cb) {
-      var baseName, name, query, tags, _ref, _ref1, _ref2,
-        _this = this;
-      if (opts == null) {
-        opts = {};
-      }
-      if (cb == null) {
-        cb = (function() {});
-      }
-      if (arguments.length === 1 && _.isFunction(opts)) {
-        _ref = [{}, opts], opts = _ref[0], cb = _ref[1];
-      }
-      if (_.isString(opts)) {
-        opts = {
-          name: '' + opts
-        };
-      }
-      name = baseName = (_ref1 = opts.name) != null ? _ref1 : "" + this.name + "_copy";
-      tags = this.tags.concat((_ref2 = opts.tags) != null ? _ref2 : []);
-      query = this.query(['id']);
-      return this.service.fetchLists().pipe(invoke('map', get('name'))).pipe(function(names) {
-        var c;
-        c = 1;
-        while (__indexOf.call(names, name) >= 0) {
-          name = "" + baseName + "-" + (c++);
-        }
-        return query.pipe(invoke('saveAsList', {
-          name: name,
-          tags: tags,
-          description: _this.description
-        })).done(cb);
-      });
-    };
-
-    List.prototype.enrichment = function(opts, cb) {
-      return this.service.enrichment((set({
-        list: this.name
-      }))(opts), cb);
-    };
-
-    List.prototype.shareWithUser = function(recipient, cb) {
-      return this.service.post(SHARES, {
-        'list': this.name,
-        'with': recipient
-      }).done(cb);
-    };
-
-    List.prototype.inviteUserToShare = function(recipient, notify, cb) {
-      if (notify == null) {
-        notify = true;
-      }
-      if (cb == null) {
-        cb = (function() {});
-      }
-      return this.service.post(INVITES, {
-        list: this.name,
-        to: recipient,
-        notify: !!notify
-      }).done(cb);
-    };
-
-    return List;
-
-  })();
-
-  intermine.List = List;
-
-}).call(this);
-
-(function() {
-  var Deferred, IDResolutionJob, IS_NODE, funcutils, get, intermine, __root__,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    Deferred = require('underscore.deferred').Deferred;
-    funcutils = require('./util');
-    intermine = __root__;
-  } else {
-    Deferred = __root__.jQuery.Deferred;
-    intermine = __root__.intermine;
-    funcutils = intermine.funcutils;
-  }
-
-  get = funcutils.get;
-
-  IDResolutionJob = (function() {
-
-    function IDResolutionJob(uid, service) {
-      this.uid = uid;
-      this.service = service;
-      this.del = __bind(this.del, this);
-
-      this.fetchResults = __bind(this.fetchResults, this);
-
-      this.fetchErrorMessage = __bind(this.fetchErrorMessage, this);
-
-      this.fetchStatus = __bind(this.fetchStatus, this);
-
-    }
-
-    IDResolutionJob.prototype.fetchStatus = function(cb) {
-      return this.service.get("ids/" + this.uid + "/status").pipe(get('status')).done(cb);
-    };
-
-    IDResolutionJob.prototype.fetchErrorMessage = function(cb) {
-      return this.service.get("ids/" + this.uid + "/status").pipe(get('message')).done(cb);
-    };
-
-    IDResolutionJob.prototype.fetchResults = function(cb) {
-      return this.service.get("ids/" + this.uid + "/result").pipe(get('results')).done(cb);
-    };
-
-    IDResolutionJob.prototype.del = function(cb) {
-      return this.service.makeRequest('DELETE', "ids/" + this.uid, {}, cb);
-    };
-
-    IDResolutionJob.prototype.poll = function(onSuccess, onError, onProgress) {
-      var resp, ret,
-        _this = this;
-      ret = Deferred().done(onSuccess).fail(onError).progress(onProgress);
-      resp = this.fetchStatus();
-      resp.fail(ret.reject);
-      resp.done(function(status) {
-        ret.notify(status);
-        switch (status) {
-          case 'SUCCESS':
-            return _this.fetchResults().then(ret.resolve, ret.reject);
-          case 'ERROR':
-            return _this.fetchErrorMessage().then(ret.reject, ret.reject);
-          default:
-            return _this.poll(ret.resolve, ret.reject, ret.notify);
-        }
-      });
-      return ret.promise();
-    };
-
-    return IDResolutionJob;
-
-  })();
-
-  IDResolutionJob.create = function(service) {
-    return function(uid) {
-      return new IDResolutionJob(uid, service);
-    };
-  };
-
-  intermine.IDResolutionJob = IDResolutionJob;
-
-}).call(this);
-
-(function() {
-  var $, BASIC_ATTRS, CODES, Deferred, IS_NODE, LIST_PIPE, Query, RESULTS_METHODS, SIMPLE_ATTRS, conAttrs, conStr, conToJSON, conValStr, concatMap, copyCon, decapitate, didntRemove, f, filter, fold, get, get_canonical_op, headLess, id, idConStr, intermine, interpretConArray, interpretConstraint, invoke, jQuery, mth, multiConStr, noUndefVals, noValueConStr, pairsToObj, partition, simpleConStr, stringToSortOrder, take, toQueryString, typeConStr, _, __root__, _fn, _get_data_fetcher, _i, _j, _len, _len1, _ref, _ref1, _ref2,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __slice = [].slice;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    intermine = __root__;
-    _ = require('underscore')._;
-    Deferred = ($ = require('underscore.deferred')).Deferred;
-    toQueryString = require('querystring').stringify;
-    intermine.xml = require('./xml');
-    _ref = require('./util'), pairsToObj = _ref.pairsToObj, filter = _ref.filter, partition = _ref.partition, fold = _ref.fold, take = _ref.take, concatMap = _ref.concatMap, id = _ref.id, get = _ref.get, invoke = _ref.invoke;
-  } else {
-    _ = __root__._, jQuery = __root__.jQuery, intermine = __root__.intermine;
-    _ref1 = intermine.funcutils, pairsToObj = _ref1.pairsToObj, filter = _ref1.filter, partition = _ref1.partition, fold = _ref1.fold, take = _ref1.take, concatMap = _ref1.concatMap, id = _ref1.id, get = _ref1.get, invoke = _ref1.invoke;
-    Deferred = ($ = jQuery).Deferred;
-    toQueryString = function(obj) {
-      return jQuery.param(obj, true);
-    };
-  }
-
-  get_canonical_op = function(orig) {
-    var canonical;
-    canonical = _.isString(orig) ? Query.OP_DICT[orig.toLowerCase()] : null;
-    if (!canonical) {
-      throw new Error("Illegal constraint operator: " + orig);
-    }
-    return canonical;
-  };
-
-  BASIC_ATTRS = ['path', 'op', 'code'];
-
-  SIMPLE_ATTRS = BASIC_ATTRS.concat(['value', 'extraValue']);
-
-  RESULTS_METHODS = ['rowByRow', 'eachRow', 'recordByRecord', 'eachRecord', 'records', 'rows', 'table', 'tableRows'];
-
-  LIST_PIPE = function(service) {
-    return _.compose(service.fetchList, get('listName'));
-  };
-
-  CODES = [null, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-
-  decapitate = function(x) {
-    return x.substr(x.indexOf('.'));
-  };
-
-  conValStr = function(v) {
-    if (v != null) {
-      return "<value>" + (_.escape(v)) + "</value>";
-    } else {
-      return "<nullValue/>";
-    }
-  };
-
-  conAttrs = function(c, names) {
-    var k, v;
-    return ((function() {
-      var _results;
-      _results = [];
-      for (k in c) {
-        v = c[k];
-        if ((__indexOf.call(names, k) >= 0)) {
-          _results.push("" + k + "=\"" + (_.escape(v)) + "\" ");
-        }
-      }
-      return _results;
-    })()).join('');
-  };
-
-  noValueConStr = function(c) {
-    return "<constraint " + (conAttrs(c, BASIC_ATTRS)) + "/>";
-  };
-
-  typeConStr = function(c) {
-    return "<constraint " + (conAttrs(c, ['path', 'type'])) + "/>";
-  };
-
-  simpleConStr = function(c) {
-    return "<constraint " + (conAttrs(c, SIMPLE_ATTRS)) + "/>";
-  };
-
-  multiConStr = function(c) {
-    return "<constraint " + (conAttrs(c, BASIC_ATTRS)) + ">" + (concatMap(conValStr)(c.values)) + "</constraint>";
-  };
-
-  idConStr = function(c) {
-    return "<constraint " + (conAttrs(c, BASIC_ATTRS)) + "ids=\"" + (c.ids.join(',')) + "\"/>";
-  };
-
-  conStr = function(c) {
-    var _ref2;
-    if (c.values != null) {
-      return multiConStr(c);
-    } else if (c.ids != null) {
-      return idConStr(c);
-    } else if (!(c.op != null)) {
-      return typeConStr(c);
-    } else if (_ref2 = c.op, __indexOf.call(Query.NULL_OPS, _ref2) >= 0) {
-      return noValueConStr(c);
-    } else {
-      return simpleConStr(c);
-    }
-  };
-
-  headLess = function(path) {
-    return path.replace(/^[^\.]+\./, '');
-  };
-
-  copyCon = function(con) {
-    var code, ids, op, path, type, value, values;
-    path = con.path, type = con.type, op = con.op, value = con.value, values = con.values, ids = con.ids, code = con.code;
-    ids = ids != null ? ids.slice() : void 0;
-    values = values != null ? values.slice() : void 0;
-    return noUndefVals({
-      path: path,
-      type: type,
-      op: op,
-      value: value,
-      values: values,
-      ids: ids,
-      code: code
-    });
-  };
-
-  conToJSON = function(con) {
-    var copy;
-    copy = copyCon(con);
-    copy.path = headLess(copy.path);
-    return copy;
-  };
-
-  noUndefVals = function(x) {
-    var k, v;
-    for (k in x) {
-      v = x[k];
-      if (v == null) {
-        delete x[k];
-      }
-    }
-    return x;
-  };
-
-  didntRemove = function(orig, reduced) {
-    return "Did not remove a single constraint. original = " + orig + ", reduced = " + reduced;
-  };
-
-  interpretConstraint = function(path, con) {
-    var constraint, k, keys, v, x, _ref2;
-    constraint = {
-      path: path
-    };
-    if (con === null) {
-      constraint.op = 'IS NULL';
-    } else if (_.isArray(con)) {
-      constraint.op = 'ONE OF';
-      constraint.values = con;
-    } else if (_.isString(con) || _.isNumber(con)) {
-      if (_ref2 = typeof con.toUpperCase === "function" ? con.toUpperCase() : void 0, __indexOf.call(Query.NULL_OPS, _ref2) >= 0) {
-        constraint.op = con;
-      } else {
-        constraint.op = '=';
-        constraint.value = con;
-      }
-    } else {
-      keys = (function() {
-        var _results;
-        _results = [];
-        for (k in con) {
-          x = con[k];
-          _results.push(k);
-        }
-        return _results;
-      })();
-      if (__indexOf.call(keys, 'isa') >= 0) {
-        if (_.isArray(con.isa)) {
-          constraint.op = k;
-          constraint.values = con.isa;
-        } else {
-          constraint.type = con.isa;
-        }
-      } else {
-        if (__indexOf.call(keys, 'extraValue') >= 0) {
-          constraint.extraValue = con.extraValue;
-        }
-        for (k in con) {
-          v = con[k];
-          if (!(k !== 'extraValue')) {
-            continue;
-          }
-          constraint.op = k;
-          if (_.isArray(v)) {
-            constraint.values = v;
-          } else {
-            constraint.value = v;
-          }
-        }
-      }
-    }
-    return constraint;
-  };
-
-  interpretConArray = function(conArgs) {
-    var a0, constraint, v, _ref2;
-    conArgs = conArgs.slice();
-    constraint = {
-      path: conArgs.shift()
-    };
-    if (conArgs.length === 1) {
-      a0 = conArgs[0];
-      if (_ref2 = typeof a0.toUpperCase === "function" ? a0.toUpperCase() : void 0, __indexOf.call(Query.NULL_OPS, _ref2) >= 0) {
-        constraint.op = a0;
-      } else {
-        constraint.type = a0;
-      }
-    } else if (conArgs.length >= 2) {
-      constraint.op = conArgs[0];
-      v = conArgs[1];
-      if (_.isArray(v)) {
-        constraint.values = v;
-      } else {
-        constraint.value = v;
-      }
-      if (conArgs.length === 3) {
-        constraint.extraValue = conArgs[2];
-      }
-    }
-    return constraint;
-  };
-
-  stringToSortOrder = function(str) {
-    var i, parts, pathIndices, x, _i, _len, _results;
-    if (str == null) {
-      return [];
-    }
-    parts = str.split(/\s+/);
-    pathIndices = (function() {
-      var _i, _ref2, _results;
-      _results = [];
-      for (x = _i = 0, _ref2 = parts.length / 2; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; x = 0 <= _ref2 ? ++_i : --_i) {
-        _results.push(x * 2);
-      }
-      return _results;
-    })();
-    _results = [];
-    for (_i = 0, _len = pathIndices.length; _i < _len; _i++) {
-      i = pathIndices[_i];
-      _results.push([parts[i], parts[i + 1]]);
-    }
-    return _results;
-  };
-
-  Query = (function() {
-    var addPI, cAttrs, getPaths, kids, qAttrs, scFold, toAttrPairs, xmlAttr;
-
-    Query.JOIN_STYLES = ['INNER', 'OUTER'];
-
-    Query.BIO_FORMATS = ['gff3', 'fasta', 'bed'];
-
-    Query.NULL_OPS = ['IS NULL', 'IS NOT NULL'];
-
-    Query.ATTRIBUTE_VALUE_OPS = ["=", "!=", ">", ">=", "<", "<=", "CONTAINS", "LIKE", "NOT LIKE"];
-
-    Query.MULTIVALUE_OPS = ['ONE OF', 'NONE OF'];
-
-    Query.TERNARY_OPS = ['LOOKUP'];
-
-    Query.LOOP_OPS = ['=', '!='];
-
-    Query.LIST_OPS = ['IN', 'NOT IN'];
-
-    Query.OP_DICT = {
-      '=': '=',
-      '==': '=',
-      'eq': '=',
-      '!=': '!=',
-      'ne': '!=',
-      '>': '>',
-      'gt': '>',
-      '>=': '>=',
-      'ge': '>=',
-      '<': '<',
-      'lt': '<',
-      '<=': '<=',
-      'le': '<=',
-      'contains': 'CONTAINS',
-      'CONTAINS': 'CONTAINS',
-      'like': 'LIKE',
-      'LIKE': 'LIKE',
-      'not like': 'NOT LIKE',
-      'NOT LIKE': 'NOT LIKE',
-      'lookup': 'LOOKUP',
-      'IS NULL': 'IS NULL',
-      'is null': 'IS NULL',
-      'IS NOT NULL': 'IS NOT NULL',
-      'is not null': 'IS NOT NULL',
-      'ONE OF': 'ONE OF',
-      'one of': 'ONE OF',
-      'NONE OF': 'NONE OF',
-      'none of': 'NONE OF',
-      'in': 'IN',
-      'not in': 'NOT IN',
-      'IN': 'IN',
-      'NOT IN': 'NOT IN',
-      'WITHIN': 'WITHIN',
-      'within': 'WITHIN',
-      'OVERLAPS': 'OVERLAPS',
-      'overlaps': 'OVERLAPS',
-      'ISA': 'ISA',
-      'isa': 'ISA'
-    };
-
-    getPaths = function() {};
-
-    Query.prototype.on = function(events, callback, context) {
-      var calls, ev, list, tail, _ref2, _ref3, _ref4;
-      events = events.split(/\s+/);
-      calls = ((_ref2 = this._callbacks) != null ? _ref2 : this._callbacks = {});
-      while (ev = events.shift()) {
-        list = ((_ref3 = calls[ev]) != null ? _ref3 : calls[ev] = {});
-        tail = ((_ref4 = list.tail) != null ? _ref4 : list.tail = (list.next = {}));
-        tail.callback = callback;
-        tail.context = context;
-        list.tail = tail.next = {};
-      }
-      return this;
-    };
-
-    Query.prototype.bind = function() {
-      var args;
-      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      return this.on.apply(this, args);
-    };
-
-    Query.prototype.trigger = function() {
-      var all, args, calls, event, events, node, rest, tail;
-      events = arguments[0], rest = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      calls = this._callbacks;
-      if (!calls) {
-        return this;
-      }
-      all = calls['all'];
-      (events = events.split(/\s+/)).push(null);
-      while (event = events.shift()) {
-        if (all) {
-          events.push({
-            next: all.next,
-            tail: all.tail,
-            event: event
-          });
-        }
-        if (!(node = calls[event])) {
-          continue;
-        }
-        events.push({
-          next: node.next,
-          tail: node.tail
-        });
-      }
-      while (node = events.pop()) {
-        tail = node.tail;
-        args = node.event ? [node.event].concat(rest) : rest;
-        while ((node = node.next) !== tail) {
-          node.callback.apply(node.context || this, args);
-        }
-      }
-      return this;
-    };
-
-    qAttrs = ['name', 'view', 'sortOrder', 'constraintLogic', 'title', 'description', 'comment'];
-
-    cAttrs = ['path', 'type', 'op', 'code', 'value', 'ids'];
-
-    toAttrPairs = function(el, attrs) {
-      var x, _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = attrs.length; _i < _len; _i++) {
-        x = attrs[_i];
-        if (el.hasAttribute(x)) {
-          _results.push([x, el.getAttribute(x)]);
-        }
-      }
-      return _results;
-    };
-
-    kids = function(el, name) {
-      var kid, _i, _len, _ref2, _results;
-      _ref2 = el.getElementsByTagName(name);
-      _results = [];
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        kid = _ref2[_i];
-        _results.push(kid);
-      }
-      return _results;
-    };
-
-    xmlAttr = function(name) {
-      return function(el) {
-        return el.getAttribute(name);
-      };
-    };
-
-    Query.fromXML = function(xml) {
-      var con, dom, j, pathOf, q, query, styleOf;
-      dom = intermine.xml.parse(xml);
-      query = kids(dom, 'query')[0] || kids(dom, 'template')[0];
-      if (!query) {
-        throw new Error("no query in xml");
-      }
-      pathOf = xmlAttr('path');
-      styleOf = xmlAttr('style');
-      q = pairsToObj(toAttrPairs(query, qAttrs));
-      q.view = q.view.split(/\s+/);
-      q.sortOrder = stringToSortOrder(q.sortOrder);
-      q.joins = (function() {
-        var _i, _len, _ref2, _results;
-        _ref2 = kids(query, 'join');
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          j = _ref2[_i];
-          if (styleOf(j) === 'OUTER') {
-            _results.push(pathOf(j));
-          }
-        }
-        return _results;
-      })();
-      q.constraints = (function() {
-        var _i, _len, _ref2, _results;
-        _ref2 = kids(query, 'constraint');
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          con = _ref2[_i];
-          _results.push((function(con) {
-            var c, tn, v, values, x;
-            c = pairsToObj(toAttrPairs(con, cAttrs));
-            if (c.ids != null) {
-              c.ids = (function() {
-                var _j, _len1, _ref3, _results1;
-                _ref3 = c.ids.split(',');
-                _results1 = [];
-                for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
-                  x = _ref3[_j];
-                  _results1.push(parseInt(x, 10));
+        var completed = 0;
+        _each(arr, function (x) {
+            iterator(x, only_once(function (err) {
+                if (err) {
+                    callback(err);
+                    callback = function () {};
                 }
-                return _results1;
-              })();
-            }
-            values = kids(con, 'value');
-            if (values.length) {
-              c.values = (function() {
-                var _j, _len1, _results1;
-                _results1 = [];
-                for (_j = 0, _len1 = values.length; _j < _len1; _j++) {
-                  v = values[_j];
-                  _results1.push(((function() {
-                    var _k, _len2, _ref3, _results2;
-                    _ref3 = v.childNodes;
-                    _results2 = [];
-                    for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-                      tn = _ref3[_k];
-                      _results2.push(tn.data);
+                else {
+                    completed += 1;
+                    if (completed >= arr.length) {
+                        callback(null);
                     }
-                    return _results2;
-                  })()).join(''));
                 }
-                return _results1;
-              })();
-            }
-            return c;
-          })(con));
-        }
-        return _results;
-      })();
-      return q;
-    };
-
-    function Query(properties, service) {
-      this.addConstraint = __bind(this.addConstraint, this);
-
-      this.expandStar = __bind(this.expandStar, this);
-
-      this.adjustPath = __bind(this.adjustPath, this);
-
-      this.select = __bind(this.select, this);
-
-      var prop, _i, _len, _ref10, _ref11, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9,
-        _this = this;
-      _.defaults(this, {
-        constraints: [],
-        views: [],
-        joins: {},
-        constraintLogic: "",
-        sortOrder: ""
-      });
-      if (properties == null) {
-        properties = {};
-      }
-      this.displayNames = _.extend({}, (_ref2 = (_ref3 = properties.displayNames) != null ? _ref3 : properties.aliases) != null ? _ref2 : {});
-      _ref4 = ['name', 'title', 'comment', 'description'];
-      for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-        prop = _ref4[_i];
-        if (properties[prop] != null) {
-          this[prop] = properties[prop];
-        }
-      }
-      this.service = service != null ? service : {};
-      this.model = (_ref5 = properties.model) != null ? _ref5 : {};
-      this.summaryFields = (_ref6 = properties.summaryFields) != null ? _ref6 : {};
-      this.root = (_ref7 = properties.root) != null ? _ref7 : properties.from;
-      this.maxRows = (_ref8 = (_ref9 = properties.size) != null ? _ref9 : properties.limit) != null ? _ref8 : properties.maxRows;
-      this.start = (_ref10 = (_ref11 = properties.start) != null ? _ref11 : properties.offset) != null ? _ref10 : 0;
-      this.select(properties.views || properties.view || properties.select || []);
-      this.addConstraints(properties.constraints || properties.where || []);
-      this.addJoins(properties.joins || properties.join || []);
-      this.orderBy(properties.sortOrder || properties.orderBy || []);
-      if (properties.constraintLogic != null) {
-        this.constraintLogic = properties.constraintLogic;
-      }
-      getPaths = function(root, depth) {
-        var cd, others, ret;
-        cd = _this.getPathInfo(root).getEndClass();
-        ret = [root];
-        others = !(cd && depth > 0) ? [] : _.flatten(_.map(cd.fields, function(r) {
-          return getPaths("" + root + "." + r.name, depth - 1);
-        }));
-        return _.flatten(ret.concat(others));
-      };
-    }
-
-    Query.prototype.removeFromSelect = function(unwanted) {
-      var mapFn, so, uw, v;
-      unwanted = _.isString(unwanted) ? [unwanted] : unwanted || [];
-      mapFn = _.compose(this.expandStar, this.adjustPath);
-      unwanted = _.flatten((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = unwanted.length; _i < _len; _i++) {
-          uw = unwanted[_i];
-          _results.push(mapFn(uw));
-        }
-        return _results;
-      })());
-      this.sortOrder = (function() {
-        var _i, _len, _ref2, _ref3, _results;
-        _ref2 = this.sortOrder;
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          so = _ref2[_i];
-          if (!(_ref3 = so.path, __indexOf.call(unwanted, _ref3) >= 0)) {
-            _results.push(so);
-          }
-        }
-        return _results;
-      }).call(this);
-      this.views = (function() {
-        var _i, _len, _ref2, _results;
-        _ref2 = this.views;
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          v = _ref2[_i];
-          if (!(__indexOf.call(unwanted, v) >= 0)) {
-            _results.push(v);
-          }
-        }
-        return _results;
-      }).call(this);
-      this.trigger('remove:view', unwanted);
-      return this.trigger('change:views', this.views);
-    };
-
-    Query.prototype.removeConstraint = function(con, silent) {
-      var c, iscon, orig, reduced;
-      if (silent == null) {
-        silent = false;
-      }
-      orig = this.constraints;
-      iscon = typeof con === 'string' ? (function(c) {
-        return c.code === con;
-      }) : (function(c) {
-        var _ref2, _ref3;
-        return (c.path === con.path) && (c.op === con.op) && (c.value === con.value) && (c.extraValue === con.extraValue) && (con.type === c.type) && (((_ref2 = c.values) != null ? _ref2.join('%%') : void 0) === ((_ref3 = con.values) != null ? _ref3.join('%%') : void 0));
-      });
-      reduced = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = orig.length; _i < _len; _i++) {
-          c = orig[_i];
-          if (!iscon(c)) {
-            _results.push(c);
-          }
-        }
-        return _results;
-      })();
-      if (reduced.length !== orig.length - 1) {
-        throw new Error(didntRemove(orig, reduced));
-      }
-      this.constraints = reduced;
-      if (!silent) {
-        this.trigger('change:constraints');
-        return this.trigger('removed:constraints', _.difference(orig, reduced));
-      }
-    };
-
-    Query.prototype.addToSelect = function(views) {
-      var dups, p, toAdd, _i, _len;
-      views = _.isString(views) ? [views] : views || [];
-      toAdd = _.flatten([_.map(views, _.compose(this.expandStar, this.adjustPath))]);
-      dups = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = toAdd.length; _i < _len; _i++) {
-          p = toAdd[_i];
-          if (__indexOf.call(this.views, p) >= 0 || _.indexOf(toAdd, p) !== _.lastIndexOf(toAdd, p)) {
-            _results.push(p);
-          }
-        }
-        return _results;
-      }).call(this);
-      if (dups.length) {
-        throw new Error("" + dups + " already in the select list");
-      }
-      for (_i = 0, _len = toAdd.length; _i < _len; _i++) {
-        p = toAdd[_i];
-        this.views.push(p);
-      }
-      return this.trigger('add:view change:views', toAdd);
-    };
-
-    Query.prototype.select = function(views) {
-      this.views = [];
-      this.addToSelect(views);
-      return this;
-    };
-
-    Query.prototype.adjustPath = function(path) {
-      path = path && path.name ? path.name : "" + path;
-      if (this.root != null) {
-        if (!path.match("^" + this.root)) {
-          path = this.root + "." + path;
-        }
-      } else {
-        this.root = path.split('.')[0];
-      }
-      return path;
-    };
-
-    Query.prototype.getPossiblePaths = function(depth) {
-      var _base, _ref2, _ref3;
-      if (depth == null) {
-        depth = 3;
-      }
-      if ((_ref2 = this._possiblePaths) == null) {
-        this._possiblePaths = {};
-      }
-      return (_ref3 = (_base = this._possiblePaths)[depth]) != null ? _ref3 : _base[depth] = getPaths(this.root, depth);
-    };
-
-    Query.prototype.getPathInfo = function(path) {
-      var adjusted, pi, _ref2;
-      adjusted = this.adjustPath(path);
-      pi = (_ref2 = this.model) != null ? typeof _ref2.getPathInfo === "function" ? _ref2.getPathInfo(adjusted, this.getSubclasses()) : void 0 : void 0;
-      if (pi && adjusted in this.displayNames) {
-        pi.displayName = this.displayNames[adjusted];
-      }
-      return pi;
-    };
-
-    Query.prototype.makePath = Query.prototype.getPathInfo;
-
-    scFold = _.compose(pairsToObj, filter(get(1)), invoke('map', function(c) {
-      return [c.path, c.type];
-    }));
-
-    Query.prototype.getSubclasses = function() {
-      return scFold(this.constraints);
-    };
-
-    Query.prototype.getType = function(path) {
-      return this.getPathInfo(path).getType();
-    };
-
-    Query.prototype.getViewNodes = function() {
-      var toParentNode,
-        _this = this;
-      toParentNode = function(v) {
-        return _this.getPathInfo(v).getParent();
-      };
-      return _.uniq(_.map(this.views, toParentNode), false, function(n) {
-        return n.toPathString();
-      });
-    };
-
-    Query.prototype.isInView = function(path) {
-      var pi, pstr, _ref2;
-      pi = this.getPathInfo(path);
-      if (!pi) {
-        throw new Error("Invalid path: " + path);
-      }
-      if (pi.isAttribute()) {
-        return _ref2 = pi.toString(), __indexOf.call(this.views, _ref2) >= 0;
-      } else {
-        pstr = pi.toString();
-        return _.any(this.getViewNodes(), function(n) {
-          return n.toString() === pstr;
+            }));
         });
-      }
     };
+    async.forEach = async.each;
 
-    Query.prototype.isConstrained = function(path, includeAttrs) {
-      var pi, test,
-        _this = this;
-      if (includeAttrs == null) {
-        includeAttrs = false;
-      }
-      pi = this.getPathInfo(path);
-      if (!pi) {
-        throw new Error("Invalid path: " + path);
-      }
-      test = function(c) {
-        return (c.op != null) && c.path === pi.toString();
-      };
-      if ((!pi.isAttribute()) && includeAttrs) {
-        test = function(c) {
-          return (c.op != null) && (c.path === pi.toString() || pi.equals(_this.getPathInfo(c.path).getParent()));
-        };
-      }
-      return _.any(this.constraints, test);
-    };
-
-    Query.prototype.canHaveMultipleValues = function(path) {
-      return this.getPathInfo(path).containsCollection();
-    };
-
-    Query.prototype.getQueryNodes = function() {
-      var constrainedNodes, viewNodes,
-        _this = this;
-      viewNodes = this.getViewNodes();
-      constrainedNodes = _.map(this.constraints, function(c) {
-        var pi;
-        pi = _this.getPathInfo(c.path);
-        if (pi.isAttribute()) {
-          return pi.getParent();
-        } else {
-          return pi;
+    async.eachSeries = function (arr, iterator, callback) {
+        callback = callback || function () {};
+        if (!arr.length) {
+            return callback();
         }
-      });
-      return _.uniq(viewNodes.concat(constrainedNodes), false, function(n) {
-        return n.toPathString();
-      });
-    };
-
-    Query.prototype.isInQuery = function(p) {
-      var pi, pstr;
-      pi = this.getPathInfo(p);
-      if (pi) {
-        pstr = pi.toPathString();
-        return _.any(_.union(this.views, _.pluck(this.constraints, 'path')), function(p) {
-          return p.indexOf(pstr) === 0;
-        });
-      } else {
-        return true;
-      }
-    };
-
-    Query.prototype.isRelevant = function(path) {
-      var nodes, pi, sought;
-      pi = this.getPathInfo(path);
-      if (pi.isAttribute()) {
-        pi = pi.getParent();
-      }
-      sought = pi.toString();
-      nodes = this.getQueryNodes();
-      return _.any(nodes, function(n) {
-        return n.toPathString() === sought;
-      });
-    };
-
-    Query.prototype.expandStar = function(path) {
-      var cd, expand, fn, n, pathStem;
-      if (/\*$/.test(path)) {
-        pathStem = path.substr(0, path.lastIndexOf('.'));
-        expand = function(x) {
-          return pathStem + x;
-        };
-        cd = this.getType(pathStem);
-        if (/\.\*$/.test(path)) {
-          if (cd && this.summaryFields[cd.name]) {
-            fn = _.compose(expand, decapitate);
-            return (function() {
-              var _i, _len, _ref2, _results;
-              _ref2 = this.summaryFields[cd.name];
-              _results = [];
-              for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-                n = _ref2[_i];
-                if (!this.hasView(n)) {
-                  _results.push(fn(n));
+        var completed = 0;
+        var iterate = function () {
+            iterator(arr[completed], function (err) {
+                if (err) {
+                    callback(err);
+                    callback = function () {};
                 }
-              }
-              return _results;
-            }).call(this);
-          }
-        }
-        if (/\.\*\*$/.test(path)) {
-          fn = _.compose(expand, function(a) {
-            return '.' + a.name;
-          });
-          return _.uniq(_.union(this.expandStar(pathStem + '.*'), _.map(cd.attributes, fn)));
-        }
-      }
-      return path;
-    };
-
-    Query.prototype.isOuterJoin = function(p) {
-      return this.joins[this.adjustPath(p)] === 'OUTER';
-    };
-
-    Query.prototype.hasView = function(v) {
-      return this.views && _.include(this.views, this.adjustPath(v));
-    };
-
-    Query.prototype.count = function(cont) {
-      if (this.service.count) {
-        return this.service.count(this, cont);
-      } else {
-        throw new Error("This query has no service with count functionality attached.");
-      }
-    };
-
-    Query.prototype.appendToList = function(target, cb) {
-      var name, req, toRun, updateTarget;
-      name = target && target.name ? target.name : '' + target;
-      toRun = this.makeListQuery();
-      req = {
-        listName: name,
-        query: toRun.toXML()
-      };
-      updateTarget = (target != null ? target.name : void 0) ? (function(list) {
-        return target.size = list.size;
-      }) : (function() {});
-      return this.service.post('query/append/tolist', req).pipe(LIST_PIPE(this.service)).done(cb, updateTarget);
-    };
-
-    Query.prototype.makeListQuery = function() {
-      var n, toRun, _i, _len, _ref2;
-      toRun = this.clone();
-      if (toRun.views.length !== 1 || toRun.views[0] === null || !toRun.views[0].match(/\.id$/)) {
-        toRun.select(['id']);
-      }
-      _ref2 = this.getViewNodes();
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        n = _ref2[_i];
-        if (!this.isOuterJoined(n)) {
-          if (!(toRun.isInView(n || toRun.isConstrained(n))) && (n.getEndClass().fields.id != null)) {
-            toRun.addConstraint([n.append('id'), 'IS NOT NULL']);
-          }
-        }
-      }
-      return toRun;
-    };
-
-    Query.prototype.saveAsList = function(options, cb) {
-      var req, toRun;
-      toRun = this.makeListQuery();
-      req = _.clone(options);
-      req.listName = req.listName || req.name;
-      req.query = toRun.toXML();
-      if (options.tags) {
-        req.tags = options.tags.join(';');
-      }
-      return this.service.post('query/tolist', req).pipe(LIST_PIPE(this.service)).done(cb);
-    };
-
-    Query.prototype.summarise = function(path, limit, cont) {
-      return this.filterSummary(path, '', limit, cont);
-    };
-
-    Query.prototype.summarize = function() {
-      var args;
-      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      return this.summarise.apply(this, args);
-    };
-
-    Query.prototype.filterSummary = function(path, term, limit, cont) {
-      var parse, req, toRun, _ref2;
-      if (cont == null) {
-        cont = (function() {});
-      }
-      if (_.isFunction(limit)) {
-        _ref2 = [limit, null], cont = _ref2[0], limit = _ref2[1];
-      }
-      path = this.adjustPath(path);
-      toRun = this.clone();
-      if (!_.include(toRun.views, path)) {
-        toRun.views.push(path);
-      }
-      req = {
-        query: toRun.toXML(),
-        summaryPath: path,
-        format: 'jsonrows'
-      };
-      if (limit) {
-        req.size = limit;
-      }
-      if (term) {
-        req.filterTerm = term;
-      }
-      parse = function(data) {
-        return Deferred(function() {
-          var results, stats, _ref3;
-          results = data.results.map(function(x) {
-            x.count = parseInt(x.count, 10);
-            return x;
-          });
-          stats = {
-            uniqueValues: data.uniqueValues
-          };
-          if ((((_ref3 = results[0]) != null ? _ref3.max : void 0) != null)) {
-            _.extend(stats, results[0]);
-          }
-          return this.resolve(results, stats, data.filteredCount);
-        });
-      };
-      return this.service.post('query/results', req).pipe(parse).done(cont);
-    };
-
-    Query.prototype.clone = function(cloneEvents) {
-      var cloned;
-      cloned = new Query(this, this.service);
-      if (cloneEvents) {
-        cloned._callbacks = this._callbacks;
-      } else {
-        cloned._callbacks = {};
-      }
-      return cloned;
-    };
-
-    Query.prototype.next = function() {
-      var clone;
-      clone = this.clone();
-      if (this.maxRows) {
-        clone.start = this.start + this.maxRows;
-      }
-      return clone;
-    };
-
-    Query.prototype.previous = function() {
-      var clone;
-      clone = this.clone();
-      if (this.maxRows) {
-        clone.start = this.start - this.maxRows;
-      } else {
-        clone.start = 0;
-      }
-      return clone;
-    };
-
-    Query.prototype.getSortDirection = function(path) {
-      var dir, so, _i, _len, _ref2;
-      path = this.adjustPath(path);
-      _ref2 = this.sortOrder;
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        so = _ref2[_i];
-        if (so.path === path) {
-          dir = so.direction;
-        }
-      }
-      return dir;
-    };
-
-    Query.prototype.isOuterJoined = function(path) {
-      path = this.adjustPath(path);
-      return _.any(this.joins, function(d, p) {
-        return d === 'OUTER' && path.indexOf(p) === 0;
-      });
-    };
-
-    Query.prototype.getOuterJoin = function(path) {
-      var joinPaths,
-        _this = this;
-      path = this.adjustPath(path);
-      joinPaths = _.sortBy(_.keys(this.joins), get('length')).reverse();
-      return _.find(joinPaths, function(p) {
-        return _this.joins[p] === 'OUTER' && path.indexOf(p) === 0;
-      });
-    };
-
-    Query.prototype._parse_sort_order = function(input) {
-      var direction, path, so;
-      so = input;
-      if (_.isString(input)) {
-        so = {
-          path: input,
-          direction: 'ASC'
-        };
-      } else if (_.isArray(input)) {
-        path = input[0], direction = input[1];
-        so = {
-          path: path,
-          direction: direction
-        };
-      } else if (!(input.path != null)) {
-        path = _.keys(input)[0];
-        direction = _.values(input)[0];
-        so = {
-          path: path,
-          direction: direction
-        };
-      }
-      so.path = this.adjustPath(so.path);
-      so.direction = so.direction.toUpperCase();
-      return so;
-    };
-
-    Query.prototype.addOrSetSortOrder = function(so) {
-      var currentDirection, oe, _i, _len, _ref2;
-      so = this._parse_sort_order(so);
-      currentDirection = this.getSortDirection(so.path);
-      if (!(currentDirection != null)) {
-        return this.addSortOrder(so);
-      } else if (currentDirection !== so.direction) {
-        _ref2 = this.sortOrder;
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          oe = _ref2[_i];
-          if (oe.path === so.path) {
-            oe.direction = so.direction;
-          }
-        }
-        return this.trigger('change:sortorder', this.sortOrder);
-      }
-    };
-
-    Query.prototype.addSortOrder = function(so) {
-      this.sortOrder.push(this._parse_sort_order(so));
-      this.trigger('add:sortorder', so);
-      return this.trigger('change:sortorder', this.sortOrder);
-    };
-
-    Query.prototype.orderBy = function(oes) {
-      var oe, _i, _len;
-      this.sortOrder = [];
-      for (_i = 0, _len = oes.length; _i < _len; _i++) {
-        oe = oes[_i];
-        this.addSortOrder(this._parse_sort_order(oe));
-      }
-      return this.trigger('set:sortorder', this.sortOrder);
-    };
-
-    Query.prototype.addJoins = function(joins) {
-      var j, k, v, _i, _len, _results, _results1;
-      if (_.isArray(joins)) {
-        _results = [];
-        for (_i = 0, _len = joins.length; _i < _len; _i++) {
-          j = joins[_i];
-          _results.push(this.addJoin(j));
-        }
-        return _results;
-      } else {
-        _results1 = [];
-        for (k in joins) {
-          v = joins[k];
-          _results1.push(this.addJoin({
-            path: k,
-            style: v
-          }));
-        }
-        return _results1;
-      }
-    };
-
-    Query.prototype.addJoin = function(join) {
-      var _ref2, _ref3, _ref4;
-      if (_.isString(join)) {
-        join = {
-          path: join,
-          style: 'OUTER'
-        };
-      }
-      join.path = this.adjustPath(join.path);
-      join.style = (_ref2 = (_ref3 = join.style) != null ? _ref3.toUpperCase() : void 0) != null ? _ref2 : join.style;
-      if (_ref4 = join.style, __indexOf.call(Query.JOIN_STYLES, _ref4) < 0) {
-        throw new Error("Invalid join style: " + join.style);
-      }
-      this.joins[join.path] = join.style;
-      return this.trigger('set:join', join.path, join.style);
-    };
-
-    Query.prototype.setJoinStyle = function(path, style) {
-      if (style == null) {
-        style = 'OUTER';
-      }
-      path = this.adjustPath(path);
-      style = style.toUpperCase();
-      if (this.joins[path] !== style) {
-        this.joins[path] = style;
-        this.trigger('change:joins', {
-          path: path,
-          style: style
-        });
-      }
-      return this;
-    };
-
-    Query.prototype.addConstraints = function(constraints) {
-      var c, con, path, _fn, _i, _len,
-        _this = this;
-      this.__silent__ = true;
-      if (_.isArray(constraints)) {
-        for (_i = 0, _len = constraints.length; _i < _len; _i++) {
-          c = constraints[_i];
-          this.addConstraint(c);
-        }
-      } else {
-        _fn = function(path, con) {
-          return _this.addConstraint(interpretConstraint(path, con));
-        };
-        for (path in constraints) {
-          con = constraints[path];
-          _fn(path, con);
-        }
-      }
-      this.__silent__ = false;
-      this.trigger('add:constraint');
-      return this.trigger('change:constraints');
-    };
-
-    Query.prototype.addConstraint = function(constraint) {
-      if (_.isArray(constraint)) {
-        constraint = interpretConArray(constraint);
-      } else {
-        constraint = copyCon(constraint);
-      }
-      constraint.path = this.adjustPath(constraint.path);
-      if (constraint.type == null) {
-        try {
-          constraint.op = get_canonical_op(constraint.op);
-        } catch (error) {
-          throw new Error("Illegal operator: " + constraint.op);
-        }
-      }
-      this.constraints.push(constraint);
-      if ((this.constraintLogic != null) && this.constraintLogic !== '') {
-        this.constraintLogic = "(" + this.constraintLogic + ") and " + CODES[this.constraints.length];
-      }
-      if (!this.__silent__) {
-        this.trigger('add:constraint', constraint);
-        this.trigger('change:constraints');
-      }
-      return this;
-    };
-
-    Query.prototype.getSorting = function() {
-      var oe;
-      return ((function() {
-        var _i, _len, _ref2, _results;
-        _ref2 = this.sortOrder;
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          oe = _ref2[_i];
-          _results.push("" + oe.path + " " + oe.direction);
-        }
-        return _results;
-      }).call(this)).join(' ');
-    };
-
-    Query.prototype.getConstraintXML = function() {
-      if (this.constraints.length) {
-        return concatMap(conStr)(concatMap(id)(partition(function(c) {
-          return c.type != null;
-        })(this.constraints)));
-      } else {
-        return '';
-      }
-    };
-
-    Query.prototype.getJoinXML = function() {
-      var p, s, strs;
-      strs = (function() {
-        var _ref2, _results;
-        _ref2 = this.joins;
-        _results = [];
-        for (p in _ref2) {
-          s = _ref2[p];
-          if (this.isInQuery(p) && s === 'OUTER') {
-            _results.push("<join path=\"" + p + "\" style=\"OUTER\"/>");
-          }
-        }
-        return _results;
-      }).call(this);
-      return strs.join('');
-    };
-
-    Query.prototype.toXML = function() {
-      var attrs, headAttrs, k, v;
-      attrs = {
-        model: this.model.name,
-        view: this.views.join(' '),
-        sortOrder: this.getSorting(),
-        constraintLogic: this.constraintLogic
-      };
-      if (this.name != null) {
-        attrs.name = this.name;
-      }
-      headAttrs = ((function() {
-        var _results;
-        _results = [];
-        for (k in attrs) {
-          v = attrs[k];
-          if (v) {
-            _results.push(k + '="' + v + '"');
-          }
-        }
-        return _results;
-      })()).join(' ');
-      return "<query " + headAttrs + " >" + (this.getJoinXML()) + (this.getConstraintXML()) + "</query>";
-    };
-
-    Query.prototype.toJSON = function() {
-      var c, direction, path, style, v;
-      return noUndefVals({
-        name: this.name,
-        title: this.title,
-        comment: this.comment,
-        description: this.description,
-        constraintLogic: this.constraintLogic,
-        from: this.root,
-        select: (function() {
-          var _i, _len, _ref2, _results;
-          _ref2 = this.views;
-          _results = [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            v = _ref2[_i];
-            _results.push(headLess(v));
-          }
-          return _results;
-        }).call(this),
-        orderBy: (function() {
-          var _i, _len, _ref2, _ref3, _results;
-          _ref2 = this.sortOrder;
-          _results = [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            _ref3 = _ref2[_i], path = _ref3.path, direction = _ref3.direction;
-            _results.push({
-              path: headLess(path),
-              direction: direction
+                else {
+                    completed += 1;
+                    if (completed >= arr.length) {
+                        callback(null);
+                    }
+                    else {
+                        iterate();
+                    }
+                }
             });
-          }
-          return _results;
-        }).call(this),
-        joins: (function() {
-          var _ref2, _results;
-          _ref2 = this.joins;
-          _results = [];
-          for (path in _ref2) {
-            style = _ref2[path];
-            if (style === 'OUTER') {
-              _results.push(headLess(path));
-            }
-          }
-          return _results;
-        }).call(this),
-        where: (function() {
-          var _i, _len, _ref2, _results;
-          _ref2 = this.constraints;
-          _results = [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            c = _ref2[_i];
-            _results.push(conToJSON(c));
-          }
-          return _results;
-        }).call(this)
-      });
-    };
-
-    Query.prototype.fetchCode = function(lang, cb) {
-      var req;
-      req = {
-        query: this.toXML(),
-        lang: lang
-      };
-      return this.service.post('query/code', req).pipe(this.service.VERIFIER).pipe(get('code')).done(cb);
-    };
-
-    Query.prototype.save = function(name, cb) {
-      var req,
-        _this = this;
-      if (name != null) {
-        this.name = name;
-      }
-      req = {
-        data: this.toXML(),
-        contentType: "application/xml; charset=UTF-8",
-        url: this.service.root + 'query',
-        type: 'POST',
-        dataType: 'json'
-      };
-      return this.service.doReq(req).pipe(this.service.VERIFIER).pipe(get('name')).done(cb, function(name) {
-        return _this.name = name;
-      });
-    };
-
-    Query.prototype.getCodeURI = function(lang) {
-      var req, _ref2;
-      req = {
-        query: this.toXML(),
-        lang: lang,
-        format: 'text'
-      };
-      if (((_ref2 = this.service) != null ? _ref2.token : void 0) != null) {
-        req.token = this.service.token;
-      }
-      return "" + this.service.root + "query/code?" + (toQueryString(req));
-    };
-
-    Query.prototype.getExportURI = function(format) {
-      var req, _ref2;
-      if (format == null) {
-        format = 'tab';
-      }
-      if (__indexOf.call(Query.BIO_FORMATS, format) >= 0) {
-        return this["get" + (format.toUpperCase()) + "URI"]();
-      }
-      req = {
-        query: this.toXML(),
-        format: format
-      };
-      if (((_ref2 = this.service) != null ? _ref2.token : void 0) != null) {
-        req.token = this.service.token;
-      }
-      return "" + this.service.root + "query/results?" + (toQueryString(req));
-    };
-
-    Query.prototype.fetchQID = function(cb) {
-      return this.service.post('queries', {
-        query: this.toXML()
-      }).then(function(resp) {
-        return resp.id;
-      }).done(cb);
-    };
-
-    addPI = function(p) {
-      return p.append('primaryIdentifier').toString();
-    };
-
-    Query.prototype.__bio_req = function(types, n) {
-      var isSuitable, toRun;
-      toRun = this.makeListQuery();
-      isSuitable = function(p) {
-        return _.any(types, function(t) {
-          return p.isa(t);
-        });
-      };
-      toRun.views = take(n)((function() {
-        var _i, _len, _ref2, _results;
-        _ref2 = this.getViewNodes();
-        _results = [];
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          n = _ref2[_i];
-          if (isSuitable(n)) {
-            _results.push(addPI(n));
-          }
-        }
-        return _results;
-      }).call(this));
-      return {
-        query: toRun.toXML(),
-        format: 'text'
-      };
-    };
-
-    Query.prototype._fasta_req = function() {
-      return this.__bio_req(["SequenceFeature", 'Protein'], 1);
-    };
-
-    Query.prototype._gff3_req = function() {
-      return this.__bio_req(['SequenceFeature']);
-    };
-
-    Query.prototype._bed_req = Query.prototype._gff3_req;
-
-    return Query;
-
-  })();
-
-  Query.ATTRIBUTE_OPS = _.union(Query.ATTRIBUTE_VALUE_OPS, Query.MULTIVALUE_OPS, Query.NULL_OPS);
-
-  Query.REFERENCE_OPS = _.union(Query.TERNARY_OPS, Query.LOOP_OPS, Query.LIST_OPS);
-
-  _ref2 = Query.BIO_FORMATS;
-  _fn = function(f) {
-    var getMeth, reqMeth, uriMeth;
-    reqMeth = "_" + f + "_req";
-    getMeth = "get" + (f.toUpperCase());
-    uriMeth = getMeth + "URI";
-    Query.prototype[getMeth] = function(opts, cb) {
-      var req, v, _ref3;
-      if (opts == null) {
-        opts = {};
-      }
-      if (cb == null) {
-        cb = function() {};
-      }
-      if (_.isFunction(opts)) {
-        _ref3 = [{}, opts], opts = _ref3[0], cb = _ref3[1];
-      }
-      if ((opts != null ? opts.view : void 0) != null) {
-        opts.view = (function() {
-          var _j, _len1, _ref4, _results;
-          _ref4 = opts.view;
-          _results = [];
-          for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
-            v = _ref4[_j];
-            _results.push(this.getPathInfo(v).toString());
-          }
-          return _results;
-        }).call(this);
-      }
-      req = _.extend(this[reqMeth](), opts);
-      return this.service.post('query/results/' + f, req).done(cb);
-    };
-    return Query.prototype[uriMeth] = function(opts, cb) {
-      var req, v, _ref3;
-      if (opts == null) {
-        opts = {};
-      }
-      if (_.isFunction(opts)) {
-        _ref3 = [{}, opts], opts = _ref3[0], cb = _ref3[1];
-      }
-      if ((opts != null ? opts.view : void 0) != null) {
-        opts.view = (function() {
-          var _j, _len1, _ref4, _results;
-          _ref4 = opts.view;
-          _results = [];
-          for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
-            v = _ref4[_j];
-            _results.push(this.getPathInfo(v).toString());
-          }
-          return _results;
-        }).call(this);
-      }
-      req = _.extend(this[reqMeth](), opts);
-      if (this.service.token != null) {
-        req.token = this.service.token;
-      }
-      return "" + this.service.root + "query/results/" + f + "?" + (toQueryString(req));
-    };
-  };
-  for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-    f = _ref2[_i];
-    _fn(f);
-  }
-
-  _get_data_fetcher = function(server_fn) {
-    return function() {
-      var cbs, page, x, _ref3;
-      page = arguments[0], cbs = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      if (this.service[server_fn]) {
-        if (!(page != null)) {
-          page = {};
-        } else if (_.isFunction(page)) {
-          page = {};
-          cbs = (function() {
-            var _j, _len1, _results;
-            _results = [];
-            for (_j = 0, _len1 = arguments.length; _j < _len1; _j++) {
-              x = arguments[_j];
-              _results.push(x);
-            }
-            return _results;
-          }).apply(this, arguments);
-        }
-        _.defaults(page, {
-          start: this.start,
-          size: this.maxRows
-        });
-        return (_ref3 = this.service)[server_fn].apply(_ref3, [this, page].concat(__slice.call(cbs)));
-      } else {
-        throw new Error("Service does not provide '" + server_fn + "'.");
-      }
-    };
-  };
-
-  for (_j = 0, _len1 = RESULTS_METHODS.length; _j < _len1; _j++) {
-    mth = RESULTS_METHODS[_j];
-    Query.prototype[mth] = _get_data_fetcher(mth);
-  }
-
-  intermine.Query = Query;
-
-}).call(this);
-
-(function() {
-  var $, DEFAULT_ERROR_HANDLER, DEFAULT_PROTOCOL, Deferred, ENRICHMENT_PATH, HAS_PROTOCOL, HAS_SUFFIX, IDENTITY, IDResolutionJob, IS_NODE, LISTS_PATH, LIST_OPERATION_PATHS, LIST_PIPE, List, MODELS, MODEL_PATH, Model, PATH_VALUES_PATH, PREF_PATH, QUERY_RESULTS_PATH, QUICKSEARCH_PATH, Query, REQUIRES_VERSION, SUBTRACT_PATH, SUFFIX, SUMMARYFIELDS_PATH, SUMMARY_FIELDS, Service, TABLE_ROW_PATH, TEMPLATES_PATH, TO_NAMES, User, VERSIONS, VERSION_PATH, WHOAMI_PATH, WIDGETS, WIDGETS_PATH, WITH_OBJ_PATH, dejoin, error, funcutils, get, getListFinder, http, intermine, invoke, jQuery, omap, pairsToObj, set, success, to_query_string, _, __root__, _get_or_fetch,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __slice = [].slice;
-
-  IS_NODE = typeof exports !== 'undefined';
-
-  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
-
-  if (IS_NODE) {
-    _ = require('underscore')._;
-    Deferred = ($ = require('underscore.deferred')).Deferred;
-    Model = require('./model').Model;
-    Query = require('./query').Query;
-    List = require('./lists').List;
-    User = require('./user').User;
-    IDResolutionJob = require('./id-resolution-job').IDResolutionJob;
-    funcutils = require('./util');
-    to_query_string = require('querystring').stringify;
-    http = require('./http');
-    intermine = exports;
-  } else {
-    _ = __root__._, jQuery = __root__.jQuery, intermine = __root__.intermine;
-    Deferred = ($ = jQuery).Deferred;
-    to_query_string = function(obj) {
-      return jQuery.param(obj, true);
-    };
-    Model = intermine.Model, Query = intermine.Query, List = intermine.List, User = intermine.User, IDResolutionJob = intermine.IDResolutionJob, funcutils = intermine.funcutils, http = intermine.http;
-  }
-
-  pairsToObj = funcutils.pairsToObj, omap = funcutils.omap, get = funcutils.get, set = funcutils.set, invoke = funcutils.invoke, success = funcutils.success, error = funcutils.error, REQUIRES_VERSION = funcutils.REQUIRES_VERSION, dejoin = funcutils.dejoin;
-
-  VERSIONS = {};
-
-  MODELS = {};
-
-  SUMMARY_FIELDS = {};
-
-  WIDGETS = {};
-
-  DEFAULT_PROTOCOL = "http://";
-
-  VERSION_PATH = "version";
-
-  TEMPLATES_PATH = "templates";
-
-  LISTS_PATH = "lists";
-
-  MODEL_PATH = "model";
-
-  SUMMARYFIELDS_PATH = "summaryfields";
-
-  QUERY_RESULTS_PATH = "query/results";
-
-  QUICKSEARCH_PATH = "search";
-
-  WIDGETS_PATH = "widgets";
-
-  ENRICHMENT_PATH = "list/enrichment";
-
-  WITH_OBJ_PATH = "listswithobject";
-
-  LIST_OPERATION_PATHS = {
-    union: "lists/union",
-    intersection: "lists/intersect",
-    difference: "lists/diff"
-  };
-
-  SUBTRACT_PATH = 'lists/subtract';
-
-  WHOAMI_PATH = "user/whoami";
-
-  TABLE_ROW_PATH = QUERY_RESULTS_PATH + '/tablerows';
-
-  PREF_PATH = 'user/preferences';
-
-  PATH_VALUES_PATH = 'path/values';
-
-  IDENTITY = function(x) {
-    return x;
-  };
-
-  HAS_PROTOCOL = /^https?:\/\//i;
-
-  HAS_SUFFIX = /service\/?$/i;
-
-  SUFFIX = "/service/";
-
-  DEFAULT_ERROR_HANDLER = function(e) {
-    var args, _ref;
-    if (IS_NODE && (e.stack != null)) {
-      return console.error(e.stack);
-    } else {
-      args = (e != null ? e.stack : void 0) ? [e.stack] : arguments;
-      if (typeof console !== "undefined" && console !== null) {
-        return (_ref = console.error || console.log) != null ? _ref.apply(console, args) : void 0;
-      }
-    }
-  };
-
-  _get_or_fetch = function(propName, store, path, key, cb) {
-    var prop, value, _ref,
-      _this = this;
-    prop = (_ref = this[propName]) != null ? _ref : this[propName] = this.useCache && (value = store[this.root]) ? success(value) : this.get(path).pipe(get(key)).done(function(x) {
-      return store[_this.root] = x;
-    });
-    return prop.done(cb);
-  };
-
-  getListFinder = function(name) {
-    return function(lists) {
-      return Deferred(function() {
-        var list;
-        if (list = _.find(lists, function(l) {
-          return l.name === name;
-        })) {
-          return this.resolve(list);
-        } else {
-          return this.reject("List \"" + name + "\" not found among: " + (lists.map(get('name'))));
-        }
-      });
-    };
-  };
-
-  LIST_PIPE = function(service, prop) {
-    if (prop == null) {
-      prop = 'listName';
-    }
-    return _.compose(service.fetchList, get(prop));
-  };
-
-  TO_NAMES = function(xs) {
-    var x, _i, _len, _ref, _ref1, _results;
-    if (xs == null) {
-      xs = [];
-    }
-    _ref = (_.isArray(xs) ? xs : [xs]);
-    _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      x = _ref[_i];
-      _results.push((_ref1 = x.name) != null ? _ref1 : x);
-    }
-    return _results;
-  };
-
-  Service = (function() {
-    var toMapByName;
-
-    function Service(_arg) {
-      var loc, noCache, _ref, _ref1,
-        _this = this;
-      this.root = _arg.root, this.token = _arg.token, this.errorHandler = _arg.errorHandler, this.DEBUG = _arg.DEBUG, this.help = _arg.help, noCache = _arg.noCache;
-      this.createList = __bind(this.createList, this);
-
-      this.resolveIds = __bind(this.resolveIds, this);
-
-      this.query = __bind(this.query, this);
-
-      this.fetchWidgetMap = __bind(this.fetchWidgetMap, this);
-
-      this.fetchWidgets = __bind(this.fetchWidgets, this);
-
-      this.complement = __bind(this.complement, this);
-
-      this.fetchListsContaining = __bind(this.fetchListsContaining, this);
-
-      this.fetchList = __bind(this.fetchList, this);
-
-      this.findLists = __bind(this.findLists, this);
-
-      this.fetchLists = __bind(this.fetchLists, this);
-
-      this.fetchTemplates = __bind(this.fetchTemplates, this);
-
-      this.tableRows = __bind(this.tableRows, this);
-
-      this.rows = __bind(this.rows, this);
-
-      this.records = __bind(this.records, this);
-
-      this.table = __bind(this.table, this);
-
-      this.pathValues = __bind(this.pathValues, this);
-
-      this.values = __bind(this.values, this);
-
-      this.fetchUser = __bind(this.fetchUser, this);
-
-      this.whoami = __bind(this.whoami, this);
-
-      this.findById = __bind(this.findById, this);
-
-      this.count = __bind(this.count, this);
-
-      this.enrichment = __bind(this.enrichment, this);
-
-      if (this.root == null) {
-        throw new Error("No service root provided. This is required");
-      }
-      if (!HAS_PROTOCOL.test(this.root)) {
-        this.root = DEFAULT_PROTOCOL + this.root;
-      }
-      if (!HAS_SUFFIX.test(this.root)) {
-        this.root = this.root + SUFFIX;
-      }
-      this.root = this.root.replace(/ice$/, "ice/");
-      if ((_ref = this.errorHandler) == null) {
-        this.errorHandler = DEFAULT_ERROR_HANDLER;
-      }
-      if ((_ref1 = this.help) == null) {
-        this.help = 'no.help.available@dev.null';
-      }
-      this.useCache = !noCache;
-      loc = IS_NODE ? '' : location.protocol + '//' + location.host;
-      this.getFormat = function(intended) {
-        if (intended == null) {
-          intended = 'json';
-        }
-        if (!/jsonp/.test(intended)) {
-          if (!(IS_NODE || jQuery.support.cors)) {
-            if (loc.substring(0, _this.root.length) !== _this.root) {
-              return intended.replace('json', 'jsonp');
-            }
-          }
-        }
-        return intended;
-      };
-    }
-
-    Service.prototype.post = function(path, data) {
-      if (data == null) {
-        data = {};
-      }
-      return this.makeRequest('POST', path, data);
-    };
-
-    Service.prototype.get = function(path, data) {
-      return this.makeRequest('GET', path, data);
-    };
-
-    Service.prototype.makeRequest = function(method, path, data, cb, indiv) {
-      var dataType, errBack, opts, url, _ref, _ref1;
-      if (method == null) {
-        method = 'GET';
-      }
-      if (path == null) {
-        path = '';
-      }
-      if (data == null) {
-        data = {};
-      }
-      if (cb == null) {
-        cb = (function() {});
-      }
-      if (indiv == null) {
-        indiv = false;
-      }
-      if (_.isArray(cb)) {
-        _ref = cb, cb = _ref[0], errBack = _ref[1];
-      }
-      if (_.isArray(data)) {
-        data = pairsToObj(data);
-      }
-      url = this.root + path;
-      if (errBack == null) {
-        errBack = this.errorHandler;
-      }
-      if (this.token) {
-        data.token = this.token;
-      }
-      data.format = this.getFormat(data.format);
-      if (/jsonp/.test(data.format)) {
-        data.method = method;
-        method = 'GET';
-        url += '?callback=?';
-      }
-      dataType = /json/.test(data.format) ? 'json' : 'text';
-      if (!http.supports(method)) {
-        _ref1 = [method, http.getMethod(method)], data.method = _ref1[0], method = _ref1[1];
-      }
-      if (method === 'DELETE') {
-        url += '?' + to_query_string(data);
-      }
-      opts = {
-        data: data,
-        dataType: dataType,
-        success: cb,
-        error: errBack,
-        url: url,
-        type: method
-      };
-      return http.doReq(opts, indiv);
-    };
-
-    Service.prototype.enrichment = function(opts, cb) {
-      var _this = this;
-      return REQUIRES_VERSION(this, 8, function() {
-        return _this.get(ENRICHMENT_PATH, _.defaults({}, opts, {
-          maxp: 0.05,
-          correction: 'Holm-Bonferroni'
-        })).pipe(get('results')).done(cb);
-      });
-    };
-
-    Service.prototype.search = function(options, cb) {
-      var _this = this;
-      if (options == null) {
-        options = {};
-      }
-      if (cb == null) {
-        cb = (function() {});
-      }
-      return REQUIRES_VERSION(this, 9, function() {
-        var k, parse, req, v, _ref, _ref1;
-        if (_.isFunction(options)) {
-          _ref = [options, {}], cb = _ref[0], options = _ref[1];
-        }
-        if (_.isString(options)) {
-          options = {
-            q: options
-          };
-        }
-        req = _.defaults({}, options, {
-          q: ''
-        });
-        delete req.facets;
-        if (options.facets) {
-          _ref1 = options.facets;
-          for (k in _ref1) {
-            v = _ref1[k];
-            req["facet_" + k] = v;
-          }
-        }
-        parse = function(response) {
-          return success(response.results, response.facets);
         };
-        return _this.post(QUICKSEARCH_PATH, req).pipe(parse).done(cb);
-      });
+        iterate();
     };
+    async.forEachSeries = async.eachSeries;
 
-    Service.prototype.count = function(q, cb) {
-      var p, req;
-      if (cb == null) {
-        cb = (function() {});
-      }
-      if (!q) {
-        return error("Not enough arguments");
-      } else if (q.toPathString != null) {
-        p = q.isClass() ? q.append('id') : q;
-        return this.pathValues(p, 'count').done(cb);
-      } else if (q.toXML != null) {
-        req = {
-          query: q.toXML(),
-          format: 'jsoncount'
-        };
-        return this.post(QUERY_RESULTS_PATH, req).pipe(get('count')).done(cb);
-      } else if (_.isString(q)) {
-        return this.fetchModel().pipe(invoke('makePath', q.replace(/\.\*$/, '.id'))).pipe(this.count).done(cb);
-      } else {
-        return this.query(q).pipe(this.count).done(cb);
-      }
+    async.eachLimit = function (arr, limit, iterator, callback) {
+        var fn = _eachLimit(limit);
+        fn.apply(null, [arr, iterator, callback]);
     };
+    async.forEachLimit = async.eachLimit;
 
-    Service.prototype.findById = function(type, id, cb) {
-      return this.query({
-        from: type,
-        select: ['**'],
-        where: {
-          id: id
-        }
-      }).pipe(dejoin).pipe(invoke('records')).pipe(get(0)).done(cb);
-    };
+    var _eachLimit = function (limit) {
 
-    Service.prototype.find = function(type, term, cb) {
-      return this.query({
-        from: type,
-        select: ['**'],
-        where: [[type, 'LOOKUP', term]]
-      }).pipe(dejoin).pipe(invoke('records')).done(cb);
-    };
-
-    Service.prototype.whoami = function(cb) {
-      var _this = this;
-      return REQUIRES_VERSION(this, 9, function() {
-        return _this.get(WHOAMI_PATH).pipe(get('user')).pipe(function(x) {
-          return new User(_this, x);
-        }).done(cb);
-      });
-    };
-
-    Service.prototype.fetchUser = function() {
-      var args;
-      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      return this.whoami.apply(this, args);
-    };
-
-    Service.prototype.values = function(path, typeConstraints, cb) {
-      var _this = this;
-      if (typeConstraints == null) {
-        typeConstraints = {};
-      }
-      if (cb == null) {
-        cb = (function() {});
-      }
-      return REQUIRES_VERSION(this, 6, function() {
-        try {
-          return _this.fetchModel().pipe(invoke('makePath', path, path.subclasses || typeConstraints)).pipe(_this.pathValues).done(cb);
-        } catch (e) {
-          return error(e);
-        }
-      });
-    };
-
-    Service.prototype.pathValues = function(path, wanted) {
-      var format, req;
-      if (wanted !== 'count') {
-        wanted = 'results';
-      }
-      format = wanted === 'count' ? 'jsoncount' : 'json';
-      req = {
-        format: format,
-        path: path.toString(),
-        typeConstraints: JSON.stringify(path.subclasses)
-      };
-      return this.post(PATH_VALUES_PATH, req).pipe(get(wanted));
-    };
-
-    Service.prototype.doPagedRequest = function(q, path, page, format, cb) {
-      var req,
-        _this = this;
-      if (page == null) {
-        page = {};
-      }
-      if (q.toXML != null) {
-        req = _.defaults({}, {
-          query: q.toXML(),
-          format: format
-        }, page);
-        return this.post(path, req).pipe(function(resp) {
-          return success(resp.results, resp);
-        }).done(cb);
-      } else {
-        return this.query(q).pipe(function(query) {
-          return _this.doPagedRequest(query, path, page, format, cb);
-        });
-      }
-    };
-
-    Service.prototype.table = function(q, page, cb) {
-      return this.doPagedRequest(q, QUERY_RESULTS_PATH, page, 'jsontable', cb);
-    };
-
-    Service.prototype.records = function(q, page, cb) {
-      return this.doPagedRequest(q, QUERY_RESULTS_PATH, page, 'jsonobjects', cb);
-    };
-
-    Service.prototype.rows = function(q, page, cb) {
-      return this.doPagedRequest(q, QUERY_RESULTS_PATH, page, 'json', cb);
-    };
-
-    Service.prototype.tableRows = function(q, page, cb) {
-      return this.doPagedRequest(q, TABLE_ROW_PATH, page, 'json', cb);
-    };
-
-    Service.prototype.fetchTemplates = function(cb) {
-      return this.get(TEMPLATES_PATH).pipe(get('templates')).done(cb);
-    };
-
-    Service.prototype.fetchLists = function(cb) {
-      return this.findLists('', cb);
-    };
-
-    Service.prototype.findLists = function(name, cb) {
-      var _this = this;
-      if (name == null) {
-        name = '';
-      }
-      if (cb == null) {
-        cb = (function() {});
-      }
-      return this.fetchVersion().pipe(function(v) {
-        var fn;
-        if (name && v < 13) {
-          return error("Finding lists by name on the server requires version 13. This is only " + v);
-        } else {
-          fn = function(ls) {
-            var data, _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = ls.length; _i < _len; _i++) {
-              data = ls[_i];
-              _results.push(new List(data, _this));
+        return function (arr, iterator, callback) {
+            callback = callback || function () {};
+            if (!arr.length || limit <= 0) {
+                return callback();
             }
-            return _results;
-          };
-          return _this.get(LISTS_PATH, {
-            name: name
-          }).pipe(get('lists')).pipe(fn).done(cb);
-        }
-      });
-    };
+            var completed = 0;
+            var started = 0;
+            var running = 0;
 
-    Service.prototype.fetchList = function(name, cb) {
-      var _this = this;
-      return this.fetchVersion().pipe(function(v) {
-        if (v < 13) {
-          return _this.findLists().pipe(getListFinder(name)).done(cb);
-        } else {
-          return _this.findLists(name).pipe(get(0)).done(cb);
-        }
-      });
-    };
+            (function replenish () {
+                if (completed >= arr.length) {
+                    return callback();
+                }
 
-    Service.prototype.fetchListsContaining = function(opts, cb) {
-      var fn,
-        _this = this;
-      fn = function(xs) {
-        var x, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = xs.length; _i < _len; _i++) {
-          x = xs[_i];
-          _results.push(new List(x, _this));
-        }
-        return _results;
-      };
-      return this.get(WITH_OBJ_PATH, opts).pipe(get('lists')).pipe(fn).done(cb);
-    };
-
-    Service.prototype.combineLists = function(operation, options, cb) {
-      var req, _ref;
-      req = _.pick(options, 'name', 'description');
-      if ((_ref = req.description) == null) {
-        req.description = "" + operation + " of " + (options.lists.join(', '));
-      }
-      req.tags = (options.tags || []).join(';');
-      req.lists = (options.lists || []).join(';');
-      return this.get(LIST_OPERATION_PATHS[operation], req).pipe(LIST_PIPE(this)).done(cb);
-    };
-
-    Service.prototype.merge = function() {
-      return this.combineLists.apply(this, ['union'].concat(__slice.call(arguments)));
-    };
-
-    Service.prototype.intersect = function() {
-      return this.combineLists.apply(this, ['intersection'].concat(__slice.call(arguments)));
-    };
-
-    Service.prototype.diff = function() {
-      return this.combineLists.apply(this, ['difference'].concat(__slice.call(arguments)));
-    };
-
-    Service.prototype.complement = function(options, cb) {
-      var defaultDesc, description, exclude, from, lists, name, references, req, tags;
-      if (options == null) {
-        options = {};
-      }
-      if (cb == null) {
-        cb = function() {};
-      }
-      from = options.from, exclude = options.exclude, name = options.name, description = options.description, tags = options.tags;
-      defaultDesc = function() {
-        return "Relative complement of " + (lists.join(' and ')) + " in " + (references.join(' and '));
-      };
-      references = TO_NAMES(from);
-      lists = TO_NAMES(exclude);
-      if (name == null) {
-        name = defaultDesc();
-      }
-      if (description == null) {
-        description = defaultDesc();
-      }
-      if (tags == null) {
-        tags = [];
-      }
-      req = {
-        name: name,
-        description: description,
-        tags: tags,
-        lists: lists,
-        references: references
-      };
-      return this.post(SUBTRACT_PATH, req).pipe(LIST_PIPE(this)).done(cb);
-    };
-
-    Service.prototype.fetchWidgets = function(cb) {
-      var _this = this;
-      return REQUIRES_VERSION(this, 8, function() {
-        return _get_or_fetch.call(_this, 'widgets', WIDGETS, WIDGETS_PATH, 'widgets', cb);
-      });
-    };
-
-    toMapByName = omap(function(w) {
-      return [w.name, w];
-    });
-
-    Service.prototype.fetchWidgetMap = function(cb) {
-      var _this = this;
-      return REQUIRES_VERSION(this, 8, function() {
-        var _ref;
-        return ((_ref = _this.__wmap__) != null ? _ref : _this.__wmap__ = _this.fetchWidgets().then(toMapByName)).done(cb);
-      });
-    };
-
-    Service.prototype.fetchModel = function(cb) {
-      return _get_or_fetch.call(this, 'model', MODELS, MODEL_PATH, 'model').pipe(Model.load).pipe(set({
-        service: this
-      })).done(cb);
-    };
-
-    Service.prototype.fetchSummaryFields = function(cb) {
-      return _get_or_fetch.call(this, 'summaryFields', SUMMARY_FIELDS, SUMMARYFIELDS_PATH, 'classes', cb);
-    };
-
-    Service.prototype.fetchVersion = function(cb) {
-      return _get_or_fetch.call(this, 'version', VERSIONS, VERSION_PATH, 'version', cb);
-    };
-
-    Service.prototype.query = function(options, cb) {
-      var _this = this;
-      return $.when(this.fetchModel(), this.fetchSummaryFields()).pipe(function(m, sfs) {
-        var args, service;
-        args = _.extend({}, options, {
-          model: m,
-          summaryFields: sfs
-        });
-        service = _this;
-        return Deferred(function() {
-          this.fail(service.errorHandler);
-          this.done(cb);
-          try {
-            return this.resolve(new Query(args, service));
-          } catch (e) {
-            return this.reject(e);
-          }
-        });
-      });
-    };
-
-    Service.prototype.manageUserPreferences = function(method, data) {
-      var _this = this;
-      return REQUIRES_VERSION(this, 11, function() {
-        return _this.makeRequest(method, PREF_PATH, data).pipe(get('preferences'));
-      });
-    };
-
-    Service.prototype.resolveIds = function(opts, cb) {
-      var _this = this;
-      return REQUIRES_VERSION(this, 10, function() {
-        var req;
-        req = {
-          data: JSON.stringify(opts),
-          dataType: 'json',
-          url: _this.root + 'ids',
-          type: 'POST',
-          contentType: 'application/json'
+                while (running < limit && started < arr.length) {
+                    started += 1;
+                    running += 1;
+                    iterator(arr[started - 1], function (err) {
+                        if (err) {
+                            callback(err);
+                            callback = function () {};
+                        }
+                        else {
+                            completed += 1;
+                            running -= 1;
+                            if (completed >= arr.length) {
+                                callback();
+                            }
+                            else {
+                                replenish();
+                            }
+                        }
+                    });
+                }
+            })();
         };
-        return http.doReq(req).pipe(get('uid')).pipe(IDResolutionJob.create(_this)).done(cb);
-      });
     };
 
-    Service.prototype.createList = function(opts, ids, cb) {
-      var adjust, req,
-        _this = this;
-      if (opts == null) {
-        opts = {};
-      }
-      if (ids == null) {
-        ids = '';
-      }
-      if (cb == null) {
-        cb = function() {};
-      }
-      adjust = function(x) {
-        return _.defaults({
-          token: _this.token,
-          tags: opts.tags || []
-        }, x);
-      };
-      req = {
-        data: _.isArray(ids) ? ids.map(function(x) {
-          return "\"" + x + "\"";
-        }).join("\n") : ids,
-        dataType: 'json',
-        url: "" + this.root + "lists?" + (to_query_string(adjust(opts))),
-        type: 'POST',
-        contentType: 'text/plain'
-      };
-      return http.doReq(req).pipe(LIST_PIPE(this)).done(cb);
+
+    var doParallel = function (fn) {
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+            return fn.apply(null, [async.each].concat(args));
+        };
+    };
+    var doParallelLimit = function(limit, fn) {
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+            return fn.apply(null, [_eachLimit(limit)].concat(args));
+        };
+    };
+    var doSeries = function (fn) {
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+            return fn.apply(null, [async.eachSeries].concat(args));
+        };
     };
 
-    return Service;
 
-  })();
+    var _asyncMap = function (eachfn, arr, iterator, callback) {
+        var results = [];
+        arr = _map(arr, function (x, i) {
+            return {index: i, value: x};
+        });
+        eachfn(arr, function (x, callback) {
+            iterator(x.value, function (err, v) {
+                results[x.index] = v;
+                callback(err);
+            });
+        }, function (err) {
+            callback(err, results);
+        });
+    };
+    async.map = doParallel(_asyncMap);
+    async.mapSeries = doSeries(_asyncMap);
+    async.mapLimit = function (arr, limit, iterator, callback) {
+        return _mapLimit(limit)(arr, iterator, callback);
+    };
 
-  Service.prototype.rowByRow = http.iterReq('POST', QUERY_RESULTS_PATH, 'json');
+    var _mapLimit = function(limit) {
+        return doParallelLimit(limit, _asyncMap);
+    };
 
-  Service.prototype.eachRow = Service.prototype.rowByRow;
+    // reduce only has a series version, as doing reduce in parallel won't
+    // work in many situations.
+    async.reduce = function (arr, memo, iterator, callback) {
+        async.eachSeries(arr, function (x, callback) {
+            iterator(memo, x, function (err, v) {
+                memo = v;
+                callback(err);
+            });
+        }, function (err) {
+            callback(err, memo);
+        });
+    };
+    // inject alias
+    async.inject = async.reduce;
+    // foldl alias
+    async.foldl = async.reduce;
 
-  Service.prototype.recordByRecord = http.iterReq('POST', QUERY_RESULTS_PATH, 'jsonobjects');
+    async.reduceRight = function (arr, memo, iterator, callback) {
+        var reversed = _map(arr, function (x) {
+            return x;
+        }).reverse();
+        async.reduce(reversed, memo, iterator, callback);
+    };
+    // foldr alias
+    async.foldr = async.reduceRight;
 
-  Service.prototype.eachRecord = Service.prototype.recordByRecord;
+    var _filter = function (eachfn, arr, iterator, callback) {
+        var results = [];
+        arr = _map(arr, function (x, i) {
+            return {index: i, value: x};
+        });
+        eachfn(arr, function (x, callback) {
+            iterator(x.value, function (v) {
+                if (v) {
+                    results.push(x);
+                }
+                callback();
+            });
+        }, function (err) {
+            callback(_map(results.sort(function (a, b) {
+                return a.index - b.index;
+            }), function (x) {
+                return x.value;
+            }));
+        });
+    };
+    async.filter = doParallel(_filter);
+    async.filterSeries = doSeries(_filter);
+    // select alias
+    async.select = async.filter;
+    async.selectSeries = async.filterSeries;
 
-  Service.prototype.union = Service.prototype.merge;
+    var _reject = function (eachfn, arr, iterator, callback) {
+        var results = [];
+        arr = _map(arr, function (x, i) {
+            return {index: i, value: x};
+        });
+        eachfn(arr, function (x, callback) {
+            iterator(x.value, function (v) {
+                if (!v) {
+                    results.push(x);
+                }
+                callback();
+            });
+        }, function (err) {
+            callback(_map(results.sort(function (a, b) {
+                return a.index - b.index;
+            }), function (x) {
+                return x.value;
+            }));
+        });
+    };
+    async.reject = doParallel(_reject);
+    async.rejectSeries = doSeries(_reject);
 
-  Service.prototype.difference = Service.prototype.diff;
+    var _detect = function (eachfn, arr, iterator, main_callback) {
+        eachfn(arr, function (x, callback) {
+            iterator(x, function (result) {
+                if (result) {
+                    main_callback(x);
+                    main_callback = function () {};
+                }
+                else {
+                    callback();
+                }
+            });
+        }, function (err) {
+            main_callback();
+        });
+    };
+    async.detect = doParallel(_detect);
+    async.detectSeries = doSeries(_detect);
 
-  Service.prototype.symmetricDifference = Service.prototype.diff;
+    async.some = function (arr, iterator, main_callback) {
+        async.each(arr, function (x, callback) {
+            iterator(x, function (v) {
+                if (v) {
+                    main_callback(true);
+                    main_callback = function () {};
+                }
+                callback();
+            });
+        }, function (err) {
+            main_callback(false);
+        });
+    };
+    // any alias
+    async.any = async.some;
 
-  Service.prototype.relativeComplement = Service.prototype.complement;
+    async.every = function (arr, iterator, main_callback) {
+        async.each(arr, function (x, callback) {
+            iterator(x, function (v) {
+                if (!v) {
+                    main_callback(false);
+                    main_callback = function () {};
+                }
+                callback();
+            });
+        }, function (err) {
+            main_callback(true);
+        });
+    };
+    // all alias
+    async.all = async.every;
 
-  Service.prototype.subtract = Service.prototype.complement;
+    async.sortBy = function (arr, iterator, callback) {
+        async.map(arr, function (x, callback) {
+            iterator(x, function (err, criteria) {
+                if (err) {
+                    callback(err);
+                }
+                else {
+                    callback(null, {value: x, criteria: criteria});
+                }
+            });
+        }, function (err, results) {
+            if (err) {
+                return callback(err);
+            }
+            else {
+                var fn = function (left, right) {
+                    var a = left.criteria, b = right.criteria;
+                    return a < b ? -1 : a > b ? 1 : 0;
+                };
+                callback(null, _map(results.sort(fn), function (x) {
+                    return x.value;
+                }));
+            }
+        });
+    };
 
-  Service.flushCaches = function() {
-    MODELS = {};
-    VERSIONS = {};
-    SUMMARY_FIELDS = {};
-    return WIDGETS = {};
-  };
+    async.auto = function (tasks, callback) {
+        callback = callback || function () {};
+        var keys = _keys(tasks);
+        if (!keys.length) {
+            return callback(null);
+        }
 
-  Service.connect = function(opts) {
-    if (opts == null) {
-      opts = {};
+        var results = {};
+
+        var listeners = [];
+        var addListener = function (fn) {
+            listeners.unshift(fn);
+        };
+        var removeListener = function (fn) {
+            for (var i = 0; i < listeners.length; i += 1) {
+                if (listeners[i] === fn) {
+                    listeners.splice(i, 1);
+                    return;
+                }
+            }
+        };
+        var taskComplete = function () {
+            _each(listeners.slice(0), function (fn) {
+                fn();
+            });
+        };
+
+        addListener(function () {
+            if (_keys(results).length === keys.length) {
+                callback(null, results);
+                callback = function () {};
+            }
+        });
+
+        _each(keys, function (k) {
+            var task = (tasks[k] instanceof Function) ? [tasks[k]]: tasks[k];
+            var taskCallback = function (err) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                if (args.length <= 1) {
+                    args = args[0];
+                }
+                if (err) {
+                    var safeResults = {};
+                    _each(_keys(results), function(rkey) {
+                        safeResults[rkey] = results[rkey];
+                    });
+                    safeResults[k] = args;
+                    callback(err, safeResults);
+                    // stop subsequent errors hitting callback multiple times
+                    callback = function () {};
+                }
+                else {
+                    results[k] = args;
+                    async.setImmediate(taskComplete);
+                }
+            };
+            var requires = task.slice(0, Math.abs(task.length - 1)) || [];
+            var ready = function () {
+                return _reduce(requires, function (a, x) {
+                    return (a && results.hasOwnProperty(x));
+                }, true) && !results.hasOwnProperty(k);
+            };
+            if (ready()) {
+                task[task.length - 1](taskCallback, results);
+            }
+            else {
+                var listener = function () {
+                    if (ready()) {
+                        removeListener(listener);
+                        task[task.length - 1](taskCallback, results);
+                    }
+                };
+                addListener(listener);
+            }
+        });
+    };
+
+    async.waterfall = function (tasks, callback) {
+        callback = callback || function () {};
+        if (tasks.constructor !== Array) {
+          var err = new Error('First argument to waterfall must be an array of functions');
+          return callback(err);
+        }
+        if (!tasks.length) {
+            return callback();
+        }
+        var wrapIterator = function (iterator) {
+            return function (err) {
+                if (err) {
+                    callback.apply(null, arguments);
+                    callback = function () {};
+                }
+                else {
+                    var args = Array.prototype.slice.call(arguments, 1);
+                    var next = iterator.next();
+                    if (next) {
+                        args.push(wrapIterator(next));
+                    }
+                    else {
+                        args.push(callback);
+                    }
+                    async.setImmediate(function () {
+                        iterator.apply(null, args);
+                    });
+                }
+            };
+        };
+        wrapIterator(async.iterator(tasks))();
+    };
+
+    var _parallel = function(eachfn, tasks, callback) {
+        callback = callback || function () {};
+        if (tasks.constructor === Array) {
+            eachfn.map(tasks, function (fn, callback) {
+                if (fn) {
+                    fn(function (err) {
+                        var args = Array.prototype.slice.call(arguments, 1);
+                        if (args.length <= 1) {
+                            args = args[0];
+                        }
+                        callback.call(null, err, args);
+                    });
+                }
+            }, callback);
+        }
+        else {
+            var results = {};
+            eachfn.each(_keys(tasks), function (k, callback) {
+                tasks[k](function (err) {
+                    var args = Array.prototype.slice.call(arguments, 1);
+                    if (args.length <= 1) {
+                        args = args[0];
+                    }
+                    results[k] = args;
+                    callback(err);
+                });
+            }, function (err) {
+                callback(err, results);
+            });
+        }
+    };
+
+    async.parallel = function (tasks, callback) {
+        _parallel({ map: async.map, each: async.each }, tasks, callback);
+    };
+
+    async.parallelLimit = function(tasks, limit, callback) {
+        _parallel({ map: _mapLimit(limit), each: _eachLimit(limit) }, tasks, callback);
+    };
+
+    async.series = function (tasks, callback) {
+        callback = callback || function () {};
+        if (tasks.constructor === Array) {
+            async.mapSeries(tasks, function (fn, callback) {
+                if (fn) {
+                    fn(function (err) {
+                        var args = Array.prototype.slice.call(arguments, 1);
+                        if (args.length <= 1) {
+                            args = args[0];
+                        }
+                        callback.call(null, err, args);
+                    });
+                }
+            }, callback);
+        }
+        else {
+            var results = {};
+            async.eachSeries(_keys(tasks), function (k, callback) {
+                tasks[k](function (err) {
+                    var args = Array.prototype.slice.call(arguments, 1);
+                    if (args.length <= 1) {
+                        args = args[0];
+                    }
+                    results[k] = args;
+                    callback(err);
+                });
+            }, function (err) {
+                callback(err, results);
+            });
+        }
+    };
+
+    async.iterator = function (tasks) {
+        var makeCallback = function (index) {
+            var fn = function () {
+                if (tasks.length) {
+                    tasks[index].apply(null, arguments);
+                }
+                return fn.next();
+            };
+            fn.next = function () {
+                return (index < tasks.length - 1) ? makeCallback(index + 1): null;
+            };
+            return fn;
+        };
+        return makeCallback(0);
+    };
+
+    async.apply = function (fn) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return function () {
+            return fn.apply(
+                null, args.concat(Array.prototype.slice.call(arguments))
+            );
+        };
+    };
+
+    var _concat = function (eachfn, arr, fn, callback) {
+        var r = [];
+        eachfn(arr, function (x, cb) {
+            fn(x, function (err, y) {
+                r = r.concat(y || []);
+                cb(err);
+            });
+        }, function (err) {
+            callback(err, r);
+        });
+    };
+    async.concat = doParallel(_concat);
+    async.concatSeries = doSeries(_concat);
+
+    async.whilst = function (test, iterator, callback) {
+        if (test()) {
+            iterator(function (err) {
+                if (err) {
+                    return callback(err);
+                }
+                async.whilst(test, iterator, callback);
+            });
+        }
+        else {
+            callback();
+        }
+    };
+
+    async.doWhilst = function (iterator, test, callback) {
+        iterator(function (err) {
+            if (err) {
+                return callback(err);
+            }
+            if (test()) {
+                async.doWhilst(iterator, test, callback);
+            }
+            else {
+                callback();
+            }
+        });
+    };
+
+    async.until = function (test, iterator, callback) {
+        if (!test()) {
+            iterator(function (err) {
+                if (err) {
+                    return callback(err);
+                }
+                async.until(test, iterator, callback);
+            });
+        }
+        else {
+            callback();
+        }
+    };
+
+    async.doUntil = function (iterator, test, callback) {
+        iterator(function (err) {
+            if (err) {
+                return callback(err);
+            }
+            if (!test()) {
+                async.doUntil(iterator, test, callback);
+            }
+            else {
+                callback();
+            }
+        });
+    };
+
+    async.queue = function (worker, concurrency) {
+        if (concurrency === undefined) {
+            concurrency = 1;
+        }
+        function _insert(q, data, pos, callback) {
+          if(data.constructor !== Array) {
+              data = [data];
+          }
+          _each(data, function(task) {
+              var item = {
+                  data: task,
+                  callback: typeof callback === 'function' ? callback : null
+              };
+
+              if (pos) {
+                q.tasks.unshift(item);
+              } else {
+                q.tasks.push(item);
+              }
+
+              if (q.saturated && q.tasks.length === concurrency) {
+                  q.saturated();
+              }
+              async.setImmediate(q.process);
+          });
+        }
+
+        var workers = 0;
+        var q = {
+            tasks: [],
+            concurrency: concurrency,
+            saturated: null,
+            empty: null,
+            drain: null,
+            push: function (data, callback) {
+              _insert(q, data, false, callback);
+            },
+            unshift: function (data, callback) {
+              _insert(q, data, true, callback);
+            },
+            process: function () {
+                if (workers < q.concurrency && q.tasks.length) {
+                    var task = q.tasks.shift();
+                    if (q.empty && q.tasks.length === 0) {
+                        q.empty();
+                    }
+                    workers += 1;
+                    var next = function () {
+                        workers -= 1;
+                        if (task.callback) {
+                            task.callback.apply(task, arguments);
+                        }
+                        if (q.drain && q.tasks.length + workers === 0) {
+                            q.drain();
+                        }
+                        q.process();
+                    };
+                    var cb = only_once(next);
+                    worker(task.data, cb);
+                }
+            },
+            length: function () {
+                return q.tasks.length;
+            },
+            running: function () {
+                return workers;
+            }
+        };
+        return q;
+    };
+
+    async.cargo = function (worker, payload) {
+        var working     = false,
+            tasks       = [];
+
+        var cargo = {
+            tasks: tasks,
+            payload: payload,
+            saturated: null,
+            empty: null,
+            drain: null,
+            push: function (data, callback) {
+                if(data.constructor !== Array) {
+                    data = [data];
+                }
+                _each(data, function(task) {
+                    tasks.push({
+                        data: task,
+                        callback: typeof callback === 'function' ? callback : null
+                    });
+                    if (cargo.saturated && tasks.length === payload) {
+                        cargo.saturated();
+                    }
+                });
+                async.setImmediate(cargo.process);
+            },
+            process: function process() {
+                if (working) return;
+                if (tasks.length === 0) {
+                    if(cargo.drain) cargo.drain();
+                    return;
+                }
+
+                var ts = typeof payload === 'number'
+                            ? tasks.splice(0, payload)
+                            : tasks.splice(0);
+
+                var ds = _map(ts, function (task) {
+                    return task.data;
+                });
+
+                if(cargo.empty) cargo.empty();
+                working = true;
+                worker(ds, function () {
+                    working = false;
+
+                    var args = arguments;
+                    _each(ts, function (data) {
+                        if (data.callback) {
+                            data.callback.apply(null, args);
+                        }
+                    });
+
+                    process();
+                });
+            },
+            length: function () {
+                return tasks.length;
+            },
+            running: function () {
+                return working;
+            }
+        };
+        return cargo;
+    };
+
+    var _console_fn = function (name) {
+        return function (fn) {
+            var args = Array.prototype.slice.call(arguments, 1);
+            fn.apply(null, args.concat([function (err) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                if (typeof console !== 'undefined') {
+                    if (err) {
+                        if (console.error) {
+                            console.error(err);
+                        }
+                    }
+                    else if (console[name]) {
+                        _each(args, function (x) {
+                            console[name](x);
+                        });
+                    }
+                }
+            }]));
+        };
+    };
+    async.log = _console_fn('log');
+    async.dir = _console_fn('dir');
+    /*async.info = _console_fn('info');
+    async.warn = _console_fn('warn');
+    async.error = _console_fn('error');*/
+
+    async.memoize = function (fn, hasher) {
+        var memo = {};
+        var queues = {};
+        hasher = hasher || function (x) {
+            return x;
+        };
+        var memoized = function () {
+            var args = Array.prototype.slice.call(arguments);
+            var callback = args.pop();
+            var key = hasher.apply(null, args);
+            if (key in memo) {
+                callback.apply(null, memo[key]);
+            }
+            else if (key in queues) {
+                queues[key].push(callback);
+            }
+            else {
+                queues[key] = [callback];
+                fn.apply(null, args.concat([function () {
+                    memo[key] = arguments;
+                    var q = queues[key];
+                    delete queues[key];
+                    for (var i = 0, l = q.length; i < l; i++) {
+                      q[i].apply(null, arguments);
+                    }
+                }]));
+            }
+        };
+        memoized.memo = memo;
+        memoized.unmemoized = fn;
+        return memoized;
+    };
+
+    async.unmemoize = function (fn) {
+      return function () {
+        return (fn.unmemoized || fn).apply(null, arguments);
+      };
+    };
+
+    async.times = function (count, iterator, callback) {
+        var counter = [];
+        for (var i = 0; i < count; i++) {
+            counter.push(i);
+        }
+        return async.map(counter, iterator, callback);
+    };
+
+    async.timesSeries = function (count, iterator, callback) {
+        var counter = [];
+        for (var i = 0; i < count; i++) {
+            counter.push(i);
+        }
+        return async.mapSeries(counter, iterator, callback);
+    };
+
+    async.compose = function (/* functions... */) {
+        var fns = Array.prototype.reverse.call(arguments);
+        return function () {
+            var that = this;
+            var args = Array.prototype.slice.call(arguments);
+            var callback = args.pop();
+            async.reduce(fns, args, function (newargs, fn, cb) {
+                fn.apply(that, newargs.concat([function () {
+                    var err = arguments[0];
+                    var nextargs = Array.prototype.slice.call(arguments, 1);
+                    cb(err, nextargs);
+                }]))
+            },
+            function (err, results) {
+                callback.apply(that, [err].concat(results));
+            });
+        };
+    };
+
+    var _applyEach = function (eachfn, fns /*args...*/) {
+        var go = function () {
+            var that = this;
+            var args = Array.prototype.slice.call(arguments);
+            var callback = args.pop();
+            return eachfn(fns, function (fn, cb) {
+                fn.apply(that, args.concat([cb]));
+            },
+            callback);
+        };
+        if (arguments.length > 2) {
+            var args = Array.prototype.slice.call(arguments, 2);
+            return go.apply(this, args);
+        }
+        else {
+            return go;
+        }
+    };
+    async.applyEach = doParallel(_applyEach);
+    async.applyEachSeries = doSeries(_applyEach);
+
+    async.forever = function (fn, callback) {
+        function next(err) {
+            if (err) {
+                if (callback) {
+                    return callback(err);
+                }
+                throw err;
+            }
+            fn(next);
+        }
+        next();
+    };
+
+    // AMD / RequireJS
+    if (typeof define !== 'undefined' && define.amd) {
+        define([], function () {
+            return async;
+        });
     }
-    return new Service(opts);
-  };
+    // Node.js
+    else if (typeof module !== 'undefined' && module.exports) {
+        module.exports = async;
+    }
+    // included directly via <script> tag
+    else {
+        root.async = async;
+    }
 
-  intermine.Service = Service;
-
-}).call(this);
-;
+}());;
 /*!
  * Chaplin 0.8.1
  *
@@ -30868,6 +27926,3935 @@ d3 = function() {
   };
   return d3;
 }();;
+if(!window['googleLT_']){window['googleLT_']=(new Date()).getTime();}if (!window['google']) {
+window['google'] = {};
+}
+if (!window['google']['loader']) {
+window['google']['loader'] = {};
+google.loader.ServiceBase = 'https://www.google.com/uds';
+google.loader.GoogleApisBase = 'https://ajax.googleapis.com/ajax';
+google.loader.ApiKey = 'notsupplied';
+google.loader.KeyVerified = true;
+google.loader.LoadFailure = false;
+google.loader.Secure = true;
+google.loader.GoogleLocale = 'www.google.com';
+google.loader.ClientLocation = {"latitude":52.2,"longitude":0.117,"address":{"city":"Cambridge","region":"Huntingdonshire","country":"United Kingdom","country_code":"GB"}};
+google.loader.AdditionalParams = '';
+(function() {var d=void 0,g=!0,h=null,l=!1,m=encodeURIComponent,n=window,p=document;function q(a,b){return a.load=b}var s="push",t="replace",u="charAt",w="indexOf",x="ServiceBase",y="name",z="getTime",A="length",B="prototype",C="setTimeout",D="loader",E="substring",F="join",G="toLowerCase";function H(a){return a in I?I[a]:I[a]=-1!=navigator.userAgent[G]()[w](a)}var I={};function J(a,b){var c=function(){};c.prototype=b[B];a.U=b[B];a.prototype=new c}
+function aa(a,b,c){var e=Array[B].slice.call(arguments,2)||[];return function(){var c=e.concat(Array[B].slice.call(arguments));return a.apply(b,c)}}function K(a){a=Error(a);a.toString=function(){return this.message};return a}function L(a,b){for(var c=a.split(/\./),e=n,f=0;f<c[A]-1;f++)e[c[f]]||(e[c[f]]={}),e=e[c[f]];e[c[c[A]-1]]=b}function ba(a,b,c){a[b]=c}if(!M)var M=L;if(!N)var N=ba;google[D].v={};M("google.loader.callbacks",google[D].v);var O={},P={};google[D].eval={};M("google.loader.eval",google[D].eval);
+q(google,function(a,b,c){function e(a){var b=a.split(".");if(2<b[A])throw K("Module: '"+a+"' not found!");"undefined"!=typeof b[1]&&(f=b[0],c.packages=c.packages||[],c.packages[s](b[1]))}var f=a;c=c||{};if(a instanceof Array||a&&"object"==typeof a&&"function"==typeof a[F]&&"function"==typeof a.reverse)for(var k=0;k<a[A];k++)e(a[k]);else e(a);if(a=O[":"+f]){c&&(!c.language&&c.locale)&&(c.language=c.locale);c&&"string"==typeof c.callback&&(k=c.callback,k.match(/^[[\]A-Za-z0-9._]+$/)&&(k=n.eval(k),c.callback=
+k));if((k=c&&c.callback!=h)&&!a.s(b))throw K("Module: '"+f+"' must be loaded before DOM onLoad!");k?a.m(b,c)?n[C](c.callback,0):a.load(b,c):a.m(b,c)||a.load(b,c)}else throw K("Module: '"+f+"' not found!");});M("google.load",google.load);
+google.T=function(a,b){b?(0==Q[A]&&(R(n,"load",S),!H("msie")&&!H("safari")&&!H("konqueror")&&H("mozilla")||n.opera?n.addEventListener("DOMContentLoaded",S,l):H("msie")?p.write("<script defer onreadystatechange='google.loader.domReady()' src=//:>\x3c/script>"):(H("safari")||H("konqueror"))&&n[C](ca,10)),Q[s](a)):R(n,"load",a)};M("google.setOnLoadCallback",google.T);
+function R(a,b,c){if(a.addEventListener)a.addEventListener(b,c,l);else if(a.attachEvent)a.attachEvent("on"+b,c);else{var e=a["on"+b];a["on"+b]=e!=h?da([c,e]):c}}function da(a){return function(){for(var b=0;b<a[A];b++)a[b]()}}var Q=[];google[D].P=function(){var a=n.event.srcElement;"complete"==a.readyState&&(a.onreadystatechange=h,a.parentNode.removeChild(a),S())};M("google.loader.domReady",google[D].P);var ea={loaded:g,complete:g};function ca(){ea[p.readyState]?S():0<Q[A]&&n[C](ca,10)}
+function S(){for(var a=0;a<Q[A];a++)Q[a]();Q.length=0}google[D].d=function(a,b,c){if(c){var e;"script"==a?(e=p.createElement("script"),e.type="text/javascript",e.src=b):"css"==a&&(e=p.createElement("link"),e.type="text/css",e.href=b,e.rel="stylesheet");(a=p.getElementsByTagName("head")[0])||(a=p.body.parentNode.appendChild(p.createElement("head")));a.appendChild(e)}else"script"==a?p.write('<script src="'+b+'" type="text/javascript">\x3c/script>'):"css"==a&&p.write('<link href="'+b+'" type="text/css" rel="stylesheet"></link>')};
+M("google.loader.writeLoadTag",google[D].d);google[D].Q=function(a){P=a};M("google.loader.rfm",google[D].Q);google[D].S=function(a){for(var b in a)"string"==typeof b&&(b&&":"==b[u](0)&&!O[b])&&(O[b]=new T(b[E](1),a[b]))};M("google.loader.rpl",google[D].S);google[D].R=function(a){if((a=a.specs)&&a[A])for(var b=0;b<a[A];++b){var c=a[b];"string"==typeof c?O[":"+c]=new U(c):(c=new W(c[y],c.baseSpec,c.customSpecs),O[":"+c[y]]=c)}};M("google.loader.rm",google[D].R);google[D].loaded=function(a){O[":"+a.module].l(a)};
+M("google.loader.loaded",google[D].loaded);google[D].O=function(){return"qid="+((new Date)[z]().toString(16)+Math.floor(1E7*Math.random()).toString(16))};M("google.loader.createGuidArg_",google[D].O);L("google_exportSymbol",L);L("google_exportProperty",ba);google[D].a={};M("google.loader.themes",google[D].a);google[D].a.I="//www.google.com/cse/style/look/bubblegum.css";N(google[D].a,"BUBBLEGUM",google[D].a.I);google[D].a.K="//www.google.com/cse/style/look/greensky.css";N(google[D].a,"GREENSKY",google[D].a.K);
+google[D].a.J="//www.google.com/cse/style/look/espresso.css";N(google[D].a,"ESPRESSO",google[D].a.J);google[D].a.M="//www.google.com/cse/style/look/shiny.css";N(google[D].a,"SHINY",google[D].a.M);google[D].a.L="//www.google.com/cse/style/look/minimalist.css";N(google[D].a,"MINIMALIST",google[D].a.L);google[D].a.N="//www.google.com/cse/style/look/v2/default.css";N(google[D].a,"V2_DEFAULT",google[D].a.N);function U(a){this.b=a;this.o=[];this.n={};this.e={};this.f={};this.j=g;this.c=-1}
+U[B].g=function(a,b){var c="";b!=d&&(b.language!=d&&(c+="&hl="+m(b.language)),b.nocss!=d&&(c+="&output="+m("nocss="+b.nocss)),b.nooldnames!=d&&(c+="&nooldnames="+m(b.nooldnames)),b.packages!=d&&(c+="&packages="+m(b.packages)),b.callback!=h&&(c+="&async=2"),b.style!=d&&(c+="&style="+m(b.style)),b.noexp!=d&&(c+="&noexp=true"),b.other_params!=d&&(c+="&"+b.other_params));if(!this.j){google[this.b]&&google[this.b].JSHash&&(c+="&sig="+m(google[this.b].JSHash));var e=[],f;for(f in this.n)":"==f[u](0)&&e[s](f[E](1));
+for(f in this.e)":"==f[u](0)&&this.e[f]&&e[s](f[E](1));c+="&have="+m(e[F](","))}return google[D][x]+"/?file="+this.b+"&v="+a+google[D].AdditionalParams+c};U[B].t=function(a){var b=h;a&&(b=a.packages);var c=h;if(b)if("string"==typeof b)c=[a.packages];else if(b[A]){c=[];for(a=0;a<b[A];a++)"string"==typeof b[a]&&c[s](b[a][t](/^\s*|\s*$/,"")[G]())}c||(c=["default"]);b=[];for(a=0;a<c[A];a++)this.n[":"+c[a]]||b[s](c[a]);return b};
+q(U[B],function(a,b){var c=this.t(b),e=b&&b.callback!=h;if(e)var f=new X(b.callback);for(var k=[],r=c[A]-1;0<=r;r--){var v=c[r];e&&f.B(v);if(this.e[":"+v])c.splice(r,1),e&&this.f[":"+v][s](f);else k[s](v)}if(c[A]){b&&b.packages&&(b.packages=c.sort()[F](","));for(r=0;r<k[A];r++)v=k[r],this.f[":"+v]=[],e&&this.f[":"+v][s](f);if(!b&&P[":"+this.b]!=h&&P[":"+this.b].versions[":"+a]!=h&&!google[D].AdditionalParams&&this.j){c=P[":"+this.b];google[this.b]=google[this.b]||{};for(var V in c.properties)V&&":"==
+V[u](0)&&(google[this.b][V[E](1)]=c.properties[V]);google[D].d("script",google[D][x]+c.path+c.js,e);c.css&&google[D].d("css",google[D][x]+c.path+c.css,e)}else(!b||!b.autoloaded)&&google[D].d("script",this.g(a,b),e);this.j&&(this.j=l,this.c=(new Date)[z](),1!=this.c%100&&(this.c=-1));for(r=0;r<k[A];r++)v=k[r],this.e[":"+v]=g}});
+U[B].l=function(a){-1!=this.c&&(fa("al_"+this.b,"jl."+((new Date)[z]()-this.c),g),this.c=-1);this.o=this.o.concat(a.components);google[D][this.b]||(google[D][this.b]={});google[D][this.b].packages=this.o.slice(0);for(var b=0;b<a.components[A];b++){this.n[":"+a.components[b]]=g;this.e[":"+a.components[b]]=l;var c=this.f[":"+a.components[b]];if(c){for(var e=0;e<c[A];e++)c[e].C(a.components[b]);delete this.f[":"+a.components[b]]}}};U[B].m=function(a,b){return 0==this.t(b)[A]};U[B].s=function(){return g};
+function X(a){this.F=a;this.q={};this.r=0}X[B].B=function(a){this.r++;this.q[":"+a]=g};X[B].C=function(a){this.q[":"+a]&&(this.q[":"+a]=l,this.r--,0==this.r&&n[C](this.F,0))};function W(a,b,c){this.name=a;this.D=b;this.p=c;this.u=this.h=l;this.k=[];google[D].v[this[y]]=aa(this.l,this)}J(W,U);q(W[B],function(a,b){var c=b&&b.callback!=h;c?(this.k[s](b.callback),b.callback="google.loader.callbacks."+this[y]):this.h=g;(!b||!b.autoloaded)&&google[D].d("script",this.g(a,b),c)});W[B].m=function(a,b){return b&&b.callback!=h?this.u:this.h};W[B].l=function(){this.u=g;for(var a=0;a<this.k[A];a++)n[C](this.k[a],0);this.k=[]};
+var Y=function(a,b){return a.string?m(a.string)+"="+m(b):a.regex?b[t](/(^.*$)/,a.regex):""};W[B].g=function(a,b){return this.G(this.w(a),a,b)};
+W[B].G=function(a,b,c){var e="";a.key&&(e+="&"+Y(a.key,google[D].ApiKey));a.version&&(e+="&"+Y(a.version,b));b=google[D].Secure&&a.ssl?a.ssl:a.uri;if(c!=h)for(var f in c)a.params[f]?e+="&"+Y(a.params[f],c[f]):"other_params"==f?e+="&"+c[f]:"base_domain"==f&&(b="http://"+c[f]+a.uri[E](a.uri[w]("/",7)));google[this[y]]={};-1==b[w]("?")&&e&&(e="?"+e[E](1));return b+e};W[B].s=function(a){return this.w(a).deferred};W[B].w=function(a){if(this.p)for(var b=0;b<this.p[A];++b){var c=this.p[b];if(RegExp(c.pattern).test(a))return c}return this.D};function T(a,b){this.b=a;this.i=b;this.h=l}J(T,U);q(T[B],function(a,b){this.h=g;google[D].d("script",this.g(a,b),l)});T[B].m=function(){return this.h};T[B].l=function(){};T[B].g=function(a,b){if(!this.i.versions[":"+a]){if(this.i.aliases){var c=this.i.aliases[":"+a];c&&(a=c)}if(!this.i.versions[":"+a])throw K("Module: '"+this.b+"' with version '"+a+"' not found!");}return google[D].GoogleApisBase+"/libs/"+this.b+"/"+a+"/"+this.i.versions[":"+a][b&&b.uncompressed?"uncompressed":"compressed"]};
+T[B].s=function(){return l};var ga=l,Z=[],ha=(new Date)[z](),ja=function(){ga||(R(n,"unload",ia),ga=g)},ka=function(a,b){ja();if(!google[D].Secure&&(!google[D].Options||google[D].Options.csi===l)){for(var c=0;c<a[A];c++)a[c]=m(a[c][G]()[t](/[^a-z0-9_.]+/g,"_"));for(c=0;c<b[A];c++)b[c]=m(b[c][G]()[t](/[^a-z0-9_.]+/g,"_"));n[C](aa($,h,"//gg.google.com/csi?s=uds&v=2&action="+a[F](",")+"&it="+b[F](",")),1E4)}},fa=function(a,b,c){c?ka([a],[b]):(ja(),Z[s]("r"+Z[A]+"="+m(a+(b?"|"+b:""))),n[C](ia,5<Z[A]?0:15E3))},ia=function(){if(Z[A]){var a=
+google[D][x];0==a[w]("http:")&&(a=a[t](/^http:/,"https:"));$(a+"/stats?"+Z[F]("&")+"&nc="+(new Date)[z]()+"_"+((new Date)[z]()-ha));Z.length=0}},$=function(a){var b=new Image,c=$.H++;$.A[c]=b;b.onload=b.onerror=function(){delete $.A[c]};b.src=a;b=h};$.A={};$.H=0;L("google.loader.recordCsiStat",ka);L("google.loader.recordStat",fa);L("google.loader.createImageForLogging",$);
+
+}) ();google.loader.rm({"specs":["feeds","spreadsheets","gdata","visualization",{"name":"sharing","baseSpec":{"uri":"http://www.google.com/s2/sharing/js","ssl":null,"key":{"string":"key"},"version":{"string":"v"},"deferred":false,"params":{"language":{"string":"hl"}}}},"search","orkut","ads","elements",{"name":"books","baseSpec":{"uri":"http://books.google.com/books/api.js","ssl":"https://encrypted.google.com/books/api.js","key":{"string":"key"},"version":{"string":"v"},"deferred":true,"params":{"callback":{"string":"callback"},"language":{"string":"hl"}}}},{"name":"friendconnect","baseSpec":{"uri":"http://www.google.com/friendconnect/script/friendconnect.js","ssl":null,"key":{"string":"key"},"version":{"string":"v"},"deferred":false,"params":{}}},"identitytoolkit","ima",{"name":"maps","baseSpec":{"uri":"http://maps.google.com/maps?file\u003dgoogleapi","ssl":"https://maps-api-ssl.google.com/maps?file\u003dgoogleapi","key":{"string":"key"},"version":{"string":"v"},"deferred":true,"params":{"callback":{"regex":"callback\u003d$1\u0026async\u003d2"},"language":{"string":"hl"}}},"customSpecs":[{"uri":"http://maps.googleapis.com/maps/api/js","ssl":"https://maps.googleapis.com/maps/api/js","version":{"string":"v"},"deferred":true,"params":{"callback":{"string":"callback"},"language":{"string":"hl"}},"pattern":"^(3|3..*)$"}]},"payments","wave","annotations_v2","earth","language",{"name":"annotations","baseSpec":{"uri":"http://www.google.com/reviews/scripts/annotations_bootstrap.js","ssl":null,"key":{"string":"key"},"version":{"string":"v"},"deferred":true,"params":{"callback":{"string":"callback"},"language":{"string":"hl"},"country":{"string":"gl"}}}},"picker"]});
+google.loader.rfm({":search":{"versions":{":1":"1",":1.0":"1"},"path":"/api/search/1.0/5530b85faafd53e1d394092d8d1eb26a/","js":"default+en_GB.I.js","css":"default+en_GB.css","properties":{":JSHash":"5530b85faafd53e1d394092d8d1eb26a",":NoOldNames":false,":Version":"1.0"}},":language":{"versions":{":1":"1",":1.0":"1"},"path":"/api/language/1.0/f7a156df16b25154ba5d46841b009d9d/","js":"default+en_GB.I.js","properties":{":JSHash":"f7a156df16b25154ba5d46841b009d9d",":Version":"1.0"}},":feeds":{"versions":{":1":"1",":1.0":"1"},"path":"/api/feeds/1.0/77f89919ef841f93359ce886504e4e3f/","js":"default+en_GB.I.js","css":"default+en_GB.css","properties":{":JSHash":"77f89919ef841f93359ce886504e4e3f",":Version":"1.0"}},":spreadsheets":{"versions":{":0":"1",":0.4":"1"},"path":"/api/spreadsheets/0.4/87ff7219e9f8a8164006cbf28d5e911a/","js":"default.I.js","properties":{":JSHash":"87ff7219e9f8a8164006cbf28d5e911a",":Version":"0.4"}},":ima":{"versions":{":3":"1",":3.0":"1"},"path":"/api/ima/3.0/28a914332232c9a8ac0ae8da68b1006e/","js":"default.I.js","properties":{":JSHash":"28a914332232c9a8ac0ae8da68b1006e",":Version":"3.0"}},":wave":{"versions":{":1":"1",":1.0":"1"},"path":"/api/wave/1.0/3b6f7573ff78da6602dda5e09c9025bf/","js":"default.I.js","properties":{":JSHash":"3b6f7573ff78da6602dda5e09c9025bf",":Version":"1.0"}},":annotations":{"versions":{":1":"1",":1.0":"1"},"path":"/api/annotations/1.0/632d801f04d14d064b3a2e4290697a29/","js":"default+en_GB.I.js","properties":{":JSHash":"632d801f04d14d064b3a2e4290697a29",":Version":"1.0"}},":earth":{"versions":{":1":"1",":1.0":"1"},"path":"/api/earth/1.0/109c7b2bae7fe6cc34ea875176165d81/","js":"default.I.js","properties":{":JSHash":"109c7b2bae7fe6cc34ea875176165d81",":Version":"1.0"}},":picker":{"versions":{":1":"1",":1.0":"1"},"path":"/api/picker/1.0/8b07f3bbcff2f7432e52154f72066e3e/","js":"default.I.js","css":"default.css","properties":{":JSHash":"8b07f3bbcff2f7432e52154f72066e3e",":Version":"1.0"}}});
+google.loader.rpl({":scriptaculous":{"versions":{":1.8.3":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.9.0":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.8.2":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.8.1":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"}},"aliases":{":1.8":"1.8.3",":1":"1.9.0",":1.9":"1.9.0"}},":yui":{"versions":{":2.6.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.9.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.7.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.0r4":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.2r1":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.1":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":3.3.0":{"uncompressed":"build/yui/yui.js","compressed":"build/yui/yui-min.js"}},"aliases":{":3":"3.3.0",":2":"2.9.0",":2.7":"2.7.0",":2.8.2":"2.8.2r1",":2.6":"2.6.0",":2.9":"2.9.0",":2.8":"2.8.2r1",":2.8.0":"2.8.0r4",":3.3":"3.3.0"}},":swfobject":{"versions":{":2.1":{"uncompressed":"swfobject_src.js","compressed":"swfobject.js"},":2.2":{"uncompressed":"swfobject_src.js","compressed":"swfobject.js"}},"aliases":{":2":"2.2"}},":ext-core":{"versions":{":3.1.0":{"uncompressed":"ext-core-debug.js","compressed":"ext-core.js"},":3.0.0":{"uncompressed":"ext-core-debug.js","compressed":"ext-core.js"}},"aliases":{":3":"3.1.0",":3.0":"3.0.0",":3.1":"3.1.0"}},":webfont":{"versions":{":1.0.28":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.27":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.29":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.12":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.13":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.14":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.15":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.10":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.11":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.2":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.1":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.0":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.6":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.19":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.5":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.18":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.4":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.17":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.3":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.16":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.9":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.21":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.22":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.25":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.26":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.23":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.24":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"}},"aliases":{":1":"1.0.29",":1.0":"1.0.29"}},":mootools":{"versions":{":1.3.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.1.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.3.0":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.3.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.1.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.3":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.4":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.5":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.0":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"}},"aliases":{":1":"1.1.2",":1.11":"1.1.1",":1.4":"1.4.2",":1.3":"1.3.2",":1.2":"1.2.5",":1.1":"1.1.2"}},":jqueryui":{"versions":{":1.8.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.1":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.15":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.14":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.13":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.12":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.11":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.10":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.17":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.16":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.6.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.9":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.7":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.8":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.5":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.3":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.6":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.1":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.4":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.5.3":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.5.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"}},"aliases":{":1.8":"1.8.17",":1.7":"1.7.3",":1.6":"1.6.0",":1":"1.8.17",":1.5":"1.5.3",":1.8.3":"1.8.4"}},":chrome-frame":{"versions":{":1.0.2":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"},":1.0.1":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"},":1.0.0":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"}},"aliases":{":1":"1.0.2",":1.0":"1.0.2"}},":prototype":{"versions":{":1.7.0.0":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.0.2":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.1.0":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.0.3":{"uncompressed":"prototype.js","compressed":"prototype.js"}},"aliases":{":1.7":"1.7.0.0",":1.6.1":"1.6.1.0",":1":"1.7.0.0",":1.6":"1.6.1.0",":1.7.0":"1.7.0.0",":1.6.0":"1.6.0.3"}},":dojo":{"versions":{":1.3.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.3.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.6.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.1.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.3.2":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.6.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.2.3":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.7.2":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.7.0":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.7.1":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.4.3":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.5.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.5.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.2.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.4.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.4.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"}},"aliases":{":1.7":"1.7.2",":1":"1.6.1",":1.6":"1.6.1",":1.5":"1.5.1",":1.4":"1.4.3",":1.3":"1.3.2",":1.2":"1.2.3",":1.1":"1.1.1"}},":jquery":{"versions":{":1.6.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.4":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.2.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.7.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.7.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.2.6":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.4":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"}},"aliases":{":1.7":"1.7.1",":1.6":"1.6.4",":1":"1.7.1",":1.5":"1.5.2",":1.4":"1.4.4",":1.3":"1.3.2",":1.2":"1.2.6"}}});
+}
+;
+/*! imjs - v2.5.1 - 2013-04-23 */
+
+/**
+This library is open source software according to the definition of the
+GNU Lesser General Public Licence, Version 3, (LGPLv3) a copy of which is
+included with this software. All use of this software is covered according to
+the terms of the LGPLv3.
+
+The copyright is held by InterMine (www.intermine.org) and Alex Kalderimis (alex@intermine.org).
+
+Thu Jun 14 13:18:14 BST 2012
+**/
+
+(function() {
+  var IS_NODE, data, fs, imjs, intermine, path, pkg, _ref, _ref1;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  if (IS_NODE) {
+    imjs = exports;
+  } else {
+    intermine = ((_ref = this.intermine) != null ? _ref : this.intermine = {});
+    imjs = ((_ref1 = intermine.imjs) != null ? _ref1 : intermine.imjs = {});
+  }
+
+  imjs.VERSION = "unknown";
+
+  if (IS_NODE) {
+    fs = require('fs');
+    path = require('path');
+    if (process.mainModule != null) {
+      data = fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8');
+      pkg = JSON.parse(data);
+      imjs.VERSION = pkg.version;
+    }
+  } else {
+    imjs.VERSION = "2.5.1";
+  }
+
+}).call(this);
+
+(function() {
+  var HAS_CONSOLE, HAS_JSON, IS_NODE, NOT_ENUM, hasDontEnumBug, hasOwnProperty, m, _fn, _i, _len, _ref, _ref1, _ref2, _ref3;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  HAS_CONSOLE = typeof console !== 'undefined';
+
+  HAS_JSON = typeof JSON !== 'undefined';
+
+  NOT_ENUM = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'];
+
+  if (!IS_NODE) {
+    if (!HAS_JSON) {
+      jQuery.getScript('http://cdn.intermine.org/js/json3/3.2.2/json3.min.js');
+    }
+    if (Object.keys == null) {
+      hasOwnProperty = Object.prototype.hasOwnProperty;
+      hasDontEnumBug = !{
+        toString: null
+      }.propertyIsEnumerable("toString");
+      Object.keys = function(o) {
+        var keys, name, nonEnum, _i, _len;
+        if (typeof o !== "object" && typeof o !== "" || o === null) {
+          throw new TypeError("Object.keys called on a non-object");
+        }
+        keys = (function() {
+          var _results;
+          _results = [];
+          for (name in o) {
+            if (hasOwnProperty.call(o, name)) {
+              _results.push(name);
+            }
+          }
+          return _results;
+        })();
+        if (hasDontEnumBug) {
+          for (_i = 0, _len = NOT_ENUM.length; _i < _len; _i++) {
+            nonEnum = NOT_ENUM[_i];
+            if (hasOwnProperty.call(o, nonEnum)) {
+              keys.push(nonEnum);
+            }
+          }
+        }
+        return keys;
+      };
+    }
+    if (Array.prototype.map == null) {
+      Array.prototype.map = function(f) {
+        var x, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = this.length; _i < _len; _i++) {
+          x = this[_i];
+          _results.push(f(x));
+        }
+        return _results;
+      };
+    }
+    if (Array.prototype.filter == null) {
+      Array.prototype.filter = function(f) {
+        var x, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = this.length; _i < _len; _i++) {
+          x = this[_i];
+          if (f(x)) {
+            _results.push(x);
+          }
+        }
+        return _results;
+      };
+    }
+    if (Array.prototype.reduce == null) {
+      Array.prototype.reduce = function(f, initValue) {
+        var ret, x, xs, _i, _len;
+        xs = this.slice();
+        ret = arguments.length < 2 ? xs.pop() : initValue;
+        for (_i = 0, _len = xs.length; _i < _len; _i++) {
+          x = xs[_i];
+          ret = f(ret, x);
+        }
+        return ret;
+      };
+    }
+    if (Array.prototype.forEach == null) {
+      Array.prototype.forEach = function(f, ctx) {
+        var i, x, _i, _len, _results;
+        if (!f) {
+          throw new Error("No function provided");
+        }
+        _results = [];
+        for (i = _i = 0, _len = this.length; _i < _len; i = ++_i) {
+          x = this[i];
+          _results.push(f.call(ctx != null ? ctx : this, x, i, this));
+        }
+        return _results;
+      };
+    }
+    if (!HAS_CONSOLE) {
+      this.console = {
+        log: (function() {}),
+        error: (function() {}),
+        debug: (function() {})
+      };
+      if (typeof window !== "undefined" && window !== null) {
+        window.console = this.console;
+      }
+    }
+    if ((_ref = console.log) == null) {
+      console.log = function() {};
+    }
+    if ((_ref1 = console.error) == null) {
+      console.error = function() {};
+    }
+    if ((_ref2 = console.debug) == null) {
+      console.debug = function() {};
+    }
+    if (console.log.apply == null) {
+      console.log("Your console needs patching.");
+      _ref3 = ['log', 'error', 'debug'];
+      _fn = function(m) {
+        var oldM;
+        oldM = console[m];
+        return console[m] = function(args) {
+          return oldM(args);
+        };
+      };
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        m = _ref3[_i];
+        _fn(m);
+      }
+    }
+  }
+
+}).call(this);
+
+(function(root, undefined) {
+  var _ = root._,
+      jQuery = root.jQuery;
+  if (typeof jQuery === 'undefined') {
+    return null; 
+  }
+  var $ = jQuery;
+  // jQuery.XDomainRequest.js
+  // Author: Jason Moon - @JSONMOON
+  // IE8+
+  // see: https://github.com/MoonScript/jQuery-ajaxTransport-XDomainRequest
+  if (!$.support.cors && window.XDomainRequest) {
+    console.log("Patching IE x-domain request support");
+    var httpRegEx = /^https?:\/\//i;
+    var getOrPostRegEx = /^get|post$/i;
+    var sameSchemeRegEx = new RegExp('^'+location.protocol, 'i');
+    var jsonRegEx = /\/json/i;
+    var xmlRegEx = /\/xml/i;
+
+    var XDomainTransporter = function (userOptions, options) {
+      this.userOptions = userOptions;
+      this.options = options;
+      this.userType = (userOptions.dataType||'').toLowerCase();
+      _.bindAll(this); // make sure we can use onLoad
+    };
+    XDomainTransporter.prototype.constructor = XDomainTransporter;
+    XDomainTransporter.prototype.send = function(headers, complete) {
+      this.xdr = new XDomainRequest();
+      this.complete = complete;
+      var xdr = this.xdr;
+      if (/^\d+$/.test(this.userOptions.timeout)) {
+        xdr.timeout = this.userOptions.timeout;
+      }
+      xdr.ontimeout = function() {
+        complete(500, 'timeout');
+      };
+      xdr.onerror = function() {
+        complete(500, 'error', { text: xdr.responseText });
+      };
+      xdr.onload = this.onLoad;
+      var postData = (this.userOptions.data && $.param(this.userOptions.data)) || '';
+      xdr.open(this.options.type, this.options.url);
+      xdr.send(postData);
+    };
+    XDomainTransporter.prototype.respond = function(status, statusText, responses, responseHeaders) {
+      var xdr = this.xdr;
+      xdr.onload = xdr.onerror = xdr.ontimeout = xdr.onprogress = jQuery.noop;
+      delete this.xdr;
+      jQuery.event.trigger('ajaxStop');
+      this.complete(status, statusText, responses, responseHeaders);
+    };
+    XDomainTransporter.prototype.abort = function() {
+      if (xdr) {
+        xdr.abort();
+      }
+    };
+    XDomainTransporter.prototype.onLoad = function() {
+        var xdr = this.xdr;
+        var allResponseHeaders = 'Content-Length: ' + xdr.responseText.length + '\r\nContent-Type: ' + xdr.contentType;
+        var status = {code: 200, message: 'success'};
+        var responses = {text: xdr.responseText};
+        try {
+          if ((this.userType === 'json') || ((this.userType !== 'text') && jsonRegEx.test(xdr.contentType))) {
+            try {
+              responses.json = $.parseJSON(xdr.responseText);
+            } catch (e) {
+              status.code = 500;
+              status.message = 'parseerror';
+            }
+          } else if ((this.userType === 'xml') || ((this.userType !== 'text') && xmlRegEx.test(xdr.contentType))) {
+            var doc = new ActiveXObject('Microsoft.XMLDOM');
+            doc.async = false;
+            try {
+              doc.loadXML(xdr.responseText);
+            } catch(e) {
+              doc = undefined;
+            }
+            if (!doc || !doc.documentElement || doc.getElementsByTagName('parsererror').length) {
+              status.code = 500;
+              status.message = 'parseerror';
+              throw 'Invalid XML: ' + xdr.responseText;
+            }
+            responses.xml = doc;
+          }
+        } catch (parseMessage) {
+          throw parseMessage;
+        } finally {
+          this.complete(status.code, status.message, responses, allResponseHeaders);
+        }
+    };
+
+    // ajaxTransport exists in jQuery 1.5+
+    jQuery.ajaxTransport('text html xml json', function(options, userOptions, jqXHR){
+      // XDomainRequests must be: asynchronous, GET or POST methods, HTTP or HTTPS protocol, and same scheme as calling page
+      if (options.crossDomain && options.async && getOrPostRegEx.test(options.type) && httpRegEx.test(userOptions.url) && sameSchemeRegEx.test(userOptions.url)) {
+        return new XDomainTransporter(userOptions, options);
+      } 
+    });
+    jQuery.support.cors = true;
+  }
+}).call(this, typeof exports === 'undefined' ? this : exports);
+
+(function() {
+  var IS_NODE, constants, intermine, _ref, _ref1;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  if (IS_NODE) {
+    constants = exports;
+  } else {
+    intermine = ((_ref = this.intermine) != null ? _ref : this.intermine = {});
+    constants = ((_ref1 = intermine.constants) != null ? _ref1 : intermine.constants = {});
+  }
+
+  constants.ACCEPT_HEADER = {
+    'json': 'application/json',
+    'jsonobjects': 'application/json;type=objects',
+    'jsontable': 'application/json;type=table',
+    'jsonrows': 'application/json;type=rows',
+    'jsoncount': 'application/json;type=count',
+    'jsonp': 'application/javascript',
+    'jsonpobjects': 'application/javascript;type=objects',
+    'jsonptable': 'application/javascript;type=table',
+    'jsonprows': 'application/javascript;type=rows',
+    'jsonpcount': 'application/javascript;type=count'
+  };
+
+}).call(this);
+
+(function() {
+  var Deferred, IS_NODE, REQUIRES, curry, fold, id, pairFold, root, success, thenFold, _, _base, _ref, _ref1,
+    __slice = [].slice,
+    __hasProp = {}.hasOwnProperty;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    Deferred = require('underscore.deferred').Deferred;
+    _ = require('underscore')._;
+  } else {
+    Deferred = root.jQuery.Deferred;
+    _ = root._;
+    if ((_ref = root.intermine) == null) {
+      root.intermine = {};
+    }
+    if ((_ref1 = (_base = root.intermine).funcutils) == null) {
+      _base.funcutils = {};
+    }
+    root = root.intermine.funcutils;
+  }
+
+  root.curry = curry = function() {
+    var args, f;
+    f = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    return function() {
+      var rest;
+      rest = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return f.apply(null, args.concat(rest));
+    };
+  };
+
+  root.error = function(e) {
+    return Deferred(function() {
+      return this.reject(new Error(e));
+    }).promise();
+  };
+
+  root.success = success = function() {
+    var args;
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    return Deferred(function() {
+      return this.resolve.apply(this, args);
+    }).promise();
+  };
+
+  root.fold = fold = function(f) {
+    return function(init, xs) {
+      var k, ret, v;
+      if (xs.reduce != null) {
+        return xs.reduce(f, init);
+      } else {
+        ret = init;
+        for (k in xs) {
+          v = xs[k];
+          ret = ret != null ? f(ret, k, v) : {
+            k: v
+          };
+        }
+        return ret;
+      }
+    };
+  };
+
+  root.take = function(n) {
+    return function(xs) {
+      if (n != null) {
+        return xs.slice(0, (n - 1) + 1 || 9e9);
+      } else {
+        return xs;
+      }
+    };
+  };
+
+  root.filter = function(f) {
+    return function(xs) {
+      var x, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = xs.length; _i < _len; _i++) {
+        x = xs[_i];
+        if (f(x)) {
+          _results.push(x);
+        }
+      }
+      return _results;
+    };
+  };
+
+  root.omap = function(f) {
+    var merger;
+    merger = fold(function(a, oldk, oldv) {
+      var newk, newv, _ref2;
+      _ref2 = f(oldk, oldv), newk = _ref2[0], newv = _ref2[1];
+      a[newk] = newv;
+      return a;
+    });
+    return function(xs) {
+      return merger({}, xs);
+    };
+  };
+
+  root.copy = root.omap(function(k, v) {
+    return [k, v];
+  });
+
+  root.partition = function(f) {
+    return function(xs) {
+      var falses, trues, x, _i, _len;
+      trues = [];
+      falses = [];
+      for (_i = 0, _len = xs.length; _i < _len; _i++) {
+        x = xs[_i];
+        if (f(x)) {
+          trues.push(x);
+        } else {
+          falses.push(x);
+        }
+      }
+      return [trues, falses];
+    };
+  };
+
+  root.id = id = function(x) {
+    return x;
+  };
+
+  root.concatMap = function(f) {
+    return function(xs) {
+      var fx, k, ret, v, x, _i, _len;
+      ret = void 0;
+      for (_i = 0, _len = xs.length; _i < _len; _i++) {
+        x = xs[_i];
+        fx = f(x);
+        ret = (function() {
+          var _ref2;
+          if (ret === void 0) {
+            return fx;
+          } else if ((_ref2 = typeof fx) === 'string' || _ref2 === 'number') {
+            return ret + fx;
+          } else if (fx.slice != null) {
+            return ret.concat(fx);
+          } else {
+            for (k in fx) {
+              v = fx[k];
+              ret[k] = v;
+            }
+            return ret;
+          }
+        })();
+      }
+      return ret;
+    };
+  };
+
+  root.flatMap = root.concatMap;
+
+  root.sum = root.concatMap(id);
+
+  root.AND = function(a, b) {
+    return a && b;
+  };
+
+  root.OR = function(a, b) {
+    return a || b;
+  };
+
+  root.NOT = function(x) {
+    return !x;
+  };
+
+  root.any = function(xs, f) {
+    var x, _i, _len;
+    if (f == null) {
+      f = id;
+    }
+    for (_i = 0, _len = xs.length; _i < _len; _i++) {
+      x = xs[_i];
+      if (f(x)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  root.invoke = function() {
+    var args, name;
+    name = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    return function(obj) {
+      var _ref2;
+      if ((_ref2 = obj[name]) != null ? _ref2.apply : void 0) {
+        return obj[name].apply(obj, args);
+      } else {
+        return Deferred().reject("No method: " + name).promise();
+      }
+    };
+  };
+
+  root.invokeWith = function(name, args, ctx) {
+    if (args == null) {
+      args = [];
+    }
+    if (ctx == null) {
+      ctx = null;
+    }
+    return function(o) {
+      return o[name].apply(ctx || o, args);
+    };
+  };
+
+  root.get = function(name) {
+    return function(obj) {
+      return obj[name];
+    };
+  };
+
+  root.set = function(name, value) {
+    return function(obj) {
+      var k, v;
+      if (arguments.length === 2) {
+        obj[name] = value;
+      } else {
+        for (k in name) {
+          if (!__hasProp.call(name, k)) continue;
+          v = name[k];
+          obj[k] = v;
+        }
+      }
+      return obj;
+    };
+  };
+
+  root.flip = function(f) {
+    return function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return f.apply(null, args.reverse());
+    };
+  };
+
+  REQUIRES = function(required, got) {
+    return "This service requires a service at version " + required + " or above. This one is at " + got;
+  };
+
+  root.REQUIRES_VERSION = function(s, n, f) {
+    return s.fetchVersion().pipe(function(v) {
+      if (v >= n) {
+        return f();
+      } else {
+        return error(REQUIRES(n, v));
+      }
+    });
+  };
+
+  root.dejoin = function(q) {
+    var parts, view, _i, _len, _ref2;
+    _ref2 = q.views;
+    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+      view = _ref2[_i];
+      parts = view.split('.');
+      if (parts.length > 2) {
+        q.addJoin(parts.slice(1, -1).join('.'));
+      }
+    }
+    return q;
+  };
+
+  thenFold = fold(function(p, f) {
+    return p.then(f);
+  });
+
+  root.sequence = function() {
+    var fns;
+    fns = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    return thenFold(success(), _.flatten(fns));
+  };
+
+  pairFold = fold(function(o, _arg) {
+    var k, v;
+    k = _arg[0], v = _arg[1];
+    if (o[k] != null) {
+      throw new Error("Duplicate key: " + k);
+    }
+    o[k] = v;
+    return o;
+  });
+
+  root.pairsToObj = function(pairs) {
+    return pairFold({}, pairs);
+  };
+
+}).call(this);
+
+(function() {
+  var IS_NODE, buildArray, buildDict, intermine, __root__, _ref,
+    __slice = [].slice;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    intermine = __root__;
+  } else {
+    intermine = __root__.intermine;
+    if (intermine == null) {
+      intermine = __root__.intermine = {};
+    }
+  }
+
+  if ((_ref = intermine.compression) == null) {
+    intermine.compression = {};
+  }
+
+  buildDict = function(size) {
+    var dict, i, _i;
+    dict = {};
+    for (i = _i = 0; 0 <= size ? _i <= size : _i >= size; i = 0 <= size ? ++_i : --_i) {
+      dict[String.fromCharCode(i)] = i;
+    }
+    return dict;
+  };
+
+  buildArray = function(size) {
+    var x, _i, _results;
+    _results = [];
+    for (x = _i = 0; 0 <= size ? _i <= size : _i >= size; x = 0 <= size ? ++_i : --_i) {
+      _results.push(String.fromCharCode(x));
+    }
+    return _results;
+  };
+
+  intermine.compression.LZW = {
+    encode: function(s) {
+      var char, currPhrase, data, dict, dictSize, out, phrase, _i, _len;
+      data = (s + "").split("");
+      out = [];
+      phrase = '';
+      dictSize = 256;
+      dict = buildDict(dictSize);
+      for (_i = 0, _len = data.length; _i < _len; _i++) {
+        char = data[_i];
+        currPhrase = phrase + char;
+        if (currPhrase in dict) {
+          phrase = currPhrase;
+        } else {
+          out.push(dict[phrase]);
+          dict[currPhrase] = dictSize++;
+          phrase = String(char);
+        }
+      }
+      if (phrase !== '') {
+        out.push(dict[phrase]);
+      }
+      return out;
+    },
+    decode: function(data) {
+      var code, dict, dictSize, entry, head, result, tail, word, _i, _len;
+      dictSize = 256;
+      dict = buildArray(dictSize);
+      entry = '';
+      head = data[0], tail = 2 <= data.length ? __slice.call(data, 1) : [];
+      word = String.fromCharCode(head);
+      result = [word];
+      for (_i = 0, _len = tail.length; _i < _len; _i++) {
+        code = tail[_i];
+        entry = (function() {
+          if (dict[code]) {
+            return dict[code];
+          } else if (code === dictSize) {
+            return word + word.charAt(0);
+          } else {
+            throw new Error("Key is " + code);
+          }
+        })();
+        result.push(entry);
+        dict[dictSize++] = word + entry.charAt(0);
+        word = entry;
+      }
+      return result.join('');
+    }
+  };
+
+}).call(this);
+
+(function() {
+  var ACCEPT_HEADER, CHECKING_PIPE, ERROR_PIPE, XDomainRequest, error, get, http, inIE9, intermine, jQuery, mappingForIE, wrapCbs, _, _ref, _ref1;
+
+  jQuery = this.jQuery, _ = this._, intermine = this.intermine, XDomainRequest = this.XDomainRequest;
+
+  http = ((_ref = intermine.http) != null ? _ref : intermine.http = {});
+
+  ACCEPT_HEADER = intermine.constants.ACCEPT_HEADER;
+
+  _ref1 = intermine.funcutils, get = _ref1.get, error = _ref1.error;
+
+  (function() {
+    var converters, format, header;
+    converters = {};
+    for (format in ACCEPT_HEADER) {
+      header = ACCEPT_HEADER[format];
+      converters["text " + format] = jQuery.parseJSON;
+    }
+    return jQuery.ajaxSetup({
+      accepts: ACCEPT_HEADER,
+      contents: {
+        json: /json/
+      },
+      converters: converters
+    });
+  })();
+
+  CHECKING_PIPE = function(response) {
+    return jQuery.Deferred(function() {
+      if (response.wasSuccessful) {
+        return this.resolve(response);
+      } else {
+        return this.reject(response.error, response);
+      }
+    });
+  };
+
+  ERROR_PIPE = function(xhr, textStatus, e) {
+    try {
+      return JSON.parse(xhr.responseText).error;
+    } catch (e) {
+      return textStatus;
+    }
+  };
+
+  inIE9 = XDomainRequest != null;
+
+  mappingForIE = {
+    PUT: 'POST',
+    DELETE: 'GET'
+  };
+
+  if (inIE9) {
+    http.getMethod = function(x) {
+      var _ref2;
+      return (_ref2 = mappingForIE[x]) != null ? _ref2 : x;
+    };
+    http.supports = function(m) {
+      return !(m in mappingForIE);
+    };
+  } else {
+    http.getMethod = function(x) {
+      return x;
+    };
+    http.supports = function() {
+      return true;
+    };
+  }
+
+  wrapCbs = function(cbs) {
+    var atEnd, doThis, err, _doThis;
+    if (_.isArray(cbs)) {
+      if (!cbs.length) {
+        return [];
+      }
+      doThis = cbs[0], err = cbs[1], atEnd = cbs[2];
+      _doThis = function(rows) {
+        return _.each(rows, doThis != null ? doThis : function() {});
+      };
+      return [_doThis, err, atEnd];
+    } else {
+      _doThis = function(rows) {
+        return _.each(rows, cbs != null ? cbs : function() {});
+      };
+      return [_doThis];
+    }
+  };
+
+  http.iterReq = function(method, path, fmt) {
+    return function(q, page, doThis, onErr, onEnd) {
+      var req, _doThis, _ref2;
+      if (page == null) {
+        page = {};
+      }
+      if (doThis == null) {
+        doThis = (function() {});
+      }
+      if (onErr == null) {
+        onErr = (function() {});
+      }
+      if (onEnd == null) {
+        onEnd = (function() {});
+      }
+      if (arguments.length === 2 && _.isFunction(page)) {
+        _ref2 = [page, {}], doThis = _ref2[0], page = _ref2[1];
+      }
+      req = _.extend({
+        format: fmt
+      }, page, {
+        query: q.toXML()
+      });
+      _doThis = function(rows) {
+        return rows.forEach(doThis);
+      };
+      return this.makeRequest(method, path, req).fail(onErr).pipe(get('results')).done(doThis).done(onEnd);
+    };
+  };
+
+  http.doReq = function(opts) {
+    var errBack;
+    errBack = opts.error || this.errorHandler;
+    opts.error = _.compose(errBack, ERROR_PIPE);
+    return jQuery.ajax(opts).pipe(CHECKING_PIPE).fail(errBack);
+  };
+
+}).call(this);
+
+(function() {
+  var DOMParser, IS_NODE, domParser, intermine, jQuery, parse, __root__, _ref;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  if (IS_NODE) {
+    DOMParser = require('xmldom').DOMParser;
+    __root__ = exports;
+    domParser = new DOMParser;
+    parse = function(xml) {
+      var ret;
+      if (!(xml != null ? xml.match('<.*>') : void 0)) {
+        xml = xml + '>';
+      }
+      try {
+        if (xml) {
+          ret = domParser.parseFromString(xml, 'text/xml');
+        }
+      } catch (e) {
+        ret = void 0;
+      }
+      if ((!ret) || (!ret.documentElement) || (ret.getElementsByTagName('parsererror').length)) {
+        throw new Error('Invalid xml: ' + xml);
+      }
+      return ret;
+    };
+  } else {
+    jQuery = this.jQuery, intermine = this.intermine;
+    __root__ = ((_ref = intermine.xml) != null ? _ref : intermine.xml = {});
+    parse = jQuery.parseXML;
+  }
+
+  __root__.parse = parse;
+
+}).call(this);
+
+(function() {
+  var IS_NODE, Table, merge, properties, __root__, _ref;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : ((_ref = this.intermine) != null ? _ref : this.intermine = {});
+
+  merge = function(src, dest) {
+    var k, v, _results;
+    _results = [];
+    for (k in src) {
+      v = src[k];
+      _results.push(dest[k] = v);
+    }
+    return _results;
+  };
+
+  properties = ['attributes', 'references', 'collections'];
+
+  Table = (function() {
+
+    function Table(_arg) {
+      var c, prop, _, _i, _len, _ref1;
+      this.name = _arg.name, this.attributes = _arg.attributes, this.references = _arg.references, this.collections = _arg.collections;
+      this.fields = {};
+      this.__parents__ = arguments[0]['extends'];
+      for (_i = 0, _len = properties.length; _i < _len; _i++) {
+        prop = properties[_i];
+        merge(this[prop], this.fields);
+      }
+      _ref1 = this.collections;
+      for (_ in _ref1) {
+        c = _ref1[_];
+        c.isCollection = true;
+      }
+    }
+
+    Table.prototype.toString = function() {
+      var n, _;
+      return "[Table name=" + this.name + ", fields=[" + ((function() {
+        var _ref1, _results;
+        _ref1 = this.fields;
+        _results = [];
+        for (n in _ref1) {
+          _ = _ref1[n];
+          _results.push(n);
+        }
+        return _results;
+      }).call(this)) + "]]";
+    };
+
+    Table.prototype.parents = function() {
+      var _ref1;
+      return ((_ref1 = this.__parents__) != null ? _ref1 : []).slice();
+    };
+
+    return Table;
+
+  })();
+
+  __root__.Table = Table;
+
+}).call(this);
+
+(function() {
+  var $, Deferred, IS_NODE, NAMES, PARSED, PathInfo, any, concatMap, copy, error, get, intermine, makeKey, set, success, utils, _, __root__,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    intermine = __root__;
+    _ = require('underscore')._;
+    Deferred = ($ = require('underscore.deferred')).Deferred;
+    utils = require('./util');
+  } else {
+    _ = __root__._;
+    Deferred = ($ = __root__.jQuery).Deferred;
+    intermine = __root__.intermine;
+    utils = intermine.funcutils;
+  }
+
+  concatMap = utils.concatMap, get = utils.get, any = utils.any, set = utils.set, copy = utils.copy, success = utils.success, error = utils.error;
+
+  NAMES = {};
+
+  PARSED = {};
+
+  makeKey = function(model, path, subclasses) {
+    var k, v, _ref;
+    return "" + (model != null ? model.name : void 0) + "|" + (model != null ? (_ref = model.service) != null ? _ref.root : void 0 : void 0) + "|" + path + ":" + ((function() {
+      var _results;
+      _results = [];
+      for (k in subclasses) {
+        v = subclasses[k];
+        _results.push("" + k + "=" + v);
+      }
+      return _results;
+    })());
+  };
+
+  PathInfo = (function() {
+
+    function PathInfo(_arg) {
+      var _ref;
+      this.root = _arg.root, this.model = _arg.model, this.descriptors = _arg.descriptors, this.subclasses = _arg.subclasses, this.displayName = _arg.displayName, this.ident = _arg.ident;
+      this.allDescriptors = __bind(this.allDescriptors, this);
+
+      this.getChildNodes = __bind(this.getChildNodes, this);
+
+      this.getDisplayName = __bind(this.getDisplayName, this);
+
+      this.isa = __bind(this.isa, this);
+
+      this.append = __bind(this.append, this);
+
+      this.getParent = __bind(this.getParent, this);
+
+      this.getEndClass = __bind(this.getEndClass, this);
+
+      this.containsCollection = __bind(this.containsCollection, this);
+
+      this.isCollection = __bind(this.isCollection, this);
+
+      this.isReference = __bind(this.isReference, this);
+
+      this.isClass = __bind(this.isClass, this);
+
+      this.isAttribute = __bind(this.isAttribute, this);
+
+      this.isRoot = __bind(this.isRoot, this);
+
+      this.end = _.last(this.descriptors);
+      if ((_ref = this.ident) == null) {
+        this.ident = makeKey(this.model, this, this.subclasses);
+      }
+    }
+
+    PathInfo.prototype.isRoot = function() {
+      return this.descriptors.length === 0;
+    };
+
+    PathInfo.prototype.isAttribute = function() {
+      return (this.end != null) && !(this.end.referencedType != null);
+    };
+
+    PathInfo.prototype.isClass = function() {
+      return this.isRoot() || (this.end.referencedType != null);
+    };
+
+    PathInfo.prototype.isReference = function() {
+      var _ref;
+      return ((_ref = this.end) != null ? _ref.referencedType : void 0) != null;
+    };
+
+    PathInfo.prototype.isCollection = function() {
+      var _ref, _ref1;
+      return (_ref = (_ref1 = this.end) != null ? _ref1.isCollection : void 0) != null ? _ref : false;
+    };
+
+    PathInfo.prototype.containsCollection = function() {
+      return any(this.descriptors, function(x) {
+        return x.isCollection;
+      });
+    };
+
+    PathInfo.prototype.getEndClass = function() {
+      var _ref;
+      return this.model.classes[this.subclasses[this.toString()] || ((_ref = this.end) != null ? _ref.referencedType : void 0)] || this.root;
+    };
+
+    PathInfo.prototype.getParent = function() {
+      var data;
+      if (this.isRoot()) {
+        throw new Error("Root paths do not have parents");
+      }
+      data = {
+        root: this.root,
+        model: this.model,
+        descriptors: _.initial(this.descriptors),
+        subclasses: this.subclasses
+      };
+      return new PathInfo(data);
+    };
+
+    PathInfo.prototype.append = function(attr) {
+      var data, fld;
+      if (this.isAttribute()) {
+        throw new Error("" + this + " is an attribute.");
+      }
+      fld = _.isString(attr) ? this.getType().fields[attr] : attr;
+      if (fld == null) {
+        throw new Error("" + attr + " is not a field of " + (this.getType()));
+      }
+      data = {
+        root: this.root,
+        model: this.model,
+        descriptors: this.descriptors.concat(fld),
+        subclasses: this.subclasses
+      };
+      return new PathInfo(data);
+    };
+
+    PathInfo.prototype.isa = function(clazz) {
+      var name, type;
+      if (this.isAttribute()) {
+        return this.getType() === clazz;
+      } else {
+        name = clazz.name ? clazz.name : '' + clazz;
+        type = this.getType();
+        return (name === type.name) || (__indexOf.call(this.model.getAncestorsOf(type), name) >= 0);
+      }
+    };
+
+    PathInfo.prototype.getDisplayName = function(cb) {
+      var cached, custom, params, path, _ref,
+        _this = this;
+      if (custom = this.displayName) {
+        return success(custom);
+      }
+      if ((_ref = this.namePromise) == null) {
+        this.namePromise = (cached = NAMES[this.ident]) ? success(cached) : !(this.model.service != null) ? error("No service") : (path = 'model' + (concatMap(function(d) {
+          return '/' + d.name;
+        }))(this.allDescriptors()), params = (set({
+          format: 'json'
+        }))(copy(this.subclasses)), this.model.service.get(path, params).then(get('display')).done(function(n) {
+          var _name, _ref1;
+          return (_ref1 = NAMES[_name = _this.ident]) != null ? _ref1 : NAMES[_name] = n;
+        }));
+      }
+      return this.namePromise.done(cb);
+    };
+
+    PathInfo.prototype.getChildNodes = function() {
+      var fld, name, _ref, _ref1, _results;
+      _ref1 = ((_ref = this.getEndClass()) != null ? _ref.fields : void 0) || {};
+      _results = [];
+      for (name in _ref1) {
+        fld = _ref1[name];
+        _results.push(this.append(fld));
+      }
+      return _results;
+    };
+
+    PathInfo.prototype.allDescriptors = function() {
+      return [this.root].concat(this.descriptors);
+    };
+
+    PathInfo.prototype.toString = function() {
+      return this.allDescriptors().map(get('name')).join('.');
+    };
+
+    PathInfo.prototype.equals = function(other) {
+      return other && (other.ident != null) && this.ident === other.ident;
+    };
+
+    PathInfo.prototype.getType = function() {
+      var _ref, _ref1;
+      return ((_ref = this.end) != null ? (_ref1 = _ref.type) != null ? _ref1.replace(/java\.lang\./, '') : void 0 : void 0) || this.getEndClass();
+    };
+
+    return PathInfo;
+
+  })();
+
+  PathInfo.prototype.toPathString = PathInfo.prototype.toString;
+
+  PathInfo.parse = function(model, path, subclasses) {
+    var cached, cd, descriptors, fld, ident, keyPath, part, parts, root;
+    if (subclasses == null) {
+      subclasses = {};
+    }
+    ident = makeKey(model, path, subclasses);
+    if (cached = PARSED[ident]) {
+      return cached;
+    }
+    parts = (path + '').split('.');
+    root = cd = model.classes[parts.shift()];
+    keyPath = root.name;
+    descriptors = (function() {
+      var _i, _len, _ref, _results;
+      _results = [];
+      for (_i = 0, _len = parts.length; _i < _len; _i++) {
+        part = parts[_i];
+        fld = (cd != null ? cd.fields[part] : void 0) || ((_ref = (cd = model.classes[subclasses[keyPath]])) != null ? _ref.fields[part] : void 0);
+        if (!fld) {
+          throw new Error("Could not find " + part + " in " + cd + " when parsing " + path);
+        }
+        keyPath += "." + part;
+        cd = model.classes[fld.type || fld.referencedType];
+        _results.push(fld);
+      }
+      return _results;
+    })();
+    return PARSED[ident] = new PathInfo({
+      root: root,
+      model: model,
+      descriptors: descriptors,
+      subclasses: subclasses,
+      ident: ident
+    });
+  };
+
+  PathInfo.flushCache = function() {
+    PARSED = {};
+    return NAMES = {};
+  };
+
+  intermine.PathInfo = PathInfo;
+
+}).call(this);
+
+(function() {
+  var $, Deferred, IS_NODE, Model, PathInfo, Table, flatten, intermine, intersection, liftToTable, omap, _, __root__, _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    intermine = __root__;
+    _ = require('underscore')._;
+    Deferred = ($ = require('underscore.deferred')).Deferred;
+    Table = require('./table').Table;
+    PathInfo = require('./path').PathInfo;
+    omap = require('./util').omap;
+  } else {
+    _ = __root__._;
+    Deferred = ($ = __root__.jQuery).Deferred;
+    intermine = ((_ref = __root__.intermine) != null ? _ref : __root__.intermine = {});
+    Table = intermine.Table, PathInfo = intermine.PathInfo;
+    omap = intermine.funcutils.omap;
+  }
+
+  flatten = _.flatten, intersection = _.intersection;
+
+  liftToTable = omap(function(k, v) {
+    return [k, new Table(v)];
+  });
+
+  Model = (function() {
+
+    function Model(_arg) {
+      var classes;
+      this.name = _arg.name, classes = _arg.classes;
+      this.findCommonType = __bind(this.findCommonType, this);
+
+      this.findSharedAncestor = __bind(this.findSharedAncestor, this);
+
+      this.getAncestorsOf = __bind(this.getAncestorsOf, this);
+
+      this.getSubclassesOf = __bind(this.getSubclassesOf, this);
+
+      this.getPathInfo = __bind(this.getPathInfo, this);
+
+      this.classes = liftToTable(classes);
+    }
+
+    Model.prototype.getPathInfo = function(path, subcls) {
+      return PathInfo.parse(this, path, subcls);
+    };
+
+    Model.prototype.getSubclassesOf = function(cls) {
+      var cd, clazz, ret, _ref1, _ref2;
+      clazz = cls && cls.name ? cls : this.classes[cls];
+      if (clazz == null) {
+        throw new Error("" + cls + " is not a table");
+      }
+      ret = [clazz.name];
+      _ref1 = this.classes;
+      for (_ in _ref1) {
+        cd = _ref1[_];
+        if (_ref2 = clazz.name, __indexOf.call(cd.parents(), _ref2) >= 0) {
+          ret = ret.concat(this.getSubclassesOf(cd));
+        }
+      }
+      return ret;
+    };
+
+    Model.prototype.getAncestorsOf = function(cls) {
+      var ancestors, clazz, superC, _i, _len;
+      clazz = cls && cls.name ? cls : this.classes[cls];
+      if (clazz == null) {
+        throw new Error("" + cls + " is not a table");
+      }
+      ancestors = clazz.parents();
+      for (_i = 0, _len = ancestors.length; _i < _len; _i++) {
+        superC = ancestors[_i];
+        ancestors.push(this.getAncestorsOf(superC));
+      }
+      return flatten(ancestors);
+    };
+
+    Model.prototype.findSharedAncestor = function(classA, classB) {
+      var a_ancestry, b_ancestry, _ref1;
+      if (classB === null || classA === null) {
+        return null;
+      }
+      if (classA === classB) {
+        return classA;
+      }
+      a_ancestry = this.getAncestorsOf(classA);
+      if (__indexOf.call(a_ancestry, classB) >= 0) {
+        return classB;
+      }
+      b_ancestry = this.getAncestorsOf(classB);
+      if (__indexOf.call(b_ancestry, classA) >= 0) {
+        return classA;
+      }
+      return (_ref1 = intersection(a_ancestry, b_ancestry).shift()) != null ? _ref1 : null;
+    };
+
+    Model.prototype.findCommonType = function(xs) {
+      if (xs == null) {
+        xs = [];
+      }
+      return xs.reduce(this.findSharedAncestor);
+    };
+
+    return Model;
+
+  })();
+
+  Model.prototype.makePath = Model.prototype.getPathInfo;
+
+  Model.prototype.findCommonTypeOfMultipleClasses = Model.prototype.findCommonType;
+
+  Model.load = function(data) {
+    return new Model(data);
+  };
+
+  Model.INTEGRAL_TYPES = ["int", "Integer", "long", "Long"];
+
+  Model.FRACTIONAL_TYPES = ["double", "Double", "float", "Float"];
+
+  Model.NUMERIC_TYPES = Model.INTEGRAL_TYPES.concat(Model.FRACTIONAL_TYPES);
+
+  Model.BOOLEAN_TYPES = ["boolean", "Boolean"];
+
+  intermine.Model = Model;
+
+}).call(this);
+
+(function() {
+  var Deferred, IS_NODE, User, do_pref_req, error, intermine, _, __root__,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    Deferred = require('underscore.deferred').Deferred;
+    _ = require('underscore')._;
+    error = require('./util').error;
+    intermine = __root__;
+  } else {
+    _ = __root__._;
+    Deferred = __root__.jQuery.Deferred;
+    intermine = __root__.intermine;
+    error = intermine.funcutils.error;
+  }
+
+  do_pref_req = function(user, data, method) {
+    return user.service.manageUserPreferences(method, data).done(function(prefs) {
+      return user.preferences = prefs;
+    });
+  };
+
+  User = (function() {
+
+    function User(service, _arg) {
+      var _ref;
+      this.service = service;
+      this.username = _arg.username, this.preferences = _arg.preferences;
+      this.refresh = __bind(this.refresh, this);
+
+      this.clearPreferences = __bind(this.clearPreferences, this);
+
+      this.clearPreference = __bind(this.clearPreference, this);
+
+      this.setPreferences = __bind(this.setPreferences, this);
+
+      this.setPreference = __bind(this.setPreference, this);
+
+      this.hasPreferences = this.preferences != null;
+      if ((_ref = this.preferences) == null) {
+        this.preferences = {};
+      }
+    }
+
+    User.prototype.setPreference = function(key, value) {
+      var data;
+      if (_.isString(key)) {
+        data = {};
+        data[key] = value;
+      } else if (!(value != null)) {
+        data = key;
+      } else {
+        error("Incorrect arguments to setPreference");
+      }
+      return this.setPreferences(data);
+    };
+
+    User.prototype.setPreferences = function(prefs) {
+      return do_pref_req(this, prefs, 'POST');
+    };
+
+    User.prototype.clearPreference = function(key) {
+      return do_pref_req(this, {
+        key: key
+      }, 'DELETE');
+    };
+
+    User.prototype.clearPreferences = function() {
+      return do_pref_req(this, {}, 'DELETE');
+    };
+
+    User.prototype.refresh = function() {
+      return do_pref_req(this, {}, 'GET');
+    };
+
+    return User;
+
+  })();
+
+  intermine.User = User;
+
+}).call(this);
+
+(function() {
+  var INVITES, IS_NODE, List, REQUIRES_VERSION, SHARES, TAGS_PATH, dejoin, funcutils, get, getFolderName, intermine, invoke, isFolder, set, _, __root__,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    _ = require('underscore')._;
+    funcutils = require('./util');
+    intermine = __root__;
+  } else {
+    _ = __root__._, intermine = __root__.intermine;
+    funcutils = intermine.funcutils;
+  }
+
+  get = funcutils.get, invoke = funcutils.invoke, REQUIRES_VERSION = funcutils.REQUIRES_VERSION, set = funcutils.set, dejoin = funcutils.dejoin;
+
+  TAGS_PATH = "list/tags";
+
+  SHARES = "lists/shares";
+
+  INVITES = 'lists/invitations';
+
+  isFolder = function(t) {
+    return t.substr(0, t.indexOf(':')) === '__folder__';
+  };
+
+  getFolderName = function(t) {
+    return s.substr(t.indexOf(':') + 1);
+  };
+
+  List = (function() {
+
+    function List(properties, service) {
+      var k, v;
+      this.service = service;
+      this.hasTag = __bind(this.hasTag, this);
+
+      for (k in properties) {
+        if (!__hasProp.call(properties, k)) continue;
+        v = properties[k];
+        this[k] = v;
+      }
+      this.dateCreated = (this.dateCreated != null) ? new Date(this.dateCreated) : null;
+      this.folders = this.tags.filter(isFolder).map(getFolderName);
+    }
+
+    List.prototype.hasTag = function(t) {
+      return __indexOf.call(this.tags, t) >= 0;
+    };
+
+    List.prototype.query = function(view) {
+      if (view == null) {
+        view = ['*'];
+      }
+      return this.service.query({
+        select: view,
+        from: this.type,
+        where: [[this.type, 'IN', this.name]]
+      });
+    };
+
+    List.prototype.del = function(cb) {
+      return this.service.makeRequest('DELETE', 'lists', {
+        name: this.name
+      }, cb);
+    };
+
+    List.prototype.fetchTags = function(cb) {
+      var _this = this;
+      return this.service.makeRequest('GET', 'list/tags', {
+        name: this.name
+      }).pipe(function(resp) {
+        return resp.tags;
+      }).done(function(tags) {
+        _this.tags = tags;
+        return _this.folders.filter(isFolder).map(getFolderName);
+      }).done(cb);
+    };
+
+    List.prototype.addTags = function(tags, cb) {
+      var _this = this;
+      return this.service.makeRequest('POST', 'list/tags', {
+        name: this.name,
+        tags: tags
+      }).pipe(function(resp) {
+        return resp.tags;
+      }).done(function(tags) {
+        _this.tags = tags;
+        return _this.folders.filter(isFolder).map(getFolderName);
+      }).done(cb);
+    };
+
+    List.prototype.removeTags = function(tags, cb) {
+      var _this = this;
+      return this.service.makeRequest('DELETE', 'list/tags', {
+        name: this.name,
+        tags: tags
+      }).pipe(function(resp) {
+        return resp.tags;
+      }).done(function(tags) {
+        _this.tags = tags;
+        return _this.folders.filter(isFolder).map(getFolderName);
+      }).done(cb);
+    };
+
+    List.prototype.contents = function(cb) {
+      return this.query().pipe(dejoin).pipe(invoke('records')).done(cb);
+    };
+
+    List.prototype.rename = function(newName, cb) {
+      var _this = this;
+      return this.service.post('lists/rename', {
+        oldname: this.name,
+        newname: newName
+      }).pipe(get('listName')).done(function(n) {
+        return _this.name = n;
+      }).pipe(this.service.fetchList).done(cb);
+    };
+
+    List.prototype.copy = function(opts, cb) {
+      var baseName, name, query, tags, _ref, _ref1, _ref2,
+        _this = this;
+      if (opts == null) {
+        opts = {};
+      }
+      if (cb == null) {
+        cb = (function() {});
+      }
+      if (arguments.length === 1 && _.isFunction(opts)) {
+        _ref = [{}, opts], opts = _ref[0], cb = _ref[1];
+      }
+      if (_.isString(opts)) {
+        opts = {
+          name: '' + opts
+        };
+      }
+      name = baseName = (_ref1 = opts.name) != null ? _ref1 : "" + this.name + "_copy";
+      tags = this.tags.concat((_ref2 = opts.tags) != null ? _ref2 : []);
+      query = this.query(['id']);
+      return this.service.fetchLists().pipe(invoke('map', get('name'))).pipe(function(names) {
+        var c;
+        c = 1;
+        while (__indexOf.call(names, name) >= 0) {
+          name = "" + baseName + "-" + (c++);
+        }
+        return query.pipe(invoke('saveAsList', {
+          name: name,
+          tags: tags,
+          description: _this.description
+        })).done(cb);
+      });
+    };
+
+    List.prototype.enrichment = function(opts, cb) {
+      return this.service.enrichment((set({
+        list: this.name
+      }))(opts), cb);
+    };
+
+    List.prototype.shareWithUser = function(recipient, cb) {
+      return this.service.post(SHARES, {
+        'list': this.name,
+        'with': recipient
+      }).done(cb);
+    };
+
+    List.prototype.inviteUserToShare = function(recipient, notify, cb) {
+      if (notify == null) {
+        notify = true;
+      }
+      if (cb == null) {
+        cb = (function() {});
+      }
+      return this.service.post(INVITES, {
+        list: this.name,
+        to: recipient,
+        notify: !!notify
+      }).done(cb);
+    };
+
+    return List;
+
+  })();
+
+  intermine.List = List;
+
+}).call(this);
+
+(function() {
+  var Deferred, IDResolutionJob, IS_NODE, funcutils, get, intermine, __root__,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    Deferred = require('underscore.deferred').Deferred;
+    funcutils = require('./util');
+    intermine = __root__;
+  } else {
+    Deferred = __root__.jQuery.Deferred;
+    intermine = __root__.intermine;
+    funcutils = intermine.funcutils;
+  }
+
+  get = funcutils.get;
+
+  IDResolutionJob = (function() {
+
+    function IDResolutionJob(uid, service) {
+      this.uid = uid;
+      this.service = service;
+      this.del = __bind(this.del, this);
+
+      this.fetchResults = __bind(this.fetchResults, this);
+
+      this.fetchErrorMessage = __bind(this.fetchErrorMessage, this);
+
+      this.fetchStatus = __bind(this.fetchStatus, this);
+
+    }
+
+    IDResolutionJob.prototype.fetchStatus = function(cb) {
+      return this.service.get("ids/" + this.uid + "/status").pipe(get('status')).done(cb);
+    };
+
+    IDResolutionJob.prototype.fetchErrorMessage = function(cb) {
+      return this.service.get("ids/" + this.uid + "/status").pipe(get('message')).done(cb);
+    };
+
+    IDResolutionJob.prototype.fetchResults = function(cb) {
+      return this.service.get("ids/" + this.uid + "/result").pipe(get('results')).done(cb);
+    };
+
+    IDResolutionJob.prototype.del = function(cb) {
+      return this.service.makeRequest('DELETE', "ids/" + this.uid, {}, cb);
+    };
+
+    IDResolutionJob.prototype.poll = function(onSuccess, onError, onProgress) {
+      var resp, ret,
+        _this = this;
+      ret = Deferred().done(onSuccess).fail(onError).progress(onProgress);
+      resp = this.fetchStatus();
+      resp.fail(ret.reject);
+      resp.done(function(status) {
+        ret.notify(status);
+        switch (status) {
+          case 'SUCCESS':
+            return _this.fetchResults().then(ret.resolve, ret.reject);
+          case 'ERROR':
+            return _this.fetchErrorMessage().then(ret.reject, ret.reject);
+          default:
+            return _this.poll(ret.resolve, ret.reject, ret.notify);
+        }
+      });
+      return ret.promise();
+    };
+
+    return IDResolutionJob;
+
+  })();
+
+  IDResolutionJob.create = function(service) {
+    return function(uid) {
+      return new IDResolutionJob(uid, service);
+    };
+  };
+
+  intermine.IDResolutionJob = IDResolutionJob;
+
+}).call(this);
+
+(function() {
+  var $, BASIC_ATTRS, CODES, Deferred, IS_NODE, LIST_PIPE, Query, RESULTS_METHODS, SIMPLE_ATTRS, conAttrs, conStr, conToJSON, conValStr, concatMap, copyCon, decapitate, didntRemove, f, filter, fold, get, get_canonical_op, headLess, id, idConStr, intermine, interpretConArray, interpretConstraint, invoke, jQuery, mth, multiConStr, noUndefVals, noValueConStr, pairsToObj, partition, simpleConStr, stringToSortOrder, take, toQueryString, typeConStr, _, __root__, _fn, _get_data_fetcher, _i, _j, _len, _len1, _ref, _ref1, _ref2,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __slice = [].slice;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    intermine = __root__;
+    _ = require('underscore')._;
+    Deferred = ($ = require('underscore.deferred')).Deferred;
+    toQueryString = require('querystring').stringify;
+    intermine.xml = require('./xml');
+    _ref = require('./util'), pairsToObj = _ref.pairsToObj, filter = _ref.filter, partition = _ref.partition, fold = _ref.fold, take = _ref.take, concatMap = _ref.concatMap, id = _ref.id, get = _ref.get, invoke = _ref.invoke;
+  } else {
+    _ = __root__._, jQuery = __root__.jQuery, intermine = __root__.intermine;
+    _ref1 = intermine.funcutils, pairsToObj = _ref1.pairsToObj, filter = _ref1.filter, partition = _ref1.partition, fold = _ref1.fold, take = _ref1.take, concatMap = _ref1.concatMap, id = _ref1.id, get = _ref1.get, invoke = _ref1.invoke;
+    Deferred = ($ = jQuery).Deferred;
+    toQueryString = function(obj) {
+      return jQuery.param(obj, true);
+    };
+  }
+
+  get_canonical_op = function(orig) {
+    var canonical;
+    canonical = _.isString(orig) ? Query.OP_DICT[orig.toLowerCase()] : null;
+    if (!canonical) {
+      throw new Error("Illegal constraint operator: " + orig);
+    }
+    return canonical;
+  };
+
+  BASIC_ATTRS = ['path', 'op', 'code'];
+
+  SIMPLE_ATTRS = BASIC_ATTRS.concat(['value', 'extraValue']);
+
+  RESULTS_METHODS = ['rowByRow', 'eachRow', 'recordByRecord', 'eachRecord', 'records', 'rows', 'table', 'tableRows'];
+
+  LIST_PIPE = function(service) {
+    return _.compose(service.fetchList, get('listName'));
+  };
+
+  CODES = [null, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+  decapitate = function(x) {
+    return x.substr(x.indexOf('.'));
+  };
+
+  conValStr = function(v) {
+    if (v != null) {
+      return "<value>" + (_.escape(v)) + "</value>";
+    } else {
+      return "<nullValue/>";
+    }
+  };
+
+  conAttrs = function(c, names) {
+    var k, v;
+    return ((function() {
+      var _results;
+      _results = [];
+      for (k in c) {
+        v = c[k];
+        if ((__indexOf.call(names, k) >= 0)) {
+          _results.push("" + k + "=\"" + (_.escape(v)) + "\" ");
+        }
+      }
+      return _results;
+    })()).join('');
+  };
+
+  noValueConStr = function(c) {
+    return "<constraint " + (conAttrs(c, BASIC_ATTRS)) + "/>";
+  };
+
+  typeConStr = function(c) {
+    return "<constraint " + (conAttrs(c, ['path', 'type'])) + "/>";
+  };
+
+  simpleConStr = function(c) {
+    return "<constraint " + (conAttrs(c, SIMPLE_ATTRS)) + "/>";
+  };
+
+  multiConStr = function(c) {
+    return "<constraint " + (conAttrs(c, BASIC_ATTRS)) + ">" + (concatMap(conValStr)(c.values)) + "</constraint>";
+  };
+
+  idConStr = function(c) {
+    return "<constraint " + (conAttrs(c, BASIC_ATTRS)) + "ids=\"" + (c.ids.join(',')) + "\"/>";
+  };
+
+  conStr = function(c) {
+    var _ref2;
+    if (c.values != null) {
+      return multiConStr(c);
+    } else if (c.ids != null) {
+      return idConStr(c);
+    } else if (!(c.op != null)) {
+      return typeConStr(c);
+    } else if (_ref2 = c.op, __indexOf.call(Query.NULL_OPS, _ref2) >= 0) {
+      return noValueConStr(c);
+    } else {
+      return simpleConStr(c);
+    }
+  };
+
+  headLess = function(path) {
+    return path.replace(/^[^\.]+\./, '');
+  };
+
+  copyCon = function(con) {
+    var code, ids, op, path, type, value, values;
+    path = con.path, type = con.type, op = con.op, value = con.value, values = con.values, ids = con.ids, code = con.code;
+    ids = ids != null ? ids.slice() : void 0;
+    values = values != null ? values.slice() : void 0;
+    return noUndefVals({
+      path: path,
+      type: type,
+      op: op,
+      value: value,
+      values: values,
+      ids: ids,
+      code: code
+    });
+  };
+
+  conToJSON = function(con) {
+    var copy;
+    copy = copyCon(con);
+    copy.path = headLess(copy.path);
+    return copy;
+  };
+
+  noUndefVals = function(x) {
+    var k, v;
+    for (k in x) {
+      v = x[k];
+      if (v == null) {
+        delete x[k];
+      }
+    }
+    return x;
+  };
+
+  didntRemove = function(orig, reduced) {
+    return "Did not remove a single constraint. original = " + orig + ", reduced = " + reduced;
+  };
+
+  interpretConstraint = function(path, con) {
+    var constraint, k, keys, v, x, _ref2;
+    constraint = {
+      path: path
+    };
+    if (con === null) {
+      constraint.op = 'IS NULL';
+    } else if (_.isArray(con)) {
+      constraint.op = 'ONE OF';
+      constraint.values = con;
+    } else if (_.isString(con) || _.isNumber(con)) {
+      if (_ref2 = typeof con.toUpperCase === "function" ? con.toUpperCase() : void 0, __indexOf.call(Query.NULL_OPS, _ref2) >= 0) {
+        constraint.op = con;
+      } else {
+        constraint.op = '=';
+        constraint.value = con;
+      }
+    } else {
+      keys = (function() {
+        var _results;
+        _results = [];
+        for (k in con) {
+          x = con[k];
+          _results.push(k);
+        }
+        return _results;
+      })();
+      if (__indexOf.call(keys, 'isa') >= 0) {
+        if (_.isArray(con.isa)) {
+          constraint.op = k;
+          constraint.values = con.isa;
+        } else {
+          constraint.type = con.isa;
+        }
+      } else {
+        if (__indexOf.call(keys, 'extraValue') >= 0) {
+          constraint.extraValue = con.extraValue;
+        }
+        for (k in con) {
+          v = con[k];
+          if (!(k !== 'extraValue')) {
+            continue;
+          }
+          constraint.op = k;
+          if (_.isArray(v)) {
+            constraint.values = v;
+          } else {
+            constraint.value = v;
+          }
+        }
+      }
+    }
+    return constraint;
+  };
+
+  interpretConArray = function(conArgs) {
+    var a0, constraint, v, _ref2;
+    conArgs = conArgs.slice();
+    constraint = {
+      path: conArgs.shift()
+    };
+    if (conArgs.length === 1) {
+      a0 = conArgs[0];
+      if (_ref2 = typeof a0.toUpperCase === "function" ? a0.toUpperCase() : void 0, __indexOf.call(Query.NULL_OPS, _ref2) >= 0) {
+        constraint.op = a0;
+      } else {
+        constraint.type = a0;
+      }
+    } else if (conArgs.length >= 2) {
+      constraint.op = conArgs[0];
+      v = conArgs[1];
+      if (_.isArray(v)) {
+        constraint.values = v;
+      } else {
+        constraint.value = v;
+      }
+      if (conArgs.length === 3) {
+        constraint.extraValue = conArgs[2];
+      }
+    }
+    return constraint;
+  };
+
+  stringToSortOrder = function(str) {
+    var i, parts, pathIndices, x, _i, _len, _results;
+    if (str == null) {
+      return [];
+    }
+    parts = str.split(/\s+/);
+    pathIndices = (function() {
+      var _i, _ref2, _results;
+      _results = [];
+      for (x = _i = 0, _ref2 = parts.length / 2; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; x = 0 <= _ref2 ? ++_i : --_i) {
+        _results.push(x * 2);
+      }
+      return _results;
+    })();
+    _results = [];
+    for (_i = 0, _len = pathIndices.length; _i < _len; _i++) {
+      i = pathIndices[_i];
+      _results.push([parts[i], parts[i + 1]]);
+    }
+    return _results;
+  };
+
+  Query = (function() {
+    var addPI, cAttrs, getPaths, kids, qAttrs, scFold, toAttrPairs, xmlAttr;
+
+    Query.JOIN_STYLES = ['INNER', 'OUTER'];
+
+    Query.BIO_FORMATS = ['gff3', 'fasta', 'bed'];
+
+    Query.NULL_OPS = ['IS NULL', 'IS NOT NULL'];
+
+    Query.ATTRIBUTE_VALUE_OPS = ["=", "!=", ">", ">=", "<", "<=", "CONTAINS", "LIKE", "NOT LIKE"];
+
+    Query.MULTIVALUE_OPS = ['ONE OF', 'NONE OF'];
+
+    Query.TERNARY_OPS = ['LOOKUP'];
+
+    Query.LOOP_OPS = ['=', '!='];
+
+    Query.LIST_OPS = ['IN', 'NOT IN'];
+
+    Query.OP_DICT = {
+      '=': '=',
+      '==': '=',
+      'eq': '=',
+      '!=': '!=',
+      'ne': '!=',
+      '>': '>',
+      'gt': '>',
+      '>=': '>=',
+      'ge': '>=',
+      '<': '<',
+      'lt': '<',
+      '<=': '<=',
+      'le': '<=',
+      'contains': 'CONTAINS',
+      'CONTAINS': 'CONTAINS',
+      'like': 'LIKE',
+      'LIKE': 'LIKE',
+      'not like': 'NOT LIKE',
+      'NOT LIKE': 'NOT LIKE',
+      'lookup': 'LOOKUP',
+      'IS NULL': 'IS NULL',
+      'is null': 'IS NULL',
+      'IS NOT NULL': 'IS NOT NULL',
+      'is not null': 'IS NOT NULL',
+      'ONE OF': 'ONE OF',
+      'one of': 'ONE OF',
+      'NONE OF': 'NONE OF',
+      'none of': 'NONE OF',
+      'in': 'IN',
+      'not in': 'NOT IN',
+      'IN': 'IN',
+      'NOT IN': 'NOT IN',
+      'WITHIN': 'WITHIN',
+      'within': 'WITHIN',
+      'OVERLAPS': 'OVERLAPS',
+      'overlaps': 'OVERLAPS',
+      'ISA': 'ISA',
+      'isa': 'ISA'
+    };
+
+    getPaths = function() {};
+
+    Query.prototype.on = function(events, callback, context) {
+      var calls, ev, list, tail, _ref2, _ref3, _ref4;
+      events = events.split(/\s+/);
+      calls = ((_ref2 = this._callbacks) != null ? _ref2 : this._callbacks = {});
+      while (ev = events.shift()) {
+        list = ((_ref3 = calls[ev]) != null ? _ref3 : calls[ev] = {});
+        tail = ((_ref4 = list.tail) != null ? _ref4 : list.tail = (list.next = {}));
+        tail.callback = callback;
+        tail.context = context;
+        list.tail = tail.next = {};
+      }
+      return this;
+    };
+
+    Query.prototype.bind = function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.on.apply(this, args);
+    };
+
+    Query.prototype.trigger = function() {
+      var all, args, calls, event, events, node, rest, tail;
+      events = arguments[0], rest = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      calls = this._callbacks;
+      if (!calls) {
+        return this;
+      }
+      all = calls['all'];
+      (events = events.split(/\s+/)).push(null);
+      while (event = events.shift()) {
+        if (all) {
+          events.push({
+            next: all.next,
+            tail: all.tail,
+            event: event
+          });
+        }
+        if (!(node = calls[event])) {
+          continue;
+        }
+        events.push({
+          next: node.next,
+          tail: node.tail
+        });
+      }
+      while (node = events.pop()) {
+        tail = node.tail;
+        args = node.event ? [node.event].concat(rest) : rest;
+        while ((node = node.next) !== tail) {
+          node.callback.apply(node.context || this, args);
+        }
+      }
+      return this;
+    };
+
+    qAttrs = ['name', 'view', 'sortOrder', 'constraintLogic', 'title', 'description', 'comment'];
+
+    cAttrs = ['path', 'type', 'op', 'code', 'value', 'ids'];
+
+    toAttrPairs = function(el, attrs) {
+      var x, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = attrs.length; _i < _len; _i++) {
+        x = attrs[_i];
+        if (el.hasAttribute(x)) {
+          _results.push([x, el.getAttribute(x)]);
+        }
+      }
+      return _results;
+    };
+
+    kids = function(el, name) {
+      var kid, _i, _len, _ref2, _results;
+      _ref2 = el.getElementsByTagName(name);
+      _results = [];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        kid = _ref2[_i];
+        _results.push(kid);
+      }
+      return _results;
+    };
+
+    xmlAttr = function(name) {
+      return function(el) {
+        return el.getAttribute(name);
+      };
+    };
+
+    Query.fromXML = function(xml) {
+      var con, dom, j, pathOf, q, query, styleOf;
+      dom = intermine.xml.parse(xml);
+      query = kids(dom, 'query')[0] || kids(dom, 'template')[0];
+      if (!query) {
+        throw new Error("no query in xml");
+      }
+      pathOf = xmlAttr('path');
+      styleOf = xmlAttr('style');
+      q = pairsToObj(toAttrPairs(query, qAttrs));
+      q.view = q.view.split(/\s+/);
+      q.sortOrder = stringToSortOrder(q.sortOrder);
+      q.joins = (function() {
+        var _i, _len, _ref2, _results;
+        _ref2 = kids(query, 'join');
+        _results = [];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          j = _ref2[_i];
+          if (styleOf(j) === 'OUTER') {
+            _results.push(pathOf(j));
+          }
+        }
+        return _results;
+      })();
+      q.constraints = (function() {
+        var _i, _len, _ref2, _results;
+        _ref2 = kids(query, 'constraint');
+        _results = [];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          con = _ref2[_i];
+          _results.push((function(con) {
+            var c, tn, v, values, x;
+            c = pairsToObj(toAttrPairs(con, cAttrs));
+            if (c.ids != null) {
+              c.ids = (function() {
+                var _j, _len1, _ref3, _results1;
+                _ref3 = c.ids.split(',');
+                _results1 = [];
+                for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+                  x = _ref3[_j];
+                  _results1.push(parseInt(x, 10));
+                }
+                return _results1;
+              })();
+            }
+            values = kids(con, 'value');
+            if (values.length) {
+              c.values = (function() {
+                var _j, _len1, _results1;
+                _results1 = [];
+                for (_j = 0, _len1 = values.length; _j < _len1; _j++) {
+                  v = values[_j];
+                  _results1.push(((function() {
+                    var _k, _len2, _ref3, _results2;
+                    _ref3 = v.childNodes;
+                    _results2 = [];
+                    for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+                      tn = _ref3[_k];
+                      _results2.push(tn.data);
+                    }
+                    return _results2;
+                  })()).join(''));
+                }
+                return _results1;
+              })();
+            }
+            return c;
+          })(con));
+        }
+        return _results;
+      })();
+      return q;
+    };
+
+    function Query(properties, service) {
+      this.addConstraint = __bind(this.addConstraint, this);
+
+      this.expandStar = __bind(this.expandStar, this);
+
+      this.adjustPath = __bind(this.adjustPath, this);
+
+      this.select = __bind(this.select, this);
+
+      var prop, _i, _len, _ref10, _ref11, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9,
+        _this = this;
+      _.defaults(this, {
+        constraints: [],
+        views: [],
+        joins: {},
+        constraintLogic: "",
+        sortOrder: ""
+      });
+      if (properties == null) {
+        properties = {};
+      }
+      this.displayNames = _.extend({}, (_ref2 = (_ref3 = properties.displayNames) != null ? _ref3 : properties.aliases) != null ? _ref2 : {});
+      _ref4 = ['name', 'title', 'comment', 'description'];
+      for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+        prop = _ref4[_i];
+        if (properties[prop] != null) {
+          this[prop] = properties[prop];
+        }
+      }
+      this.service = service != null ? service : {};
+      this.model = (_ref5 = properties.model) != null ? _ref5 : {};
+      this.summaryFields = (_ref6 = properties.summaryFields) != null ? _ref6 : {};
+      this.root = (_ref7 = properties.root) != null ? _ref7 : properties.from;
+      this.maxRows = (_ref8 = (_ref9 = properties.size) != null ? _ref9 : properties.limit) != null ? _ref8 : properties.maxRows;
+      this.start = (_ref10 = (_ref11 = properties.start) != null ? _ref11 : properties.offset) != null ? _ref10 : 0;
+      this.select(properties.views || properties.view || properties.select || []);
+      this.addConstraints(properties.constraints || properties.where || []);
+      this.addJoins(properties.joins || properties.join || []);
+      this.orderBy(properties.sortOrder || properties.orderBy || []);
+      if (properties.constraintLogic != null) {
+        this.constraintLogic = properties.constraintLogic;
+      }
+      getPaths = function(root, depth) {
+        var cd, others, ret;
+        cd = _this.getPathInfo(root).getEndClass();
+        ret = [root];
+        others = !(cd && depth > 0) ? [] : _.flatten(_.map(cd.fields, function(r) {
+          return getPaths("" + root + "." + r.name, depth - 1);
+        }));
+        return _.flatten(ret.concat(others));
+      };
+    }
+
+    Query.prototype.removeFromSelect = function(unwanted) {
+      var mapFn, so, uw, v;
+      unwanted = _.isString(unwanted) ? [unwanted] : unwanted || [];
+      mapFn = _.compose(this.expandStar, this.adjustPath);
+      unwanted = _.flatten((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = unwanted.length; _i < _len; _i++) {
+          uw = unwanted[_i];
+          _results.push(mapFn(uw));
+        }
+        return _results;
+      })());
+      this.sortOrder = (function() {
+        var _i, _len, _ref2, _ref3, _results;
+        _ref2 = this.sortOrder;
+        _results = [];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          so = _ref2[_i];
+          if (!(_ref3 = so.path, __indexOf.call(unwanted, _ref3) >= 0)) {
+            _results.push(so);
+          }
+        }
+        return _results;
+      }).call(this);
+      this.views = (function() {
+        var _i, _len, _ref2, _results;
+        _ref2 = this.views;
+        _results = [];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          v = _ref2[_i];
+          if (!(__indexOf.call(unwanted, v) >= 0)) {
+            _results.push(v);
+          }
+        }
+        return _results;
+      }).call(this);
+      this.trigger('remove:view', unwanted);
+      return this.trigger('change:views', this.views);
+    };
+
+    Query.prototype.removeConstraint = function(con, silent) {
+      var c, iscon, orig, reduced;
+      if (silent == null) {
+        silent = false;
+      }
+      orig = this.constraints;
+      iscon = typeof con === 'string' ? (function(c) {
+        return c.code === con;
+      }) : (function(c) {
+        var _ref2, _ref3;
+        return (c.path === con.path) && (c.op === con.op) && (c.value === con.value) && (c.extraValue === con.extraValue) && (con.type === c.type) && (((_ref2 = c.values) != null ? _ref2.join('%%') : void 0) === ((_ref3 = con.values) != null ? _ref3.join('%%') : void 0));
+      });
+      reduced = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = orig.length; _i < _len; _i++) {
+          c = orig[_i];
+          if (!iscon(c)) {
+            _results.push(c);
+          }
+        }
+        return _results;
+      })();
+      if (reduced.length !== orig.length - 1) {
+        throw new Error(didntRemove(orig, reduced));
+      }
+      this.constraints = reduced;
+      if (!silent) {
+        this.trigger('change:constraints');
+        return this.trigger('removed:constraints', _.difference(orig, reduced));
+      }
+    };
+
+    Query.prototype.addToSelect = function(views) {
+      var dups, p, toAdd, _i, _len;
+      views = _.isString(views) ? [views] : views || [];
+      toAdd = _.flatten([_.map(views, _.compose(this.expandStar, this.adjustPath))]);
+      dups = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = toAdd.length; _i < _len; _i++) {
+          p = toAdd[_i];
+          if (__indexOf.call(this.views, p) >= 0 || _.indexOf(toAdd, p) !== _.lastIndexOf(toAdd, p)) {
+            _results.push(p);
+          }
+        }
+        return _results;
+      }).call(this);
+      if (dups.length) {
+        throw new Error("" + dups + " already in the select list");
+      }
+      for (_i = 0, _len = toAdd.length; _i < _len; _i++) {
+        p = toAdd[_i];
+        this.views.push(p);
+      }
+      return this.trigger('add:view change:views', toAdd);
+    };
+
+    Query.prototype.select = function(views) {
+      this.views = [];
+      this.addToSelect(views);
+      return this;
+    };
+
+    Query.prototype.adjustPath = function(path) {
+      path = path && path.name ? path.name : "" + path;
+      if (this.root != null) {
+        if (!path.match("^" + this.root)) {
+          path = this.root + "." + path;
+        }
+      } else {
+        this.root = path.split('.')[0];
+      }
+      return path;
+    };
+
+    Query.prototype.getPossiblePaths = function(depth) {
+      var _base, _ref2, _ref3;
+      if (depth == null) {
+        depth = 3;
+      }
+      if ((_ref2 = this._possiblePaths) == null) {
+        this._possiblePaths = {};
+      }
+      return (_ref3 = (_base = this._possiblePaths)[depth]) != null ? _ref3 : _base[depth] = getPaths(this.root, depth);
+    };
+
+    Query.prototype.getPathInfo = function(path) {
+      var adjusted, pi, _ref2;
+      adjusted = this.adjustPath(path);
+      pi = (_ref2 = this.model) != null ? typeof _ref2.getPathInfo === "function" ? _ref2.getPathInfo(adjusted, this.getSubclasses()) : void 0 : void 0;
+      if (pi && adjusted in this.displayNames) {
+        pi.displayName = this.displayNames[adjusted];
+      }
+      return pi;
+    };
+
+    Query.prototype.makePath = Query.prototype.getPathInfo;
+
+    scFold = _.compose(pairsToObj, filter(get(1)), invoke('map', function(c) {
+      return [c.path, c.type];
+    }));
+
+    Query.prototype.getSubclasses = function() {
+      return scFold(this.constraints);
+    };
+
+    Query.prototype.getType = function(path) {
+      return this.getPathInfo(path).getType();
+    };
+
+    Query.prototype.getViewNodes = function() {
+      var toParentNode,
+        _this = this;
+      toParentNode = function(v) {
+        return _this.getPathInfo(v).getParent();
+      };
+      return _.uniq(_.map(this.views, toParentNode), false, function(n) {
+        return n.toPathString();
+      });
+    };
+
+    Query.prototype.isInView = function(path) {
+      var pi, pstr, _ref2;
+      pi = this.getPathInfo(path);
+      if (!pi) {
+        throw new Error("Invalid path: " + path);
+      }
+      if (pi.isAttribute()) {
+        return _ref2 = pi.toString(), __indexOf.call(this.views, _ref2) >= 0;
+      } else {
+        pstr = pi.toString();
+        return _.any(this.getViewNodes(), function(n) {
+          return n.toString() === pstr;
+        });
+      }
+    };
+
+    Query.prototype.isConstrained = function(path, includeAttrs) {
+      var pi, test,
+        _this = this;
+      if (includeAttrs == null) {
+        includeAttrs = false;
+      }
+      pi = this.getPathInfo(path);
+      if (!pi) {
+        throw new Error("Invalid path: " + path);
+      }
+      test = function(c) {
+        return (c.op != null) && c.path === pi.toString();
+      };
+      if ((!pi.isAttribute()) && includeAttrs) {
+        test = function(c) {
+          return (c.op != null) && (c.path === pi.toString() || pi.equals(_this.getPathInfo(c.path).getParent()));
+        };
+      }
+      return _.any(this.constraints, test);
+    };
+
+    Query.prototype.canHaveMultipleValues = function(path) {
+      return this.getPathInfo(path).containsCollection();
+    };
+
+    Query.prototype.getQueryNodes = function() {
+      var constrainedNodes, viewNodes,
+        _this = this;
+      viewNodes = this.getViewNodes();
+      constrainedNodes = _.map(this.constraints, function(c) {
+        var pi;
+        pi = _this.getPathInfo(c.path);
+        if (pi.isAttribute()) {
+          return pi.getParent();
+        } else {
+          return pi;
+        }
+      });
+      return _.uniq(viewNodes.concat(constrainedNodes), false, function(n) {
+        return n.toPathString();
+      });
+    };
+
+    Query.prototype.isInQuery = function(p) {
+      var pi, pstr;
+      pi = this.getPathInfo(p);
+      if (pi) {
+        pstr = pi.toPathString();
+        return _.any(_.union(this.views, _.pluck(this.constraints, 'path')), function(p) {
+          return p.indexOf(pstr) === 0;
+        });
+      } else {
+        return true;
+      }
+    };
+
+    Query.prototype.isRelevant = function(path) {
+      var nodes, pi, sought;
+      pi = this.getPathInfo(path);
+      if (pi.isAttribute()) {
+        pi = pi.getParent();
+      }
+      sought = pi.toString();
+      nodes = this.getQueryNodes();
+      return _.any(nodes, function(n) {
+        return n.toPathString() === sought;
+      });
+    };
+
+    Query.prototype.expandStar = function(path) {
+      var cd, expand, fn, n, pathStem;
+      if (/\*$/.test(path)) {
+        pathStem = path.substr(0, path.lastIndexOf('.'));
+        expand = function(x) {
+          return pathStem + x;
+        };
+        cd = this.getType(pathStem);
+        if (/\.\*$/.test(path)) {
+          if (cd && this.summaryFields[cd.name]) {
+            fn = _.compose(expand, decapitate);
+            return (function() {
+              var _i, _len, _ref2, _results;
+              _ref2 = this.summaryFields[cd.name];
+              _results = [];
+              for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+                n = _ref2[_i];
+                if (!this.hasView(n)) {
+                  _results.push(fn(n));
+                }
+              }
+              return _results;
+            }).call(this);
+          }
+        }
+        if (/\.\*\*$/.test(path)) {
+          fn = _.compose(expand, function(a) {
+            return '.' + a.name;
+          });
+          return _.uniq(_.union(this.expandStar(pathStem + '.*'), _.map(cd.attributes, fn)));
+        }
+      }
+      return path;
+    };
+
+    Query.prototype.isOuterJoin = function(p) {
+      return this.joins[this.adjustPath(p)] === 'OUTER';
+    };
+
+    Query.prototype.hasView = function(v) {
+      return this.views && _.include(this.views, this.adjustPath(v));
+    };
+
+    Query.prototype.count = function(cont) {
+      if (this.service.count) {
+        return this.service.count(this, cont);
+      } else {
+        throw new Error("This query has no service with count functionality attached.");
+      }
+    };
+
+    Query.prototype.appendToList = function(target, cb) {
+      var name, req, toRun, updateTarget;
+      name = target && target.name ? target.name : '' + target;
+      toRun = this.makeListQuery();
+      req = {
+        listName: name,
+        query: toRun.toXML()
+      };
+      updateTarget = (target != null ? target.name : void 0) ? (function(list) {
+        return target.size = list.size;
+      }) : (function() {});
+      return this.service.post('query/append/tolist', req).pipe(LIST_PIPE(this.service)).done(cb, updateTarget);
+    };
+
+    Query.prototype.makeListQuery = function() {
+      var n, toRun, _i, _len, _ref2;
+      toRun = this.clone();
+      if (toRun.views.length !== 1 || toRun.views[0] === null || !toRun.views[0].match(/\.id$/)) {
+        toRun.select(['id']);
+      }
+      _ref2 = this.getViewNodes();
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        n = _ref2[_i];
+        if (!this.isOuterJoined(n)) {
+          if (!(toRun.isInView(n || toRun.isConstrained(n))) && (n.getEndClass().fields.id != null)) {
+            toRun.addConstraint([n.append('id'), 'IS NOT NULL']);
+          }
+        }
+      }
+      return toRun;
+    };
+
+    Query.prototype.saveAsList = function(options, cb) {
+      var req, toRun;
+      toRun = this.makeListQuery();
+      req = _.clone(options);
+      req.listName = req.listName || req.name;
+      req.query = toRun.toXML();
+      if (options.tags) {
+        req.tags = options.tags.join(';');
+      }
+      return this.service.post('query/tolist', req).pipe(LIST_PIPE(this.service)).done(cb);
+    };
+
+    Query.prototype.summarise = function(path, limit, cont) {
+      return this.filterSummary(path, '', limit, cont);
+    };
+
+    Query.prototype.summarize = function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.summarise.apply(this, args);
+    };
+
+    Query.prototype.filterSummary = function(path, term, limit, cont) {
+      var parse, req, toRun, _ref2;
+      if (cont == null) {
+        cont = (function() {});
+      }
+      if (_.isFunction(limit)) {
+        _ref2 = [limit, null], cont = _ref2[0], limit = _ref2[1];
+      }
+      path = this.adjustPath(path);
+      toRun = this.clone();
+      if (!_.include(toRun.views, path)) {
+        toRun.views.push(path);
+      }
+      req = {
+        query: toRun.toXML(),
+        summaryPath: path,
+        format: 'jsonrows'
+      };
+      if (limit) {
+        req.size = limit;
+      }
+      if (term) {
+        req.filterTerm = term;
+      }
+      parse = function(data) {
+        return Deferred(function() {
+          var results, stats, _ref3;
+          results = data.results.map(function(x) {
+            x.count = parseInt(x.count, 10);
+            return x;
+          });
+          stats = {
+            uniqueValues: data.uniqueValues
+          };
+          if ((((_ref3 = results[0]) != null ? _ref3.max : void 0) != null)) {
+            _.extend(stats, results[0]);
+          }
+          return this.resolve(results, stats, data.filteredCount);
+        });
+      };
+      return this.service.post('query/results', req).pipe(parse).done(cont);
+    };
+
+    Query.prototype.clone = function(cloneEvents) {
+      var cloned;
+      cloned = new Query(this, this.service);
+      if (cloneEvents) {
+        cloned._callbacks = this._callbacks;
+      } else {
+        cloned._callbacks = {};
+      }
+      return cloned;
+    };
+
+    Query.prototype.next = function() {
+      var clone;
+      clone = this.clone();
+      if (this.maxRows) {
+        clone.start = this.start + this.maxRows;
+      }
+      return clone;
+    };
+
+    Query.prototype.previous = function() {
+      var clone;
+      clone = this.clone();
+      if (this.maxRows) {
+        clone.start = this.start - this.maxRows;
+      } else {
+        clone.start = 0;
+      }
+      return clone;
+    };
+
+    Query.prototype.getSortDirection = function(path) {
+      var dir, so, _i, _len, _ref2;
+      path = this.adjustPath(path);
+      _ref2 = this.sortOrder;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        so = _ref2[_i];
+        if (so.path === path) {
+          dir = so.direction;
+        }
+      }
+      return dir;
+    };
+
+    Query.prototype.isOuterJoined = function(path) {
+      path = this.adjustPath(path);
+      return _.any(this.joins, function(d, p) {
+        return d === 'OUTER' && path.indexOf(p) === 0;
+      });
+    };
+
+    Query.prototype.getOuterJoin = function(path) {
+      var joinPaths,
+        _this = this;
+      path = this.adjustPath(path);
+      joinPaths = _.sortBy(_.keys(this.joins), get('length')).reverse();
+      return _.find(joinPaths, function(p) {
+        return _this.joins[p] === 'OUTER' && path.indexOf(p) === 0;
+      });
+    };
+
+    Query.prototype._parse_sort_order = function(input) {
+      var direction, path, so;
+      so = input;
+      if (_.isString(input)) {
+        so = {
+          path: input,
+          direction: 'ASC'
+        };
+      } else if (_.isArray(input)) {
+        path = input[0], direction = input[1];
+        so = {
+          path: path,
+          direction: direction
+        };
+      } else if (!(input.path != null)) {
+        path = _.keys(input)[0];
+        direction = _.values(input)[0];
+        so = {
+          path: path,
+          direction: direction
+        };
+      }
+      so.path = this.adjustPath(so.path);
+      so.direction = so.direction.toUpperCase();
+      return so;
+    };
+
+    Query.prototype.addOrSetSortOrder = function(so) {
+      var currentDirection, oe, _i, _len, _ref2;
+      so = this._parse_sort_order(so);
+      currentDirection = this.getSortDirection(so.path);
+      if (!(currentDirection != null)) {
+        return this.addSortOrder(so);
+      } else if (currentDirection !== so.direction) {
+        _ref2 = this.sortOrder;
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          oe = _ref2[_i];
+          if (oe.path === so.path) {
+            oe.direction = so.direction;
+          }
+        }
+        return this.trigger('change:sortorder', this.sortOrder);
+      }
+    };
+
+    Query.prototype.addSortOrder = function(so) {
+      this.sortOrder.push(this._parse_sort_order(so));
+      this.trigger('add:sortorder', so);
+      return this.trigger('change:sortorder', this.sortOrder);
+    };
+
+    Query.prototype.orderBy = function(oes) {
+      var oe, _i, _len;
+      this.sortOrder = [];
+      for (_i = 0, _len = oes.length; _i < _len; _i++) {
+        oe = oes[_i];
+        this.addSortOrder(this._parse_sort_order(oe));
+      }
+      return this.trigger('set:sortorder', this.sortOrder);
+    };
+
+    Query.prototype.addJoins = function(joins) {
+      var j, k, v, _i, _len, _results, _results1;
+      if (_.isArray(joins)) {
+        _results = [];
+        for (_i = 0, _len = joins.length; _i < _len; _i++) {
+          j = joins[_i];
+          _results.push(this.addJoin(j));
+        }
+        return _results;
+      } else {
+        _results1 = [];
+        for (k in joins) {
+          v = joins[k];
+          _results1.push(this.addJoin({
+            path: k,
+            style: v
+          }));
+        }
+        return _results1;
+      }
+    };
+
+    Query.prototype.addJoin = function(join) {
+      var _ref2, _ref3, _ref4;
+      if (_.isString(join)) {
+        join = {
+          path: join,
+          style: 'OUTER'
+        };
+      }
+      join.path = this.adjustPath(join.path);
+      join.style = (_ref2 = (_ref3 = join.style) != null ? _ref3.toUpperCase() : void 0) != null ? _ref2 : join.style;
+      if (_ref4 = join.style, __indexOf.call(Query.JOIN_STYLES, _ref4) < 0) {
+        throw new Error("Invalid join style: " + join.style);
+      }
+      this.joins[join.path] = join.style;
+      return this.trigger('set:join', join.path, join.style);
+    };
+
+    Query.prototype.setJoinStyle = function(path, style) {
+      if (style == null) {
+        style = 'OUTER';
+      }
+      path = this.adjustPath(path);
+      style = style.toUpperCase();
+      if (this.joins[path] !== style) {
+        this.joins[path] = style;
+        this.trigger('change:joins', {
+          path: path,
+          style: style
+        });
+      }
+      return this;
+    };
+
+    Query.prototype.addConstraints = function(constraints) {
+      var c, con, path, _fn, _i, _len,
+        _this = this;
+      this.__silent__ = true;
+      if (_.isArray(constraints)) {
+        for (_i = 0, _len = constraints.length; _i < _len; _i++) {
+          c = constraints[_i];
+          this.addConstraint(c);
+        }
+      } else {
+        _fn = function(path, con) {
+          return _this.addConstraint(interpretConstraint(path, con));
+        };
+        for (path in constraints) {
+          con = constraints[path];
+          _fn(path, con);
+        }
+      }
+      this.__silent__ = false;
+      this.trigger('add:constraint');
+      return this.trigger('change:constraints');
+    };
+
+    Query.prototype.addConstraint = function(constraint) {
+      if (_.isArray(constraint)) {
+        constraint = interpretConArray(constraint);
+      } else {
+        constraint = copyCon(constraint);
+      }
+      constraint.path = this.adjustPath(constraint.path);
+      if (constraint.type == null) {
+        try {
+          constraint.op = get_canonical_op(constraint.op);
+        } catch (error) {
+          throw new Error("Illegal operator: " + constraint.op);
+        }
+      }
+      this.constraints.push(constraint);
+      if ((this.constraintLogic != null) && this.constraintLogic !== '') {
+        this.constraintLogic = "(" + this.constraintLogic + ") and " + CODES[this.constraints.length];
+      }
+      if (!this.__silent__) {
+        this.trigger('add:constraint', constraint);
+        this.trigger('change:constraints');
+      }
+      return this;
+    };
+
+    Query.prototype.getSorting = function() {
+      var oe;
+      return ((function() {
+        var _i, _len, _ref2, _results;
+        _ref2 = this.sortOrder;
+        _results = [];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          oe = _ref2[_i];
+          _results.push("" + oe.path + " " + oe.direction);
+        }
+        return _results;
+      }).call(this)).join(' ');
+    };
+
+    Query.prototype.getConstraintXML = function() {
+      if (this.constraints.length) {
+        return concatMap(conStr)(concatMap(id)(partition(function(c) {
+          return c.type != null;
+        })(this.constraints)));
+      } else {
+        return '';
+      }
+    };
+
+    Query.prototype.getJoinXML = function() {
+      var p, s, strs;
+      strs = (function() {
+        var _ref2, _results;
+        _ref2 = this.joins;
+        _results = [];
+        for (p in _ref2) {
+          s = _ref2[p];
+          if (this.isInQuery(p) && s === 'OUTER') {
+            _results.push("<join path=\"" + p + "\" style=\"OUTER\"/>");
+          }
+        }
+        return _results;
+      }).call(this);
+      return strs.join('');
+    };
+
+    Query.prototype.toXML = function() {
+      var attrs, headAttrs, k, v;
+      attrs = {
+        model: this.model.name,
+        view: this.views.join(' '),
+        sortOrder: this.getSorting(),
+        constraintLogic: this.constraintLogic
+      };
+      if (this.name != null) {
+        attrs.name = this.name;
+      }
+      headAttrs = ((function() {
+        var _results;
+        _results = [];
+        for (k in attrs) {
+          v = attrs[k];
+          if (v) {
+            _results.push(k + '="' + v + '"');
+          }
+        }
+        return _results;
+      })()).join(' ');
+      return "<query " + headAttrs + " >" + (this.getJoinXML()) + (this.getConstraintXML()) + "</query>";
+    };
+
+    Query.prototype.toJSON = function() {
+      var c, direction, path, style, v;
+      return noUndefVals({
+        name: this.name,
+        title: this.title,
+        comment: this.comment,
+        description: this.description,
+        constraintLogic: this.constraintLogic,
+        from: this.root,
+        select: (function() {
+          var _i, _len, _ref2, _results;
+          _ref2 = this.views;
+          _results = [];
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            v = _ref2[_i];
+            _results.push(headLess(v));
+          }
+          return _results;
+        }).call(this),
+        orderBy: (function() {
+          var _i, _len, _ref2, _ref3, _results;
+          _ref2 = this.sortOrder;
+          _results = [];
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            _ref3 = _ref2[_i], path = _ref3.path, direction = _ref3.direction;
+            _results.push({
+              path: headLess(path),
+              direction: direction
+            });
+          }
+          return _results;
+        }).call(this),
+        joins: (function() {
+          var _ref2, _results;
+          _ref2 = this.joins;
+          _results = [];
+          for (path in _ref2) {
+            style = _ref2[path];
+            if (style === 'OUTER') {
+              _results.push(headLess(path));
+            }
+          }
+          return _results;
+        }).call(this),
+        where: (function() {
+          var _i, _len, _ref2, _results;
+          _ref2 = this.constraints;
+          _results = [];
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            c = _ref2[_i];
+            _results.push(conToJSON(c));
+          }
+          return _results;
+        }).call(this)
+      });
+    };
+
+    Query.prototype.fetchCode = function(lang, cb) {
+      var req;
+      req = {
+        query: this.toXML(),
+        lang: lang
+      };
+      return this.service.post('query/code', req).pipe(this.service.VERIFIER).pipe(get('code')).done(cb);
+    };
+
+    Query.prototype.save = function(name, cb) {
+      var req,
+        _this = this;
+      if (name != null) {
+        this.name = name;
+      }
+      req = {
+        data: this.toXML(),
+        contentType: "application/xml; charset=UTF-8",
+        url: this.service.root + 'query',
+        type: 'POST',
+        dataType: 'json'
+      };
+      return this.service.doReq(req).pipe(this.service.VERIFIER).pipe(get('name')).done(cb, function(name) {
+        return _this.name = name;
+      });
+    };
+
+    Query.prototype.getCodeURI = function(lang) {
+      var req, _ref2;
+      req = {
+        query: this.toXML(),
+        lang: lang,
+        format: 'text'
+      };
+      if (((_ref2 = this.service) != null ? _ref2.token : void 0) != null) {
+        req.token = this.service.token;
+      }
+      return "" + this.service.root + "query/code?" + (toQueryString(req));
+    };
+
+    Query.prototype.getExportURI = function(format) {
+      var req, _ref2;
+      if (format == null) {
+        format = 'tab';
+      }
+      if (__indexOf.call(Query.BIO_FORMATS, format) >= 0) {
+        return this["get" + (format.toUpperCase()) + "URI"]();
+      }
+      req = {
+        query: this.toXML(),
+        format: format
+      };
+      if (((_ref2 = this.service) != null ? _ref2.token : void 0) != null) {
+        req.token = this.service.token;
+      }
+      return "" + this.service.root + "query/results?" + (toQueryString(req));
+    };
+
+    Query.prototype.fetchQID = function(cb) {
+      return this.service.post('queries', {
+        query: this.toXML()
+      }).then(function(resp) {
+        return resp.id;
+      }).done(cb);
+    };
+
+    addPI = function(p) {
+      return p.append('primaryIdentifier').toString();
+    };
+
+    Query.prototype.__bio_req = function(types, n) {
+      var isSuitable, toRun;
+      toRun = this.makeListQuery();
+      isSuitable = function(p) {
+        return _.any(types, function(t) {
+          return p.isa(t);
+        });
+      };
+      toRun.views = take(n)((function() {
+        var _i, _len, _ref2, _results;
+        _ref2 = this.getViewNodes();
+        _results = [];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          n = _ref2[_i];
+          if (isSuitable(n)) {
+            _results.push(addPI(n));
+          }
+        }
+        return _results;
+      }).call(this));
+      return {
+        query: toRun.toXML(),
+        format: 'text'
+      };
+    };
+
+    Query.prototype._fasta_req = function() {
+      return this.__bio_req(["SequenceFeature", 'Protein'], 1);
+    };
+
+    Query.prototype._gff3_req = function() {
+      return this.__bio_req(['SequenceFeature']);
+    };
+
+    Query.prototype._bed_req = Query.prototype._gff3_req;
+
+    return Query;
+
+  })();
+
+  Query.ATTRIBUTE_OPS = _.union(Query.ATTRIBUTE_VALUE_OPS, Query.MULTIVALUE_OPS, Query.NULL_OPS);
+
+  Query.REFERENCE_OPS = _.union(Query.TERNARY_OPS, Query.LOOP_OPS, Query.LIST_OPS);
+
+  _ref2 = Query.BIO_FORMATS;
+  _fn = function(f) {
+    var getMeth, reqMeth, uriMeth;
+    reqMeth = "_" + f + "_req";
+    getMeth = "get" + (f.toUpperCase());
+    uriMeth = getMeth + "URI";
+    Query.prototype[getMeth] = function(opts, cb) {
+      var req, v, _ref3;
+      if (opts == null) {
+        opts = {};
+      }
+      if (cb == null) {
+        cb = function() {};
+      }
+      if (_.isFunction(opts)) {
+        _ref3 = [{}, opts], opts = _ref3[0], cb = _ref3[1];
+      }
+      if ((opts != null ? opts.view : void 0) != null) {
+        opts.view = (function() {
+          var _j, _len1, _ref4, _results;
+          _ref4 = opts.view;
+          _results = [];
+          for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
+            v = _ref4[_j];
+            _results.push(this.getPathInfo(v).toString());
+          }
+          return _results;
+        }).call(this);
+      }
+      req = _.extend(this[reqMeth](), opts);
+      return this.service.post('query/results/' + f, req).done(cb);
+    };
+    return Query.prototype[uriMeth] = function(opts, cb) {
+      var req, v, _ref3;
+      if (opts == null) {
+        opts = {};
+      }
+      if (_.isFunction(opts)) {
+        _ref3 = [{}, opts], opts = _ref3[0], cb = _ref3[1];
+      }
+      if ((opts != null ? opts.view : void 0) != null) {
+        opts.view = (function() {
+          var _j, _len1, _ref4, _results;
+          _ref4 = opts.view;
+          _results = [];
+          for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
+            v = _ref4[_j];
+            _results.push(this.getPathInfo(v).toString());
+          }
+          return _results;
+        }).call(this);
+      }
+      req = _.extend(this[reqMeth](), opts);
+      if (this.service.token != null) {
+        req.token = this.service.token;
+      }
+      return "" + this.service.root + "query/results/" + f + "?" + (toQueryString(req));
+    };
+  };
+  for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+    f = _ref2[_i];
+    _fn(f);
+  }
+
+  _get_data_fetcher = function(server_fn) {
+    return function() {
+      var cbs, page, x, _ref3;
+      page = arguments[0], cbs = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (this.service[server_fn]) {
+        if (!(page != null)) {
+          page = {};
+        } else if (_.isFunction(page)) {
+          page = {};
+          cbs = (function() {
+            var _j, _len1, _results;
+            _results = [];
+            for (_j = 0, _len1 = arguments.length; _j < _len1; _j++) {
+              x = arguments[_j];
+              _results.push(x);
+            }
+            return _results;
+          }).apply(this, arguments);
+        }
+        _.defaults(page, {
+          start: this.start,
+          size: this.maxRows
+        });
+        return (_ref3 = this.service)[server_fn].apply(_ref3, [this, page].concat(__slice.call(cbs)));
+      } else {
+        throw new Error("Service does not provide '" + server_fn + "'.");
+      }
+    };
+  };
+
+  for (_j = 0, _len1 = RESULTS_METHODS.length; _j < _len1; _j++) {
+    mth = RESULTS_METHODS[_j];
+    Query.prototype[mth] = _get_data_fetcher(mth);
+  }
+
+  intermine.Query = Query;
+
+}).call(this);
+
+(function() {
+  var $, DEFAULT_ERROR_HANDLER, DEFAULT_PROTOCOL, Deferred, ENRICHMENT_PATH, HAS_PROTOCOL, HAS_SUFFIX, IDENTITY, IDResolutionJob, IS_NODE, LISTS_PATH, LIST_OPERATION_PATHS, LIST_PIPE, List, MODELS, MODEL_PATH, Model, PATH_VALUES_PATH, PREF_PATH, QUERY_RESULTS_PATH, QUICKSEARCH_PATH, Query, REQUIRES_VERSION, SUBTRACT_PATH, SUFFIX, SUMMARYFIELDS_PATH, SUMMARY_FIELDS, Service, TABLE_ROW_PATH, TEMPLATES_PATH, TO_NAMES, User, VERSIONS, VERSION_PATH, WHOAMI_PATH, WIDGETS, WIDGETS_PATH, WITH_OBJ_PATH, dejoin, error, funcutils, get, getListFinder, http, intermine, invoke, jQuery, omap, pairsToObj, set, success, to_query_string, _, __root__, _get_or_fetch,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __slice = [].slice;
+
+  IS_NODE = typeof exports !== 'undefined';
+
+  __root__ = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  if (IS_NODE) {
+    _ = require('underscore')._;
+    Deferred = ($ = require('underscore.deferred')).Deferred;
+    Model = require('./model').Model;
+    Query = require('./query').Query;
+    List = require('./lists').List;
+    User = require('./user').User;
+    IDResolutionJob = require('./id-resolution-job').IDResolutionJob;
+    funcutils = require('./util');
+    to_query_string = require('querystring').stringify;
+    http = require('./http');
+    intermine = exports;
+  } else {
+    _ = __root__._, jQuery = __root__.jQuery, intermine = __root__.intermine;
+    Deferred = ($ = jQuery).Deferred;
+    to_query_string = function(obj) {
+      return jQuery.param(obj, true);
+    };
+    Model = intermine.Model, Query = intermine.Query, List = intermine.List, User = intermine.User, IDResolutionJob = intermine.IDResolutionJob, funcutils = intermine.funcutils, http = intermine.http;
+  }
+
+  pairsToObj = funcutils.pairsToObj, omap = funcutils.omap, get = funcutils.get, set = funcutils.set, invoke = funcutils.invoke, success = funcutils.success, error = funcutils.error, REQUIRES_VERSION = funcutils.REQUIRES_VERSION, dejoin = funcutils.dejoin;
+
+  VERSIONS = {};
+
+  MODELS = {};
+
+  SUMMARY_FIELDS = {};
+
+  WIDGETS = {};
+
+  DEFAULT_PROTOCOL = "http://";
+
+  VERSION_PATH = "version";
+
+  TEMPLATES_PATH = "templates";
+
+  LISTS_PATH = "lists";
+
+  MODEL_PATH = "model";
+
+  SUMMARYFIELDS_PATH = "summaryfields";
+
+  QUERY_RESULTS_PATH = "query/results";
+
+  QUICKSEARCH_PATH = "search";
+
+  WIDGETS_PATH = "widgets";
+
+  ENRICHMENT_PATH = "list/enrichment";
+
+  WITH_OBJ_PATH = "listswithobject";
+
+  LIST_OPERATION_PATHS = {
+    union: "lists/union",
+    intersection: "lists/intersect",
+    difference: "lists/diff"
+  };
+
+  SUBTRACT_PATH = 'lists/subtract';
+
+  WHOAMI_PATH = "user/whoami";
+
+  TABLE_ROW_PATH = QUERY_RESULTS_PATH + '/tablerows';
+
+  PREF_PATH = 'user/preferences';
+
+  PATH_VALUES_PATH = 'path/values';
+
+  IDENTITY = function(x) {
+    return x;
+  };
+
+  HAS_PROTOCOL = /^https?:\/\//i;
+
+  HAS_SUFFIX = /service\/?$/i;
+
+  SUFFIX = "/service/";
+
+  DEFAULT_ERROR_HANDLER = function(e) {
+    var args, _ref;
+    if (IS_NODE && (e.stack != null)) {
+      return console.error(e.stack);
+    } else {
+      args = (e != null ? e.stack : void 0) ? [e.stack] : arguments;
+      if (typeof console !== "undefined" && console !== null) {
+        return (_ref = console.error || console.log) != null ? _ref.apply(console, args) : void 0;
+      }
+    }
+  };
+
+  _get_or_fetch = function(propName, store, path, key, cb) {
+    var prop, value, _ref,
+      _this = this;
+    prop = (_ref = this[propName]) != null ? _ref : this[propName] = this.useCache && (value = store[this.root]) ? success(value) : this.get(path).pipe(get(key)).done(function(x) {
+      return store[_this.root] = x;
+    });
+    return prop.done(cb);
+  };
+
+  getListFinder = function(name) {
+    return function(lists) {
+      return Deferred(function() {
+        var list;
+        if (list = _.find(lists, function(l) {
+          return l.name === name;
+        })) {
+          return this.resolve(list);
+        } else {
+          return this.reject("List \"" + name + "\" not found among: " + (lists.map(get('name'))));
+        }
+      });
+    };
+  };
+
+  LIST_PIPE = function(service, prop) {
+    if (prop == null) {
+      prop = 'listName';
+    }
+    return _.compose(service.fetchList, get(prop));
+  };
+
+  TO_NAMES = function(xs) {
+    var x, _i, _len, _ref, _ref1, _results;
+    if (xs == null) {
+      xs = [];
+    }
+    _ref = (_.isArray(xs) ? xs : [xs]);
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      x = _ref[_i];
+      _results.push((_ref1 = x.name) != null ? _ref1 : x);
+    }
+    return _results;
+  };
+
+  Service = (function() {
+    var toMapByName;
+
+    function Service(_arg) {
+      var loc, noCache, _ref, _ref1,
+        _this = this;
+      this.root = _arg.root, this.token = _arg.token, this.errorHandler = _arg.errorHandler, this.DEBUG = _arg.DEBUG, this.help = _arg.help, noCache = _arg.noCache;
+      this.createList = __bind(this.createList, this);
+
+      this.resolveIds = __bind(this.resolveIds, this);
+
+      this.query = __bind(this.query, this);
+
+      this.fetchWidgetMap = __bind(this.fetchWidgetMap, this);
+
+      this.fetchWidgets = __bind(this.fetchWidgets, this);
+
+      this.complement = __bind(this.complement, this);
+
+      this.fetchListsContaining = __bind(this.fetchListsContaining, this);
+
+      this.fetchList = __bind(this.fetchList, this);
+
+      this.findLists = __bind(this.findLists, this);
+
+      this.fetchLists = __bind(this.fetchLists, this);
+
+      this.fetchTemplates = __bind(this.fetchTemplates, this);
+
+      this.tableRows = __bind(this.tableRows, this);
+
+      this.rows = __bind(this.rows, this);
+
+      this.records = __bind(this.records, this);
+
+      this.table = __bind(this.table, this);
+
+      this.pathValues = __bind(this.pathValues, this);
+
+      this.values = __bind(this.values, this);
+
+      this.fetchUser = __bind(this.fetchUser, this);
+
+      this.whoami = __bind(this.whoami, this);
+
+      this.findById = __bind(this.findById, this);
+
+      this.count = __bind(this.count, this);
+
+      this.enrichment = __bind(this.enrichment, this);
+
+      if (this.root == null) {
+        throw new Error("No service root provided. This is required");
+      }
+      if (!HAS_PROTOCOL.test(this.root)) {
+        this.root = DEFAULT_PROTOCOL + this.root;
+      }
+      if (!HAS_SUFFIX.test(this.root)) {
+        this.root = this.root + SUFFIX;
+      }
+      this.root = this.root.replace(/ice$/, "ice/");
+      if ((_ref = this.errorHandler) == null) {
+        this.errorHandler = DEFAULT_ERROR_HANDLER;
+      }
+      if ((_ref1 = this.help) == null) {
+        this.help = 'no.help.available@dev.null';
+      }
+      this.useCache = !noCache;
+      loc = IS_NODE ? '' : location.protocol + '//' + location.host;
+      this.getFormat = function(intended) {
+        if (intended == null) {
+          intended = 'json';
+        }
+        if (!/jsonp/.test(intended)) {
+          if (!(IS_NODE || jQuery.support.cors)) {
+            if (loc.substring(0, _this.root.length) !== _this.root) {
+              return intended.replace('json', 'jsonp');
+            }
+          }
+        }
+        return intended;
+      };
+    }
+
+    Service.prototype.post = function(path, data) {
+      if (data == null) {
+        data = {};
+      }
+      return this.makeRequest('POST', path, data);
+    };
+
+    Service.prototype.get = function(path, data) {
+      return this.makeRequest('GET', path, data);
+    };
+
+    Service.prototype.makeRequest = function(method, path, data, cb, indiv) {
+      var dataType, errBack, opts, url, _ref, _ref1;
+      if (method == null) {
+        method = 'GET';
+      }
+      if (path == null) {
+        path = '';
+      }
+      if (data == null) {
+        data = {};
+      }
+      if (cb == null) {
+        cb = (function() {});
+      }
+      if (indiv == null) {
+        indiv = false;
+      }
+      if (_.isArray(cb)) {
+        _ref = cb, cb = _ref[0], errBack = _ref[1];
+      }
+      if (_.isArray(data)) {
+        data = pairsToObj(data);
+      }
+      url = this.root + path;
+      if (errBack == null) {
+        errBack = this.errorHandler;
+      }
+      if (this.token) {
+        data.token = this.token;
+      }
+      data.format = this.getFormat(data.format);
+      if (/jsonp/.test(data.format)) {
+        data.method = method;
+        method = 'GET';
+        url += '?callback=?';
+      }
+      dataType = /json/.test(data.format) ? 'json' : 'text';
+      if (!http.supports(method)) {
+        _ref1 = [method, http.getMethod(method)], data.method = _ref1[0], method = _ref1[1];
+      }
+      if (method === 'DELETE') {
+        url += '?' + to_query_string(data);
+      }
+      opts = {
+        data: data,
+        dataType: dataType,
+        success: cb,
+        error: errBack,
+        url: url,
+        type: method
+      };
+      return http.doReq(opts, indiv);
+    };
+
+    Service.prototype.enrichment = function(opts, cb) {
+      var _this = this;
+      return REQUIRES_VERSION(this, 8, function() {
+        return _this.get(ENRICHMENT_PATH, _.defaults({}, opts, {
+          maxp: 0.05,
+          correction: 'Holm-Bonferroni'
+        })).pipe(get('results')).done(cb);
+      });
+    };
+
+    Service.prototype.search = function(options, cb) {
+      var _this = this;
+      if (options == null) {
+        options = {};
+      }
+      if (cb == null) {
+        cb = (function() {});
+      }
+      return REQUIRES_VERSION(this, 9, function() {
+        var k, parse, req, v, _ref, _ref1;
+        if (_.isFunction(options)) {
+          _ref = [options, {}], cb = _ref[0], options = _ref[1];
+        }
+        if (_.isString(options)) {
+          options = {
+            q: options
+          };
+        }
+        req = _.defaults({}, options, {
+          q: ''
+        });
+        delete req.facets;
+        if (options.facets) {
+          _ref1 = options.facets;
+          for (k in _ref1) {
+            v = _ref1[k];
+            req["facet_" + k] = v;
+          }
+        }
+        parse = function(response) {
+          return success(response.results, response.facets);
+        };
+        return _this.post(QUICKSEARCH_PATH, req).pipe(parse).done(cb);
+      });
+    };
+
+    Service.prototype.count = function(q, cb) {
+      var p, req;
+      if (cb == null) {
+        cb = (function() {});
+      }
+      if (!q) {
+        return error("Not enough arguments");
+      } else if (q.toPathString != null) {
+        p = q.isClass() ? q.append('id') : q;
+        return this.pathValues(p, 'count').done(cb);
+      } else if (q.toXML != null) {
+        req = {
+          query: q.toXML(),
+          format: 'jsoncount'
+        };
+        return this.post(QUERY_RESULTS_PATH, req).pipe(get('count')).done(cb);
+      } else if (_.isString(q)) {
+        return this.fetchModel().pipe(invoke('makePath', q.replace(/\.\*$/, '.id'))).pipe(this.count).done(cb);
+      } else {
+        return this.query(q).pipe(this.count).done(cb);
+      }
+    };
+
+    Service.prototype.findById = function(type, id, cb) {
+      return this.query({
+        from: type,
+        select: ['**'],
+        where: {
+          id: id
+        }
+      }).pipe(dejoin).pipe(invoke('records')).pipe(get(0)).done(cb);
+    };
+
+    Service.prototype.find = function(type, term, cb) {
+      return this.query({
+        from: type,
+        select: ['**'],
+        where: [[type, 'LOOKUP', term]]
+      }).pipe(dejoin).pipe(invoke('records')).done(cb);
+    };
+
+    Service.prototype.whoami = function(cb) {
+      var _this = this;
+      return REQUIRES_VERSION(this, 9, function() {
+        return _this.get(WHOAMI_PATH).pipe(get('user')).pipe(function(x) {
+          return new User(_this, x);
+        }).done(cb);
+      });
+    };
+
+    Service.prototype.fetchUser = function() {
+      var args;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      return this.whoami.apply(this, args);
+    };
+
+    Service.prototype.values = function(path, typeConstraints, cb) {
+      var _this = this;
+      if (typeConstraints == null) {
+        typeConstraints = {};
+      }
+      if (cb == null) {
+        cb = (function() {});
+      }
+      return REQUIRES_VERSION(this, 6, function() {
+        try {
+          return _this.fetchModel().pipe(invoke('makePath', path, path.subclasses || typeConstraints)).pipe(_this.pathValues).done(cb);
+        } catch (e) {
+          return error(e);
+        }
+      });
+    };
+
+    Service.prototype.pathValues = function(path, wanted) {
+      var format, req;
+      if (wanted !== 'count') {
+        wanted = 'results';
+      }
+      format = wanted === 'count' ? 'jsoncount' : 'json';
+      req = {
+        format: format,
+        path: path.toString(),
+        typeConstraints: JSON.stringify(path.subclasses)
+      };
+      return this.post(PATH_VALUES_PATH, req).pipe(get(wanted));
+    };
+
+    Service.prototype.doPagedRequest = function(q, path, page, format, cb) {
+      var req,
+        _this = this;
+      if (page == null) {
+        page = {};
+      }
+      if (q.toXML != null) {
+        req = _.defaults({}, {
+          query: q.toXML(),
+          format: format
+        }, page);
+        return this.post(path, req).pipe(function(resp) {
+          return success(resp.results, resp);
+        }).done(cb);
+      } else {
+        return this.query(q).pipe(function(query) {
+          return _this.doPagedRequest(query, path, page, format, cb);
+        });
+      }
+    };
+
+    Service.prototype.table = function(q, page, cb) {
+      return this.doPagedRequest(q, QUERY_RESULTS_PATH, page, 'jsontable', cb);
+    };
+
+    Service.prototype.records = function(q, page, cb) {
+      return this.doPagedRequest(q, QUERY_RESULTS_PATH, page, 'jsonobjects', cb);
+    };
+
+    Service.prototype.rows = function(q, page, cb) {
+      return this.doPagedRequest(q, QUERY_RESULTS_PATH, page, 'json', cb);
+    };
+
+    Service.prototype.tableRows = function(q, page, cb) {
+      return this.doPagedRequest(q, TABLE_ROW_PATH, page, 'json', cb);
+    };
+
+    Service.prototype.fetchTemplates = function(cb) {
+      return this.get(TEMPLATES_PATH).pipe(get('templates')).done(cb);
+    };
+
+    Service.prototype.fetchLists = function(cb) {
+      return this.findLists('', cb);
+    };
+
+    Service.prototype.findLists = function(name, cb) {
+      var _this = this;
+      if (name == null) {
+        name = '';
+      }
+      if (cb == null) {
+        cb = (function() {});
+      }
+      return this.fetchVersion().pipe(function(v) {
+        var fn;
+        if (name && v < 13) {
+          return error("Finding lists by name on the server requires version 13. This is only " + v);
+        } else {
+          fn = function(ls) {
+            var data, _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = ls.length; _i < _len; _i++) {
+              data = ls[_i];
+              _results.push(new List(data, _this));
+            }
+            return _results;
+          };
+          return _this.get(LISTS_PATH, {
+            name: name
+          }).pipe(get('lists')).pipe(fn).done(cb);
+        }
+      });
+    };
+
+    Service.prototype.fetchList = function(name, cb) {
+      var _this = this;
+      return this.fetchVersion().pipe(function(v) {
+        if (v < 13) {
+          return _this.findLists().pipe(getListFinder(name)).done(cb);
+        } else {
+          return _this.findLists(name).pipe(get(0)).done(cb);
+        }
+      });
+    };
+
+    Service.prototype.fetchListsContaining = function(opts, cb) {
+      var fn,
+        _this = this;
+      fn = function(xs) {
+        var x, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = xs.length; _i < _len; _i++) {
+          x = xs[_i];
+          _results.push(new List(x, _this));
+        }
+        return _results;
+      };
+      return this.get(WITH_OBJ_PATH, opts).pipe(get('lists')).pipe(fn).done(cb);
+    };
+
+    Service.prototype.combineLists = function(operation, options, cb) {
+      var req, _ref;
+      req = _.pick(options, 'name', 'description');
+      if ((_ref = req.description) == null) {
+        req.description = "" + operation + " of " + (options.lists.join(', '));
+      }
+      req.tags = (options.tags || []).join(';');
+      req.lists = (options.lists || []).join(';');
+      return this.get(LIST_OPERATION_PATHS[operation], req).pipe(LIST_PIPE(this)).done(cb);
+    };
+
+    Service.prototype.merge = function() {
+      return this.combineLists.apply(this, ['union'].concat(__slice.call(arguments)));
+    };
+
+    Service.prototype.intersect = function() {
+      return this.combineLists.apply(this, ['intersection'].concat(__slice.call(arguments)));
+    };
+
+    Service.prototype.diff = function() {
+      return this.combineLists.apply(this, ['difference'].concat(__slice.call(arguments)));
+    };
+
+    Service.prototype.complement = function(options, cb) {
+      var defaultDesc, description, exclude, from, lists, name, references, req, tags;
+      if (options == null) {
+        options = {};
+      }
+      if (cb == null) {
+        cb = function() {};
+      }
+      from = options.from, exclude = options.exclude, name = options.name, description = options.description, tags = options.tags;
+      defaultDesc = function() {
+        return "Relative complement of " + (lists.join(' and ')) + " in " + (references.join(' and '));
+      };
+      references = TO_NAMES(from);
+      lists = TO_NAMES(exclude);
+      if (name == null) {
+        name = defaultDesc();
+      }
+      if (description == null) {
+        description = defaultDesc();
+      }
+      if (tags == null) {
+        tags = [];
+      }
+      req = {
+        name: name,
+        description: description,
+        tags: tags,
+        lists: lists,
+        references: references
+      };
+      return this.post(SUBTRACT_PATH, req).pipe(LIST_PIPE(this)).done(cb);
+    };
+
+    Service.prototype.fetchWidgets = function(cb) {
+      var _this = this;
+      return REQUIRES_VERSION(this, 8, function() {
+        return _get_or_fetch.call(_this, 'widgets', WIDGETS, WIDGETS_PATH, 'widgets', cb);
+      });
+    };
+
+    toMapByName = omap(function(w) {
+      return [w.name, w];
+    });
+
+    Service.prototype.fetchWidgetMap = function(cb) {
+      var _this = this;
+      return REQUIRES_VERSION(this, 8, function() {
+        var _ref;
+        return ((_ref = _this.__wmap__) != null ? _ref : _this.__wmap__ = _this.fetchWidgets().then(toMapByName)).done(cb);
+      });
+    };
+
+    Service.prototype.fetchModel = function(cb) {
+      return _get_or_fetch.call(this, 'model', MODELS, MODEL_PATH, 'model').pipe(Model.load).pipe(set({
+        service: this
+      })).done(cb);
+    };
+
+    Service.prototype.fetchSummaryFields = function(cb) {
+      return _get_or_fetch.call(this, 'summaryFields', SUMMARY_FIELDS, SUMMARYFIELDS_PATH, 'classes', cb);
+    };
+
+    Service.prototype.fetchVersion = function(cb) {
+      return _get_or_fetch.call(this, 'version', VERSIONS, VERSION_PATH, 'version', cb);
+    };
+
+    Service.prototype.query = function(options, cb) {
+      var _this = this;
+      return $.when(this.fetchModel(), this.fetchSummaryFields()).pipe(function(m, sfs) {
+        var args, service;
+        args = _.extend({}, options, {
+          model: m,
+          summaryFields: sfs
+        });
+        service = _this;
+        return Deferred(function() {
+          this.fail(service.errorHandler);
+          this.done(cb);
+          try {
+            return this.resolve(new Query(args, service));
+          } catch (e) {
+            return this.reject(e);
+          }
+        });
+      });
+    };
+
+    Service.prototype.manageUserPreferences = function(method, data) {
+      var _this = this;
+      return REQUIRES_VERSION(this, 11, function() {
+        return _this.makeRequest(method, PREF_PATH, data).pipe(get('preferences'));
+      });
+    };
+
+    Service.prototype.resolveIds = function(opts, cb) {
+      var _this = this;
+      return REQUIRES_VERSION(this, 10, function() {
+        var req;
+        req = {
+          data: JSON.stringify(opts),
+          dataType: 'json',
+          url: _this.root + 'ids',
+          type: 'POST',
+          contentType: 'application/json'
+        };
+        return http.doReq(req).pipe(get('uid')).pipe(IDResolutionJob.create(_this)).done(cb);
+      });
+    };
+
+    Service.prototype.createList = function(opts, ids, cb) {
+      var adjust, req,
+        _this = this;
+      if (opts == null) {
+        opts = {};
+      }
+      if (ids == null) {
+        ids = '';
+      }
+      if (cb == null) {
+        cb = function() {};
+      }
+      adjust = function(x) {
+        return _.defaults({
+          token: _this.token,
+          tags: opts.tags || []
+        }, x);
+      };
+      req = {
+        data: _.isArray(ids) ? ids.map(function(x) {
+          return "\"" + x + "\"";
+        }).join("\n") : ids,
+        dataType: 'json',
+        url: "" + this.root + "lists?" + (to_query_string(adjust(opts))),
+        type: 'POST',
+        contentType: 'text/plain'
+      };
+      return http.doReq(req).pipe(LIST_PIPE(this)).done(cb);
+    };
+
+    return Service;
+
+  })();
+
+  Service.prototype.rowByRow = http.iterReq('POST', QUERY_RESULTS_PATH, 'json');
+
+  Service.prototype.eachRow = Service.prototype.rowByRow;
+
+  Service.prototype.recordByRecord = http.iterReq('POST', QUERY_RESULTS_PATH, 'jsonobjects');
+
+  Service.prototype.eachRecord = Service.prototype.recordByRecord;
+
+  Service.prototype.union = Service.prototype.merge;
+
+  Service.prototype.difference = Service.prototype.diff;
+
+  Service.prototype.symmetricDifference = Service.prototype.diff;
+
+  Service.prototype.relativeComplement = Service.prototype.complement;
+
+  Service.prototype.subtract = Service.prototype.complement;
+
+  Service.flushCaches = function() {
+    MODELS = {};
+    VERSIONS = {};
+    SUMMARY_FIELDS = {};
+    return WIDGETS = {};
+  };
+
+  Service.connect = function(opts) {
+    if (opts == null) {
+      opts = {};
+    }
+    return new Service(opts);
+  };
+
+  intermine.Service = Service;
+
+}).call(this);
+;
 (function() {
 
   var root = this;
@@ -50829,6 +51816,3507 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 }).call(window);
 ;
+(function() {
+  var cutoff, document, head, intermine, jobs, load, loading, log, paths, root, _auto, _contains, _each, _get, _keys, _map, _reduce, _setImmediate,
+    __slice = [].slice;
+
+  paths = {
+    "widgets": {
+      "latest": "http://cdn.intermine.org/js/intermine/widgets/latest/intermine.widgets.js",
+      "1.0.0": "http://cdn.intermine.org/js/intermine/widgets/1.0.0/intermine.widgets.js",
+      "1.1.0": "http://cdn.intermine.org/js/intermine/widgets/1.1.0/intermine.widgets.js",
+      "1.1.7": "http://cdn.intermine.org/js/intermine/widgets/1.1.7/intermine.widgets.js",
+      "1.1.8": "http://cdn.intermine.org/js/intermine/widgets/1.1.8/intermine.widgets.js",
+      "1.1.9": "http://cdn.intermine.org/js/intermine/widgets/1.1.9/intermine.widgets.js",
+      "1.1.10": "http://cdn.intermine.org/js/intermine/widgets/1.1.10/intermine.widgets.js",
+      "1.2.0": "http://cdn.intermine.org/js/intermine/widgets/1.2.0/intermine.widgets.js",
+      "1.2.1": "http://cdn.intermine.org/js/intermine/widgets/1.2.1/intermine.widgets.js",
+      "1.3.0": "http://cdn.intermine.org/js/intermine/widgets/1.3.0/intermine.widgets.js",
+      "1.4.0": "http://cdn.intermine.org/js/intermine/widgets/1.4.0/intermine.widgets.js",
+      "1.4.1": "http://cdn.intermine.org/js/intermine/widgets/1.4.1/intermine.widgets.js",
+      "1.4.2": "http://cdn.intermine.org/js/intermine/widgets/1.4.2/intermine.widgets.js",
+      "1.6.7": "http://cdn.intermine.org/js/intermine/widgets/1.6.7/intermine.widgets.js",
+      "1.6.8": "http://cdn.intermine.org/js/intermine/widgets/1.6.8/intermine.widgets.js",
+      "1.7.0": "http://cdn.intermine.org/js/intermine/widgets/1.7.0/intermine.widgets.js",
+      "1.7.3": "http://cdn.intermine.org/js/intermine/widgets/1.7.3/intermine.widgets.js",
+      "1.8.0": "http://cdn.intermine.org/js/intermine/widgets/1.8.0/intermine.widgets.js",
+      "1.8.1": "http://cdn.intermine.org/js/intermine/widgets/1.8.1/intermine.widgets.js",
+      "1.8.2": "http://cdn.intermine.org/js/intermine/widgets/1.8.2/intermine.widgets.js",
+      "1.8.3": "http://cdn.intermine.org/js/intermine/widgets/1.8.3/intermine.widgets.js",
+      "1.9.1": "http://cdn.intermine.org/js/intermine/widgets/1.9.1/intermine.widgets.js",
+      "1.10.0": "http://cdn.intermine.org/js/intermine/widgets/1.10.0/intermine.widgets.js",
+      "1.11.2": "http://cdn.intermine.org/js/intermine/widgets/1.11.2/intermine.widgets.js"
+    },
+    "report-widgets": {
+      "latest": "http://cdn.intermine.org/js/intermine/report-widgets/latest/intermine.report-widgets.js",
+      "0.7.0": "http://cdn.intermine.org/js/intermine/report-widgets/0.7.0/intermine.report-widgets.js"
+    }
+  };
+
+  root = this;
+
+  root.intermine = intermine = root.intermine || {};
+
+  if (typeof root.window === 'undefined') {
+    if (typeof global === 'undefined') {
+      throw 'what kind of environment is this?';
+    }
+    root.window = global;
+  }
+
+  if (intermine.load) {
+    return;
+  }
+
+  intermine.loader = function(path, type, cb) {
+    if (type == null) {
+      type = 'js';
+    }
+    switch (type) {
+      case 'js':
+        return _get.script(path, cb);
+      case 'css':
+        return _get.style(path, cb);
+      default:
+        return cb("Unrecognized type `" + type + "`");
+    }
+  };
+
+  cutoff = 50;
+
+  loading = {};
+
+  jobs = 0;
+
+  load = function(resources, type, cb) {
+    var branch, err, exit, exited, job, key, obj, onWindow, seen, value, _fn, _i, _len, _ref;
+
+    job = ++jobs;
+    log({
+      'job': job,
+      'message': 'start'
+    });
+    onWindow = function(path) {
+      var loc, part, _i, _len, _ref;
+
+      if (~path.indexOf('?')) {
+        return false;
+      }
+      loc = root.window;
+      _ref = path.split('.');
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        part = _ref[_i];
+        if (!((loc[part] != null) && (typeof loc[part] === 'function' || 'object'))) {
+          return false;
+        }
+        loc = loc[part];
+      }
+      return true;
+    };
+    exited = false;
+    exit = function(err) {
+      exited = true;
+      return cb(err);
+    };
+    obj = {};
+    _fn = function(key, value) {
+      var dep, depends, path, test, _i, _len;
+
+      log({
+        'job': job,
+        'library': key,
+        'message': 'start'
+      });
+      if (exited) {
+        return;
+      }
+      path = value.path, test = value.test, depends = value.depends;
+      if (!path) {
+        return exit("Library `path` not provided for " + key);
+      }
+      if (!!(test && typeof test === 'function' && test()) || onWindow(key)) {
+        log({
+          'job': job,
+          'library': key,
+          'message': 'exists'
+        });
+        return obj[key] = function(cb) {
+          return cb(null);
+        };
+      }
+      if (loading[key]) {
+        log({
+          'job': job,
+          'library': key,
+          'message': 'will wait'
+        });
+        return obj[key] = function(cb) {
+          return loading[key].push(cb);
+        };
+      }
+      loading[key] = [];
+      log({
+        'job': job,
+        'library': key,
+        'message': 'will download'
+      });
+      obj[key] = function(cb) {
+        log({
+          'job': job,
+          'library': key,
+          'message': 'downloading'
+        });
+        return intermine.loader(path, type, function(err) {
+          var isAvailable, isReady, timeout;
+
+          if (err) {
+            delete loading[key];
+            return exit(err);
+          }
+          log({
+            'job': job,
+            'library': key,
+            'message': 'downloaded'
+          });
+          isReady = function() {
+            log({
+              'job': job,
+              'library': key,
+              'message': 'ready'
+            });
+            while (loading[key].length !== 0) {
+              loading[key].pop()();
+            }
+            delete loading[key];
+            return cb(null);
+          };
+          timeout = root.window.setTimeout(isReady, cutoff);
+          return (isAvailable = function() {
+            if (!!(test && typeof test === 'function' && test()) || onWindow(key)) {
+              log({
+                'job': job,
+                'library': key,
+                'message': 'exists'
+              });
+              root.window.clearTimeout(timeout);
+              return isReady();
+            } else {
+              return _setImmediate(isAvailable);
+            }
+          })();
+        });
+      };
+      if (depends && depends instanceof Array) {
+        for (_i = 0, _len = depends.length; _i < _len; _i++) {
+          dep = depends[_i];
+          if (!(typeof dep !== 'string' || (resources[dep] == null))) {
+            continue;
+          }
+          delete loading[key];
+          return exit("Unrecognized dependency `" + dep + "`");
+        }
+        return obj[key] = depends.concat(obj[key]);
+      }
+    };
+    for (key in resources) {
+      value = resources[key];
+      _fn(key, value);
+    }
+    if (exited) {
+      return;
+    }
+    err = [];
+    for (key in obj) {
+      value = obj[key];
+      if (!(value instanceof Array)) {
+        continue;
+      }
+      seen = {};
+      (branch = function(key) {
+        var i, val, _i, _ref, _results;
+
+        if (typeof key !== 'string') {
+          return;
+        }
+        if (seen[key] != null) {
+          if (!_contains(err, key)) {
+            return err.push(key);
+          }
+        } else {
+          seen[key] = true;
+          if ((val = obj[key]) instanceof Array) {
+            _results = [];
+            for (i = _i = 0, _ref = val.length - 1; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+              _results.push(branch(val[i]));
+            }
+            return _results;
+          }
+        }
+      })(key);
+    }
+    if (!!err.length) {
+      _ref = _keys(obj);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        key = _ref[_i];
+        delete loading[key];
+      }
+      return exit("Circular dependencies detected for `" + err + "`");
+    }
+    return _auto(obj, function(err) {
+      if (err) {
+        return cb(err);
+      } else {
+        return cb(null);
+      }
+    });
+  };
+
+  intermine.load = function() {
+    var args, cb, exited, handle, i, key, library, name, o, path, resources, type, version, wait, _ref;
+
+    library = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    cb = arguments.length === 1 ? library : args.pop();
+    version = 'latest';
+    if (typeof args[0] === 'string') {
+      version = args[0];
+    }
+    if (typeof cb !== 'function') {
+      cb = function() {};
+    }
+    if (typeof library === 'string') {
+      if (!paths[library]) {
+        return cb("Unknown library `" + library + "`");
+      }
+      if (!(path = paths[library][version])) {
+        return cb("Unknown `" + library + "` version " + version);
+      }
+      o = {};
+      o["intermine." + library] = {
+        'path': path
+      };
+      return load(o, 'js', cb);
+    }
+    if (library instanceof Array) {
+      o = {
+        'js': {},
+        'css': {}
+      };
+      for (i in library) {
+        _ref = library[i], name = _ref.name, path = _ref.path, type = _ref.type, wait = _ref.wait;
+        if (!(path || type)) {
+          return cb('Library `path` or `type` not provided');
+        }
+        if (type !== 'css' && type !== 'js') {
+          return cb("Library type `" + type + "` not recognized");
+        }
+        if (!name) {
+          name = path.split('/').pop();
+        }
+        library[i].name = name;
+        o[type][name] = {
+          'path': path
+        };
+        if (!!wait && !!parseInt(i)) {
+          o[type][name].depends = [library[i - 1].name];
+        }
+      }
+      library = o;
+    }
+    if (typeof library === 'object') {
+      i = _keys(library).length;
+      exited = false;
+      handle = function(err) {
+        if (exited) {
+          return;
+        }
+        if (err) {
+          exited = true;
+          return cb(err);
+        }
+        if (i-- && !!!i) {
+          return cb(null);
+        }
+      };
+      return (function() {
+        var _results;
+
+        _results = [];
+        for (key in library) {
+          resources = library[key];
+          _results.push(load(resources, key, handle));
+        }
+        return _results;
+      })();
+    }
+    return cb('Unrecognized input');
+  };
+
+  if (!(intermine.log && intermine.log instanceof Array)) {
+    intermine.log = [];
+  }
+
+  log = function() {
+    var arg;
+
+    return intermine.log.push([
+      'api-loader', (new Date).toLocaleString(), ((function() {
+        var _i, _len, _results;
+
+        _results = [];
+        for (_i = 0, _len = arguments.length; _i < _len; _i++) {
+          arg = arguments[_i];
+          _results.push(JSON.stringify(arg));
+        }
+        return _results;
+      }).apply(this, arguments)).join(' ')
+    ]);
+  };
+
+  if (typeof process === 'undefined' || !process.nextTick) {
+    if (typeof setImmediate === 'function') {
+      _setImmediate = setImmediate;
+    } else {
+      _setImmediate = function(fn) {
+        return setTimeout(fn, 0);
+      };
+    }
+  } else {
+    if (typeof setImmediate !== 'undefined') {
+      _setImmediate = setImmediate;
+    } else {
+      _setImmediate = process.nextTick;
+    }
+  }
+
+  _each = function(arr, iterator) {
+    var key, value, _results;
+
+    if (arr.forEach) {
+      return arr.forEach(iterator);
+    }
+    _results = [];
+    for (key in arr) {
+      value = arr[key];
+      _results.push(iterator(value, key, arr));
+    }
+    return _results;
+  };
+
+  _map = function(arr, iterator) {
+    var results;
+
+    if (arr.map) {
+      return arr.map(iterator);
+    }
+    results = [];
+    _each(arr, function(x, i, a) {
+      return results.push(iterator(x, i, a));
+    });
+    return results;
+  };
+
+  _reduce = function(arr, iterator, memo) {
+    if (arr.reduce) {
+      return arr.reduce(iterator, memo);
+    }
+    _each(arr, function(x, i, a) {
+      return memo = iterator(memo, x, i, a);
+    });
+    return memo;
+  };
+
+  _keys = function(obj) {
+    var k, keys;
+
+    if (Object.keys) {
+      return Object.keys(obj);
+    }
+    keys = [];
+    for (k in obj) {
+      if (obj.hasOwnProperty(k)) {
+        keys.push(k);
+      }
+    }
+    return keys;
+  };
+
+  _contains = function(arr, item) {
+    var value, _i, _len;
+
+    if ([].indexOf) {
+      return arr.indexOf(item) >= 0;
+    }
+    for (_i = 0, _len = arr.length; _i < _len; _i++) {
+      value = arr[_i];
+      if (value === item) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  _auto = function(tasks, callback) {
+    var addListener, keys, listeners, removeListener, results, taskComplete;
+
+    callback = callback || function() {};
+    keys = _keys(tasks);
+    if (!keys.length) {
+      return callback(null);
+    }
+    results = {};
+    listeners = [];
+    addListener = function(fn) {
+      return listeners.unshift(fn);
+    };
+    removeListener = function(fn) {
+      var i, listener;
+
+      for (i in listeners) {
+        listener = listeners[i];
+        if (listener === fn) {
+          listeners.splice(i, 1);
+          return;
+        }
+      }
+    };
+    taskComplete = function() {
+      return _each(listeners.slice(0), function(fn) {
+        return fn();
+      });
+    };
+    addListener(function() {
+      if (_keys(results).length === keys.length) {
+        callback(null, results);
+        return callback = function() {};
+      }
+    });
+    return _each(keys, function(k) {
+      var listener, ready, requires, task, taskCallback;
+
+      task = (tasks[k] instanceof Function ? [tasks[k]] : tasks[k]);
+      taskCallback = function(err) {
+        var args, safeResults;
+
+        args = Array.prototype.slice.call(arguments, 1);
+        if (args.length <= 1) {
+          args = args[0];
+        }
+        if (err) {
+          safeResults = {};
+          _each(_keys(results), function(rkey) {
+            return safeResults[rkey] = results[rkey];
+          });
+          safeResults[k] = args;
+          callback(err, safeResults);
+          return callback = function() {};
+        } else {
+          results[k] = args;
+          return _setImmediate(taskComplete);
+        }
+      };
+      requires = task.slice(0, Math.abs(task.length - 1)) || [];
+      ready = function() {
+        return _reduce(requires, function(a, x) {
+          return a && results.hasOwnProperty(x);
+        }, true) && !results.hasOwnProperty(k);
+      };
+      if (ready()) {
+        return task[task.length - 1](taskCallback, results);
+      } else {
+        listener = function() {
+          if (ready()) {
+            removeListener(listener);
+            return task[task.length - 1](taskCallback, results);
+          }
+        };
+        return addListener(listener);
+      }
+    });
+  };
+
+  document = root.window.document;
+
+  if (document) {
+    head = document.head || document.getElementsByTagName('head')[0];
+  }
+
+  _get = {
+    'script': function(url, cb) {
+      var done, loaded, script;
+
+      if (!head) {
+        return cb('`window.document` does not exist');
+      }
+      done = function() {
+        script.onload = script.onreadystatechange = script.onerror = null;
+        head.removeChild(script);
+        return cb && cb.call(root.window, (loaded ? null : '`script.onerror` fired'));
+      };
+      script = document.createElement('script');
+      loaded = false;
+      script.type = 'text/javascript';
+      script.charset = 'utf-8';
+      script.onload = script.onreadystatechange = function() {
+        var state;
+
+        state = this.readyState;
+        if (!loaded && (!state || state === 'complete' || state === 'loaded')) {
+          loaded = true;
+          return _setImmediate(done);
+        }
+      };
+      script.onerror = done;
+      script.async = true;
+      script.src = url;
+      return head.appendChild(script);
+    },
+    'style': function(url, cb) {
+      var style;
+
+      style = document.createElement('link');
+      style.rel = 'stylesheet';
+      style.type = 'text/css';
+      style.href = url;
+      head.appendChild(style);
+      return _setImmediate(cb);
+    }
+  };
+
+}).call(this);
+;
+(function() {
+  var ReportWidgets, root, _each, _extend, _setImmediate, _uid,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  root = this;
+
+  if (typeof process === 'undefined' || !process.nextTick) {
+    if (typeof setImmediate === 'function') {
+      _setImmediate = setImmediate;
+    } else {
+      _setImmediate = function(fn) {
+        return setTimeout(fn, 0);
+      };
+    }
+  } else {
+    if (typeof setImmediate !== 'undefined') {
+      _setImmediate = setImmediate;
+    } else {
+      _setImmediate = process.nextTick;
+    }
+  }
+
+  _each = function(arr, iterator) {
+    var key, value, _results;
+
+    if (arr.forEach) {
+      return arr.forEach(iterator);
+    }
+    _results = [];
+    for (key in arr) {
+      value = arr[key];
+      _results.push(iterator(value, key, arr));
+    }
+    return _results;
+  };
+
+  _extend = function(obj) {
+    _each(Array.prototype.slice.call(arguments, 1), function(source) {
+      var prop, _results;
+
+      if (source) {
+        _results = [];
+        for (prop in source) {
+          _results.push(obj[prop] = source[prop]);
+        }
+        return _results;
+      }
+    });
+    return obj;
+  };
+
+  _uid = function() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r;
+
+      r = Math.random() * 16 | 0;
+      return (c === "x" ? r : r & 0x3 | 0x8).toString(16);
+    });
+  };
+
+  root = this;
+
+  if (!document.querySelector) {
+    throw 'An old & unsupported browser detected';
+  }
+
+  ReportWidgets = (function() {
+    ReportWidgets.prototype.selectorPrefix = 'w';
+
+    function ReportWidgets(server) {
+      this.load = __bind(this.load, this);
+      var callback,
+        _this = this;
+
+      this.server = server.replace(/\/+$/, '');
+      callback = 'rwc' + +(new Date);
+      root[callback] = function(config) {
+        _this.config = config;
+      };
+      root.intermine.load([
+        {
+          'path': "" + this.server + "/widget/report?callback=" + callback,
+          'type': 'js'
+        }
+      ]);
+    }
+
+    ReportWidgets.prototype.load = function(widgetId, target, options) {
+      var again, deps, run,
+        _this = this;
+
+      if (options == null) {
+        options = {};
+      }
+      again = function() {
+        return _this.load(widgetId, target, options);
+      };
+      if (!this.config) {
+        return _setImmediate(again);
+      }
+      run = function(err) {
+        var uid;
+
+        if (err) {
+          throw err;
+        }
+        uid = _uid();
+        return root.intermine.load([
+          {
+            'path': "" + _this.server + "/widget/report/" + widgetId + "?callback=" + uid,
+            'type': 'js'
+          }
+        ], function(err) {
+          var article, div, widget;
+
+          article = document.createElement('article');
+          article.setAttribute('class', "im-report-widget " + widgetId);
+          div = document.createElement('div');
+          div.setAttribute('id', 'w' + uid);
+          div.appendChild(article);
+          document.querySelector(target).appendChild(div);
+          if (!root.intermine.temp) {
+            throw '`intermine.temp` object cache does not exist';
+          }
+          if (!(widget = root.intermine.temp.widgets[uid])) {
+            throw "Unknown widget `" + uid + "`";
+          }
+          widget.config = _extend(widget.config, options);
+          return widget.render("#w" + uid + " article.im-report-widget");
+        });
+      };
+      deps = this.config[widgetId];
+      if (deps != null) {
+        return root.intermine.load(deps, run);
+      } else {
+        return run();
+      }
+    };
+
+    return ReportWidgets;
+
+  })();
+
+  if (!root.intermine) {
+    throw 'You need to include the InterMine API Loader first!';
+  } else {
+    root.intermine.reportWidgets = root.intermine.reportWidgets || ReportWidgets;
+  }
+
+}).call(this);
+;
+(function() {
+  var o = {};
+  var JST = {};
+  JST["actions.eco"]=function(e){e||(e={});var a,n=[],s=e.safe,l=e.escape;return a=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var a=new String(e);return a.ecoSafe=!0,a},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){n.push('<a class="btn btn-small '),this.disabled&&n.push("disabled"),n.push(' view">View</a>\n<a class="btn btn-small '),this.disabled&&n.push("disabled"),n.push(' export">Download</a>')}).call(this)}.call(e),e.safe=s,e.escape=l,n.join("")};
+  JST["noresults.eco"]=function(e){e||(e={});var a,n=[],t=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},s=e.safe,l=e.escape;return a=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var a=new String(e);return a.ecoSafe=!0,a},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){n.push('<div class="alert alert-info">\n    <p>'),n.push(t(this.text||"The Widget has no results.")),n.push("</p>\n</div>")}).call(this)}.call(e),e.safe=s,e.escape=l,n.join("")};
+  JST["invalidjsonkey.eco"]=function(e){e||(e={});var n,a=[],t=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},s=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){a.push('<li style="vertical-align:bottom">\n    <span style="display:inline-block" class="label label-important">'),a.push(t(this.key)),a.push("</span> is "),a.push(t(this.actual)),a.push("; was expecting "),a.push(t(this.expected)),a.push("\n</li>")}).call(this)}.call(e),e.safe=s,e.escape=l,a.join("")};
+  JST["extra.eco"]=function(e){e||(e={});var n,s=[],a=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},t=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){var e,n,t,l;if(s.push('<div class="group" style="display:inline-block;margin-right:5px;float:left">\n    <label>'),s.push(a(this.label)),s.push("</label>\n    "),this.possible.length>1){for(s.push('\n        <select name="'),s.push(a(this.label)),s.push('" class="span2">\n            '),l=this.possible,n=0,t=l.length;t>n;n++)e=l[n],s.push('\n                <option value="'),s.push(a(e)),s.push('" '),this.selected===e&&s.push(a('selected="selected"')),s.push(">\n                    "),s.push(a(e)),s.push("\n                </option>\n            ");s.push("\n        </select>\n    ")}else s.push("\n        "),s.push(a(this.possible[0])),s.push("\n    ");s.push('\n</div>\n<div style="clear:both"></div>')}).call(this)}.call(e),e.safe=t,e.escape=l,s.join("")};
+  JST["error.eco"]=function(e){e||(e={});var n,s=[],a=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},t=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){s.push('<div class="alert alert-block">\n    <h4 class="alert-heading">'),s.push(a(this.title)),s.push(" for "),s.push(a(this.name)),s.push("</h4>\n    <p>"),s.push(this.text),s.push("</p>\n</div>")}).call(this)}.call(e),e.safe=t,e.escape=l,s.join("")};
+  JST["loading.eco"]=function(e){e||(e={});var n,a=[],t=e.safe,s=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},s||(s=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){a.push('<div class="loading" style="background:rgba(255,255,255,0.9);position:absolute;top:0;left:0;height:100%;width:100%;text-align:center;">\n    <p style="padding-top:50%;font-weight:bold;">Loading &hellip;</p>\n</div>')}).call(this)}.call(e),e.safe=t,e.escape=s,a.join("")};
+  JST["enrichment.form.eco"]=function(e){e||(e={});var n,t=[],a=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},s=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){var e,n,s,l,i,c,r,u;for(t.push('<form style="margin:0">\n    <div class="group" style="display:inline-block;margin-right:5px;float:left;height:60px">\n        <label>Test Correction</label>\n        <select name="errorCorrection" class="span2">\n            '),r=this.errorCorrections,s=0,i=r.length;i>s;s++)e=r[s],t.push('\n                <option value="'),t.push(a(e)),t.push('" '),this.options.errorCorrection===e&&t.push(a('selected="selected"')),t.push(">\n                    "),t.push(a(e)),t.push("\n            </option>\n            ");for(t.push('\n        </select>\n    </div>\n\n    <div class="group" style="display:inline-block;margin-right:5px;float:left;height:60px">\n        <label>Max p-value</label>\n        <select name="pValue" class="span2">\n            '),u=this.pValues,l=0,c=u.length;c>l;l++)n=u[l],t.push('\n                <option value="'),t.push(a(n)),t.push('" '),this.options.pValue===n&&t.push(a('selected="selected"')),t.push(">\n                    "),t.push(a(n)),t.push("\n                </option>\n            ");t.push('\n        </select>\n    </div>\n</form>\n<div style="clear:both"></div>')}).call(this)}.call(e),e.safe=s,e.escape=l,t.join("")};
+  JST["enrichment.populationlist.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){var e,n,a,l,i,r,u,p;for(t.push('<table class="table table-striped">\n    <tbody>\n        <tr><td>\n            '),null==this.current?t.push('\n                <strong><a href="#">Default</a></strong>\n            '):t.push('\n                <a href="#">Default</a>\n            '),t.push("\n        </td></tr>\n        "),u=this.lists,a=0,i=u.length;i>a;a++){for(e=u[a],t.push("\n            <tr><td>\n                "),e.name===this.current?(t.push("\n                    <strong>\n                        <a "),e.description&&(t.push('title="'),t.push(s(e.description)),t.push('"')),t.push(' href="#">'),t.push(s(e.name)),t.push("</a> ("),t.push(s(e.size)),t.push(")\n                    </strong>\n                ")):(t.push("\n                    <a "),e.description&&(t.push('title="'),t.push(s(e.description)),t.push('"')),t.push(' href="#">'),t.push(s(e.name)),t.push("</a> ("),t.push(s(e.size)),t.push(")\n                ")),t.push("\n                \n                "),p=e.tags,l=0,r=p.length;r>l;l++)n=p[l],t.push('\n                    <span class="label" style="vertical-align:text-bottom">'),t.push(s(n)),t.push("</span>\n                ");t.push("\n            </td></tr>\n        ")}t.push("\n    </tbody>\n</table>")}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["enrichment.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<div class="header">\n    <h3>'),this.title&&t.push(s(this.title)),t.push("</h3>\n    <p>"),this.description&&t.push(this.description),t.push("</p>\n    "),this.notAnalysed?(t.push("\n        <p>Number of "),t.push(s(this.type)),t.push("s in this list not analysed in this widget: <a>"),t.push(s(this.notAnalysed)),t.push("</a></p>\n    ")):t.push("\n        <p>All items in your list have been analysed.</p>\n    "),t.push('\n\n    <div class="form">\n        <!-- enrichment.form.eco -->\n    </div>\n\n    <div class="actions" style="padding:10px 0">\n        <!-- actions.eco -->\n    </div>\n</div>\n<div class="content">\n    <!-- enrichment.table.eco -->\n</div>')}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["enrichment.row.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<td class="check"><input type="checkbox" '),this.row.selected&&t.push('checked="checked"'),t.push(' /></td>\n<td class="description">\n    '),t.push(s(this.row.description)),t.push("\n    "),this.row.externalLink&&(t.push('\n        [<a href="'),t.push(this.row.externalLink),t.push('" target="_blank">'),t.push(s(this.row.identifier)),t.push("</a>]\n    ")),t.push('\n</td>\n<td class="pValue" style="white-space:nowrap">'),t.push(s(this.row["p-value"])),t.push('</td>\n<td class="matches">\n    <a class="count" style="cursor:pointer">'),t.push(s(this.row.matches)),t.push("</a>\n</td>")}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["enrichment.correction.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<div class="group correction" style="display:inline-block;margin-right:5px;float:left;height:60px">\n    <label>Normalise by length <em class="badge badge-info" style="font-size:11px;font-family:serif;padding:1px 3px;border-radius:2px">i</em><div class="help"></div></label>\n    <p style="width:300px">\n    <input type="checkbox" class="correction" '),this.gene_length_correction&&t.push('checked="checked"'),t.push(" >\n    "),this.percentage_gene_length_not_null&&(t.push("\n    	"),t.push(s(this.percentage_gene_length_not_null)),t.push(' of genes in your list do not have a length and will be discarded, <a class="which" style="cursor:pointer">see which</a>.\n    ')),t.push("\n    </p>\n</div>")}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["enrichment.table.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<!-- actual fixed head -->\n<div class="head" style="display:table">\n    <div style="font-weight:bold;display:table-cell;padding:0 8px;"><input type="checkbox" class="check" /></div>\n    <div style="font-weight:bold;display:table-cell;padding:0 8px;">'),t.push(s(this.label)),t.push('</div>\n    <div style="font-weight:bold;display:table-cell;padding:0 8px;white-space:nowrap">p-Value <a href="http://intermine.readthedocs.org/en/latest/embedding/list-widgets/enrichment-widgets/" target="_blank" class="badge badge-info" style="font-size:11px;font-family:serif;padding:1px 3px;border-radius:2px;font-style:italic;color:#FFF!important">i</a></div>\n    <div style="font-weight:bold;display:table-cell;padding:0 8px;">Matches</div>\n    <div style="clear:both"></div>\n</div>\n<div class="wrapper" style="overflow:auto;overflow-x:hidden">\n    <table class="table table-striped">\n        <!-- head for proper cell width -->\n        <thead style="visibility:hidden">\n            <tr>\n                <th></th>\n                <th>'),t.push(s(this.label)),t.push("</th>\n                <th>p-Value</th>\n                <th>Matches</th>\n            </tr>\n        </thead>\n        <tbody>\n            <!-- loop enrichment.row.eco -->\n        </tbody>\n    </table>\n</div>")}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["enrichment.population.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<div class="group background" style="display:inline-block;margin-right:5px;float:left;height:60px">\n    <label>Background population</label>\n    '),t.push(s(this.current)),t.push(' <a class="btn btn-small change">Change</a>\n\n    <div class="popover" style="position:absolute;top:0;right:0;z-index:1;display:none">\n        <div class="popover-inner">\n            <a style="cursor:pointer;margin:2px 5px 0 0" class="close">×</a>\n            <h4 class="popover-title">Change background population</h4>\n            <div class="popover-content">\n                <p style="margin-bottom:5px">\n                    '),this.loggedIn?t.push('\n                        <input type="checkbox" class="save" style="vertical-align:top" /> Save your preference for next time\n                    '):t.push("\n                        Login to save your preference for next time\n                    "),t.push('\n                </p>\n\n                <input type="text" class="filter" style="width:96%" placeholder="Filter..." />\n                \n                <div class="values" style="max-height:300px;overflow-y:auto">\n                    <!-- enrichment.populationlist.eco -->\n                </div>\n            </div>\n        </div>\n    </div>\n</div>')}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["table.row.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){var e,n,a,l;for(t.push('<td class="check"><input type="checkbox" '),this.row.selected&&t.push('checked="checked"'),t.push(" /></td>\n"),l=this.row.descriptions,n=0,a=l.length;a>n;n++)e=l[n],t.push("\n    <td>"),t.push(s(e)),t.push("</td>\n");t.push('\n<td class="matches">\n    <a class="count" style="cursor:pointer">'),t.push(s(this.row.matches)),t.push("</a>\n</td>")}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["table.table.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){var e,n,a,l,i,c,r;for(t.push('<!-- actual fixed head -->\n<div class="head" style="display:table">\n    <div style="font-weight:bold;display:table-cell;padding:0 8px;"><input type="checkbox" class="check" /></div>\n    '),c=this.columns,n=0,l=c.length;l>n;n++)e=c[n],t.push('\n        <div style="font-weight:bold;display:table-cell;padding:0 8px;">'),t.push(s(e)),t.push("</div>\n    ");for(t.push('\n    <div style="clear:both"></div>\n</div>\n<div class="wrapper" style="overflow:auto;overflow-x:hidden">\n    <table class="table table-striped">\n        <!-- head for proper cell width -->\n        <thead style="visibility:hidden">\n            <tr>\n                <th></th>\n                '),r=this.columns,a=0,i=r.length;i>a;a++)e=r[a],t.push("\n                    <th>"),t.push(s(e)),t.push("</th>\n                ");t.push("\n            </tr>\n        </thead>\n        <tbody>\n            <!-- loop table.row.eco -->\n        </tbody>\n    </table>\n</div>")}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["table.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?l(e):""},a=e.safe,l=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},l||(l=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<div class="header">\n    <h3>'),this.title&&t.push(s(this.title)),t.push("</h3>\n    <p>"),this.description&&t.push(this.description),t.push("</p>\n    "),this.notAnalysed?(t.push("\n        <p>Number of "),t.push(s(this.type)),t.push("s in this list not analysed in this widget: <a>"),t.push(s(this.notAnalysed)),t.push("</a></p>\n    ")):t.push("\n        <p>All items in your list have been analysed.</p>\n    "),t.push('\n\n    <div class="actions" style="padding:10px 0">\n        <!-- actions.eco -->\n    </div>\n</div>\n<div class="content">\n    <!-- table.table.eco -->\n</div>')}).call(this)}.call(e),e.safe=a,e.escape=l,t.join("")};
+  JST["chart.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?i(e):""},a=e.safe,i=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},i||(i=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<div class="header">\n    <h3>'),this.title&&t.push(s(this.title)),t.push("</h3>\n    <p>"),this.description&&t.push(this.description),t.push("</p>\n    "),this.notAnalysed?(t.push("\n        <p>Number of "),t.push(s(this.type)),t.push("s in this list not analysed in this widget: <a>"),t.push(s(this.notAnalysed)),t.push("</a></p>\n    ")):t.push("\n        <p>All items in your list have been analysed.</p>\n    "),t.push('\n\n    <div class="form">\n        <form style="margin:0">\n            <!-- extra.eco -->\n        </form>\n    </div>\n\n    <div class="actions" style="padding:10px 0">\n        <!-- chart.actions.eco -->\n    </div>\n</div>\n<div class="content"></div>')}).call(this)}.call(e),e.safe=a,e.escape=i,t.join("")};
+  JST["chart.actions.eco"]=function(e){e||(e={});var n,t=[],s=e.safe,a=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},a||(a=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<a class="btn btn-small view-all">View all</a>')}).call(this)}.call(e),e.safe=s,e.escape=a,t.join("")};
+  JST["popover.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?i(e):""},a=e.safe,i=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},i||(i=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<div class="popover" style="position:absolute;top:5px;right:0;z-index:1;display:block">\n    <div class="popover-inner" style="'),t.push(s(this.style)),t.push('">\n        <a style="cursor:pointer;margin:2px 5px 0 0" class="close">×</a>\n        <h3 class="popover-title">\n            '),t.push(s(this.description.slice(0,+(this.descriptionLimit-1)+1||9e9))),t.push("\n            "),this.description.length>this.descriptionLimit&&t.push("&hellip;"),t.push('\n        </h3>\n        <div class="popover-content">\n            <div class="values">\n                <!-- popover.values.eco -->\n            </div>\n            <div style="margin-top:10px">\n                <a class="btn btn-small btn-primary results">View results</a>\n                <a class="btn btn-small list">Create list</a>\n            </div>\n        </div>\n    </div>\n</div>')}).call(this)}.call(e),e.safe=a,e.escape=i,t.join("")};
+  JST["popover.values.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?i(e):""},a=e.safe,i=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},i||(i=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){var e,n,a,i;for(t.push("<h4>"),t.push(s(this.size)),t.push(" "),t.push(s(this.type)),1!==parseInt(this.size)&&t.push(s("s")),t.push(":</h4>\n\n"),i=this.values.slice(0,+(this.valuesLimit-1)+1||9e9),n=0,a=i.length;a>n;n++)e=i[n],t.push('\n    <a href="#" class="match">'),t.push(s(e)),t.push("</a>\n");t.push("\n"),this.values.length>this.valuesLimit&&t.push("&hellip;"),t.push("\n")}).call(this)}.call(e),e.safe=a,e.escape=i,t.join("")};
+  JST["popover.help.eco"]=function(e){e||(e={});var n,t=[],s=function(e){return e&&e.ecoSafe?e:e!==void 0&&null!=e?i(e):""},a=e.safe,i=e.escape;return n=e.safe=function(e){if(e&&e.ecoSafe)return e;(void 0===e||null==e)&&(e="");var n=new String(e);return n.ecoSafe=!0,n},i||(i=e.escape=function(e){return(""+e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}),function(){(function(){t.push('<div class="popover" style="position:absolute;top:5px;right:0;z-index:1;display: block;">\n    <div class="popover-inner">\n        <a style="cursor:pointer;margin:2px 5px 0 0" class="close">×</a>\n        <h3 class="popover-title">'),t.push(s(this.title)),t.push('</h3>\n        <div class="popover-content">\n            <p>'),t.push(s(this.text)),t.push("</p>\n        </div>\n    </div>\n</div>")}).call(this)}.call(e),e.safe=a,e.escape=i,t.join("")};
+  /* Merge properties of 2 dictionaries.
+  */
+  
+  var $, Exporter, PlainExporter, Widgets, factory, merge, type, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+    __slice = [].slice;
+  
+  merge = function(child, parent) {
+    var key;
+  
+    for (key in parent) {
+      if (child[key] == null) {
+        if (Object.prototype.hasOwnProperty.call(parent, key)) {
+          child[key] = parent[key];
+        }
+      }
+    }
+    return child;
+  };
+  
+  /* Create file download with custom content.
+  */
+  
+  
+  Exporter = (function() {
+    Exporter.prototype.mime = 'text/plain';
+  
+    Exporter.prototype.charset = 'utf-8';
+  
+    /*
+    Use `BlobBuilder` and `URL` to force download dynamic string as a file.
+    @param {object} a jQuery element
+    @param {string} data string to download
+    @param {string} filename to save under
+    */
+  
+  
+    function Exporter(data, filename) {
+      var blob;
+  
+      if (filename == null) {
+        filename = 'widget.tsv';
+      }
+      blob = new Blob([data], {
+        'type': "" + this.mime + ";charset=" + this.charset
+      });
+      saveAs(blob, filename);
+    }
+  
+    return Exporter;
+  
+  })();
+  
+  PlainExporter = (function() {
+    /*
+    Create a new window with a formatted content.
+    @param {object} a jQuery element
+    @param {string} data string to download
+    */
+    function PlainExporter(a, data) {
+      var destroy, w,
+        _this = this;
+  
+      w = window.open();
+      if ((w == null) || typeof w === "undefined") {
+        a.after(this.msg = $('<span/>', {
+          'style': 'margin-left:5px',
+          'class': 'label label-inverse',
+          'text': 'Please enable popups'
+        }));
+      } else {
+        w.document.open();
+        w.document.write("<pre>" + data + "</pre>");
+        w.document.close();
+      }
+      destroy = function() {
+        var _ref;
+  
+        return (_ref = _this.msg) != null ? _ref.fadeOut() : void 0;
+      };
+      setTimeout(destroy, 5000);
+    }
+  
+    return PlainExporter;
+  
+  })();
+  
+  /* <IE9 does not have Array::indexOf, use MDC implementation.
+  */
+  
+  
+  if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function(elt) {
+      var from, len;
+  
+      len = this.length >>> 0;
+      from = Number(arguments[1]) || 0;
+      from = (from < 0 ? Math.ceil(from) : Math.floor(from));
+      if (from < 0) {
+        from += len;
+      }
+      while (from < len) {
+        if (from in this && this[from] === elt) {
+          return from;
+        }
+        from++;
+      }
+      return -1;
+    };
+  }
+  
+  /* Types in JS.
+  */
+  
+  
+  type = {};
+  
+  type.Root = (function() {
+    function Root() {}
+  
+    Root.prototype.result = false;
+  
+    Root.prototype.is = function() {
+      return this.result;
+    };
+  
+    Root.prototype.toString = function() {
+      return "" + this.expected + " but got " + this.actual;
+    };
+  
+    return Root;
+  
+  })();
+  
+  type.isString = (function(_super) {
+    __extends(isString, _super);
+  
+    isString.prototype.expected = "String";
+  
+    function isString(actual) {
+      this.actual = actual;
+      this.result = typeof actual === 'string';
+    }
+  
+    return isString;
+  
+  })(type.Root);
+  
+  type.isStringOrNull = (function(_super) {
+    __extends(isStringOrNull, _super);
+  
+    isStringOrNull.prototype.expected = "String or Null";
+  
+    function isStringOrNull(actual) {
+      this.actual = actual;
+      this.result = actual === null || typeof actual === 'string';
+    }
+  
+    return isStringOrNull;
+  
+  })(type.Root);
+  
+  type.isInteger = (function(_super) {
+    __extends(isInteger, _super);
+  
+    isInteger.prototype.expected = "Integer";
+  
+    function isInteger(actual) {
+      this.actual = actual;
+      this.result = typeof actual === 'number';
+    }
+  
+    return isInteger;
+  
+  })(type.Root);
+  
+  type.isBoolean = (function(_super) {
+    __extends(isBoolean, _super);
+  
+    isBoolean.prototype.expected = "Boolean true";
+  
+    function isBoolean(actual) {
+      this.actual = actual;
+      this.result = typeof actual === 'boolean';
+    }
+  
+    return isBoolean;
+  
+  })(type.Root);
+  
+  type.isBooleanOrNull = (function(_super) {
+    __extends(isBooleanOrNull, _super);
+  
+    isBooleanOrNull.prototype.expected = "Boolean or Null";
+  
+    function isBooleanOrNull(actual) {
+      this.actual = actual;
+      this.result = actual === null || typeof actual === 'boolean';
+    }
+  
+    return isBooleanOrNull;
+  
+  })(type.Root);
+  
+  type.isNull = (function(_super) {
+    __extends(isNull, _super);
+  
+    isNull.prototype.expected = "Null";
+  
+    function isNull(actual) {
+      this.actual = actual;
+      this.result = actual === null;
+    }
+  
+    return isNull;
+  
+  })(type.Root);
+  
+  type.isArray = (function(_super) {
+    __extends(isArray, _super);
+  
+    isArray.prototype.expected = "Array";
+  
+    function isArray(actual) {
+      this.actual = actual;
+      this.result = actual instanceof Array;
+    }
+  
+    return isArray;
+  
+  })(type.Root);
+  
+  type.isHTTPSuccess = (function(_super) {
+    __extends(isHTTPSuccess, _super);
+  
+    isHTTPSuccess.prototype.expected = "HTTP code 200";
+  
+    function isHTTPSuccess(actual) {
+      this.actual = actual;
+      this.result = actual === 200;
+    }
+  
+    return isHTTPSuccess;
+  
+  })(type.Root);
+  
+  type.isJSON = (function(_super) {
+    __extends(isJSON, _super);
+  
+    isJSON.prototype.expected = "JSON Object";
+  
+    function isJSON(actual) {
+      var e;
+  
+      this.actual = actual;
+      this.result = true;
+      try {
+        JSON.parse(actual);
+      } catch (_error) {
+        e = _error;
+        this.result = false;
+      }
+    }
+  
+    return isJSON;
+  
+  })(type.Root);
+  
+  type.isUndefined = (function(_super) {
+    __extends(isUndefined, _super);
+  
+    function isUndefined() {
+      _ref = isUndefined.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+  
+    isUndefined.prototype.expected = "it to be undefined";
+  
+    return isUndefined;
+  
+  })(type.Root);
+  
+  factory = function(Backbone) {
+    /*
+    InterMineWidget.coffee
+    */
+  
+    /* Parent for all Widgets, handling templating, validation and errors.
+    */
+  
+    var ChartPopoverView, ChartView, ChartWidget, CoreCollection, CoreModel, EnrichmentLengthCorrectionView, EnrichmentPopoverView, EnrichmentPopulationView, EnrichmentResults, EnrichmentRow, EnrichmentRowView, EnrichmentView, EnrichmentWidget, InterMineWidget, TablePopoverView, TableResults, TableRow, TableRowView, TableView, TableWidget, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+  
+    InterMineWidget = (function() {
+      function InterMineWidget() {
+        this.queryRows = __bind(this.queryRows, this);
+        this.error = __bind(this.error, this);
+        this.validateType = __bind(this.validateType, this);      $(this.el).html($('<div/>', {
+          'class': "inner",
+          'style': "height:572px;overflow:hidden;position:relative"
+        }));
+        this.el = "" + this.el + " div.inner";
+        this._service = new intermine.Service({
+          'root': this.service,
+          'token': this.token
+        });
+      }
+  
+      InterMineWidget.prototype.template = function(name, context) {
+        var _name;
+  
+        if (context == null) {
+          context = {};
+        }
+        return typeof JST[_name = "" + name + ".eco"] === "function" ? JST[_name](context) : void 0;
+      };
+  
+      InterMineWidget.prototype.validateType = function(object, spec) {
+        var fails, key, r, value;
+  
+        fails = [];
+        for (key in object) {
+          value = object[key];
+          r = typeof spec[key] === "function" ? new spec[key](value) : void 0;
+          if (r && !r.is()) {
+            fails.push(this.template("invalidjsonkey", {
+              key: key,
+              actual: r.is(),
+              expected: new String(r)
+            }));
+          }
+        }
+        if (fails.length) {
+          return this.error(fails, "JSONResponse");
+        }
+      };
+  
+      InterMineWidget.prototype.error = function(opts, type) {
+        if (opts == null) {
+          opts = {
+            'title': 'Error',
+            'text': 'Generic error'
+          };
+        }
+        opts.name = this.name || this.id;
+        switch (type) {
+          case "AJAXTransport":
+            opts.title = "AJAX Request Failed";
+            break;
+          case "JSONResponse":
+            opts.title = "Invalid JSON Response";
+            opts.text = "<ol>" + (opts.join('')) + "</ol>";
+        }
+        $(this.el).html(this.template("error", opts));
+        return this.fireEvent({
+          'event': 'error',
+          'type': type,
+          'message': opts.title
+        });
+      };
+  
+      InterMineWidget.prototype.fireEvent = function(obj) {
+        var evt, key, value;
+  
+        evt = document.createEvent('Events');
+        evt.initEvent('InterMine', true, true);
+        for (key in obj) {
+          value = obj[key];
+          evt[key] = value;
+        }
+        evt.source = 'ListWidgets';
+        evt.widget = {
+          'id': this.id,
+          'bag': this.bagName,
+          'el': this.el,
+          'service': this.service
+        };
+        return window.dispatchEvent(evt);
+      };
+  
+      InterMineWidget.prototype.queryRows = function(query, cb) {
+        var service;
+  
+        service = this._service;
+        return async.waterfall([
+          function(cb) {
+            return service.query(query, function(q) {
+              return cb(null, q);
+            });
+          }, function(q, cb) {
+            return q.rows(function(response) {
+              return cb(null, response);
+            });
+          }
+        ], function(err, response) {
+          return cb(response);
+        });
+      };
+  
+      return InterMineWidget;
+  
+    })();
+    /*
+    ChartWidget.coffee
+    */
+  
+    /* Chart Widget main class.
+    */
+  
+    ChartWidget = (function(_super) {
+      __extends(ChartWidget, _super);
+  
+      ChartWidget.prototype.widgetOptions = {
+        "title": true,
+        "description": true,
+        matchCb: function(id, type) {
+          return typeof console !== "undefined" && console !== null ? console.log(id, type) : void 0;
+        },
+        resultsCb: function(pq) {
+          return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
+        },
+        listCb: function(pq) {
+          return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
+        }
+      };
+  
+      ChartWidget.prototype.formOptions = {};
+  
+      ChartWidget.prototype.spec = {
+        response: {
+          "chartType": type.isString,
+          "description": type.isString,
+          "error": type.isNull,
+          "list": type.isString,
+          "notAnalysed": type.isInteger,
+          "pathQuery": type.isString,
+          "requestedAt": type.isString,
+          "results": type.isArray,
+          "seriesLabels": type.isString,
+          "seriesValues": type.isString,
+          "statusCode": type.isHTTPSuccess,
+          "title": type.isString,
+          "type": type.isString,
+          "wasSuccessful": type.isBoolean,
+          "filters": type.isString,
+          "filterLabel": type.isString,
+          "filterSelectedValue": type.isString,
+          "simplePathQuery": type.isString,
+          "domainLabel": type.isString,
+          "rangeLabel": type.isString
+        }
+      };
+  
+      function ChartWidget(service, token, id, bagName, el, widgetOptions) {
+        this.service = service;
+        this.token = token;
+        this.id = id;
+        this.bagName = bagName;
+        this.el = el;
+        if (widgetOptions == null) {
+          widgetOptions = {};
+        }
+        this.render = __bind(this.render, this);
+        this.widgetOptions = merge(widgetOptions, this.widgetOptions);
+        ChartWidget.__super__.constructor.call(this);
+        this.render();
+      }
+  
+      ChartWidget.prototype.render = function() {
+        var data, key, timeout, value, _ref1, _ref2,
+          _this = this;
+  
+        timeout = window.setTimeout((function() {
+          return $(_this.el).append(_this.loading = $(_this.template('loading')));
+        }), 400);
+        if ((_ref1 = this.view) != null) {
+          _ref1.undelegateEvents();
+        }
+        data = {
+          'widget': this.id,
+          'list': this.bagName,
+          'token': this.token
+        };
+        _ref2 = this.formOptions;
+        for (key in _ref2) {
+          value = _ref2[key];
+          if (key !== 'errorCorrection' && key !== 'pValue') {
+            data['filter'] = value;
+          }
+        }
+        return $.ajax({
+          url: "" + this.service + "list/chart?format=json",
+          dataType: "jsonp",
+          data: data,
+          success: function(response) {
+            var _ref3;
+  
+            window.clearTimeout(timeout);
+            if ((_ref3 = _this.loading) != null) {
+              _ref3.remove();
+            }
+            _this.validateType(response, _this.spec.response);
+            if (response.wasSuccessful) {
+              _this.name = response.title;
+              return _this.view = new ChartView({
+                "widget": _this,
+                "el": _this.el,
+                "template": _this.template,
+                "response": response,
+                "form": {
+                  "options": _this.formOptions
+                },
+                "options": _this.widgetOptions
+              });
+            }
+          },
+          error: function(request, status, error) {
+            clearTimeout(timeout);
+            return _this.error({
+              'text': "" + _this.service + "list/chart"
+            }, "AJAXTransport");
+          }
+        });
+      };
+  
+      return ChartWidget;
+  
+    })(InterMineWidget);
+    /*
+    TableWidget.coffee
+    */
+  
+    /* Table Widget main class.
+    */
+  
+    TableWidget = (function(_super) {
+      __extends(TableWidget, _super);
+  
+      TableWidget.prototype.widgetOptions = {
+        "title": true,
+        "description": true,
+        matchCb: function(id, type) {
+          return typeof console !== "undefined" && console !== null ? console.log(id, type) : void 0;
+        },
+        resultsCb: function(pq) {
+          return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
+        },
+        listCb: function(pq) {
+          return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
+        }
+      };
+  
+      TableWidget.prototype.spec = {
+        response: {
+          "columnTitle": type.isString,
+          "title": type.isString,
+          "description": type.isString,
+          "pathQuery": type.isString,
+          "columns": type.isString,
+          "pathConstraint": type.isString,
+          "requestedAt": type.isString,
+          "list": type.isString,
+          "type": type.isString,
+          "notAnalysed": type.isInteger,
+          "results": type.isArray,
+          "wasSuccessful": type.isBoolean,
+          "error": type.isNull,
+          "statusCode": type.isHTTPSuccess
+        }
+      };
+  
+      function TableWidget(service, token, id, bagName, el, widgetOptions) {
+        this.service = service;
+        this.token = token;
+        this.id = id;
+        this.bagName = bagName;
+        this.el = el;
+        if (widgetOptions == null) {
+          widgetOptions = {};
+        }
+        this.render = __bind(this.render, this);
+        this.widgetOptions = merge(widgetOptions, this.widgetOptions);
+        TableWidget.__super__.constructor.call(this);
+        this.render();
+      }
+  
+      TableWidget.prototype.render = function() {
+        var data, timeout, _ref1,
+          _this = this;
+  
+        timeout = window.setTimeout((function() {
+          return $(_this.el).append(_this.loading = $(_this.template('loading')));
+        }), 400);
+        if ((_ref1 = this.view) != null) {
+          _ref1.undelegateEvents();
+        }
+        data = {
+          'widget': this.id,
+          'list': this.bagName,
+          'token': this.token
+        };
+        return $.ajax({
+          url: "" + this.service + "list/table?format=json",
+          dataType: "jsonp",
+          data: data,
+          success: function(response) {
+            var _ref2;
+  
+            window.clearTimeout(timeout);
+            if ((_ref2 = _this.loading) != null) {
+              _ref2.remove();
+            }
+            _this.validateType(response, _this.spec.response);
+            if (response.wasSuccessful) {
+              _this.name = response.title;
+              return _this.view = new TableView({
+                "widget": _this,
+                "el": _this.el,
+                "template": _this.template,
+                "response": response,
+                "options": _this.widgetOptions
+              });
+            }
+          },
+          error: function(request, status, error) {
+            clearTimeout(timeout);
+            return _this.error({
+              'text': "" + _this.service + "list/table"
+            }, "AJAXTransport");
+          }
+        });
+      };
+  
+      return TableWidget;
+  
+    })(InterMineWidget);
+    /*
+    EnrichmentWidget.coffee
+    */
+  
+    /* Enrichment Widget main class.
+    */
+  
+    EnrichmentWidget = (function(_super) {
+      __extends(EnrichmentWidget, _super);
+  
+      EnrichmentWidget.prototype.widgetOptions = {
+        "title": true,
+        "description": true,
+        matchCb: function(id, type) {
+          return typeof console !== "undefined" && console !== null ? console.log(id, type) : void 0;
+        },
+        resultsCb: function(pq) {
+          return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
+        },
+        listCb: function(pq) {
+          return typeof console !== "undefined" && console !== null ? console.log(pq) : void 0;
+        }
+      };
+  
+      EnrichmentWidget.prototype.errorCorrections = ["Holm-Bonferroni", "Benjamini Hochberg", "Bonferroni", "None"];
+  
+      EnrichmentWidget.prototype.pValues = ["0.05", "0.10", "1.00"];
+  
+      EnrichmentWidget.prototype.spec = {
+        response: {
+          "title": type.isString,
+          "description": type.isString,
+          "pathQuery": type.isJSON,
+          "pathConstraint": type.isString,
+          "error": type.isNull,
+          "list": type.isString,
+          "notAnalysed": type.isInteger,
+          "requestedAt": type.isString,
+          "results": type.isArray,
+          "label": type.isString,
+          "statusCode": type.isHTTPSuccess,
+          "type": type.isString,
+          "wasSuccessful": type.isBoolean,
+          "filters": type.isString,
+          "filterLabel": type.isString,
+          "filterSelectedValue": type.isString,
+          "externalLink": type.isString,
+          "pathQueryForMatches": type.isString,
+          "is_logged": type.isBoolean,
+          "current_population": type.isStringOrNull,
+          "message": type.isString,
+          "extraAttribute": type.isStringOrNull
+        }
+      };
+  
+      /*
+      Set the params on us and render.
+      @param {string} service http://aragorn.flymine.org:8080/flymine/service/
+      @param {string} token Token for accessing user's lists
+      @param {Array} lists All lists that we have access to
+      @param {string} id widgetId
+      @param {string} bagName myBag
+      @param {string} el #target
+      @param {object} widgetOptions { "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} } }
+      */
+  
+  
+      function EnrichmentWidget(service, token, lists, id, bagName, el, widgetOptions) {
+        this.service = service;
+        this.token = token;
+        this.lists = lists;
+        this.id = id;
+        this.bagName = bagName;
+        this.el = el;
+        if (widgetOptions == null) {
+          widgetOptions = {};
+        }
+        this.render = __bind(this.render, this);
+        this.widgetOptions = merge(widgetOptions, this.widgetOptions);
+        this.formOptions = {
+          errorCorrection: "Holm-Bonferroni",
+          pValue: "0.05"
+        };
+        EnrichmentWidget.__super__.constructor.call(this);
+        this.render();
+      }
+  
+      EnrichmentWidget.prototype.render = function() {
+        var data, key, timeout, value, _ref1, _ref2,
+          _this = this;
+  
+        timeout = window.setTimeout((function() {
+          return $(_this.el).append(_this.loading = $(_this.template('loading')));
+        }), 400);
+        if ((_ref1 = this.view) != null) {
+          _ref1.undelegateEvents();
+        }
+        data = {
+          'widget': this.id,
+          'list': this.bagName,
+          'correction': this.formOptions.errorCorrection,
+          'maxp': this.formOptions.pValue,
+          'token': this.token
+        };
+        _ref2 = this.formOptions;
+        for (key in _ref2) {
+          value = _ref2[key];
+          if (key !== 'errorCorrection' && key !== 'pValue' && key !== 'current_population' && key !== 'remember_population' && key !== 'gene_length_correction') {
+            key = 'filter';
+          }
+          data[key] = value;
+        }
+        return $.ajax({
+          'url': "" + this.service + "list/enrichment?format=json",
+          'dataType': "jsonp",
+          'data': data,
+          success: function(response) {
+            var l, lists, _ref3;
+  
+            window.clearTimeout(timeout);
+            if ((_ref3 = _this.loading) != null) {
+              _ref3.remove();
+            }
+            _this.validateType(response, _this.spec.response);
+            if (response.wasSuccessful) {
+              _this.name = response.title;
+              lists = (function() {
+                var _i, _len, _ref4, _results;
+  
+                _ref4 = this.lists;
+                _results = [];
+                for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+                  l = _ref4[_i];
+                  if (l.type === response.type && l.size !== 0) {
+                    _results.push(l);
+                  }
+                }
+                return _results;
+              }).call(_this);
+              return _this.view = new EnrichmentView({
+                "widget": _this,
+                "el": _this.el,
+                "template": _this.template,
+                "response": response,
+                "form": {
+                  "options": _this.formOptions,
+                  "pValues": _this.pValues,
+                  "errorCorrections": _this.errorCorrections
+                },
+                "options": _this.widgetOptions,
+                "lists": lists
+              });
+            }
+          },
+          error: function(request, status, error) {
+            clearTimeout(timeout);
+            return _this.error({
+              'text': "" + _this.service + "list/enrichment"
+            }, "AJAXTransport");
+          }
+        });
+      };
+  
+      return EnrichmentWidget;
+  
+    })(InterMineWidget);
+    /*
+    models/CoreModel.coffee
+    */
+  
+    /* Core Model for Enrichment and Table Models.
+    */
+  
+    CoreModel = (function(_super) {
+      __extends(CoreModel, _super);
+  
+      function CoreModel() {
+        this.toggleSelected = __bind(this.toggleSelected, this);
+        this.validate = __bind(this.validate, this);      _ref1 = CoreModel.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+  
+      CoreModel.prototype.defaults = {
+        "selected": false
+      };
+  
+      CoreModel.prototype.initialize = function(row, widget) {
+        this.widget = widget;
+        return this.validate(row);
+      };
+  
+      CoreModel.prototype.validate = function(row) {
+        return this.widget.validateType(row, this.spec);
+      };
+  
+      CoreModel.prototype.toggleSelected = function() {
+        return this.set({
+          selected: !this.get("selected")
+        });
+      };
+  
+      return CoreModel;
+  
+    })(Backbone.Model);
+    CoreCollection = (function(_super) {
+      __extends(CoreCollection, _super);
+  
+      function CoreCollection() {
+        _ref2 = CoreCollection.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+  
+      CoreCollection.prototype.model = CoreModel;
+  
+      CoreCollection.prototype.selected = function() {
+        return this.filter(function(row) {
+          return row.get("selected");
+        });
+      };
+  
+      CoreCollection.prototype.toggleSelected = function() {
+        var model, _i, _j, _len, _len1, _ref3, _ref4, _results, _results1;
+  
+        if (this.models.length - this.selected().length) {
+          _ref3 = this.models;
+          _results = [];
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            model = _ref3[_i];
+            _results.push(model.set({
+              "selected": true
+            }, {
+              'silent': true
+            }));
+          }
+          return _results;
+        } else {
+          _ref4 = this.models;
+          _results1 = [];
+          for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
+            model = _ref4[_j];
+            _results1.push(model.set({
+              "selected": false
+            }, {
+              'silent': true
+            }));
+          }
+          return _results1;
+        }
+      };
+  
+      return CoreCollection;
+  
+    })(Backbone.Collection);
+    /* Models underpinning Enrichment Widget results.
+    */
+  
+    EnrichmentRow = (function(_super) {
+      __extends(EnrichmentRow, _super);
+  
+      function EnrichmentRow() {
+        _ref3 = EnrichmentRow.__super__.constructor.apply(this, arguments);
+        return _ref3;
+      }
+  
+      EnrichmentRow.prototype.spec = {
+        "description": type.isString,
+        "identifier": type.isString,
+        "matches": type.isInteger,
+        "p-value": type.isInteger,
+        "selected": type.isBoolean,
+        "externalLink": type.isString
+      };
+  
+      EnrichmentRow.prototype.toJSON = function() {
+        var attributes;
+  
+        attributes = _.clone(this.attributes);
+        if (attributes['p-value'] < 0.001) {
+          attributes['p-value'] = attributes['p-value'].toExponential(6);
+        } else {
+          attributes['p-value'] = attributes['p-value'].toFixed(6);
+        }
+        return attributes;
+      };
+  
+      return EnrichmentRow;
+  
+    })(CoreModel);
+    EnrichmentResults = (function(_super) {
+      __extends(EnrichmentResults, _super);
+  
+      function EnrichmentResults() {
+        _ref4 = EnrichmentResults.__super__.constructor.apply(this, arguments);
+        return _ref4;
+      }
+  
+      EnrichmentResults.prototype.model = EnrichmentRow;
+  
+      return EnrichmentResults;
+  
+    })(CoreCollection);
+    /* Models underpinning Table Widget results.
+    */
+  
+    TableRow = (function(_super) {
+      __extends(TableRow, _super);
+  
+      function TableRow() {
+        _ref5 = TableRow.__super__.constructor.apply(this, arguments);
+        return _ref5;
+      }
+  
+      TableRow.prototype.spec = {
+        "matches": type.isInteger,
+        "identifier": type.isInteger,
+        "descriptions": type.isArray,
+        "selected": type.isBoolean
+      };
+  
+      return TableRow;
+  
+    })(CoreModel);
+    TableResults = (function(_super) {
+      __extends(TableResults, _super);
+  
+      function TableResults() {
+        _ref6 = TableResults.__super__.constructor.apply(this, arguments);
+        return _ref6;
+      }
+  
+      TableResults.prototype.model = TableRow;
+  
+      return TableResults;
+  
+    })(CoreCollection);
+    /*
+    views/EnrichmentLengthCorrectionView.coffee
+    */
+  
+    /* Enrichment Widget gene length correction.
+    */
+  
+    EnrichmentLengthCorrectionView = (function(_super) {
+      __extends(EnrichmentLengthCorrectionView, _super);
+  
+      function EnrichmentLengthCorrectionView() {
+        this.seeWhich = __bind(this.seeWhich, this);
+        this.toggleCull = __bind(this.toggleCull, this);
+        this.hideHelp = __bind(this.hideHelp, this);
+        this.showHelp = __bind(this.showHelp, this);
+        this.render = __bind(this.render, this);      _ref7 = EnrichmentLengthCorrectionView.__super__.constructor.apply(this, arguments);
+        return _ref7;
+      }
+  
+      EnrichmentLengthCorrectionView.prototype.help = "Depending on the type of experiment your data comes from, it is sometimes \nnecessary to normalize by gene length in order to get the correct p-values. \nIf your data comes from a genome-wide binding experiment such as ChIP-seq \nor DamID, binding intervals are more likely to be associated with longer \ngenes than shorter ones, and you should therefore normalize by gene length. \nThis is not the case for experiments such as gene expression studies, where \ngene length does not play a role in the likelihood that a particular set of \ngenes will be overrepresented in the list.";
+  
+      EnrichmentLengthCorrectionView.prototype.events = {
+        'click .correction input.correction': 'toggleCull',
+        'click .correction a.which': 'seeWhich',
+        'hover .correction label .badge': 'showHelp',
+        'click .correction a.close': 'hideHelp'
+      };
+  
+      EnrichmentLengthCorrectionView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        if (this.gene_length_correction !== null) {
+          return this.render();
+        }
+      };
+  
+      EnrichmentLengthCorrectionView.prototype.render = function() {
+        $(this.el).append(this.widget.template("enrichment.correction", this));
+        return this;
+      };
+  
+      EnrichmentLengthCorrectionView.prototype.showHelp = function() {
+        return $(this.el).find('.help').html(this.widget.template("popover.help", {
+          "title": 'What does "Normalise by length" mean?',
+          "text": this.help
+        }));
+      };
+  
+      EnrichmentLengthCorrectionView.prototype.hideHelp = function() {
+        return $(this.el).find('.help').empty();
+      };
+  
+      EnrichmentLengthCorrectionView.prototype.toggleCull = function(e) {
+        this.widget.widget.formOptions['gene_length_correction'] = $(e.target).is(':checked');
+        return this.widget.widget.render();
+      };
+  
+      EnrichmentLengthCorrectionView.prototype.seeWhich = function(e) {
+        var pq;
+  
+        pq = JSON.parse(this.pathQueryGeneLengthNull);
+        this.cb(pq);
+        return e.preventDefault();
+      };
+  
+      return EnrichmentLengthCorrectionView;
+  
+    })(Backbone.View);
+    /*
+    views/ChartView.coffee
+    */
+  
+    /* View maintaining Chart Widget.
+    */
+  
+    ChartView = (function(_super) {
+      __extends(ChartView, _super);
+  
+      function ChartView() {
+        this.formAction = __bind(this.formAction, this);
+        this.viewSeriesAction = __bind(this.viewSeriesAction, this);
+        this.viewAllAction = __bind(this.viewAllAction, this);
+        this.viewBarsAction = __bind(this.viewBarsAction, this);
+        this.viewBarAction = __bind(this.viewBarAction, this);
+        this.keypressAction = __bind(this.keypressAction, this);
+        this.renderToolbar = __bind(this.renderToolbar, this);      _ref8 = ChartView.__super__.constructor.apply(this, arguments);
+        return _ref8;
+      }
+  
+      ChartView.prototype.chartOptions = {
+        fontName: "Sans-Serif",
+        fontSize: 11,
+        colors: ["#2F72FF", "#9FC0FF"],
+        legend: {
+          position: "top"
+        },
+        chartArea: {
+          top: 30,
+          bottom: 80,
+          left: 50
+        },
+        hAxis: {
+          titleTextStyle: {
+            fontName: "Sans-Serif"
+          }
+        },
+        vAxis: {
+          titleTextStyle: {
+            fontName: "Sans-Serif"
+          }
+        }
+      };
+  
+      ChartView.prototype.brewer = {
+        '3': ["rgb(189,215,231)", "rgb(107,174,214)", "rgb(33,113,181)"],
+        '4': ["rgb(189,215,231)", "rgb(107,174,214)", "rgb(49,130,189)", "rgb(8,81,156)"],
+        '5': ["rgb(198,219,239)", "rgb(158,202,225)", "rgb(107,174,214)", "rgb(49,130,189)", "rgb(8,81,156)"],
+        '6': ["rgb(198,219,239)", "rgb(158,202,225)", "rgb(107,174,214)", "rgb(66,146,198)", "rgb(33,113,181)", "rgb(8,69,148)"],
+        '7': ["rgb(222,235,247)", "rgb(198,219,239)", "rgb(158,202,225)", "rgb(107,174,214)", "rgb(66,146,198)", "rgb(33,113,181)", "rgb(8,69,148)"],
+        '8': ["rgb(222,235,247)", "rgb(198,219,239)", "rgb(158,202,225)", "rgb(107,174,214)", "rgb(66,146,198)", "rgb(33,113,181)", "rgb(8,81,156)", "rgb(8,48,107)"]
+      };
+  
+      ChartView.prototype.multiselect = false;
+  
+      ChartView.prototype.events = {
+        "change div.form select": "formAction",
+        "click div.actions a.view-all": "viewAllAction"
+      };
+  
+      ChartView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        $(document).on('keyup keydown', this.keypressAction);
+        return this.render();
+      };
+  
+      ChartView.prototype.render = function() {
+        var chart, height, ln, options, width,
+          _this = this;
+  
+        $(this.el).html(this.template("chart", {
+          "title": this.options.title ? this.response.title : "",
+          "description": this.options.description ? this.response.description : "",
+          "notAnalysed": this.response.notAnalysed,
+          "type": this.response.type
+        }));
+        if (this.response.filterLabel != null) {
+          $(this.el).find('div.form form').append(this.template("extra", {
+            "label": this.response.filterLabel,
+            "possible": this.response.filters.split(','),
+            "selected": this.response.filterSelectedValue
+          }));
+        }
+        if (this.response.results.length > 1) {
+          if (this.response.chartType in google.visualization) {
+            this.renderToolbar();
+            width = $(this.el).width();
+            height = $(this.el).height() - $(this.el).find('div.header').height();
+            this.chartOptions.width = width;
+            this.chartOptions.chartArea.width = width - this.chartOptions.chartArea.left;
+            this.chartOptions.height = height;
+            this.chartOptions.chartArea.height = height - this.chartOptions.chartArea.top - this.chartOptions.chartArea.bottom;
+            this.chartOptions.hAxis = {
+              'title': this.response.chartType === 'BarChart' ? this.response.rangeLabel : this.response.domainLabel
+            };
+            this.chartOptions.vAxis = {
+              'title': this.response.chartType === 'BarChart' ? this.response.domainLabel : this.response.rangeLabel
+            };
+            chart = new google.visualization[this.response.chartType]($(this.el).find("div.content")[0]);
+            google.visualization.events.addListener(chart, 'click', function() {
+              var input;
+  
+              $(_this.el).find('.content').prepend(input = $('<input/>', {
+                'class': 'focus',
+                'type': 'text'
+              }));
+              return input.focus().remove();
+            });
+            if (this.response.pathQuery != null) {
+              google.visualization.events.addListener(chart, "select", function() {
+                return _this.viewBarAction(chart);
+              });
+            }
+            if (this.response.results[0].length === 1) {
+              this.response.results[0] = [this.response.domainLabel, this.response.results[0][0]];
+            }
+            options = JSON.parse(JSON.stringify(this.chartOptions));
+            if (this.response.chartType === 'PieChart' && (ln = this.response.results.length - 1) >= 3) {
+              if (ln > 8) {
+                ln = 8;
+              }
+              options.colors = this.brewer[ln].reverse();
+            }
+            chart.draw(google.visualization.arrayToDataTable(this.response.results, false), options);
+          } else {
+            this.error({
+              'title': this.response.chartType,
+              'text': "This chart type does not exist in Google Visualization API"
+            });
+          }
+        } else {
+          $(this.el).find("div.content").html($(this.template("noresults", {
+            'text': "No \"" + this.response.title + "\" with your list."
+          })));
+        }
+        this.widget.fireEvent({
+          'class': 'ChartView',
+          'event': 'rendered'
+        });
+        return this;
+      };
+  
+      ChartView.prototype.renderToolbar = function() {
+        return $(this.el).find("div.actions").html($(this.template("chart.actions")));
+      };
+  
+      ChartView.prototype.translate = function(response, series) {
+        if (response.seriesValues != null) {
+          return response.seriesValues.split(',')[response.seriesLabels.split(',').indexOf(series)];
+        }
+      };
+  
+      ChartView.prototype.keypressAction = function(e) {
+        if (e.type === 'keydown') {
+          if (e.keyCode >= 16 && e.keyCode <= 18) {
+            return this.multiselect = true;
+          }
+        } else {
+          if (e.keyCode >= 16 && e.keyCode <= 18) {
+            this.multiselect = false;
+            if ((this.selection != null) && this.selection.length !== 0) {
+              this.viewBarsAction(this.selection);
+              return this.selection = null;
+            }
+          }
+        }
+      };
+  
+      ChartView.prototype.viewBarAction = function(chart) {
+        var column, description, quickPq, resultsPq, row, selection, _ref9;
+  
+        if (this.barView != null) {
+          this.barView.close();
+        }
+        selection = chart.getSelection()[0];
+        if (this.multiselect) {
+          if ((_ref9 = this.selection) == null) {
+            this.selection = [];
+          }
+          return this.selection.push(selection);
+        } else {
+          if (selection) {
+            description = '';
+            resultsPq = this.response.pathQuery;
+            quickPq = this.response.simplePathQuery;
+            if (selection.row != null) {
+              row = this.response.results[selection.row + 1][0];
+              description += row;
+              resultsPq = resultsPq.replace("%category", row);
+              quickPq = quickPq.replace("%category", row);
+              if (selection.column != null) {
+                if (this.response.seriesPath === 'ActualExpectedCriteria' && selection.column === 2) {
+                  return false;
+                }
+                column = this.response.results[0][selection.column];
+                description += ' ' + column;
+                resultsPq = resultsPq.replace("%series", this.translate(this.response, column));
+                quickPq = resultsPq.replace("%series", this.translate(this.response, column));
+              }
+            } else {
+              if (selection.column != null) {
+                return this.viewSeriesAction(resultsPq.replace("%series", this.translate(this.response, this.response.results[0][selection.column])));
+              }
+            }
+            resultsPq = JSON.parse(resultsPq);
+            quickPq = JSON.parse(quickPq);
+            if (description) {
+              return $(this.el).find('div.content').append((this.barView = new ChartPopoverView({
+                "description": description,
+                "template": this.template,
+                "resultsPq": resultsPq,
+                "resultsCb": this.options.resultsCb,
+                "listCb": this.options.listCb,
+                "matchCb": this.options.matchCb,
+                "quickPq": quickPq,
+                "widget": this.widget,
+                "type": this.response.type
+              })).el);
+            }
+          }
+        }
+      };
+  
+      ChartView.prototype.viewBarsAction = function(selections) {
+        var a, b, bag, category, code, constraint, constraints, field, getConstraint, i, orLogic, pq, selection, series, _i, _len, _ref9;
+  
+        pq = JSON.parse(this.response.pathQuery);
+        _ref9 = pq.where;
+        for (i in _ref9) {
+          field = _ref9[i];
+          switch (field.value) {
+            case '%category':
+              category = field;
+              break;
+            case '%series':
+              series = field;
+              break;
+            default:
+              field.code = 'A';
+              bag = field;
+          }
+        }
+        pq.where = [bag, category, series];
+        pq.constraintLogic = '';
+        orLogic = [];
+        code = 66;
+        constraints = [bag];
+        getConstraint = function(newConstraint) {
+          var constraint, _i, _len;
+  
+          for (_i = 0, _len = constraints.length; _i < _len; _i++) {
+            constraint = constraints[_i];
+            if (constraint.path === newConstraint.path && constraint.value === newConstraint.value) {
+              return constraint.code;
+            }
+          }
+        };
+        for (_i = 0, _len = selections.length; _i < _len; _i++) {
+          selection = selections[_i];
+          if ((selection != null) && (category != null)) {
+            constraint = $.extend(true, {}, category, {
+              'value': this.response.results[selection.row + 1][0]
+            });
+            a = getConstraint(constraint);
+            if (a == null) {
+              constraint.code = a = String.fromCharCode(code++).toUpperCase();
+              constraints.push(constraint);
+            }
+            if ((selection.column != null) && (series != null)) {
+              constraint = $.extend(true, {}, series, {
+                'value': this.translate(this.response, this.response.results[0][selection.column])
+              });
+              b = getConstraint(constraint);
+              if (b == null) {
+                constraint.code = b = String.fromCharCode(code++).toUpperCase();
+                constraints.push(constraint);
+              }
+              orLogic.push('(' + [a, b].join(' AND ') + ')');
+            } else {
+              orLogic.push(a);
+            }
+          }
+        }
+        if (code > 90) {
+          throw 'Too many constraints';
+        }
+        pq.constraintLogic = ['A', '(' + orLogic.join(' OR ') + ')'].join(' AND ');
+        pq.where = constraints;
+        if (code > 66) {
+          return this.options.resultsCb(pq);
+        }
+      };
+  
+      ChartView.prototype.viewAllAction = function() {
+        var field, i, pq, rem, _i, _len, _ref10, _ref9;
+  
+        pq = JSON.parse(this.response.pathQuery);
+        _ref9 = ['%category', '%series'];
+        for (_i = 0, _len = _ref9.length; _i < _len; _i++) {
+          rem = _ref9[_i];
+          _ref10 = pq.where;
+          for (i in _ref10) {
+            field = _ref10[i];
+            if ((field != null ? field.value : void 0) === rem) {
+              pq.where.splice(i, 1);
+              break;
+            }
+          }
+        }
+        return this.options.resultsCb(pq);
+      };
+  
+      ChartView.prototype.viewSeriesAction = function(pathQuery) {
+        var field, i, pq, _ref9;
+  
+        pq = JSON.parse(pathQuery);
+        _ref9 = pq.where;
+        for (i in _ref9) {
+          field = _ref9[i];
+          if ((field != null ? field.value : void 0) === '%category') {
+            pq.where.splice(i, 1);
+            break;
+          }
+        }
+        return this.options.resultsCb(pq);
+      };
+  
+      ChartView.prototype.formAction = function(e) {
+        this.widget.formOptions[$(e.target).attr("name")] = $(e.target[e.target.selectedIndex]).attr("value");
+        return this.widget.render();
+      };
+  
+      return ChartView;
+  
+    })(Backbone.View);
+    /*
+    views/TableView.coffee
+    */
+  
+    /* View maintaining Table Widget.
+    */
+  
+    TableView = (function(_super) {
+      __extends(TableView, _super);
+  
+      function TableView() {
+        this.viewAction = __bind(this.viewAction, this);
+        this.exportAction = __bind(this.exportAction, this);
+        this.selectAllAction = __bind(this.selectAllAction, this);
+        this.renderTableBody = __bind(this.renderTableBody, this);
+        this.renderTable = __bind(this.renderTable, this);
+        this.renderToolbar = __bind(this.renderToolbar, this);      _ref9 = TableView.__super__.constructor.apply(this, arguments);
+        return _ref9;
+      }
+  
+      TableView.prototype.events = {
+        "click div.actions a.view": "viewAction",
+        "click div.actions a.export": "exportAction",
+        "click div.content input.check": "selectAllAction"
+      };
+  
+      TableView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        this.collection = new TableResults();
+        this.collection.bind('change', this.renderToolbar);
+        return this.render();
+      };
+  
+      TableView.prototype.render = function() {
+        $(this.el).html(this.template("table", {
+          "title": this.options.title ? this.response.title : "",
+          "description": this.options.description ? this.response.description : "",
+          "notAnalysed": this.response.notAnalysed,
+          "type": this.response.type
+        }));
+        if (this.response.results.length > 0) {
+          this.renderToolbar();
+          this.renderTable();
+        } else {
+          $(this.el).find("div.content").html($(this.template("noresults", {
+            'text': "No \"" + this.response.title + "\" with your list."
+          })));
+        }
+        this.widget.fireEvent({
+          'class': 'TableView',
+          'event': 'rendered'
+        });
+        return this;
+      };
+  
+      TableView.prototype.renderToolbar = function() {
+        return $(this.el).find("div.actions").html($(this.template("actions", {
+          "disabled": this.collection.selected().length === 0
+        })));
+      };
+  
+      TableView.prototype.renderTable = function() {
+        var height, i, table, _fn, _i, _ref10,
+          _this = this;
+  
+        $(this.el).find("div.content").html($(this.template("table.table", {
+          "columns": this.response.columns.split(',')
+        })));
+        table = $(this.el).find("div.content table");
+        _fn = function(i) {
+          var row;
+  
+          row = new TableRow(_this.response.results[i], _this.widget);
+          return _this.collection.add(row);
+        };
+        for (i = _i = 0, _ref10 = this.response.results.length; 0 <= _ref10 ? _i < _ref10 : _i > _ref10; i = 0 <= _ref10 ? ++_i : --_i) {
+          _fn(i);
+        }
+        this.renderTableBody(table);
+        height = $(this.el).height() - $(this.el).find('div.header').height() - $(this.el).find('div.content div.head').height();
+        $(this.el).find("div.content div.wrapper").css('height', "" + height + "px");
+        $(this.el).find("div.content div.head").css("width", $(this.el).find("div.content table").width() + "px");
+        table.find('thead th').each(function(i, th) {
+          return $(_this.el).find("div.content div.head div:eq(" + i + ")").width($(th).width());
+        });
+        return table.css({
+          'margin-top': '-' + table.find('thead').height() + 'px'
+        });
+      };
+  
+      TableView.prototype.renderTableBody = function(table) {
+        var fragment, row, _i, _len, _ref10;
+  
+        fragment = document.createDocumentFragment();
+        _ref10 = this.collection.models;
+        for (_i = 0, _len = _ref10.length; _i < _len; _i++) {
+          row = _ref10[_i];
+          fragment.appendChild(new TableRowView({
+            "model": row,
+            "template": this.template,
+            "response": this.response,
+            "matchCb": this.options.matchCb,
+            "resultsCb": this.options.resultsCb,
+            "listCb": this.options.listCb,
+            "widget": this.widget
+          }).el);
+        }
+        return table.find('tbody').html(fragment);
+      };
+  
+      TableView.prototype.selectAllAction = function() {
+        this.collection.toggleSelected();
+        this.renderToolbar();
+        return this.renderTableBody($(this.el).find("div.content table"));
+      };
+  
+      TableView.prototype.exportAction = function(e) {
+        var TypeError, model, result, _i, _len, _ref10;
+  
+        if (this.collection.selected() === 0) {
+          return;
+        }
+        result = [this.response.columns.replace(/,/g, "\t")];
+        _ref10 = this.collection.selected();
+        for (_i = 0, _len = _ref10.length; _i < _len; _i++) {
+          model = _ref10[_i];
+          result.push(model.get('descriptions').join("\t") + "\t" + model.get('matches'));
+        }
+        if (result.length) {
+          try {
+            return new Exporter(result.join("\n"), "" + this.widget.bagName + " " + this.widget.id + ".tsv");
+          } catch (_error) {
+            TypeError = _error;
+            return new PlainExporter($(e.target), result.join("\n"));
+          }
+        }
+      };
+  
+      TableView.prototype.viewAction = function() {
+        var descriptions, model, rowIdentifiers, _i, _len, _ref10, _ref11;
+  
+        descriptions = [];
+        rowIdentifiers = [];
+        _ref10 = this.collection.selected();
+        for (_i = 0, _len = _ref10.length; _i < _len; _i++) {
+          model = _ref10[_i];
+          descriptions.push(model.get('descriptions')[0]);
+          rowIdentifiers.push(model.get('identifier'));
+        }
+        if (rowIdentifiers.length) {
+          if ((_ref11 = this.popoverView) != null) {
+            _ref11.remove();
+          }
+          return $(this.el).find('div.actions').after((this.popoverView = new TablePopoverView({
+            "identifiers": rowIdentifiers,
+            "description": descriptions.join(', '),
+            "template": this.template,
+            "matchCb": this.options.matchCb,
+            "resultsCb": this.options.resultsCb,
+            "listCb": this.options.listCb,
+            "pathQuery": this.response.pathQuery,
+            "pathConstraint": this.response.pathConstraint,
+            "widget": this.widget,
+            "type": this.response.type,
+            "style": 'width:300px'
+          })).el);
+        }
+      };
+  
+      return TableView;
+  
+    })(Backbone.View);
+    /*
+    views/EnrichmentPopulationView.coffee
+    */
+  
+    /* Enrichment Widget background population selection box.
+    */
+  
+    EnrichmentPopulationView = (function(_super) {
+      __extends(EnrichmentPopulationView, _super);
+  
+      function EnrichmentPopulationView() {
+        this.selectListAction = __bind(this.selectListAction, this);
+        this.filterAction = __bind(this.filterAction, this);
+        this.toggleAction = __bind(this.toggleAction, this);
+        this.renderLists = __bind(this.renderLists, this);
+        this.render = __bind(this.render, this);      _ref10 = EnrichmentPopulationView.__super__.constructor.apply(this, arguments);
+        return _ref10;
+      }
+  
+      EnrichmentPopulationView.prototype.events = {
+        "click .background a.change": "toggleAction",
+        "click .background a.close": "toggleAction",
+        "keyup .background input.filter": "filterAction",
+        "click .background table a": "selectListAction"
+      };
+  
+      EnrichmentPopulationView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        return this.render();
+      };
+  
+      EnrichmentPopulationView.prototype.render = function() {
+        $(this.el).append(this.widget.template("enrichment.population", {
+          'current': this.current != null ? this.current : 'Default',
+          'loggedIn': this.loggedIn
+        }));
+        this.renderLists(this.lists);
+        return this;
+      };
+  
+      EnrichmentPopulationView.prototype.renderLists = function(lists) {
+        return $(this.el).find('div.values').html(this.widget.template("enrichment.populationlist", {
+          'lists': lists,
+          'current': this.current
+        }));
+      };
+  
+      EnrichmentPopulationView.prototype.toggleAction = function() {
+        return $(this.el).find('div.popover').toggle();
+      };
+  
+      EnrichmentPopulationView.prototype.filterAction = function(e) {
+        var _this = this;
+  
+        if (this.timeout != null) {
+          clearTimeout(this.timeout);
+        }
+        return this.timeout = setTimeout((function() {
+          var l, query, re;
+  
+          query = $(e.target).val();
+          if (query !== _this.query) {
+            _this.query = query;
+            re = new RegExp("" + query + ".*", 'i');
+            return _this.renderLists((function() {
+              var _i, _len, _ref11, _results;
+  
+              _ref11 = this.lists;
+              _results = [];
+              for (_i = 0, _len = _ref11.length; _i < _len; _i++) {
+                l = _ref11[_i];
+                if (l.name.match(re)) {
+                  _results.push(l);
+                }
+              }
+              return _results;
+            }).call(_this));
+          }
+        }), 500);
+      };
+  
+      EnrichmentPopulationView.prototype.selectListAction = function(e) {
+        var list;
+  
+        list = $(e.target).text();
+        e.preventDefault();
+        this.toggleAction();
+        return this.widget.selectBackgroundList(list, $(this.el).find('input.save:checked').length === 1);
+      };
+  
+      return EnrichmentPopulationView;
+  
+    })(Backbone.View);
+    /*
+    views/EnrichmentView.coffee
+    */
+  
+    /* View maintaining Enrichment Widget.
+    */
+  
+    EnrichmentView = (function(_super) {
+      __extends(EnrichmentView, _super);
+  
+      function EnrichmentView() {
+        this.selectBackgroundList = __bind(this.selectBackgroundList, this);
+        this.viewAction = __bind(this.viewAction, this);
+        this.exportAction = __bind(this.exportAction, this);
+        this.selectAllAction = __bind(this.selectAllAction, this);
+        this.formAction = __bind(this.formAction, this);
+        this.renderTableBody = __bind(this.renderTableBody, this);
+        this.renderTable = __bind(this.renderTable, this);
+        this.renderToolbar = __bind(this.renderToolbar, this);      _ref11 = EnrichmentView.__super__.constructor.apply(this, arguments);
+        return _ref11;
+      }
+  
+      EnrichmentView.prototype.events = {
+        "click div.actions a.view": "viewAction",
+        "click div.actions a.export": "exportAction",
+        "change div.form select": "formAction",
+        "click div.content input.check": "selectAllAction"
+      };
+  
+      EnrichmentView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        this.collection = new EnrichmentResults();
+        this.collection.bind('change', this.renderToolbar);
+        return this.render();
+      };
+  
+      EnrichmentView.prototype.render = function() {
+        var extraAttribute, opts;
+  
+        $(this.el).html(this.template("enrichment", {
+          "title": this.options.title ? this.response.title : "",
+          "description": this.options.description ? this.response.description : "",
+          "notAnalysed": this.response.notAnalysed,
+          "type": this.response.type
+        }));
+        $(this.el).find("div.form").html(this.template("enrichment.form", {
+          "options": this.form.options,
+          "pValues": this.form.pValues,
+          "errorCorrections": this.form.errorCorrections
+        }));
+        if (this.response.filterLabel != null) {
+          $(this.el).find('div.form form').append(this.template("extra", {
+            "label": this.response.filterLabel,
+            "possible": this.response.filters.split(','),
+            "selected": this.response.filterSelectedValue
+          }));
+        }
+        new EnrichmentPopulationView({
+          'el': $(this.el).find('div.form form'),
+          'lists': this.lists,
+          'current': this.response.current_population,
+          'loggedIn': this.response.is_logged,
+          'widget': this
+        });
+        if (this.response.extraAttribute) {
+          extraAttribute = JSON.parse(this.response.extraAttribute);
+          if (extraAttribute.gene_length) {
+            opts = merge(extraAttribute.gene_length, {
+              'el': $(this.el).find('div.form form'),
+              'widget': this,
+              'cb': this.options.resultsCb
+            });
+            new EnrichmentLengthCorrectionView(opts);
+          }
+        }
+        if (this.response.current_list != null) {
+          $(this.el).addClass('customBackgroundPopulation');
+        } else {
+          $(this.el).removeClass('customBackgroundPopulation');
+        }
+        if (this.response.results.length > 0 && (this.response.message == null)) {
+          this.renderToolbar();
+          this.renderTable();
+        } else {
+          $(this.el).find("div.content").html($(this.template("noresults", {
+            'text': this.response.message || 'No enrichment found.'
+          })));
+        }
+        this.widget.fireEvent({
+          'class': 'EnrichmentView',
+          'event': 'rendered'
+        });
+        return this;
+      };
+  
+      EnrichmentView.prototype.renderToolbar = function() {
+        return $(this.el).find("div.actions").html($(this.template("actions", {
+          "disabled": this.collection.selected().length === 0
+        })));
+      };
+  
+      EnrichmentView.prototype.renderTable = function() {
+        var height, i, table, _fn, _i, _ref12,
+          _this = this;
+  
+        $(this.el).find("div.content").html($(this.template("enrichment.table", {
+          "label": this.response.label
+        })));
+        table = $(this.el).find("div.content table");
+        _fn = function(i) {
+          var data, row;
+  
+          data = _this.response.results[i];
+          if (_this.response.externalLink) {
+            data.externalLink = _this.response.externalLink + data.identifier;
+          }
+          row = new EnrichmentRow(data, _this.widget);
+          return _this.collection.add(row);
+        };
+        for (i = _i = 0, _ref12 = this.response.results.length; 0 <= _ref12 ? _i < _ref12 : _i > _ref12; i = 0 <= _ref12 ? ++_i : --_i) {
+          _fn(i);
+        }
+        this.renderTableBody(table);
+        height = $(this.el).height() - $(this.el).find('div.header').height() - $(this.el).find('div.content table thead').height();
+        $(this.el).find("div.content div.wrapper").css('height', "" + height + "px");
+        $(this.el).find("div.content div.head").css("width", $(this.el).find("div.content table").width() + "px");
+        table.find('thead th').each(function(i, th) {
+          return $(_this.el).find("div.content div.head div:eq(" + i + ")").width($(th).width());
+        });
+        return table.css({
+          'margin-top': '-' + table.find('thead').height() + 'px'
+        });
+      };
+  
+      EnrichmentView.prototype.renderTableBody = function(table) {
+        var fragment, row, _i, _len, _ref12;
+  
+        fragment = document.createDocumentFragment();
+        _ref12 = this.collection.models;
+        for (_i = 0, _len = _ref12.length; _i < _len; _i++) {
+          row = _ref12[_i];
+          fragment.appendChild(new EnrichmentRowView({
+            "model": row,
+            "template": this.template,
+            "type": this.response.type,
+            "callbacks": {
+              "matchCb": this.options.matchCb,
+              "resultsCb": this.options.resultsCb,
+              "listCb": this.options.listCb
+            },
+            "response": this.response,
+            "widget": this.widget
+          }).el);
+        }
+        return table.find('tbody').html(fragment);
+      };
+  
+      EnrichmentView.prototype.formAction = function(e) {
+        this.widget.formOptions[$(e.target).attr("name")] = $(e.target[e.target.selectedIndex]).attr("value");
+        return this.widget.render();
+      };
+  
+      EnrichmentView.prototype.selectAllAction = function() {
+        this.collection.toggleSelected();
+        this.renderToolbar();
+        return this.renderTableBody($(this.el).find("div.content table"));
+      };
+  
+      EnrichmentView.prototype.exportAction = function(e) {
+        var model, pq, rowIdentifiers, _i, _len, _ref12,
+          _this = this;
+  
+        if (this.collection.selected() === 0) {
+          return;
+        }
+        rowIdentifiers = [];
+        _ref12 = this.collection.selected();
+        for (_i = 0, _len = _ref12.length; _i < _len; _i++) {
+          model = _ref12[_i];
+          rowIdentifiers.push(model.get('identifier'));
+        }
+        pq = JSON.parse(this.response['pathQueryForMatches']);
+        pq.where.push({
+          "path": this.response.pathConstraint,
+          "op": "ONE OF",
+          "values": rowIdentifiers
+        });
+        return this.widget.queryRows(pq, function(response) {
+          var TypeError, dict, object, result, _j, _k, _len1, _len2, _ref13;
+  
+          dict = {};
+          for (_j = 0, _len1 = response.length; _j < _len1; _j++) {
+            object = response[_j];
+            if (dict[object[0]] == null) {
+              dict[object[0]] = [];
+            }
+            dict[object[0]].push(object[1]);
+          }
+          result = [];
+          _ref13 = _this.collection.selected();
+          for (_k = 0, _len2 = _ref13.length; _k < _len2; _k++) {
+            model = _ref13[_k];
+            result.push([model.get('description'), model.get('p-value')].join("\t") + "\t" + dict[model.get('identifier')].join(','));
+          }
+          if (result.length) {
+            try {
+              return new Exporter(result.join("\n"), "" + _this.widget.bagName + " " + _this.widget.id + ".tsv");
+            } catch (_error) {
+              TypeError = _error;
+              return new PlainExporter($(e.target), result.join("\n"));
+            }
+          }
+        });
+      };
+  
+      EnrichmentView.prototype.viewAction = function() {
+        var descriptions, model, rowIdentifiers, _i, _len, _ref12, _ref13;
+  
+        descriptions = [];
+        rowIdentifiers = [];
+        _ref12 = this.collection.selected();
+        for (_i = 0, _len = _ref12.length; _i < _len; _i++) {
+          model = _ref12[_i];
+          descriptions.push(model.get('description'));
+          rowIdentifiers.push(model.get('identifier'));
+        }
+        if (rowIdentifiers.length) {
+          if ((_ref13 = this.popoverView) != null) {
+            _ref13.remove();
+          }
+          return $(this.el).find('div.actions').after((this.popoverView = new EnrichmentPopoverView({
+            "identifiers": rowIdentifiers,
+            "description": descriptions.join(', '),
+            "template": this.template,
+            "style": "width:300px",
+            "matchCb": this.options.matchCb,
+            "resultsCb": this.options.resultsCb,
+            "listCb": this.options.listCb,
+            "response": this.response,
+            "widget": this.widget
+          })).el);
+        }
+      };
+  
+      EnrichmentView.prototype.selectBackgroundList = function(list, save) {
+        if (save == null) {
+          save = false;
+        }
+        if (list === 'Default') {
+          list = '';
+        }
+        this.widget.formOptions['current_population'] = list;
+        this.widget.formOptions['remember_population'] = save;
+        return this.widget.render();
+      };
+  
+      return EnrichmentView;
+  
+    })(Backbone.View);
+    /*
+    views/EnrichmentRowView.coffee
+    */
+  
+    /* Enrichment Widget table row.
+    */
+  
+    EnrichmentRowView = (function(_super) {
+      __extends(EnrichmentRowView, _super);
+  
+      function EnrichmentRowView() {
+        this.toggleMatchesAction = __bind(this.toggleMatchesAction, this);
+        this.selectAction = __bind(this.selectAction, this);
+        this.render = __bind(this.render, this);      _ref12 = EnrichmentRowView.__super__.constructor.apply(this, arguments);
+        return _ref12;
+      }
+  
+      EnrichmentRowView.prototype.tagName = "tr";
+  
+      EnrichmentRowView.prototype.events = {
+        "click td.check input": "selectAction",
+        "click td.matches a.count": "toggleMatchesAction"
+      };
+  
+      EnrichmentRowView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        this.model.bind('change', this.render);
+        return this.render();
+      };
+  
+      EnrichmentRowView.prototype.render = function() {
+        $(this.el).html(this.template("enrichment.row", {
+          "row": this.model.toJSON()
+        }));
+        return this;
+      };
+  
+      EnrichmentRowView.prototype.selectAction = function() {
+        this.model.toggleSelected();
+        if (this.popoverView != null) {
+          $(this.el).find('td.matches a.count').after(this.popoverView.el);
+          return this.popoverView.delegateEvents();
+        }
+      };
+  
+      EnrichmentRowView.prototype.toggleMatchesAction = function(e) {
+        if (this.popoverView == null) {
+          return $(this.el).find('td.matches a.count').after((this.popoverView = new EnrichmentPopoverView({
+            "matches": this.model.get("matches"),
+            "identifiers": [this.model.get("identifier")],
+            "description": this.model.get("description"),
+            "template": this.template,
+            "matchCb": this.callbacks.matchCb,
+            "resultsCb": this.callbacks.resultsCb,
+            "listCb": this.callbacks.listCb,
+            "response": this.response,
+            "widget": this.widget,
+            "size": $(e.target).text()
+          })).el);
+        } else {
+          return this.popoverView.toggle();
+        }
+      };
+  
+      return EnrichmentRowView;
+  
+    })(Backbone.View);
+    /*
+    views/TableRowView.coffee
+    */
+  
+    /* Table Widget table row.
+    */
+  
+    TableRowView = (function(_super) {
+      __extends(TableRowView, _super);
+  
+      function TableRowView() {
+        this.toggleMatchesAction = __bind(this.toggleMatchesAction, this);
+        this.selectAction = __bind(this.selectAction, this);
+        this.render = __bind(this.render, this);      _ref13 = TableRowView.__super__.constructor.apply(this, arguments);
+        return _ref13;
+      }
+  
+      TableRowView.prototype.tagName = "tr";
+  
+      TableRowView.prototype.events = {
+        "click td.check input": "selectAction",
+        "click td.matches a.count": "toggleMatchesAction"
+      };
+  
+      TableRowView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        this.model.bind('change', this.render);
+        return this.render();
+      };
+  
+      TableRowView.prototype.render = function() {
+        $(this.el).html(this.template("table.row", {
+          "row": this.model.toJSON()
+        }));
+        return this;
+      };
+  
+      TableRowView.prototype.selectAction = function() {
+        this.model.toggleSelected();
+        if (this.popoverView != null) {
+          $(this.el).find('td.matches a.count').after(this.popoverView.el);
+          return this.popoverView.delegateEvents();
+        }
+      };
+  
+      TableRowView.prototype.toggleMatchesAction = function(e) {
+        if (this.popoverView == null) {
+          return $(this.el).find('td.matches a.count').after((this.popoverView = new TablePopoverView({
+            "identifiers": [this.model.get("identifier")],
+            "description": this.model.get("descriptions").join(', '),
+            "template": this.template,
+            "matchCb": this.matchCb,
+            "resultsCb": this.resultsCb,
+            "listCb": this.listCb,
+            "pathQuery": this.response.pathQuery,
+            "pathConstraint": this.response.pathConstraint,
+            "widget": this.widget,
+            "type": this.response.type,
+            "size": $(e.target).text()
+          })).el);
+        } else {
+          return this.popoverView.toggle();
+        }
+      };
+  
+      return TableRowView;
+  
+    })(Backbone.View);
+    /*
+    views/ChartPopoverView.coffee
+    */
+  
+    /* Chart Widget bar onclick box.
+    */
+  
+    ChartPopoverView = (function(_super) {
+      __extends(ChartPopoverView, _super);
+  
+      function ChartPopoverView() {
+        this.close = __bind(this.close, this);
+        this.listAction = __bind(this.listAction, this);
+        this.resultsAction = __bind(this.resultsAction, this);
+        this.matchAction = __bind(this.matchAction, this);
+        this.renderValues = __bind(this.renderValues, this);
+        this.render = __bind(this.render, this);      _ref14 = ChartPopoverView.__super__.constructor.apply(this, arguments);
+        return _ref14;
+      }
+  
+      ChartPopoverView.prototype.descriptionLimit = 50;
+  
+      ChartPopoverView.prototype.valuesLimit = 5;
+  
+      ChartPopoverView.prototype.events = {
+        "click a.match": "matchAction",
+        "click a.results": "resultsAction",
+        "click a.list": "listAction",
+        "click a.close": "close"
+      };
+  
+      ChartPopoverView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        return this.render();
+      };
+  
+      ChartPopoverView.prototype.render = function() {
+        $(this.el).html(this.template("popover", {
+          "description": this.description,
+          "descriptionLimit": this.descriptionLimit,
+          "style": 'width:300px'
+        }));
+        this.widget.queryRows(this.quickPq, this.renderValues);
+        return this;
+      };
+  
+      ChartPopoverView.prototype.renderValues = function(response) {
+        var object, values, _i, _len;
+  
+        values = [];
+        for (_i = 0, _len = response.length; _i < _len; _i++) {
+          object = response[_i];
+          values.push((function(object) {
+            var column, _j, _len1;
+  
+            for (_j = 0, _len1 = object.length; _j < _len1; _j++) {
+              column = object[_j];
+              if (column && column.length > 0) {
+                return column;
+              }
+            }
+          })(object));
+        }
+        return $(this.el).find('div.values').html(this.template('popover.values', {
+          'values': values,
+          'type': this.type,
+          'valuesLimit': this.valuesLimit,
+          'size': values.length
+        }));
+      };
+  
+      ChartPopoverView.prototype.matchAction = function(e) {
+        this.matchCb($(e.target).text(), this.type);
+        return e.preventDefault();
+      };
+  
+      ChartPopoverView.prototype.resultsAction = function() {
+        return this.resultsCb(this.resultsPq);
+      };
+  
+      ChartPopoverView.prototype.listAction = function() {
+        return this.listCb(this.resultsPq);
+      };
+  
+      ChartPopoverView.prototype.close = function() {
+        return $(this.el).remove();
+      };
+  
+      return ChartPopoverView;
+  
+    })(Backbone.View);
+    /*
+    views/TablePopoverView.coffee
+    */
+  
+    /* Table Widget table row matches box.
+    */
+  
+    TablePopoverView = (function(_super) {
+      __extends(TablePopoverView, _super);
+  
+      function TablePopoverView() {
+        this.toggle = __bind(this.toggle, this);
+        this.adjustPopover = __bind(this.adjustPopover, this);
+        this.listAction = __bind(this.listAction, this);
+        this.resultsAction = __bind(this.resultsAction, this);
+        this.matchAction = __bind(this.matchAction, this);
+        this.renderValues = __bind(this.renderValues, this);
+        this.render = __bind(this.render, this);      _ref15 = TablePopoverView.__super__.constructor.apply(this, arguments);
+        return _ref15;
+      }
+  
+      TablePopoverView.prototype.descriptionLimit = 50;
+  
+      TablePopoverView.prototype.valuesLimit = 5;
+  
+      TablePopoverView.prototype.events = {
+        'click a.match': 'matchAction',
+        'click a.results': 'resultsAction',
+        'click a.list': 'listAction',
+        'click a.close': 'toggle'
+      };
+  
+      TablePopoverView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        return this.render();
+      };
+  
+      TablePopoverView.prototype.render = function() {
+        $(this.el).css({
+          'position': 'relative'
+        });
+        $(this.el).html(this.template('popover', {
+          'description': this.description,
+          'descriptionLimit': this.descriptionLimit,
+          'style': this.style || "width:300px;margin-left:-300px"
+        }));
+        this.pathQuery = JSON.parse(this.pathQuery);
+        this.pathQuery.where.push({
+          'path': this.pathConstraint,
+          'op': 'ONE OF',
+          'values': this.identifiers
+        });
+        this.widget.queryRows(this.pathQuery, this.renderValues);
+        return this;
+      };
+  
+      TablePopoverView.prototype.renderValues = function(response) {
+        var object, values, _i, _len;
+  
+        values = [];
+        for (_i = 0, _len = response.length; _i < _len; _i++) {
+          object = response[_i];
+          values.push((function(object) {
+            var column, _j, _len1;
+  
+            for (_j = 0, _len1 = object.length; _j < _len1; _j++) {
+              column = object[_j];
+              if (column && column.length > 0) {
+                return column;
+              }
+            }
+          })(object));
+        }
+        $(this.el).find('div.values').html(this.template('popover.values', {
+          'values': values,
+          'type': this.type,
+          'valuesLimit': this.valuesLimit,
+          'size': this.size
+        }));
+        return this.adjustPopover();
+      };
+  
+      TablePopoverView.prototype.matchAction = function(e) {
+        this.matchCb($(e.target).text(), this.type);
+        return e.preventDefault();
+      };
+  
+      TablePopoverView.prototype.resultsAction = function() {
+        return this.resultsCb(this.pathQuery);
+      };
+  
+      TablePopoverView.prototype.listAction = function() {
+        return this.listCb(this.pathQuery);
+      };
+  
+      TablePopoverView.prototype.adjustPopover = function() {
+        var _this = this;
+  
+        return window.setTimeout((function() {
+          var diff, head, header, parent, popover, table, widget;
+  
+          table = $(_this.el).closest('div.wrapper');
+          popover = $(_this.el).find('.popover');
+          parent = popover.closest('td.matches');
+          if (!parent.length) {
+            return;
+          }
+          widget = parent.closest('div.inner');
+          header = widget.find('div.header');
+          head = widget.find('div.content div.head');
+          diff = ((parent.position().top - header.height() + head.height()) + popover.outerHeight()) - table.height();
+          if (diff > 0) {
+            return popover.css('top', -diff);
+          }
+        }), 0);
+      };
+  
+      TablePopoverView.prototype.toggle = function() {
+        $(this.el).toggle();
+        return this.adjustPopover();
+      };
+  
+      return TablePopoverView;
+  
+    })(Backbone.View);
+    /*
+    views/EnrichmentPopoverView.coffee
+    */
+  
+    /* Enrichment Widget table row matches box.
+    */
+  
+    EnrichmentPopoverView = (function(_super) {
+      __extends(EnrichmentPopoverView, _super);
+  
+      function EnrichmentPopoverView() {
+        this.listAction = __bind(this.listAction, this);
+        this.resultsAction = __bind(this.resultsAction, this);
+        this.matchAction = __bind(this.matchAction, this);
+        this.getPq = __bind(this.getPq, this);
+        this.toggle = __bind(this.toggle, this);
+        this.adjustPopover = __bind(this.adjustPopover, this);
+        this.renderValues = __bind(this.renderValues, this);
+        this.render = __bind(this.render, this);      _ref16 = EnrichmentPopoverView.__super__.constructor.apply(this, arguments);
+        return _ref16;
+      }
+  
+      EnrichmentPopoverView.prototype.descriptionLimit = 50;
+  
+      EnrichmentPopoverView.prototype.valuesLimit = 5;
+  
+      EnrichmentPopoverView.prototype.events = {
+        "click a.match": "matchAction",
+        "click a.results": "resultsAction",
+        "click a.list": "listAction",
+        "click a.close": "toggle"
+      };
+  
+      EnrichmentPopoverView.prototype.initialize = function(o) {
+        var k, v;
+  
+        for (k in o) {
+          v = o[k];
+          this[k] = v;
+        }
+        return this.render();
+      };
+  
+      EnrichmentPopoverView.prototype.render = function() {
+        var pq;
+  
+        $(this.el).css({
+          'position': 'relative'
+        });
+        $(this.el).html(this.template("popover", {
+          "description": this.description,
+          "descriptionLimit": this.descriptionLimit,
+          "style": this.style || "width:300px;margin-left:-300px"
+        }));
+        pq = JSON.parse(this.response['pathQueryForMatches']);
+        pq.where.push({
+          "path": this.response.pathConstraint,
+          "op": "ONE OF",
+          "values": this.identifiers
+        });
+        this.widget.queryRows(pq, this.renderValues);
+        return this;
+      };
+  
+      EnrichmentPopoverView.prototype.renderValues = function(response) {
+        var object, value, values, _i, _len;
+  
+        values = [];
+        for (_i = 0, _len = response.length; _i < _len; _i++) {
+          object = response[_i];
+          value = (function(object) {
+            var column, _j, _len1, _ref17;
+  
+            _ref17 = object.reverse();
+            for (_j = 0, _len1 = _ref17.length; _j < _len1; _j++) {
+              column = _ref17[_j];
+              if (column && column.length > 0) {
+                return column;
+              }
+            }
+          })(object);
+          if (__indexOf.call(values, value) < 0) {
+            values.push(value);
+          }
+        }
+        $(this.el).find('div.values').html(this.template('popover.values', {
+          'values': values,
+          'type': this.response.type,
+          'valuesLimit': this.valuesLimit,
+          'size': this.size
+        }));
+        return this.adjustPopover();
+      };
+  
+      EnrichmentPopoverView.prototype.adjustPopover = function() {
+        var _this = this;
+  
+        return window.setTimeout((function() {
+          var diff, head, header, parent, popover, table, widget;
+  
+          table = $(_this.el).closest('div.wrapper');
+          popover = $(_this.el).find('.popover');
+          parent = popover.closest('td.matches');
+          if (!parent.length) {
+            return;
+          }
+          widget = parent.closest('div.inner');
+          header = widget.find('div.header');
+          head = widget.find('div.content div.head');
+          diff = ((parent.position().top - header.height() + head.height()) + popover.outerHeight()) - table.height();
+          if (diff > 0) {
+            return popover.css('top', -diff);
+          }
+        }), 0);
+      };
+  
+      EnrichmentPopoverView.prototype.toggle = function() {
+        $(this.el).toggle();
+        return this.adjustPopover();
+      };
+  
+      EnrichmentPopoverView.prototype.getPq = function() {
+        var pq;
+  
+        pq = this.response.pathQuery;
+        this.pq = JSON.parse(pq);
+        return this.pq.where.push({
+          "path": this.response.pathConstraint,
+          "op": "ONE OF",
+          "values": this.identifiers
+        });
+      };
+  
+      EnrichmentPopoverView.prototype.matchAction = function(e) {
+        this.matchCb($(e.target).text(), this.response.type);
+        return e.preventDefault();
+      };
+  
+      EnrichmentPopoverView.prototype.resultsAction = function() {
+        if (this.pq == null) {
+          this.getPq();
+        }
+        return this.resultsCb(this.pq);
+      };
+  
+      EnrichmentPopoverView.prototype.listAction = function() {
+        if (this.pq == null) {
+          this.getPq();
+        }
+        return this.listCb(this.pq);
+      };
+  
+      return EnrichmentPopoverView;
+  
+    })(Backbone.View);
+    return {
+      'ChartWidget': ChartWidget,
+      'TableWidget': TableWidget,
+      'InterMineWidget': InterMineWidget,
+      'EnrichmentWidget': EnrichmentWidget,
+      'CoreModel': CoreModel,
+      'EnrichmentLengthCorrectionView': EnrichmentLengthCorrectionView,
+      'ChartView': ChartView,
+      'TableView': TableView,
+      'EnrichmentPopulationView': EnrichmentPopulationView,
+      'EnrichmentView': EnrichmentView,
+      'EnrichmentRowView': EnrichmentRowView,
+      'TableRowView': TableRowView,
+      'ChartPopoverView': ChartPopoverView,
+      'TablePopoverView': TablePopoverView,
+      'EnrichmentPopoverView': EnrichmentPopoverView
+    };
+  };
+  
+  /* Interface to InterMine Widgets.
+  */
+  
+  
+  $ = window.jQuery || window.Zepto;
+  
+  Widgets = (function() {
+    Widgets.prototype.VERSION = '1.12.0';
+  
+    Widgets.prototype.wait = true;
+  
+    Widgets.prototype.resources = {
+      'css': {
+        'Bootstrap': {
+          'path': 'http://cdn.intermine.org/css/bootstrap/2.0.4-prefixed-no-icons/css/bootstrap.min.css'
+        }
+      },
+      'js': {
+        'JSON': {
+          'path': 'http://cdn.intermine.org/js/json3/3.2.2/json3.min.js'
+        },
+        'setImmediate': {
+          'path': 'http://cdn.intermine.org/js/setImmediate/1.0.1/setImmediate.min.js'
+        },
+        'async': {
+          'path': 'http://cdn.intermine.org/js/async/0.2.6/async.min.js',
+          'depends': ['setImmediate']
+        },
+        'jQuery': {
+          'path': 'http://cdn.intermine.org/js/jquery/1.9.1/jquery-1.9.1.min.js'
+        },
+        '_': {
+          'path': 'http://cdn.intermine.org/js/underscore.js/1.3.3/underscore-min.js'
+        },
+        'Backbone': {
+          'path': 'http://cdn.intermine.org/js/backbone.js/1.0.0/backbone-min.js',
+          'depends': ['jQuery', '_']
+        },
+        'google': {
+          'path': 'https://www.google.com/jsapi'
+        },
+        'intermine.imjs': {
+          'path': 'http://cdn.intermine.org/js/intermine/imjs/latest/imjs.js',
+          'depends': ['jQuery', '_']
+        },
+        'FileSaver': {
+          'path': 'http://cdn.intermine.org/js/filesaver.js/FileSaver.min.js'
+        }
+      }
+    };
+  
+    /*
+    New Widgets client.
+    @param {string} service A string pointing to service endpoint e.g. http://aragorn:8080/flymine/service/
+    @param {string} token A string for accessing user's lists.
+    or
+    @param {Object} opts Config just like imjs consumes e.g. `{ "root": "", "token": "" }`
+    */
+  
+  
+    function Widgets() {
+      var done, opts,
+        _this = this;
+  
+      opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      this.all = __bind(this.all, this);
+      this.table = __bind(this.table, this);
+      this.enrichment = __bind(this.enrichment, this);
+      this.chart = __bind(this.chart, this);
+      if (typeof opts[0] === 'string') {
+        this.service = opts[0];
+        this.token = opts[1] || '';
+      } else {
+        if (opts[0].root != null) {
+          this.service = opts[0].root;
+        } else {
+          throw Error('You need to set the `root` parameter pointing to the mine\'s service');
+        }
+        this.token = opts[0].token || '';
+      }
+      done = function(err) {
+        if (err) {
+          throw err;
+        }
+        $ = window.jQuery;
+        __extends(o, factory(window.Backbone));
+        return _this.wait = false;
+      };
+      if (opts[0].skipDeps) {
+        done();
+      } else {
+        intermine.load(this.resources, done);
+      }
+    }
+  
+    /*
+    Chart Widget.
+    @param {string} id Represents a widget identifier as represented in webconfig-model.xml
+    @param {string} bagName List name to use with this Widget.
+    @param {jQuery selector} el Where to render the Widget to.
+    @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
+    */
+  
+  
+    Widgets.prototype.chart = function() {
+      var opts,
+        _this = this;
+  
+      opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      if (this.wait) {
+        return window.setTimeout((function() {
+          return _this.chart.apply(_this, opts);
+        }), 0);
+      } else {
+        return google.load("visualization", "1.0", {
+          packages: ["corechart"],
+          callback: function() {
+            return (function(func, args, ctor) {
+              ctor.prototype = func.prototype;
+              var child = new ctor, result = func.apply(child, args);
+              return Object(result) === result ? result : child;
+            })(o.ChartWidget, [_this.service, _this.token].concat(__slice.call(opts)), function(){});
+          }
+        });
+      }
+    };
+  
+    /*
+    Enrichment Widget.
+    @param {string} id Represents a widget identifier as represented in webconfig-model.xml
+    @param {string} bagName List name to use with this Widget.
+    @param {jQuery selector} el Where to render the Widget to.
+    @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
+    */
+  
+  
+    Widgets.prototype.enrichment = function() {
+      var opts,
+        _this = this;
+  
+      opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      if (this.wait) {
+        return window.setTimeout((function() {
+          return _this.enrichment.apply(_this, opts);
+        }), 0);
+      } else {
+        if (this.lists != null) {
+          return (function(func, args, ctor) {
+            ctor.prototype = func.prototype;
+            var child = new ctor, result = func.apply(child, args);
+            return Object(result) === result ? result : child;
+          })(o.EnrichmentWidget, [this.service, this.token, this.lists].concat(__slice.call(opts)), function(){});
+        } else {
+          this.wait = true;
+          return $.ajax({
+            'url': "" + this.service + "lists?token=" + this.token + "&format=json",
+            'dataType': 'jsonp',
+            success: function(data) {
+              if (data.statusCode !== 200 && (data.lists == null)) {
+                return $(opts[2]).html($('<div/>', {
+                  'class': "alert alert-error",
+                  'html': "Problem fetching lists we have access to <a href='" + _this.service + "lists'>" + _this.service + "lists</a>"
+                }));
+              } else {
+                _this.lists = data.lists;
+                _this.wait = false;
+                return (function(func, args, ctor) {
+                  ctor.prototype = func.prototype;
+                  var child = new ctor, result = func.apply(child, args);
+                  return Object(result) === result ? result : child;
+                })(o.EnrichmentWidget, [_this.service, _this.token, _this.lists].concat(__slice.call(opts)), function(){});
+              }
+            },
+            error: function(xhr, opts, err) {
+              return $(el).html($('<div/>', {
+                'class': "alert alert-error",
+                'html': "" + xhr.statusText + " for <a href='" + _this.service + "widgets'>" + _this.service + "widgets</a>"
+              }));
+            }
+          });
+        }
+      }
+    };
+  
+    /*
+    Table Widget.
+    @param {string} id Represents a widget identifier as represented in webconfig-model.xml
+    @param {string} bagName List name to use with this Widget.
+    @param {jQuery selector} el Where to render the Widget to.
+    @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
+    */
+  
+  
+    Widgets.prototype.table = function() {
+      var opts,
+        _this = this;
+  
+      opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      if (this.wait) {
+        return window.setTimeout((function() {
+          return _this.table.apply(_this, opts);
+        }), 0);
+      } else {
+        return (function(func, args, ctor) {
+          ctor.prototype = func.prototype;
+          var child = new ctor, result = func.apply(child, args);
+          return Object(result) === result ? result : child;
+        })(o.TableWidget, [this.service, this.token].concat(__slice.call(opts)), function(){});
+      }
+    };
+  
+    /*
+    All available List Widgets.
+    @param {string} type Class of objects e.g. Gene, Protein.
+    @param {string} bagName List name to use with this Widget.
+    @param {jQuery selector} el Where to render the Widget to.
+    @param {Object} widgetOptions `{ "title": true/false, "description": true/false, "matchCb": function(id, type) {}, "resultsCb": function(pq) {}, "listCb": function(pq) {} }`
+    */
+  
+  
+    Widgets.prototype.all = function(type, bagName, el, widgetOptions) {
+      var _this = this;
+  
+      if (type == null) {
+        type = "Gene";
+      }
+      if (this.wait) {
+        return window.setTimeout((function() {
+          return _this.all(type, bagName, el, widgetOptions);
+        }), 0);
+      } else {
+        return $.ajax({
+          'url': "" + this.service + "widgets?format=json",
+          'dataType': 'jsonp',
+          success: function(response) {
+            var widget, widgetEl, _i, _len, _ref1, _results;
+  
+            if (response.widgets) {
+              _ref1 = response.widgets;
+              _results = [];
+              for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+                widget = _ref1[_i];
+                if (!(__indexOf.call(widget.targets, type) >= 0)) {
+                  continue;
+                }
+                widgetEl = widget.name.replace(/[^-a-zA-Z0-9,&\s]+/ig, '').replace(/-/gi, "_").replace(/\s/gi, "-").toLowerCase();
+                $(el).append($('<div/>', {
+                  'id': widgetEl,
+                  'class': "widget span6"
+                }));
+                switch (widget.widgetType) {
+                  case "chart":
+                    _results.push(_this.chart(widget.name, bagName, "" + el + " #" + widgetEl, widgetOptions));
+                    break;
+                  case "enrichment":
+                    _results.push(_this.enrichment(widget.name, bagName, "" + el + " #" + widgetEl, widgetOptions));
+                    break;
+                  case "table":
+                    _results.push(_this.table(widget.name, bagName, "" + el + " #" + widgetEl, widgetOptions));
+                    break;
+                  default:
+                    _results.push(void 0);
+                }
+              }
+              return _results;
+            }
+          },
+          error: function(xhr, opts, err) {
+            return $(el).html($('<div/>', {
+              'class': "alert alert-error",
+              'html': "" + xhr.statusText + " for <a href='" + _this.service + "widgets'>" + _this.service + "widgets</a>"
+            }));
+          }
+        });
+      }
+    };
+  
+    return Widgets;
+  
+  })();
+  
+  if (!window.intermine) {
+    throw 'You need to include the InterMine API Loader first!';
+  } else {
+    window.intermine.widgets = Widgets;
+  }
+  
+}).call(this);;
 /*
  * jQuery Custom Forms Plugin 1.0
  * www.ZURB.com

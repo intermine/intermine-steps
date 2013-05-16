@@ -3,8 +3,6 @@ ToolView = require 'chaplin/views/Tool'
 
 root = @
 
-App = root.App
-
 # Should be fetched from the mine instead.
 types = [ 'Gene', 'Protein' ]
 organisms = [
@@ -61,7 +59,7 @@ module.exports = class UploadListToolView extends ToolView
             # Upload identifiers & save as a Model.
             when 2
                 # Resolve IDs.
-                (App.service.resolveIds
+                (root.App.service.im.resolveIds
                     'identifiers': @ids
                     'type':        @type
                 ).then (job) =>
@@ -88,7 +86,7 @@ module.exports = class UploadListToolView extends ToolView
             # Convert identifiers into a list too.
             when 3
                 # Turn a Query into a Query Object.
-                App.service.query @query, (q) =>
+                root.App.service.im.query @query, (q) =>
                     # Generate a practically unique list name.
                     name = root.Utils.guid()
                     # Save as a list.
@@ -100,7 +98,6 @@ module.exports = class UploadListToolView extends ToolView
                             'type':        @type
                             'query':       @query
                             'list':        name
-
 
                         # Update the history, we are set.
                         Mediator.publish 'history:add', @model
@@ -116,7 +113,7 @@ module.exports = class UploadListToolView extends ToolView
                 # Where to?
                 target = $(@el).find('.im-table')
 
-                # Form the query constraining on type.
+                # Form the query constraining on a ĺist.
                 query =
                     'model':
                         'name': 'genomic'
@@ -130,11 +127,11 @@ module.exports = class UploadListToolView extends ToolView
                 # Show a minimal Results Table.
                 target.imWidget
                     'type': 'minimal'
-                    'service': App.service
+                    'service': root.App.service.im
                     'query': query
 
                 # We have a list!
-                Mediator.publish 'context:new', [ 'have:list' ], @model.get('guid')
+                Mediator.publish 'context:new', [ 'have:list', 'type:' + type ], @model.get('guid')
 
         @
 

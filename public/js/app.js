@@ -345,14 +345,21 @@ window.require.register("chaplin/core/Application", function(exports, require, m
     InterMineSteps.prototype.initialize = function() {
       var _this = this;
       InterMineSteps.__super__.initialize.apply(this, arguments);
-      this.service = new intermine.Service({
-        'root': config.mine,
-        'token': config.token,
-        'errorHandler': function(err) {
-          (new Controller).redirectToRoute('500');
-          return assert(false, err);
-        }
-      });
+      this.service = {
+        'im': new intermine.Service({
+          'root': config.mine,
+          'token': config.token,
+          'errorHandler': function(err) {
+            (new Controller).redirectToRoute('500');
+            return assert(false, err);
+          }
+        }),
+        'list': new intermine.widgets({
+          'root': config.mine + '/service/',
+          'token': config.token,
+          'skipDeps': true
+        })
+      };
       this.initRouter(Routes);
       this.initDispatcher({
         'controllerPath': 'chaplin/controllers/',
@@ -2989,6 +2996,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
           'previous': (_ref = this.options.previous) != null ? _ref.data : void 0
         });
       }
+      assert(data.steps && data.steps instanceof Array, '`steps` not defined in Model');
       return data;
     };
 
@@ -3071,37 +3079,37 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
   })(GenericToolView);
   
 });
-window.require.register("tools/ResultsTableTool/Model", function(exports, require, module) {
-  var ResultsTableTool, Tool,
+window.require.register("tools/ListWidgetTool/Model", function(exports, require, module) {
+  var ListWidgetTool, Tool,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Tool = require('chaplin/models/Tool');
 
-  module.exports = ResultsTableTool = (function(_super) {
+  module.exports = ListWidgetTool = (function(_super) {
 
-    __extends(ResultsTableTool, _super);
+    __extends(ListWidgetTool, _super);
 
-    function ResultsTableTool() {
-      return ResultsTableTool.__super__.constructor.apply(this, arguments);
+    function ListWidgetTool() {
+      return ListWidgetTool.__super__.constructor.apply(this, arguments);
     }
 
-    ResultsTableTool.prototype.defaults = {
-      'slug': 'results-table-tool',
-      'name': 'ResultsTableTool',
-      'title': 'Results Table',
-      'description': 'Show a table of results',
-      'type': 'curiousblue',
-      'steps': ['See Table']
+    ListWidgetTool.prototype.defaults = {
+      'slug': 'list-widget-tool',
+      'name': 'ListWidgetTool',
+      'title': 'List Widget',
+      'description': 'Show a List Widget',
+      'type': 'kimberly',
+      'steps': ['Choose a list', 'See a Widget']
     };
 
-    return ResultsTableTool;
+    return ListWidgetTool;
 
   })(Tool);
   
 });
-window.require.register("tools/ResultsTableTool/View", function(exports, require, module) {
-  var Mediator, ResultsTableTool, ToolView,
+window.require.register("tools/ListWidgetTool/View", function(exports, require, module) {
+  var App, ListWidgetToolView, Mediator, ToolView, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3109,25 +3117,88 @@ window.require.register("tools/ResultsTableTool/View", function(exports, require
 
   ToolView = require('chaplin/views/Tool');
 
-  module.exports = ResultsTableTool = (function(_super) {
+  root = this;
 
-    __extends(ResultsTableTool, _super);
+  App = root.App;
 
-    function ResultsTableTool() {
-      return ResultsTableTool.__super__.constructor.apply(this, arguments);
+  module.exports = ListWidgetToolView = (function(_super) {
+
+    __extends(ListWidgetToolView, _super);
+
+    function ListWidgetToolView() {
+      return ListWidgetToolView.__super__.constructor.apply(this, arguments);
     }
 
-    ResultsTableTool.prototype.attach = function() {
-      ResultsTableTool.__super__.attach.apply(this, arguments);
-      return Mediator.publish('context:new', ['have:list', 'can:download', 'can:linkout'], this.model.get('parent'));
+    ListWidgetToolView.prototype.getTemplateData = function() {
+      var data;
+      data = ListWidgetToolView.__super__.getTemplateData.apply(this, arguments);
+      switch (this.step) {
+        case 1:
+          if (this.options.previous) {
+            _.extend(data, {
+              'list': this.options.previous.data.list
+            });
+          }
+          if (this.model.get('locked') != null) {
+            _.extend(data, {
+              'list': this.model.get('data').list
+            });
+          }
+      }
+      return data;
     };
 
-    return ResultsTableTool;
+    ListWidgetToolView.prototype.attach = function() {
+      var data, list, type, which, widget, _ref, _ref1, _ref2,
+        _this = this;
+      ListWidgetToolView.__super__.attach.apply(this, arguments);
+      switch (this.step) {
+        case 1:
+          if ((data = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? _ref1.data : void 0 : void 0)) {
+            list = data.list, type = data.type;
+            _ref2 = this.options.extra.split(','), which = _ref2[0], widget = _ref2[1];
+            return this.save({
+              'list': list,
+              'objType': type,
+              'widget': {
+                'id': widget,
+                'type': which
+              }
+            });
+          }
+          this.delegate('click', '#submit', function() {
+            var name;
+            name = $(_this.el).find('input[name="list"]').val();
+            if (name.length === 0) {
+              return Mediator.publish('modal:render', {
+                'title': 'Oops &hellip;',
+                'text': 'No list selected.'
+              });
+            }
+            data = _this.model.get('data');
+            data.list = name;
+            return _this.save(data);
+          });
+          break;
+        case 2:
+          assert((data = this.model.get('data')), 'Input list not provided');
+          root.App.service.list[data.widget.type](data.widget.id, data.list, '.bootstrap');
+      }
+      return this;
+    };
+
+    ListWidgetToolView.prototype.save = function(obj) {
+      this.model.set('data', obj);
+      Mediator.publish('history:add', this.model);
+      return this.nextStep();
+    };
+
+    return ListWidgetToolView;
 
   })(ToolView);
   
 });
-window.require.register("tools/ResultsTableTool/step-1", function(exports, require, module) {
+window.require.register("tools/ListWidgetTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
     var __out = [], __capture = function(callback) {
@@ -3167,23 +3238,62 @@ window.require.register("tools/ResultsTableTool/step-1", function(exports, requi
     }
     (function() {
       (function() {
-        var id, _i, _len, _ref;
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            ');
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <label>Type in list name</label>\n            <input type="text" name="list" value="');
       
-        if (this.previous && this.previous.list && this.previous.list.items) {
-          __out.push('\n                <table class="table">\n                    <thead>\n                        <tr>\n                            <th>Identifier</th>\n                            <th>Attr 1</th>\n                            <th>Attr 2</th>\n                            <th>Attr 3</th>\n                        </tr>\n                    </thead>\n                    <tbody>\n                        ');
-          _ref = this.previous.list.items;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            id = _ref[_i];
-            __out.push('\n                            <tr>\n                                <td>');
-            __out.push(__sanitize(id));
-            __out.push('</td>\n                                <td>Дмитрий Фролов</td>\n                                <td>Егор Мальцев</td>\n                                <td>Станислав Тарасов</td>\n                            </tr>\n                        ');
-          }
-          __out.push('\n                    </tbody>\n                </table>\n            ');
-        }
+        __out.push(__sanitize(this.list));
       
-        __out.push('\n        </div>\n    </div>\n</div>');
+        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Choose a list</span></a>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/ListWidgetTool/step-2", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="bootstrap">\n                <div class="loading"></div>\n            </div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3222,7 +3332,7 @@ window.require.register("tools/UploadListTool/Model", function(exports, require,
   
 });
 window.require.register("tools/UploadListTool/View", function(exports, require, module) {
-  var App, Mediator, ToolView, UploadListToolView, organisms, root, types,
+  var Mediator, ToolView, UploadListToolView, organisms, root, types,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3231,8 +3341,6 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
   ToolView = require('chaplin/views/Tool');
 
   root = this;
-
-  App = root.App;
 
   types = ['Gene', 'Protein'];
 
@@ -3279,7 +3387,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
           });
           break;
         case 2:
-          (App.service.resolveIds({
+          (root.App.service.im.resolveIds({
             'identifiers': this.ids,
             'type': this.type
           })).then(function(job) {
@@ -3309,7 +3417,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
           });
           break;
         case 3:
-          App.service.query(this.query, function(q) {
+          root.App.service.im.query(this.query, function(q) {
             var name;
             name = root.Utils.guid();
             return q.saveAsList({
@@ -3345,10 +3453,10 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
           };
           target.imWidget({
             'type': 'minimal',
-            'service': App.service,
+            'service': root.App.service.im,
             'query': query
           });
-          Mediator.publish('context:new', ['have:list'], this.model.get('guid'));
+          Mediator.publish('context:new', ['have:list', 'type:' + type], this.model.get('guid'));
       }
       return this;
     };
@@ -3653,14 +3761,85 @@ window.require.register("tools/config", function(exports, require, module) {
         }
       ]
     }, {
-      'slug': 'results-table-tool',
+      'slug': 'list-widget-tool',
       'labels': [
         {
-          'label': 'Show in a table',
+          'label': 'Gene Expression in the Fly (FlyAtlas)',
           'weight': 10,
-          'context': ['have:list'],
+          'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'keywords': ['results']
+          'category': ['List Widgets'],
+          'extra': ['chart', 'flyatlas_for_gene']
+        }, {
+          'label': 'mRNA subcellular localisation (fly-FISH)',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['chart', 'flyfish']
+        }, {
+          'label': 'BDGP expression patterns',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['chart', 'bdgp']
+        }, {
+          'label': 'MiRNA Enrichment',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['enrichment', 'miranda_enrichment']
+        }, {
+          'label': 'Gene Ontology Enrichment',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['enrichment', 'go_enrichment_for_gene']
+        }, {
+          'label': 'Protein Domain Enrichment',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['enrichment', 'prot_dom_enrichment_for_gene']
+        }, {
+          'label': 'BDGP Enrichment',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['enrichment', 'bdgp_enrichment']
+        }, {
+          'label': 'Publication Enrichment',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['enrichment', 'publication_enrichment']
+        }, {
+          'label': 'Pathway Enrichment',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['enrichment', 'pathway_enrichment']
+        }, {
+          'label': 'Orthologues',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['table', 'orthologues']
+        }, {
+          'label': 'Chromosome Distribution',
+          'weight': 10,
+          'context': ['have:list', 'type:Gene'],
+          'place': 'right',
+          'category': ['List Widgets'],
+          'extra': ['chart', 'chromosome_distribution_for_gene']
         }
       ]
     }

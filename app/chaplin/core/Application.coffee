@@ -24,12 +24,17 @@ module.exports = class InterMineSteps extends Chaplin.Application
         super
 
         # Make a connection to the mine globally available.
-        @service = new intermine.Service
-            'root': config.mine
-            'token': config.token
-            'errorHandler': (err) =>
-                (new Controller).redirectToRoute '500'
-                assert false, err
+        @service =
+            'im': new intermine.Service
+                'root': config.mine
+                'token': config.token
+                'errorHandler': (err) =>
+                    (new Controller).redirectToRoute '500'
+                    assert false, err
+            'list': new intermine.widgets
+                'root': config.mine + '/service/'
+                'token': config.token
+                'skipDeps': true
 
         # Register all routes.
         @initRouter Routes
