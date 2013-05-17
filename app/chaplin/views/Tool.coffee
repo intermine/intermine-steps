@@ -21,11 +21,19 @@ module.exports = class ToolView extends GenericToolView
 
         assert data.steps and data.steps instanceof Array, '`steps` not defined in Model'
 
+        # Split extra?
+        if (extra = @options.extra) and extra not instanceof Array
+            @options.extra = extra.split(',')
+
         # Nice ret.
         data
 
     initialize: ->
         super
+
+        # Split extra?
+        if (extra = @options.extra) and extra not instanceof Array
+            @options.extra = extra.split(',')
 
         # Set the step.
         @step = @options.step or 1

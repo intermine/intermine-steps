@@ -308,7 +308,8 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
 window.require.register("chaplin/core/Application", function(exports, require, module) {
   var Chaplin, Controller, Dispatcher, InterMineSteps, Layout, Mediator, Routes, config, registry, _ref,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __slice = [].slice;
 
   Chaplin = require('chaplin');
 
@@ -358,7 +359,8 @@ window.require.register("chaplin/core/Application", function(exports, require, m
           'root': config.mine + '/service/',
           'token': config.token,
           'skipDeps': true
-        })
+        }),
+        'report': new intermine.reportWidgets('http://intermine-report-widgets-service.labs.intermine.org')
       };
       this.initRouter(Routes);
       this.initDispatcher({
@@ -380,8 +382,9 @@ window.require.register("chaplin/core/Application", function(exports, require, m
 
     InterMineSteps.prototype.initRegistry = function() {
       var _this = this;
-      return Mediator.subscribe('context:new', function(context, guid) {
-        var Model, key, model, obj, tool, variant, _i, _len, _results;
+      return Mediator.subscribe('context:new', function() {
+        var Model, context, guid, key, model, obj, opts, tool, variant, _i, _len, _results;
+        context = arguments[0], guid = arguments[1], opts = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
         if (context == null) {
           context = [];
         }
@@ -415,7 +418,10 @@ window.require.register("chaplin/core/Application", function(exports, require, m
                   obj.guid = guid;
                 }
                 model.dispose();
-                _results1.push(Mediator.publish('context:render', variant.place, context, obj));
+                if (opts.length !== 0) {
+                  obj.extra = (obj.extra || []).concat(opts);
+                }
+                _results1.push(Mediator.publish('context:render', variant.place, context, obj, opts));
               } else {
                 _results1.push(void 0);
               }
@@ -2987,7 +2993,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     };
 
     ToolView.prototype.getTemplateData = function() {
-      var data, _ref;
+      var data, extra, _ref;
       data = _.extend(this.model.toJSON(), {
         'step': this.step
       });
@@ -2997,12 +3003,19 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
         });
       }
       assert(data.steps && data.steps instanceof Array, '`steps` not defined in Model');
+      if ((extra = this.options.extra) && !(extra instanceof Array)) {
+        this.options.extra = extra.split(',');
+      }
       return data;
     };
 
     ToolView.prototype.initialize = function() {
-      var _this = this;
+      var extra,
+        _this = this;
       ToolView.__super__.initialize.apply(this, arguments);
+      if ((extra = this.options.extra) && !(extra instanceof Array)) {
+        this.options.extra = extra.split(',');
+      }
       this.step = this.options.step || 1;
       return Mediator.subscribe('tool:step', function(step) {
         _this.step = step;
@@ -3109,7 +3122,7 @@ window.require.register("tools/ListWidgetTool/Model", function(exports, require,
   
 });
 window.require.register("tools/ListWidgetTool/View", function(exports, require, module) {
-  var App, ListWidgetToolView, Mediator, ToolView, root,
+  var ListWidgetToolView, Mediator, ToolView, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3118,8 +3131,6 @@ window.require.register("tools/ListWidgetTool/View", function(exports, require, 
   ToolView = require('chaplin/views/Tool');
 
   root = this;
-
-  App = root.App;
 
   module.exports = ListWidgetToolView = (function(_super) {
 
@@ -3156,7 +3167,7 @@ window.require.register("tools/ListWidgetTool/View", function(exports, require, 
         case 1:
           if ((data = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? _ref1.data : void 0 : void 0)) {
             list = data.list, type = data.type;
-            _ref2 = this.options.extra.split(','), which = _ref2[0], widget = _ref2[1];
+            _ref2 = this.options.extra, which = _ref2[0], widget = _ref2[1];
             return this.save({
               'list': list,
               'objType': type,
@@ -3294,6 +3305,313 @@ window.require.register("tools/ListWidgetTool/step-2", function(exports, require
       (function() {
       
         __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="bootstrap">\n                <div class="loading"></div>\n            </div>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/OntologyGraphTool/Model", function(exports, require, module) {
+  var OntologyGraphTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = OntologyGraphTool = (function(_super) {
+
+    __extends(OntologyGraphTool, _super);
+
+    function OntologyGraphTool() {
+      return OntologyGraphTool.__super__.constructor.apply(this, arguments);
+    }
+
+    OntologyGraphTool.prototype.defaults = {
+      'slug': 'ontology-graph-tool',
+      'name': 'OntologyGraphTool',
+      'title': 'Ontology Graph',
+      'description': 'Show an Ontology Graph for a Gene',
+      'type': 'goldentainoi',
+      'steps': ['Choose a Gene', 'Convert Gene to a Symbol', 'See the Graph']
+    };
+
+    return OntologyGraphTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/OntologyGraphTool/View", function(exports, require, module) {
+  var Mediator, OntologyGraphView, ToolView, root,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  root = this;
+
+  module.exports = OntologyGraphView = (function(_super) {
+
+    __extends(OntologyGraphView, _super);
+
+    function OntologyGraphView() {
+      return OntologyGraphView.__super__.constructor.apply(this, arguments);
+    }
+
+    OntologyGraphView.prototype.getTemplateData = function() {
+      var data, extra;
+      data = OntologyGraphView.__super__.getTemplateData.apply(this, arguments);
+      switch (this.step) {
+        case 1:
+          if ((extra = this.options.extra) && extra instanceof Array && extra.length !== 0) {
+            _.extend(data, {
+              'id': extra[0]
+            });
+          }
+          if (this.model.get('locked') != null) {
+            _.extend(data, this.model.get('data'));
+          }
+      }
+      return data;
+    };
+
+    OntologyGraphView.prototype.attach = function() {
+      var extra,
+        _this = this;
+      OntologyGraphView.__super__.attach.apply(this, arguments);
+      switch (this.step) {
+        case 1:
+          if ((extra = this.options.extra) && extra instanceof Array && extra.length !== 0) {
+            this.id = parseInt(extra[0]);
+            return this.nextStep();
+          }
+          this.delegate('click', '#submit', function() {
+            _this.id = parseInt($(_this.el).find('input[name="id"]').val());
+            return _this.nextStep();
+          });
+          break;
+        case 2:
+          if (_.isNumber(this.id)) {
+            root.App.service.im.query({
+              'model': {
+                'name': 'genomic'
+              },
+              'select': ["Gene.symbol"],
+              'constraints': [
+                {
+                  'path': "Gene.id",
+                  'op': '=',
+                  'value': this.id
+                }
+              ]
+            }, function(q) {
+              return q.rows(function(rows) {
+                var row, symbol;
+                if (rows && rows.length === 1 && (row = rows.pop()) && (symbol = row.pop())) {
+                  return _this.save({
+                    'symbol': symbol
+                  });
+                }
+                return Mediator.publish('modal:render', {
+                  'title': 'Oops &hellip;',
+                  'text': 'Gene id not resolved.'
+                });
+              });
+            });
+          } else {
+            this.save({
+              'symbol': this.id
+            });
+          }
+          break;
+        case 3:
+          root.App.service.report.load("ontology-graph", "#ontology", {
+            service: {
+              root: "http://www.flymine.org/query"
+            },
+            interop: [
+              {
+                taxonId: 4932,
+                root: "yeastmine-test.yeastgenome.org/yeastmine-dev",
+                name: "SGD"
+              }, {
+                taxonId: 10090,
+                root: "http://beta.mousemine.org/mousemine",
+                name: "MGI"
+              }, {
+                taxonId: 6239,
+                root: "http://intermine.modencode.org/release-32",
+                name: "modMine"
+              }
+            ],
+            graphState: {
+              query: this.model.get('data').symbol
+            }
+          });
+      }
+      return this;
+    };
+
+    OntologyGraphView.prototype.save = function(obj) {
+      this.model.set('data', obj);
+      Mediator.publish('history:add', this.model);
+      return this.nextStep();
+    };
+
+    return OntologyGraphView;
+
+  })(ToolView);
+  
+});
+window.require.register("tools/OntologyGraphTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <label>Type in Gene <em>id</em></label>\n            <input type="text" name="id" value="');
+      
+        __out.push(__sanitize(this.id));
+      
+        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Show the Graph</span></a>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/OntologyGraphTool/step-2", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/OntologyGraphTool/step-3", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div id="ontology" class="foundation"></div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3454,7 +3772,12 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
           target.imWidget({
             'type': 'minimal',
             'service': root.App.service.im,
-            'query': query
+            'query': query,
+            'events': {
+              'imo:click': function(type, id) {
+                return Mediator.publish('context:new', ['have:list', 'type:' + type, 'have:one'], _this.model.get('guid'), id);
+              }
+            }
           });
           Mediator.publish('context:new', ['have:list', 'type:' + type], this.model.get('guid'));
       }
@@ -3530,7 +3853,7 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
           }
           __out.push('</textarea>\n                ');
         } else {
-          __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD</textarea>\n                ');
+          __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n                ');
         }
       
         __out.push('\n            </div>\n            <div class="two columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
@@ -3758,6 +4081,17 @@ window.require.register("tools/config", function(exports, require, module) {
           'weight': 10,
           'place': 'home',
           'keywords': ['list']
+        }
+      ]
+    }, {
+      'slug': 'ontology-graph-tool',
+      'labels': [
+        {
+          'label': 'Ontology Graph',
+          'weight': 10,
+          'context': ['have:list', 'have:one', 'type:Gene'],
+          'place': 'right',
+          'category': ['Report Widgets']
         }
       ]
     }, {

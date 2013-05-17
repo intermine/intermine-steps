@@ -111,7 +111,7 @@
             'type': 'js'
           }
         ], function(err) {
-          var article, div, widget;
+          var Widget, article, config, div, generalConfig, instance, selector, templates, widget;
 
           article = document.createElement('article');
           article.setAttribute('class', "im-report-widget " + widgetId);
@@ -125,8 +125,11 @@
           if (!(widget = root.intermine.temp.widgets[uid])) {
             throw "Unknown widget `" + uid + "`";
           }
-          widget.config = _extend(widget.config, options);
-          return widget.render("#w" + uid + " article.im-report-widget");
+          Widget = widget[0], generalConfig = widget[1], templates = widget[2];
+          config = _extend({}, generalConfig, options);
+          selector = "#w" + uid + " article.im-report-widget";
+          instance = new Widget(config, templates);
+          return instance.render(selector);
         });
       };
       deps = this.config[widgetId];

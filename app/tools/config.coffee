@@ -24,6 +24,17 @@ exports.registry = [
             }
         ]
     }, {
+        'slug': 'ontology-graph-tool'
+        'labels': [
+            {
+                'label': 'Ontology Graph'
+                'weight': 10
+                'context': [ 'have:list', 'have:one', 'type:Gene' ]
+                'place': 'right'
+                'category': [ 'Report Widgets' ]
+            }
+        ]
+    }, {
         'slug': 'list-widget-tool'
         'labels': [
             {

@@ -1,0 +1,13 @@
+<div class="container">
+    <div class="row">
+        <div class="twelve columns">
+            <label>Type in Gene <em>id</em></label>
+            <input type="text" name="id" value="<%= @id %>" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            <a id="submit" class="button">Show the Graph</span></a>
+        </div>
+    </div>
+</div>

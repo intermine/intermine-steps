@@ -3,8 +3,6 @@ ToolView = require 'chaplin/views/Tool'
 
 root = @
 
-App = root.App
-
 module.exports = class ListWidgetToolView extends ToolView
 
     getTemplateData: ->
@@ -29,7 +27,7 @@ module.exports = class ListWidgetToolView extends ToolView
                 # Do we already have list input from previous Model?
                 if (data = @options?.previous?.data)
                     { list, type } = data
-                    [ which, widget ] = @options.extra.split(',')
+                    [ which, widget ] = @options.extra
                     
                     # Save the input proper.
                     return @save

@@ -1,6 +1,6 @@
 {
     "name": "intermine-steps",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "author": "Radek <rs676@cam.ac.uk>",
     "private": true,
     "dependencies": {

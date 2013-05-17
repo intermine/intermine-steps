@@ -35,6 +35,7 @@ module.exports = class InterMineSteps extends Chaplin.Application
                 'root': config.mine + '/service/'
                 'token': config.token
                 'skipDeps': true
+            'report': new intermine.reportWidgets 'http://intermine-report-widgets-service.labs.intermine.org'
 
         # Register all routes.
         @initRouter Routes
@@ -67,7 +68,7 @@ module.exports = class InterMineSteps extends Chaplin.Application
 
     initRegistry: ->
         # Listen to context changes e.g.: we have a list.
-        Mediator.subscribe 'context:new', (context=[], guid) =>
+        Mediator.subscribe 'context:new', (context=[], guid, opts...) =>
             # Find all tools that fully match part or all of the context.
             for tool in registry
                 for variant in tool.labels
@@ -100,6 +101,9 @@ module.exports = class InterMineSteps extends Chaplin.Application
                         # Cleanup.
                         model.dispose()
 
+                        # Pass on options as extra params.
+                        if opts.length isnt 0 then obj.extra = (obj.extra or []).concat opts
+
                         # Fire this object to no one in particular.
-                        Mediator.publish 'context:render', variant.place, context, obj
+                        Mediator.publish 'context:render', variant.place, context, obj, opts
         , @

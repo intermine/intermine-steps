@@ -129,6 +129,14 @@ module.exports = class UploadListToolView extends ToolView
                     'type': 'minimal'
                     'service': root.App.service.im
                     'query': query
+                    'events':
+                        # Fire off new context on cell selection.
+                        'imo:click': (type, id) =>
+                            Mediator.publish 'context:new', [
+                                'have:list'
+                                'type:' + type
+                                'have:one'
+                            ], @model.get('guid'), id
 
                 # We have a list!
                 Mediator.publish 'context:new', [ 'have:list', 'type:' + type ], @model.get('guid')
