@@ -2,7 +2,9 @@
 flatiron = require 'flatiron'
 union    = require 'union'
 connect  = require 'connect'
+stod     = require 'connect-stod'
 send     = require 'send'
+path     = require 'path'
 
 # Store all histories here.
 history = []
@@ -16,6 +18,10 @@ exports.startServer = (port, dir='public') ->
             connect.favicon()
             # Static file serving.
             connect.static "./#{dir}"
+            # Give us stod base styles.
+            stod
+                'path': path.join __dirname + '/public/css'
+                'watch': true
         ]
         'onError': (err, req, res) ->
             if err.status is 404
