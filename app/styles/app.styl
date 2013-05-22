@@ -41,35 +41,18 @@ $table_border = #E0E3ED
 
 /** ============== Generic styles ============== */
 
-body, html
-    height: 100%
-
 body
-    margin: 0
-    -webkit-font-smoothing: antialiased
-    //background: #F0F0F0
     background: url('../img/p6.png')
-
-    // // on app pages
-    // &.app
-    //     background: #DADEE9 url('../img/bg.png') repeat-y top left
 
 body, h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
     font-family: Lato
     color: $text_color
 
 a
-    cursor: pointer
     color: $link_color
 
     &:hover
         color: darken($link_color, 30%)
-
-table
-    width: 100%
-
-label
-    cursor: default
 
 .label
     border-radius: 2px
@@ -155,6 +138,7 @@ table.tabs
     background: inherit
     border: 0
     border-collapse: collapse
+    width: 100%
 
     td
         padding: 0
@@ -600,19 +584,36 @@ section#middle
             border: 0
             border-bottom: 1px solid #CBD8E2
             margin: 0
-            padding-left: 20px
+            padding: 6px 10px 7px 20px
             font-weight: bold
+            border-radius: 2px
+            overflow: hidden
 
             li
                 display: inline-block
+                margin: 0
                 padding: 0
-
-                &::before
-                    content: ""
+                float: left
+                list-style: none
 
                 a
+                    text-transform: uppercase
+                    font-size: 11px
+                    font-size: 1.1rem
                     cursor: pointer
                     padding: 0 4px
+
+                    &:hover
+                        text-decoration: underline
+
+                span
+                    font-size: 11px
+                    font-size: 1.1rem
+                    padding-left: 5px
+
+                &:first-child
+                    span
+                        padding-left: 0
 
         div.head
             background: $table_border
@@ -842,6 +843,7 @@ div#history
             td
                 padding: 0
                 text-align: center
+                line-height: 18px
 
         // div based system
         div.step
