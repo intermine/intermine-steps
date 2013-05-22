@@ -7,12 +7,6 @@ a:hover { color: #2795b6; }
 a:focus { color: #2ba6cb; outline: none; }
 p a, p a:visited { line-height: inherit; }
 
-.left { float: left; }
-.right { float: right; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
-.text-center { text-align: center; }
-
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, p, blockquote, th, td { margin: 0; padding: 0; font-size: 14px; }
 
 p { font-size: 14px; line-height: 1.6; margin-bottom: 17px; }
@@ -23,12 +17,6 @@ aside p { font-size: 13px; line-height: 1.35; font-style: italic; }
 
 h1, h2, h3, h4, h5, h6 { text-rendering: optimizeLegibility; line-height: 1.1; margin-bottom: 14px; margin-top: 14px; }
 h1 small, h2 small, h3 small, h4 small, h5 small, h6 small { font-size: 60%; color: #888; line-height: 0; }
-h1 { font-size: 44px; }
-h2 { font-size: 37px; }
-h3 { font-size: 27px; }
-h4 { font-size: 23px; }
-h5 { font-size: 17px; }
-h6 { font-size: 14px; }
 
 em, i { font-style: italic; line-height: inherit; }
 strong, b { font-weight: bold; line-height: inherit; }
@@ -36,60 +24,6 @@ small { font-size: 60%; line-height: inherit; }
 code { font-weight: bold; background: #ffff99; }
 
 ul, ol { font-size: 14px; line-height: 1.6; margin-bottom: 17px; list-style-position: inside; }
-
-.row { width: 1000px; max-width: 100%; min-width: 768px; margin: 0 auto; }
-.row .row { width: auto; max-width: none; min-width: 0; margin: 0 -15px; }
-.row.collapse .column, .row.collapse .columns { padding: 0; }
-.row .row { width: auto; max-width: none; min-width: 0; margin: 0 -15px; }
-.row .row.collapse { margin: 0; }
-.column, .columns { float: left; min-height: 1px; padding: 0 15px; position: relative; }
-.column.centered, .columns.centered { float: none; margin: 0 auto; }
-[class*="column"] + [class*="column"]:last-child { float: right; }
-[class*="column"] + [class*="column"].end { float: left; }
-.row .one { width: 8.333%; }
-.row .two { width: 16.667%; }
-.row .three { width: 25%; }
-.row .four { width: 33.333%; }
-.row .five { width: 41.667%; }
-.row .six { width: 50%; }
-.row .seven { width: 58.333%; }
-.row .eight { width: 66.667%; }
-.row .nine { width: 75%; }
-.row .ten { width: 83.333%; }
-.row .eleven { width: 91.667%; }
-.row .twelve { width: 100%; }
-.row .offset-by-one { margin-left: 8.333%; }
-.row .offset-by-two { margin-left: 16.667%; }
-.row .offset-by-three { margin-left: 25%; }
-.row .offset-by-four { margin-left: 33.333%; }
-.row .offset-by-five { margin-left: 41.667%; }
-.row .offset-by-six { margin-left: 50%; }
-.row .offset-by-seven { margin-left: 58.333%; }
-.row .offset-by-eight { margin-left: 66.667%; }
-.row .offset-by-nine { margin-left: 75%; }
-.row .offset-by-ten { margin-left: 83.333%; }
-.push-two { left: 16.667%; }
-.pull-two { right: 16.667%; }
-.push-three { left: 25%; }
-.pull-three { right: 25%; }
-.push-four { left: 33.333%; }
-.pull-four { right: 33.333%; }
-.push-five { left: 41.667%; }
-.pull-five { right: 41.667%; }
-.push-six { left: 50%; }
-.pull-six { right: 50%; }
-.push-seven { left: 58.333%; }
-.pull-seven { right: 58.333%; }
-.push-eight { left: 66.667%; }
-.pull-eight { right: 66.667%; }
-.push-nine { left: 75%; }
-.pull-nine { right: 75%; }
-.push-ten { left: 83.333%; }
-.pull-ten { right: 83.333%; }
-
-.row { *zoom: 1; }
-.row:before, .row:after { content: ""; display: table; }
-.row:after { clear: both; }
 
 .button { width: auto; background: #2ba6cb; border: 1px solid #1e728c; -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset; color: white; cursor: pointer; display: inline-block; font-family: "Helvetica Neue", "HelveticaNeue", Helvetica, Arial, "Lucida Grande", sans-serif; font-size: 14px; font-weight: bold; line-height: 1; margin: 0; outline: none; padding: 10px 20px 11px; position: relative; text-align: center; text-decoration: none; -webkit-transition: background-color 0.15s ease-in-out; -moz-transition: background-color 0.15s ease-in-out; -o-transition: background-color 0.15s ease-in-out; transition: background-color 0.15s ease-in-out; /* Hovers */ /* Sizes */ /* Colors */ /* Radii */ /* Layout */ /* Disabled ---------- */ }
 .button:hover { color: white; background-color: #2284a1; }

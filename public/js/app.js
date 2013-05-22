@@ -1146,7 +1146,7 @@ window.require.register("chaplin/templates/action", function(exports, require, m
         __out.push('<!-- help text provided? -->\n');
       
         if (this.help) {
-          __out.push('\n    <span class="entypo help right" title="Show help for this item"></span>\n');
+          __out.push('\n    <span class="entypo help" title="Show help for this item"></span>\n');
         }
       
         __out.push('\n\n<!-- the link -->\n');
@@ -1607,7 +1607,7 @@ window.require.register("chaplin/templates/landing", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first three columns">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second four columns">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n            <div class="third five columns">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow container">\n        <div class="row">\n            <div class="three columns">\n                <div class="nobox">\n                    <h2><span class="entypo lifebuoy"></span> Help</h2>\n                    <ul class="tools">\n                        <li><a>What is <strong>new</strong> since 1.2</a></li>\n                        <li><a>How do I use my <strong>tools</strong></a></li>\n                        <li><a>Where are my <strong>templates</strong></a></li>\n                        <li><a>How do I <strong>cite</strong> this resource</a></li>\n                    </ul>\n                </div>\n            </div>\n            <div class="four columns">\n                <div class="box">\n                    <h2><span class="entypo crossroads"></span> Tools</h2>\n                    <!-- populate next steps here -->\n                    <div id="next"></div>\n                </div>\n            </div>\n            <div class="five columns">\n                <div class="box">\n                    <table class="tabs">\n                        <tr>\n                            <td class="active labeled">\n                                <div>\n                                    <h3>Messages</h3><span class="count">9</span>\n                                </div>\n                            </td>\n                            <td class="inactive">\n                                <div>\n                                    <h3>Continue research</h3>\n                                </div>\n                            </td>\n                        </tr>\n                    </table>\n                    <div class="content">\n                        <ul class="timeline">\n                            <li>\n                                <div class="head">\n                                    <span class="right ago">3m ago</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="right ago">A day ago</span>\n                                    <span class="entypo download"></span><h5>Shared list</h5>\n                                </div>\n                                <p>A list <a>Secret Research Genes</a> has been shared with you.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="right ago">Jan 27</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system will go down in 30 minutes.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="right ago">Jan 26</span>\n                                    <span class="entypo clipboard"></span><h5>Job finished</h5>\n                                </div>\n                                <p>Your job <a>Enriching a List</a> has finished.</p>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </div>\n        <div class="row">\n            <div class="seven columns">\n                <div>\n                    <h2><span class="entypo cog"></span> Example tool config</h2>\n                    <pre><code class="code" data-language="json" id="example"></code></pre>\n                </div>\n            </div>\n            <div class="five columns">\n                <div class="description">\n                    <p>You are looking at an example app UI with some dummy tools configured. No data are sent to\n                        the server and everything is working from your browser.</p>\n                    <p>On the left is an example JSON config of a tool action. It is configured to show on this,\n                        the landing page.</p>\n                    <dl>\n                        <dt>label</dt>\n                        <dd>A <a href="http://daringfireball.net/projects/markdown/" target="_blank">Markdown</a>\n                            enriched tool link label to show.</dd>\n                        <dt>category</dt>\n                        <dd>Which group does this tool belong to?</dd>\n                        <dt>keywords</dt>\n                        <dd>Extra keywords that make this tool link show up when we type these keywords into\n                            search box.</dd>\n                        <dt>weight</dt>\n                        <dd>Tools are shown in a category based on their weight. The bigger the "higher" up.\n                            Anything below 10 will be trimmed from the initial listing.</dd>\n                        <dt>help</dt>\n                        <dd>A piece of HTML to show when someone clicks on the tool\'s question mark icon.</dd>\n                    </dl>\n                </div>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="stod row">\n            <div class="first three stod columns">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second four stod columns">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n            <div class="third five stod columns">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow container">\n        <div class="stod row">\n            <div class="three stod columns">\n                <div class="nobox">\n                    <h2><span class="entypo lifebuoy"></span> Help</h2>\n                    <ul class="tools">\n                        <li><a>What is <strong>new</strong> since 1.2</a></li>\n                        <li><a>How do I use my <strong>tools</strong></a></li>\n                        <li><a>Where are my <strong>templates</strong></a></li>\n                        <li><a>How do I <strong>cite</strong> this resource</a></li>\n                    </ul>\n                </div>\n            </div>\n            <div class="four stod columns">\n                <div class="box">\n                    <h2><span class="entypo crossroads"></span> Tools</h2>\n                    <!-- populate next steps here -->\n                    <div id="next"></div>\n                </div>\n            </div>\n            <div class="five stod columns">\n                <div class="box">\n                    <table class="tabs">\n                        <tr>\n                            <td class="active labeled">\n                                <div>\n                                    <h3>Messages</h3><span class="count">9</span>\n                                </div>\n                            </td>\n                            <td class="inactive">\n                                <div>\n                                    <h3>Continue research</h3>\n                                </div>\n                            </td>\n                        </tr>\n                    </table>\n                    <div class="content">\n                        <ul class="timeline">\n                            <li>\n                                <div class="head">\n                                    <span class="ago">3m ago</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">A day ago</span>\n                                    <span class="entypo download"></span><h5>Shared list</h5>\n                                </div>\n                                <p>A list <a>Secret Research Genes</a> has been shared with you.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 27</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system will go down in 30 minutes.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 26</span>\n                                    <span class="entypo clipboard"></span><h5>Job finished</h5>\n                                </div>\n                                <p>Your job <a>Enriching a List</a> has finished.</p>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </div>\n        <div class="stod row">\n            <div class="seven stod columns">\n                <div>\n                    <h2><span class="entypo cog"></span> Example tool config</h2>\n                    <pre><code class="code" data-language="json" id="example"></code></pre>\n                </div>\n            </div>\n            <div class="five stod columns">\n                <div class="description">\n                    <p>You are looking at an example app UI with some dummy tools configured. No data are sent to\n                        the server and everything is working from your browser.</p>\n                    <p>On the left is an example JSON config of a tool action. It is configured to show on this,\n                        the landing page.</p>\n                    <dl>\n                        <dt>label</dt>\n                        <dd>A <a href="http://daringfireball.net/projects/markdown/" target="_blank">Markdown</a>\n                            enriched tool link label to show.</dd>\n                        <dt>category</dt>\n                        <dd>Which group does this tool belong to?</dd>\n                        <dt>keywords</dt>\n                        <dd>Extra keywords that make this tool link show up when we type these keywords into\n                            search box.</dd>\n                        <dt>weight</dt>\n                        <dd>Tools are shown in a category based on their weight. The bigger the "higher" up.\n                            Anything below 10 will be trimmed from the initial listing.</dd>\n                        <dt>help</dt>\n                        <dd>A piece of HTML to show when someone clicks on the tool\'s question mark icon.</dd>\n                    </dl>\n                </div>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
       
       }).call(this);
       
@@ -3250,11 +3250,11 @@ window.require.register("tools/ListWidgetTool/step-1", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <label>Type in list name</label>\n            <input type="text" name="list" value="');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <label>Type in list name</label>\n            <input type="text" name="list" value="');
       
         __out.push(__sanitize(this.list));
       
-        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Choose a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve stod columns">\n            <a id="submit" class="button">Choose a list</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3304,7 +3304,7 @@ window.require.register("tools/ListWidgetTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="bootstrap">\n                <div class="loading"></div>\n            </div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="bootstrap">\n                <div class="loading"></div>\n            </div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3507,11 +3507,11 @@ window.require.register("tools/OntologyGraphTool/step-1", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <label>Type in Gene <em>id</em></label>\n            <input type="text" name="id" value="');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <label>Type in Gene <em>id</em></label>\n            <input type="text" name="id" value="');
       
         __out.push(__sanitize(this.id));
       
-        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Show the Graph</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve stod columns">\n            <a id="submit" class="button">Show the Graph</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3561,7 +3561,7 @@ window.require.register("tools/OntologyGraphTool/step-2", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3611,7 +3611,7 @@ window.require.register("tools/OntologyGraphTool/step-3", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div id="ontology" class="foundation"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div id="ontology" class="foundation"></div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3839,10 +3839,10 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
       (function() {
         var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="row">\n        <form class="custom">\n            <div class="six columns">\n                <label>List of identifiers</label>\n                ');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="stod row">\n        <div class="six stod columns">\n            <label>List of identifiers</label>\n            ');
       
         if (this.data && this.data.identifiers) {
-          __out.push('\n                    <textarea name="identifiers">');
+          __out.push('\n                <textarea name="identifiers">');
           _ref = this.data.identifiers;
           for (i in _ref) {
             id = _ref[i];
@@ -3851,56 +3851,56 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
               __out.push(' ');
             }
           }
-          __out.push('</textarea>\n                ');
+          __out.push('</textarea>\n            ');
         } else {
-          __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n                ');
+          __out.push('\n                <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n            ');
         }
       
-        __out.push('\n            </div>\n            <div class="two columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
+        __out.push('\n        </div>\n        <div class="two stod columns">\n            <label>Type</label>\n            <select name="type" class="expand">\n                ');
       
         _ref1 = this.types;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           type = _ref1[_i];
-          __out.push('\n                        ');
+          __out.push('\n                    ');
           if (this.data && this.data.type && this.data.type === type) {
-            __out.push('\n                            <option value="');
+            __out.push('\n                        <option value="');
             __out.push(__sanitize(type));
             __out.push('" selected="selected">');
             __out.push(__sanitize(owl.pluralize(type)));
-            __out.push('</option>\n                        ');
+            __out.push('</option>\n                    ');
           } else {
-            __out.push('\n                            <option value="');
+            __out.push('\n                        <option value="');
             __out.push(__sanitize(type));
             __out.push('">');
             __out.push(__sanitize(owl.pluralize(type)));
-            __out.push('</option>\n                        ');
+            __out.push('</option>\n                    ');
           }
-          __out.push('\n                    ');
+          __out.push('\n                ');
         }
       
-        __out.push('\n                </select>\n            </div>\n            <div class="four columns">\n                <label>Organism</label>\n                <select name="organism" class="expand">\n                    ');
+        __out.push('\n            </select>\n        </div>\n        <div class="four stod columns">\n            <label>Organism</label>\n            <select name="organism" class="expand">\n                ');
       
         _ref2 = this.organisms;
         for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
           organism = _ref2[_j];
-          __out.push('\n                        ');
+          __out.push('\n                    ');
           if (this.data && this.data.organism && this.data.organism === organism) {
-            __out.push('\n                            <option value="');
+            __out.push('\n                        <option value="');
             __out.push(__sanitize(organism));
             __out.push('" selected="selected">');
             __out.push(__sanitize(organism));
-            __out.push('</option>\n                        ');
+            __out.push('</option>\n                    ');
           } else {
-            __out.push('\n                            <option value="');
+            __out.push('\n                        <option value="');
             __out.push(__sanitize(organism));
             __out.push('">');
             __out.push(__sanitize(organism));
-            __out.push('</option>\n                        ');
+            __out.push('</option>\n                    ');
           }
-          __out.push('\n                    ');
+          __out.push('\n                ');
         }
       
-        __out.push('\n                </select>\n            </div>\n        </form>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('\n            </select>\n        </div>\n    </div>\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3950,7 +3950,7 @@ window.require.register("tools/UploadListTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -4000,7 +4000,7 @@ window.require.register("tools/UploadListTool/step-3", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -4050,7 +4050,7 @@ window.require.register("tools/UploadListTool/step-4", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="row">\n        <div class="twelve columns">\n            <div class="im-table intermine"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="im-table intermine"></div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       

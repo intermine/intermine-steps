@@ -1,21 +1,21 @@
 <div id="wrapper">
     <header id="top">
-        <div class="row">
-            <div class="first three columns">
+        <div class="stod row">
+            <div class="first three stod columns">
                 <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
             </div>
-            <div class="second four columns">
+            <div class="second four stod columns">
                 <input id="search" type="text" placeholder="e.g. list upload, PPARG" />
             </div>
-            <div class="third five columns">
+            <div class="third five stod columns">
                 Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>
             </div>
         </div>
     </header>
 
     <section id="middle" class="narrow container">
-        <div class="row">
-            <div class="three columns">
+        <div class="stod row">
+            <div class="three stod columns">
                 <div class="nobox">
                     <h2><span class="entypo lifebuoy"></span> Help</h2>
                     <ul class="tools">
@@ -26,14 +26,14 @@
                     </ul>
                 </div>
             </div>
-            <div class="four columns">
+            <div class="four stod columns">
                 <div class="box">
                     <h2><span class="entypo crossroads"></span> Tools</h2>
                     <!-- populate next steps here -->
                     <div id="next"></div>
                 </div>
             </div>
-            <div class="five columns">
+            <div class="five stod columns">
                 <div class="box">
                     <table class="tabs">
                         <tr>
@@ -53,28 +53,28 @@
                         <ul class="timeline">
                             <li>
                                 <div class="head">
-                                    <span class="right ago">3m ago</span>
+                                    <span class="ago">3m ago</span>
                                     <span class="entypo database"></span><h5>System upgrade</h5>
                                 </div>
                                 <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>
                             </li>
                             <li>
                                 <div class="head">
-                                    <span class="right ago">A day ago</span>
+                                    <span class="ago">A day ago</span>
                                     <span class="entypo download"></span><h5>Shared list</h5>
                                 </div>
                                 <p>A list <a>Secret Research Genes</a> has been shared with you.</p>
                             </li>
                             <li>
                                 <div class="head">
-                                    <span class="right ago">Jan 27</span>
+                                    <span class="ago">Jan 27</span>
                                     <span class="entypo database"></span><h5>System upgrade</h5>
                                 </div>
                                 <p>The system will go down in 30 minutes.</p>
                             </li>
                             <li>
                                 <div class="head">
-                                    <span class="right ago">Jan 26</span>
+                                    <span class="ago">Jan 26</span>
                                     <span class="entypo clipboard"></span><h5>Job finished</h5>
                                 </div>
                                 <p>Your job <a>Enriching a List</a> has finished.</p>
@@ -84,14 +84,14 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="seven columns">
+        <div class="stod row">
+            <div class="seven stod columns">
                 <div>
                     <h2><span class="entypo cog"></span> Example tool config</h2>
                     <pre><code class="code" data-language="json" id="example"></code></pre>
                 </div>
             </div>
-            <div class="five columns">
+            <div class="five stod columns">
                 <div class="description">
                     <p>You are looking at an example app UI with some dummy tools configured. No data are sent to
                         the server and everything is working from your browser.</p>

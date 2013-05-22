@@ -334,6 +334,7 @@ ul.timeline li .head h5 {
   color: rgba(104,113,138,0.9);
 }
 ul.timeline li .head span.ago {
+  float: right;
   font-size: 12px;
   color: rgba(104,113,138,0.7);
 }
@@ -593,6 +594,9 @@ section#middle .box div.tools ul.tools.size-8 {
 }
 section#middle .box div.tools ul.tools.size-9 {
   margin-left: 90px;
+}
+section#middle .box div.tools ul.tools li span.help {
+  float: right;
 }
 section#middle .box div.tools h4 {
   margin-bottom: 10px;
@@ -883,6 +887,9 @@ section#middle div#widget ul.accordion > li > div.title h3,
 section#middle div#widget ul.accordion > li > div.title h4,
 section#middle div#widget ul.accordion > li > div.title h5 {
   margin: 0;
+}
+section#middle div#widget ul.accordion > li > div.title h5 {
+  font-size: 17px;
 }
 section#middle div#widget ul.accordion > li > div.title:after {
   display: block;

@@ -282,6 +282,7 @@ ul.timeline
 
             span
                 &.ago
+                    float: right
                     font-size: 12px
                     color: rgba($text_color, 0.7)
 
@@ -493,7 +494,11 @@ section#middle
 
                 for size in 0...10
                     &.size-{size}
-                        margin-left: size * 10 px                
+                        margin-left: size * 10 px
+
+                li
+                    span.help
+                        float: right
 
             h4
                 margin-bottom: 10px
@@ -692,8 +697,11 @@ section#middle
                     transition: 0.15s background linear
                     
                     h1, h2, h3, h4, h5
-                        margin: 0;
+                        margin: 0
                     
+                    h5
+                        font-size: 17px
+
                     &:after
                         //content: ""
                         display: block
