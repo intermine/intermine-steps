@@ -1,21 +1,21 @@
 <div id="wrapper">
     <header id="top">
-        <div class="stod row">
-            <div class="first three stod columns">
+        <div class="row">
+            <div class="first three columns">
                 <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
             </div>
-            <div class="second four stod columns">
+            <div class="second four columns">
                 <input id="search" type="text" placeholder="e.g. list upload, PPARG" />
             </div>
-            <div class="third five stod columns">
+            <div class="third five columns">
                 Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>
             </div>
         </div>
     </header>
 
     <section id="middle" class="narrow container">
-        <div class="stod row">
-            <div class="three stod columns">
+        <div class="row">
+            <div class="three columns">
                 <div class="nobox">
                     <h2><span class="entypo lifebuoy"></span> Help</h2>
                     <ul class="tools">
@@ -26,14 +26,14 @@
                     </ul>
                 </div>
             </div>
-            <div class="four stod columns">
+            <div class="four columns">
                 <div class="box">
                     <h2><span class="entypo crossroads"></span> Tools</h2>
                     <!-- populate next steps here -->
                     <div id="next"></div>
                 </div>
             </div>
-            <div class="five stod columns">
+            <div class="five columns">
                 <div class="box">
                     <table class="tabs">
                         <tr>
@@ -84,43 +84,9 @@
                 </div>
             </div>
         </div>
-        <div class="stod row">
-            <div class="seven stod columns">
-                <div>
-                    <h2><span class="entypo cog"></span> Example tool config</h2>
-                    <pre><code class="code" data-language="json" id="example"></code></pre>
-                </div>
-            </div>
-            <div class="five stod columns">
-                <div class="description">
-                    <p>You are looking at an example app UI with some dummy tools configured. No data are sent to
-                        the server and everything is working from your browser.</p>
-                    <p>On the left is an example JSON config of a tool action. It is configured to show on this,
-                        the landing page.</p>
-                    <dl>
-                        <dt>label</dt>
-                        <dd>A <a href="http://daringfireball.net/projects/markdown/" target="_blank">Markdown</a>
-                            enriched tool link label to show.</dd>
-                        <dt>category</dt>
-                        <dd>Which group does this tool belong to?</dd>
-                        <dt>keywords</dt>
-                        <dd>Extra keywords that make this tool link show up when we type these keywords into
-                            search box.</dd>
-                        <dt>weight</dt>
-                        <dd>Tools are shown in a category based on their weight. The bigger the "higher" up.
-                            Anything below 10 will be trimmed from the initial listing.</dd>
-                        <dt>help</dt>
-                        <dd>A piece of HTML to show when someone clicks on the tool's question mark icon.</dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
     </section>
 </div>
 
 <footer id="wide">
     <p>&copy; 2000-2013 InterMine, University of Cambridge</p>
 </footer>
-
-<!-- finally the almighty modal -->
-<div id="modal"></div>

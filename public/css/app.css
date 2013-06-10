@@ -20,8 +20,12 @@
   src: url("../fonts/Entypo.woff") format('woff'), url("../fonts/Entypo.eot") format('eot'), url("../fonts/Entypo.ttf") format('truetype'), url("../fonts/Entypo.svg") format('svg');
 }
 /** ============== Generic styles ============== */
+html {
+  font-size: 62.5%;
+}
 body {
-  background: url("../img/p6.png");
+  background: url("../img/p6.png") !important;
+  margin: 0;
 }
 body,
 h1,
@@ -37,6 +41,7 @@ table tbody tr td {
 }
 a {
   color: #579ed7;
+  text-decoration: none;
 }
 a:hover {
   color: #2971ab;
@@ -67,6 +72,14 @@ p {
 p code {
   font-weight: normal;
   font-size: 11px;
+}
+ul,
+ol {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 0 0 17px 0;
+  padding: 0;
+  list-style-position: inside;
 }
 ::-webkit-input-placeholder {
   color: #aaaec1;
@@ -105,6 +118,14 @@ div.panel {
   font-size: 12px;
   text-transform: uppercase;
   text-shadow: 1px 1px rgba(0,0,0,0.25);
+  display: inline-block;
+  padding: 6px 30px;
+  text-decoration: none;
+  position: relative;
+  line-height: 1;
+}
+.button:active {
+  top: 1px;
 }
 .button.secondary {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafbfd), color-stop(1, #e8ecf1));
@@ -148,6 +169,7 @@ table.tabs td {
   padding: 0;
   vertical-align: bottom;
   height: 38px;
+  padding: 0 !important;
 }
 table.tabs td div {
   height: 100%;
@@ -1231,44 +1253,6 @@ footer#bottom {
 footer#bottom .wrap {
   text-align: center;
   padding: 20px;
-}
-.button {
-  display: inline-block;
-  padding: 6px 30px;
-  text-decoration: none;
-  position: relative;
-  line-height: 1;
-}
-.button:active {
-  top: 1px;
-}
-#modal div.reveal-modal {
-  border: 1px solid #bccad5;
-  -webkit-border-radius: 2px;
-  border-radius: 2px;
-  padding: 0;
-}
-#modal .scroll {
-  overflow-y: auto;
-  margin: 10px;
-}
-#modal h1 {
-  font-size: 22px;
-  margin: 0;
-  color: #68718a;
-  text-shadow: 1px 1px rgba(255,255,255,0.8);
-  background: #e0e3ed;
-  padding: 10px;
-  border-bottom: 1px solid #bccad5;
-  -webkit-border-radius: 2px 2px 0 0;
-  border-radius: 2px 2px 0 0;
-}
-#modal h1 span.entypo {
-  margin-right: 4px;
-}
-#modal .close-reveal-modal {
-  color: #68718a;
-  margin-top: 15px;
 }
 /** ============== Progress/loading bar ============== */
 div.loading {

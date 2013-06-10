@@ -7,3 +7,11 @@ module.exports = class ErrorView extends View
     autoRender:      true
 
     getTemplateFunction: -> require "chaplin/templates/error-#{@options.template}"
+
+    attach: ->
+        super
+
+        # Set `foundation3`.
+        $('body').addClass('foundation3')
+
+        @

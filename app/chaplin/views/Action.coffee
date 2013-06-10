@@ -43,6 +43,6 @@ module.exports = class ActionView extends View
     showHelp: =>
         assert @options.help, 'Help content is not provided'
 
-        Mediator.publish 'modal:render',
+        console.log
             'title': @markup @options.label
             'text':  @options.help

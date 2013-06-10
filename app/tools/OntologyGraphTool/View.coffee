@@ -52,7 +52,7 @@ module.exports = class OntologyGraphView extends ToolView
                             if rows and rows.length is 1 and (row = rows.pop()) and (symbol = row.pop())
                                 return @save 'symbol': symbol
                             
-                            Mediator.publish 'modal:render',
+                            console.log
                                 'title': 'Oops &hellip;'
                                 'text': 'Gene id not resolved.'
 

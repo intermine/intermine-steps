@@ -7,7 +7,6 @@ NextStepsHeaderView = require 'chaplin/views/NextStepsHeader'
 LeftSidebarView = require 'chaplin/views/LeftSidebar'
 RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
-ModalView = require 'chaplin/views/Modal'
 
 root = @
 
@@ -20,9 +19,7 @@ module.exports = class ToolsController extends Controller
         @views.push new AppView()
         @views.push new NextStepsHeaderView()
         @views.push new HistoryView 'collection': @collection
-        # @views.push new LeftSidebarView()
         @views.push new RightSidebarView()
-        @views.push new ModalView()
 
     new: ({ slug, extra }) ->
         @_chrome()

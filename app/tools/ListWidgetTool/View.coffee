@@ -44,7 +44,7 @@ module.exports = class ListWidgetToolView extends ToolView
 
                     # Do we have any?
                     if name.length is 0
-                        return Mediator.publish 'modal:render',
+                        return console.log
                             'title': 'Oops &hellip;'
                             'text': 'No list selected.'
 

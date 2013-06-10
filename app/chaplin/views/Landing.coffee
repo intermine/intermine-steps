@@ -26,8 +26,8 @@ module.exports = class LandingView extends View
         # App search.
         @delegate 'keyup', 'input#search', (e) -> Mediator.publish 'app:search', $(e.target).val()
 
-        # Remove app class if present.
-        $('body').removeClass('app')
+        # Remove `app`, add `foundation3`.
+        $('body').removeClass('app').addClass('foundation3')
 
         # Load the registry of tools as an example of a config.
         $(@el).find('#example').html JSON.stringify registry[0], null, 4

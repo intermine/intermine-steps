@@ -147,7 +147,7 @@ window.require.register("chaplin/controllers/error", function(exports, require, 
   
 });
 window.require.register("chaplin/controllers/landing", function(exports, require, module) {
-  var Controller, LandingController, LandingView, Mediator, ModalView,
+  var Controller, LandingController, LandingView, Mediator,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -156,8 +156,6 @@ window.require.register("chaplin/controllers/landing", function(exports, require
   Mediator = require('chaplin/core/Mediator');
 
   LandingView = require('chaplin/views/Landing');
-
-  ModalView = require('chaplin/views/Modal');
 
   module.exports = LandingController = (function(_super) {
 
@@ -169,7 +167,6 @@ window.require.register("chaplin/controllers/landing", function(exports, require
 
     LandingController.prototype.index = function(params) {
       this.views.push(new LandingView());
-      this.views.push(new ModalView());
       return this.adjustTitle('Welcome');
     };
 
@@ -179,7 +176,7 @@ window.require.register("chaplin/controllers/landing", function(exports, require
   
 });
 window.require.register("chaplin/controllers/tools", function(exports, require, module) {
-  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, ModalView, NextStepsHeaderView, RightSidebarView, ToolsController, root,
+  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, NextStepsHeaderView, RightSidebarView, ToolsController, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -196,8 +193,6 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
   RightSidebarView = require('chaplin/views/RightSidebar');
 
   HistoryView = require('chaplin/views/History');
-
-  ModalView = require('chaplin/views/Modal');
 
   root = this;
 
@@ -217,8 +212,7 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       this.views.push(new HistoryView({
         'collection': this.collection
       }));
-      this.views.push(new RightSidebarView());
-      return this.views.push(new ModalView());
+      return this.views.push(new RightSidebarView());
     };
 
     ToolsController.prototype["new"] = function(_arg) {
@@ -1219,15 +1213,7 @@ window.require.register("chaplin/templates/app", function(exports, require, modu
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <!--\n        <aside id="left"></aside>\n        -->\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>\n\n<!-- history toggler fixed to bottom -->\n<!--\n<footer id="bottom">\n    <div class="wrap">\n        ');
-      
-        if (this.showHistory) {
-          __out.push('\n            <a class="button" data-show="1" data-action="history-toggle">Hide history</a>\n        ');
-        } else {
-          __out.push('\n            <a class="button" data-show="0" data-action="history-toggle">Show history</a>\n        ');
-        }
-      
-        __out.push('\n    </div>\n</footer>\n-->\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
+        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <!--\n        <aside id="left"></aside>\n        -->\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>');
       
       }).call(this);
       
@@ -1607,57 +1593,7 @@ window.require.register("chaplin/templates/landing", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="stod row">\n            <div class="first three stod columns">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second four stod columns">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n            <div class="third five stod columns">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow container">\n        <div class="stod row">\n            <div class="three stod columns">\n                <div class="nobox">\n                    <h2><span class="entypo lifebuoy"></span> Help</h2>\n                    <ul class="tools">\n                        <li><a>What is <strong>new</strong> since 1.2</a></li>\n                        <li><a>How do I use my <strong>tools</strong></a></li>\n                        <li><a>Where are my <strong>templates</strong></a></li>\n                        <li><a>How do I <strong>cite</strong> this resource</a></li>\n                    </ul>\n                </div>\n            </div>\n            <div class="four stod columns">\n                <div class="box">\n                    <h2><span class="entypo crossroads"></span> Tools</h2>\n                    <!-- populate next steps here -->\n                    <div id="next"></div>\n                </div>\n            </div>\n            <div class="five stod columns">\n                <div class="box">\n                    <table class="tabs">\n                        <tr>\n                            <td class="active labeled">\n                                <div>\n                                    <h3>Messages</h3><span class="count">9</span>\n                                </div>\n                            </td>\n                            <td class="inactive">\n                                <div>\n                                    <h3>Continue research</h3>\n                                </div>\n                            </td>\n                        </tr>\n                    </table>\n                    <div class="content">\n                        <ul class="timeline">\n                            <li>\n                                <div class="head">\n                                    <span class="ago">3m ago</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">A day ago</span>\n                                    <span class="entypo download"></span><h5>Shared list</h5>\n                                </div>\n                                <p>A list <a>Secret Research Genes</a> has been shared with you.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 27</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system will go down in 30 minutes.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 26</span>\n                                    <span class="entypo clipboard"></span><h5>Job finished</h5>\n                                </div>\n                                <p>Your job <a>Enriching a List</a> has finished.</p>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </div>\n        <div class="stod row">\n            <div class="seven stod columns">\n                <div>\n                    <h2><span class="entypo cog"></span> Example tool config</h2>\n                    <pre><code class="code" data-language="json" id="example"></code></pre>\n                </div>\n            </div>\n            <div class="five stod columns">\n                <div class="description">\n                    <p>You are looking at an example app UI with some dummy tools configured. No data are sent to\n                        the server and everything is working from your browser.</p>\n                    <p>On the left is an example JSON config of a tool action. It is configured to show on this,\n                        the landing page.</p>\n                    <dl>\n                        <dt>label</dt>\n                        <dd>A <a href="http://daringfireball.net/projects/markdown/" target="_blank">Markdown</a>\n                            enriched tool link label to show.</dd>\n                        <dt>category</dt>\n                        <dd>Which group does this tool belong to?</dd>\n                        <dt>keywords</dt>\n                        <dd>Extra keywords that make this tool link show up when we type these keywords into\n                            search box.</dd>\n                        <dt>weight</dt>\n                        <dd>Tools are shown in a category based on their weight. The bigger the "higher" up.\n                            Anything below 10 will be trimmed from the initial listing.</dd>\n                        <dt>help</dt>\n                        <dd>A piece of HTML to show when someone clicks on the tool\'s question mark icon.</dd>\n                    </dl>\n                </div>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>\n\n<!-- finally the almighty modal -->\n<div id="modal"></div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("chaplin/templates/modal", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<h1><span class="entypo comment"></span> <span class="title"></span></h1>\n<div class="scroll">\n    <p class="text"></p>\n    <pre><code class="code"></code></pre>\n</div>\n<a class="close-reveal-modal">&#215;</a>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first three columns">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second four columns">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n            <div class="third five columns">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow container">\n        <div class="row">\n            <div class="three columns">\n                <div class="nobox">\n                    <h2><span class="entypo lifebuoy"></span> Help</h2>\n                    <ul class="tools">\n                        <li><a>What is <strong>new</strong> since 1.2</a></li>\n                        <li><a>How do I use my <strong>tools</strong></a></li>\n                        <li><a>Where are my <strong>templates</strong></a></li>\n                        <li><a>How do I <strong>cite</strong> this resource</a></li>\n                    </ul>\n                </div>\n            </div>\n            <div class="four columns">\n                <div class="box">\n                    <h2><span class="entypo crossroads"></span> Tools</h2>\n                    <!-- populate next steps here -->\n                    <div id="next"></div>\n                </div>\n            </div>\n            <div class="five columns">\n                <div class="box">\n                    <table class="tabs">\n                        <tr>\n                            <td class="active labeled">\n                                <div>\n                                    <h3>Messages</h3><span class="count">9</span>\n                                </div>\n                            </td>\n                            <td class="inactive">\n                                <div>\n                                    <h3>Continue research</h3>\n                                </div>\n                            </td>\n                        </tr>\n                    </table>\n                    <div class="content">\n                        <ul class="timeline">\n                            <li>\n                                <div class="head">\n                                    <span class="ago">3m ago</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">A day ago</span>\n                                    <span class="entypo download"></span><h5>Shared list</h5>\n                                </div>\n                                <p>A list <a>Secret Research Genes</a> has been shared with you.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 27</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system will go down in 30 minutes.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 26</span>\n                                    <span class="entypo clipboard"></span><h5>Job finished</h5>\n                                </div>\n                                <p>Your job <a>Enriching a List</a> has finished.</p>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -2021,7 +1957,7 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
 
     ActionView.prototype.showHelp = function() {
       assert(this.options.help, 'Help content is not provided');
-      return Mediator.publish('modal:render', {
+      return console.log({
         'title': this.markup(this.options.label),
         'text': this.options.help
       });
@@ -2076,7 +2012,7 @@ window.require.register("chaplin/views/App", function(exports, require, module) 
       this.delegate('keyup', 'input#search', function(e) {
         return Mediator.publish('app:search', $(e.target).val());
       });
-      $('body').addClass('app');
+      $('body').addClass('app').removeClass('foundation3');
       return this;
     };
 
@@ -2151,6 +2087,12 @@ window.require.register("chaplin/views/Error", function(exports, require, module
 
     ErrorView.prototype.getTemplateFunction = function() {
       return require("chaplin/templates/error-" + this.options.template);
+    };
+
+    ErrorView.prototype.attach = function() {
+      ErrorView.__super__.attach.apply(this, arguments);
+      $('body').addClass('foundation3');
+      return this;
     };
 
     return ErrorView;
@@ -2397,7 +2339,7 @@ window.require.register("chaplin/views/History", function(exports, require, modu
     };
 
     HistoryView.prototype.serializeHistory = function() {
-      return Mediator.publish('modal:render', {
+      return console.log({
         'title': 'Your history serialized',
         'code': {
           'src': JSON.stringify(window.History.models, null, 4),
@@ -2508,7 +2450,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
       this.delegate('keyup', 'input#search', function(e) {
         return Mediator.publish('app:search', $(e.target).val());
       });
-      $('body').removeClass('app');
+      $('body').removeClass('app').addClass('foundation3');
       $(this.el).find('#example').html(JSON.stringify(registry[0], null, 4));
       Rainbow.color();
       return this;
@@ -2550,88 +2492,6 @@ window.require.register("chaplin/views/LeftSidebar", function(exports, require, 
       LeftSidebarView.__super__.attach.apply(this, arguments);
       this.views.push(new NextStepsAllView());
       return this;
-    };
-
-    return LeftSidebarView;
-
-  })(View);
-  
-});
-window.require.register("chaplin/views/Modal", function(exports, require, module) {
-  var LeftSidebarView, Mediator, View,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Mediator = require('chaplin/core/Mediator');
-
-  View = require('chaplin/core/View');
-
-  module.exports = LeftSidebarView = (function(_super) {
-
-    __extends(LeftSidebarView, _super);
-
-    function LeftSidebarView() {
-      this.show = __bind(this.show, this);
-      return LeftSidebarView.__super__.constructor.apply(this, arguments);
-    }
-
-    LeftSidebarView.prototype.container = '#modal';
-
-    LeftSidebarView.prototype.containerMethod = 'html';
-
-    LeftSidebarView.prototype.autoRender = true;
-
-    LeftSidebarView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/modal');
-    };
-
-    LeftSidebarView.prototype.initialize = function() {
-      LeftSidebarView.__super__.initialize.apply(this, arguments);
-      Mediator.subscribe('modal:render', this.show, this);
-      return this;
-    };
-
-    LeftSidebarView.prototype.attach = function() {
-      var el;
-      LeftSidebarView.__super__.attach.apply(this, arguments);
-      (el = $(this.el)).addClass('reveal-modal');
-      this.title = el.find('.title');
-      this.code = el.find('.code');
-      this.text = el.find('.text');
-      return this;
-    };
-
-    LeftSidebarView.prototype.show = function(_arg) {
-      var code, el, scroll, text, title;
-      title = _arg.title, text = _arg.text, code = _arg.code;
-      el = $(this.el);
-      if (title) {
-        this.title.html(title);
-      } else {
-        this.title.html('');
-      }
-      if (code) {
-        this.code.html(code.src).attr('data-language', code.lang);
-        Rainbow.color();
-      } else {
-        this.code.html('');
-      }
-      if (text) {
-        this.text.html(text);
-      } else {
-        this.text.html('');
-      }
-      el.reveal();
-      scroll = el.find('.scroll');
-      scroll.css({
-        'height': 'auto'
-      });
-      if (el.outerHeight() > 500) {
-        return scroll.css({
-          'height': $(window).height() / 2
-        });
-      }
     };
 
     return LeftSidebarView;
@@ -3181,7 +3041,7 @@ window.require.register("tools/ListWidgetTool/View", function(exports, require, 
             var name;
             name = $(_this.el).find('input[name="list"]').val();
             if (name.length === 0) {
-              return Mediator.publish('modal:render', {
+              return console.log({
                 'title': 'Oops &hellip;',
                 'text': 'No list selected.'
               });
@@ -3415,7 +3275,7 @@ window.require.register("tools/OntologyGraphTool/View", function(exports, requir
                     'symbol': symbol
                   });
                 }
-                return Mediator.publish('modal:render', {
+                return console.log({
                   'title': 'Oops &hellip;',
                   'text': 'Gene id not resolved.'
                 });
@@ -3690,11 +3550,10 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
-          $(this.el).foundationCustomForms();
           this.delegate('click', '#submit', function() {
             _this.ids = _this.clean(_this.getDOM().find('form textarea').val());
             if (_this.ids.length === 0) {
-              return Mediator.publish('modal:render', {
+              return console.log({
                 'title': 'Oops &hellip;',
                 'text': 'No identifiers have been provided.'
               });

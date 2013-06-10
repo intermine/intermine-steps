@@ -35,9 +35,6 @@ module.exports = class UploadListToolView extends ToolView
         switch @step
             # Get the identifiers from a form.
             when 1
-                # Custom foundation forms.
-                $(@el).foundationCustomForms()
-
                 # Capture submit clicks.
                 @delegate 'click', '#submit', =>
                     # Get the identifiers.
@@ -45,7 +42,7 @@ module.exports = class UploadListToolView extends ToolView
 
                     # Do we have any?
                     if @ids.length is 0
-                        return Mediator.publish 'modal:render',
+                        return console.log
                             'title': 'Oops &hellip;'
                             'text': 'No identifiers have been provided.'
 

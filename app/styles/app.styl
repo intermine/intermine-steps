@@ -41,8 +41,11 @@ $table_border = #E0E3ED
 
 /** ============== Generic styles ============== */
 
+html { font-size: 62.5%; }
+
 body
-    background: url('../img/p6.png')
+    background: url('../img/p6.png') !important
+    margin: 0
 
 body, h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
     font-family: Lato
@@ -50,6 +53,7 @@ body, h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
 
 a
     color: $link_color
+    text-decoration: none
 
     &:hover
         color: darken($link_color, 30%)
@@ -73,6 +77,13 @@ p
     code
         font-weight: normal
         font-size: 11px
+
+ul, ol
+    font-size: 14px
+    line-height: 1.6
+    margin-bottom: 0 0 17px 0
+    padding: 0
+    list-style-position: inside
 
 ::-webkit-input-placeholder
     color: lighten(#5b617d, 50%)
@@ -103,6 +114,14 @@ div.panel
     font-size: 12px
     text-transform: uppercase
     text-shadow: 1px 1px rgba(0,0,0,0.25)
+    display: inline-block
+    padding: 6px 30px
+    text-decoration: none
+    position: relative
+    line-height: 1
+
+    &:active
+        top: 1px
 
     &.secondary
         background: linear-gradient(#FAFBFD, #E8ECF1)
@@ -144,6 +163,7 @@ table.tabs
         padding: 0
         vertical-align: bottom
         height: 38px
+        padding: 0 !important
 
         div
             height: 100%
@@ -920,43 +940,6 @@ footer
         .wrap
             text-align: center
             padding: 20px
-
-.button
-    display: inline-block
-    padding: 6px 30px
-    text-decoration: none
-    position: relative
-    line-height: 1
-
-    &:active
-        top: 1px
-
-#modal
-    div.reveal-modal
-        border: $border_color
-        border-radius: 2px
-        padding: 0
-
-    .scroll
-        overflow-y: auto
-        margin: 10px
-
-    h1
-        font-size: 22px
-        margin: 0
-        color: $text_color
-        text-shadow: 1px 1px rgba(255,255,255,0.8)
-        background: $table_border
-        padding: 10px
-        border-bottom: 1px solid $border_color
-        border-radius: 2px 2px 0 0
-
-        span.entypo
-            margin-right: 4px
-
-    .close-reveal-modal
-        color: $text_color
-        margin-top: 15px
 
 /** ============== Progress/loading bar ============== */
 div.loading
