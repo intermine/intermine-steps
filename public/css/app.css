@@ -206,6 +206,7 @@ table.tabs td.labeled div .count {
   border-radius: 2px;
   color: #fff;
   padding: 0 6px 1px 6px;
+  font-size: 14px;
 }
 table.tabs td.active {
   border-right: 1px solid #cad6df;
@@ -424,18 +425,36 @@ header#top {
   box-shadow: 0 0 1px 1px #888;
   text-shadow: -1px -1px rgba(0,0,0,0.2);
 }
+header#top * {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
 header#top .row {
   width: 1000px;
+  margin: 0 auto;
+}
+header#top .row:after {
+  content: "";
+  display: table;
+  clear: both;
 }
 header#top a {
   color: #fff;
+}
+header#top .column {
+  position: relative;
+  float: left;
+}
+header#top .first {
+  width: 25%;
 }
 header#top .first a {
   color: inherit;
 }
 header#top .first h1 {
   margin: 0;
-  padding: 10px 0 10px 10px;
+  padding: 10px 0;
   font-size: 20px;
   line-height: 30px;
   color: #fff;
@@ -445,12 +464,22 @@ header#top .first h1 span {
   font-weight: normal;
 }
 header#top .second {
+  width: 33.333%;
   vertical-align: top;
+  padding: 0 15px;
 }
 header#top .second input#search {
-  margin: 10px 10px 10px 0;
   width: 100%;
-  float: left;
+  border: 1px solid #ccc;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.75);
+  display: inline-block;
+  font-size: 14px;
+  margin: 10px 0;
+  padding: 6px;
 }
 header#top .second #always-on {
   float: left;
@@ -498,9 +527,15 @@ header#top .second #always-on ul.tools li.button a:hover {
   border-radius: 0;
 }
 header#top .third {
+  width: 41.667%;
   text-align: right;
   line-height: 30px;
-  padding: 10px;
+}
+header#top .third p {
+  color: #97a5b8;
+  font-size: 14px;
+  padding: 0;
+  margin: 10px 0 10px 10px;
 }
 header#top .third span {
   display: inline-block;
@@ -508,18 +543,16 @@ header#top .third span {
   font-size: 8px;
   height: 18px;
 }
-body.app header#top .first,
-body.app header#top .second,
-body.app header#top .third {
+body.app header#top .column {
   display: inline-block;
 }
-body.app header#top .second {
+body.app header#top .column.second {
   padding-left: 20px;
 }
-body.app header#top .second input#search {
+body.app header#top .column.second input#search {
   width: 400px;
 }
-body.app header#top .third {
+body.app header#top .column.third {
   float: right;
   width: 250px;
 }
@@ -536,21 +569,44 @@ section#middle:after {
 section#middle.narrow {
   margin-top: 20px;
 }
-section#middle.narrow div.row {
+section#middle.narrow .row {
   width: 1000px;
 }
-section#middle div.row h2 {
+section#middle .row {
+  margin: 0 auto;
+}
+section#middle .row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+section#middle .row .column {
+  float: left;
+}
+section#middle .row .column.first {
+  width: 25%;
+}
+section#middle .row .column.second {
+  width: 33.333%;
+}
+section#middle .row .column.third {
+  width: 41.667%;
+}
+section#middle .row .column.third .box {
+  margin-right: 0;
+}
+section#middle .row h2 {
   font-size: 20px;
 }
-section#middle div.row h4 {
+section#middle .row h4 {
   font-size: 16px;
   margin: 0;
   margin-bottom: 5px;
 }
-section#middle div.row ul {
+section#middle .row ul {
   list-style-type: none;
 }
-section#middle div.row:not(:last-child) {
+section#middle .row:not(:last-child) {
   margin-bottom: 15px;
 }
 section#middle .hidden {
@@ -563,6 +619,7 @@ section#middle .box {
   border: 1px solid #bccad5;
   -webkit-box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
   box-shadow: -3px 3px 3px rgba(0,0,0,0.05);
+  margin: 0 15px;
 }
 section#middle .box h2 {
   margin: 0;
@@ -1245,6 +1302,8 @@ footer#wide {
   background: linear-gradient(top, rgba(247,247,247,0) 0%, #fff 50%);
 }
 footer#wide p {
+  font-size: 14px;
+  line-height: 1.6;
   text-align: center;
 }
 footer#bottom {

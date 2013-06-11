@@ -1,21 +1,21 @@
 <div id="wrapper">
     <header id="top">
         <div class="row">
-            <div class="first three columns">
+            <div class="first column">
                 <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
             </div>
-            <div class="second four columns">
+            <div class="second column">
                 <input id="search" type="text" placeholder="e.g. list upload, PPARG" />
             </div>
-            <div class="third five columns">
-                Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a>
+            <div class="third column">
+                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a></p>
             </div>
         </div>
     </header>
 
     <section id="middle" class="narrow container">
         <div class="row">
-            <div class="three columns">
+            <div class="first column">
                 <div class="nobox">
                     <h2><span class="entypo lifebuoy"></span> Help</h2>
                     <ul class="tools">
@@ -26,14 +26,14 @@
                     </ul>
                 </div>
             </div>
-            <div class="four columns">
+            <div class="second column">
                 <div class="box">
                     <h2><span class="entypo crossroads"></span> Tools</h2>
                     <!-- populate next steps here -->
                     <div id="next"></div>
                 </div>
             </div>
-            <div class="five columns">
+            <div class="third column">
                 <div class="box">
                     <table class="tabs">
                         <tr>

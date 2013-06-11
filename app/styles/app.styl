@@ -199,6 +199,7 @@ table.tabs
                     border-radius: 2px
                     color: #FFF
                     padding: 0 6px 1px 6px
+                    font-size: 14px
 
         &.active
             border-right: 1px solid #CAD6DF
@@ -354,20 +355,35 @@ header#top
     border-bottom: 1px solid #34455E
     box-shadow: 0 0 1px 1px #888
     text-shadow: -1px -1px rgba(0,0,0,0.2)
+    
+    *
+        box-sizing: border-box
 
     .row
         width: 1000px
+        margin: 0 auto
+
+        &:after
+            content: ""
+            display: table
+            clear: both
 
     a
         color: #FFF
 
+    .column
+        position: relative
+        float: left
+
     .first
+        width: 25%
+
         a
             color: inherit
 
         h1
             margin: 0
-            padding: 10px 0 10px 10px
+            padding: 10px 0
             font-size: 20px
             line-height: 30px
             color: #FFF
@@ -377,12 +393,20 @@ header#top
                 font-weight: normal
 
     .second
+        width: 33.333%
         vertical-align: top
+        padding: 0 15px
 
         input#search
-            margin: 10px 10px 10px 0
             width: 100%
-            float: left
+            border: 1px solid #CCC
+            border-radius: 2px
+            box-shadow: inset 0 1px 2px rgba(0 , 0 , 0 , 0.1)
+            color: rgba(0 , 0 , 0 , 0.75)
+            display: inline-block
+            font-size: 14px
+            margin: 10px 0
+            padding: 6px
 
         #always-on
             float: left
@@ -424,9 +448,15 @@ header#top
                             border-radius: 0
 
     .third
+        width: 41.667%
         text-align: right
         line-height: 30px
-        padding: 10px
+
+        p
+            color: #97a5b8
+            font-size: 14px
+            padding: 0
+            margin: 10px 0 10px 10px
 
         span
             display: inline-block
@@ -437,22 +467,18 @@ header#top
 // only on app pages
 body.app
     header#top
-        .first, .second, .third
+        .column
             display: inline-block
 
-        // .first
-        //     width: 272px
+            &.second
+                padding-left: 20px
 
-        .second
-            padding-left: 20px
-            // border-left: 1px solid rgba(0,0,0,0.25)
+                input#search
+                    width: 400px
 
-            input#search
-                width: 400px
-
-        .third
-            float: right
-            width: 250px
+            &.third
+                float: right
+                width: 250px
 
 section#middle
     position: relative
@@ -467,10 +493,32 @@ section#middle
     &.narrow
         margin-top: 20px
 
-        div.row
+        .row
             width: 1000px
 
-    div.row
+    .row
+        margin: 0 auto
+
+        &:after
+            content: ""
+            display: table
+            clear: both
+
+        .column
+            float: left
+
+            &.first
+                width: 25%
+            
+            &.second
+                width: 33.333%
+            
+            &.third
+                width: 41.667%
+
+                .box
+                    margin-right: 0
+
         h2
             font-size: 20px
 
@@ -494,6 +542,7 @@ section#middle
         border-radius: 2px
         border: 1px solid $border_color
         box-shadow: -3px 3px 3px rgba(0,0,0,0.05)
+        margin: 0 15px
 
         h2
             margin: 0
@@ -932,6 +981,8 @@ footer
         background: linear-gradient(rgba(247,247,247,0), #FFF 50%)
 
         p
+            font-size: 14px
+            line-height: 1.6
             text-align: center
 
     &#bottom
