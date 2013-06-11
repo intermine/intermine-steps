@@ -3,7 +3,7 @@ exports.config =
     # Root URL for all mine requests (for now we only work with 1 mine).
     'mine': 'http://beta.flymine.org/beta'
     # A token so we can be creating lists in the background (throwaway account).
-    'token': 'x1P35eUaqcr9pcDdCaCe'
+    'token': 'T153WfD21eK7C20fb95f'
 
 # Tool configuration based on the user logged in.
 exports.registry = [

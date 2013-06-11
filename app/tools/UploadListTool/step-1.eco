@@ -5,38 +5,40 @@
         </div>
     </div>
     <div class="stod row">
-        <div class="six stod columns">
-            <label>List of identifiers</label>
-            <% if @data and @data.identifiers: %>
-                <textarea name="identifiers"><% for i, id of @data.identifiers: %><%= id %><% if parseInt(i) isnt @data.identifiers.length - 1: %> <% end %><% end %></textarea>
-            <% else: %>
-                <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>
-            <% end %>
-        </div>
-        <div class="two stod columns">
-            <label>Type</label>
-            <select name="type" class="expand">
-                <% for type in @types: %>
-                    <% if @data and @data.type and @data.type is type: %>
-                        <option value="<%= type %>" selected="selected"><%= owl.pluralize type %></option>
-                    <% else: %>
-                        <option value="<%= type %>"><%= owl.pluralize type %></option>
-                    <% end %>
+        <form class="custom">
+            <div class="six stod columns">
+                <label>List of identifiers</label>
+                <% if @data and @data.identifiers: %>
+                    <textarea name="identifiers"><% for i, id of @data.identifiers: %><%= id %><% if parseInt(i) isnt @data.identifiers.length - 1: %> <% end %><% end %></textarea>
+                <% else: %>
+                    <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>
                 <% end %>
-            </select>
-        </div>
-        <div class="four stod columns">
-            <label>Organism</label>
-            <select name="organism" class="expand">
-                <% for organism in @organisms: %>
-                    <% if @data and @data.organism and @data.organism is organism: %>
-                        <option value="<%= organism %>" selected="selected"><%= organism %></option>
-                    <% else: %>
-                        <option value="<%= organism %>"><%= organism %></option>
+            </div>
+            <div class="two stod columns">
+                <label>Type</label>
+                <select name="type" class="expand">
+                    <% for type in @types: %>
+                        <% if @data and @data.type and @data.type is type: %>
+                            <option value="<%= type %>" selected="selected"><%= owl.pluralize type %></option>
+                        <% else: %>
+                            <option value="<%= type %>"><%= owl.pluralize type %></option>
+                        <% end %>
                     <% end %>
-                <% end %>
-            </select>
-        </div>
+                </select>
+            </div>
+            <div class="four stod columns">
+                <label>Organism</label>
+                <select name="organism" class="expand">
+                    <% for organism in @organisms: %>
+                        <% if @data and @data.organism and @data.organism is organism: %>
+                            <option value="<%= organism %>" selected="selected"><%= organism %></option>
+                        <% else: %>
+                            <option value="<%= organism %>"><%= organism %></option>
+                        <% end %>
+                    <% end %>
+                </select>
+            </div>
+        </form>
     </div>
     <div class="stod row">
         <div class="twelve stod columns">

@@ -1213,7 +1213,7 @@ window.require.register("chaplin/templates/app", function(exports, require, modu
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- new tools -->\n        <!--\n        <aside id="left"></aside>\n        -->\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>');
+        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>');
       
       }).call(this);
       
@@ -2012,7 +2012,7 @@ window.require.register("chaplin/views/App", function(exports, require, module) 
       this.delegate('keyup', 'input#search', function(e) {
         return Mediator.publish('app:search', $(e.target).val());
       });
-      $('body').addClass('app').removeClass('foundation3');
+      $('body').addClass('app');
       return this;
     };
 
@@ -2087,12 +2087,6 @@ window.require.register("chaplin/views/Error", function(exports, require, module
 
     ErrorView.prototype.getTemplateFunction = function() {
       return require("chaplin/templates/error-" + this.options.template);
-    };
-
-    ErrorView.prototype.attach = function() {
-      ErrorView.__super__.attach.apply(this, arguments);
-      $('body').addClass('foundation3');
-      return this;
     };
 
     return ErrorView;
@@ -2450,7 +2444,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
       this.delegate('keyup', 'input#search', function(e) {
         return Mediator.publish('app:search', $(e.target).val());
       });
-      $('body').removeClass('app').addClass('foundation3');
+      $('body').removeClass('app');
       $(this.el).find('#example').html(JSON.stringify(registry[0], null, 4));
       Rainbow.color();
       return this;
@@ -3550,6 +3544,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
+          this.getDOM().addClass('foundation3').foundationCustomForms();
           this.delegate('click', '#submit', function() {
             _this.ids = _this.clean(_this.getDOM().find('form textarea').val());
             if (_this.ids.length === 0) {
@@ -3613,6 +3608,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
           });
           break;
         case 4:
+          this.getDOM().addClass('bootstrap');
           _ref = this.model.get('data'), type = _ref.type, list = _ref.list;
           target = $(this.el).find('.im-table');
           query = {
@@ -3698,10 +3694,10 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
       (function() {
         var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="stod row">\n        <div class="six stod columns">\n            <label>List of identifiers</label>\n            ');
+        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="stod row">\n        <form class="custom">\n            <div class="six stod columns">\n                <label>List of identifiers</label>\n                ');
       
         if (this.data && this.data.identifiers) {
-          __out.push('\n                <textarea name="identifiers">');
+          __out.push('\n                    <textarea name="identifiers">');
           _ref = this.data.identifiers;
           for (i in _ref) {
             id = _ref[i];
@@ -3710,56 +3706,56 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
               __out.push(' ');
             }
           }
-          __out.push('</textarea>\n            ');
+          __out.push('</textarea>\n                ');
         } else {
-          __out.push('\n                <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n            ');
+          __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n                ');
         }
       
-        __out.push('\n        </div>\n        <div class="two stod columns">\n            <label>Type</label>\n            <select name="type" class="expand">\n                ');
+        __out.push('\n            </div>\n            <div class="two stod columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
       
         _ref1 = this.types;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           type = _ref1[_i];
-          __out.push('\n                    ');
+          __out.push('\n                        ');
           if (this.data && this.data.type && this.data.type === type) {
-            __out.push('\n                        <option value="');
+            __out.push('\n                            <option value="');
             __out.push(__sanitize(type));
             __out.push('" selected="selected">');
             __out.push(__sanitize(owl.pluralize(type)));
-            __out.push('</option>\n                    ');
+            __out.push('</option>\n                        ');
           } else {
-            __out.push('\n                        <option value="');
+            __out.push('\n                            <option value="');
             __out.push(__sanitize(type));
             __out.push('">');
             __out.push(__sanitize(owl.pluralize(type)));
-            __out.push('</option>\n                    ');
+            __out.push('</option>\n                        ');
           }
-          __out.push('\n                ');
+          __out.push('\n                    ');
         }
       
-        __out.push('\n            </select>\n        </div>\n        <div class="four stod columns">\n            <label>Organism</label>\n            <select name="organism" class="expand">\n                ');
+        __out.push('\n                </select>\n            </div>\n            <div class="four stod columns">\n                <label>Organism</label>\n                <select name="organism" class="expand">\n                    ');
       
         _ref2 = this.organisms;
         for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
           organism = _ref2[_j];
-          __out.push('\n                    ');
+          __out.push('\n                        ');
           if (this.data && this.data.organism && this.data.organism === organism) {
-            __out.push('\n                        <option value="');
+            __out.push('\n                            <option value="');
             __out.push(__sanitize(organism));
             __out.push('" selected="selected">');
             __out.push(__sanitize(organism));
-            __out.push('</option>\n                    ');
+            __out.push('</option>\n                        ');
           } else {
-            __out.push('\n                        <option value="');
+            __out.push('\n                            <option value="');
             __out.push(__sanitize(organism));
             __out.push('">');
             __out.push(__sanitize(organism));
-            __out.push('</option>\n                    ');
+            __out.push('</option>\n                        ');
           }
-          __out.push('\n                ');
+          __out.push('\n                    ');
         }
       
-        __out.push('\n            </select>\n        </div>\n    </div>\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('\n                </select>\n            </div>\n        </form>\n    </div>\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3922,7 +3918,7 @@ window.require.register("tools/config", function(exports, require, module) {
   
   exports.config = {
     'mine': 'http://beta.flymine.org/beta',
-    'token': 'x1P35eUaqcr9pcDdCaCe'
+    'token': 'T153WfD21eK7C20fb95f'
   };
 
   exports.registry = [

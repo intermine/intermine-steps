@@ -16,10 +16,6 @@
     </header>
 
     <section id="middle">
-        <!-- new tools -->
-        <!--
-        <aside id="left"></aside>
-        -->
         <!-- the tool -->
         <div id="widget"></div>
         <!-- from here -->
