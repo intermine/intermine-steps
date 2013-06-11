@@ -166,7 +166,7 @@ module.exports = class HistoryView extends View
     # Draw a connector line between a parent and its child.
     drawConnector: (a, b) ->
         # Box dimensions (history el is hidden so cannot get dimensions live).
-        width = 120 ; height = 53
+        width = 120 ; height = 40 # 100px + 10px margin on sides ; 35px + 5px margin
 
         # Skip very first element.
         return unless a
@@ -174,7 +174,7 @@ module.exports = class HistoryView extends View
         # Calculate centre point of any grid element.
         pos = (col, row) ->
             x = ( (col + 1) * width ) - (width / 2) # from left
-            y = ( (row + 1) * height ) - (height / 2) + 10 # from top
+            y = ( (row + 1) * height ) - (height / 2) + 5 # from top
             [ x, y ]
 
         [ x1, y1 ] = pos a.col, a.row

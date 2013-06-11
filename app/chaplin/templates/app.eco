@@ -1,14 +1,14 @@
 <div id="wrapper">
     <!-- header, account etc. -->
     <header id="top">
-        <div class="inner">
-            <div class="third">
-                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>
+        <div class="row">
+            <div class="third column">
+                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a></p>
             </div>
-            <div class="first">
+            <div class="first column">
                 <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>
             </div>
-            <div class="second">
+            <div class="second column">
                 <input id="search" type="text" placeholder="e.g. list upload, PPARG" />
                 <div id="always-on"></div>
             </div>

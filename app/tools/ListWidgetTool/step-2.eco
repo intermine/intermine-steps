@@ -1,9 +1,3 @@
-<div class="container">
-    <div class="stod row">
-        <div class="twelve stod columns">
-            <div class="bootstrap">
-                <div class="loading"></div>
-            </div>
-        </div>
-    </div>
+<div class="bootstrap container">
+    <div class="loading"></div>
 </div>

@@ -35,8 +35,8 @@ module.exports = class UploadListToolView extends ToolView
         switch @step
             # Get the identifiers from a form.
             when 1
-                # Use Foundation3.
-                @getDOM().addClass('foundation3').foundationCustomForms()
+                # Use Foundation3 forms.
+                @getDOM().foundationCustomForms()
 
                 # Capture submit clicks.
                 @delegate 'click', '#submit', =>
@@ -107,9 +107,6 @@ module.exports = class UploadListToolView extends ToolView
 
             # We have resolved the identifiers & have a list reference.
             when 4
-                # Use Bootstrap.
-                @getDOM().addClass('bootstrap')
-
                 # Expand on us.
                 { type, list } = @model.get('data')
 

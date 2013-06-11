@@ -1213,7 +1213,7 @@ window.require.register("chaplin/templates/app", function(exports, require, modu
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="inner">\n            <div class="third">\n                Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a>\n            </div>\n            <div class="first">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>');
+        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="row">\n            <div class="third column">\n                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a></p>\n            </div>\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second column">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>');
       
       }).call(this);
       
@@ -2308,14 +2308,14 @@ window.require.register("chaplin/views/History", function(exports, require, modu
     HistoryView.prototype.drawConnector = function(a, b) {
       var height, pos, svg, width, x1, x2, y1, y2, _ref, _ref1;
       width = 120;
-      height = 53;
+      height = 40;
       if (!a) {
         return;
       }
       pos = function(col, row) {
         var x, y;
         x = ((col + 1) * width) - (width / 2);
-        y = ((row + 1) * height) - (height / 2) + 10;
+        y = ((row + 1) * height) - (height / 2) + 5;
         return [x, y];
       };
       _ref = pos(a.col, a.row), x1 = _ref[0], y1 = _ref[1];
@@ -3104,11 +3104,11 @@ window.require.register("tools/ListWidgetTool/step-1", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <label>Type in list name</label>\n            <input type="text" name="list" value="');
+        __out.push('<div class="foundation3 container">\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <div class="twelve columns">\n            <label>Type in list name</label>\n            <input type="text" name="list" value="');
       
         __out.push(__sanitize(this.list));
       
-        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve stod columns">\n            <a id="submit" class="button">Choose a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Choose a list</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3158,7 +3158,7 @@ window.require.register("tools/ListWidgetTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="bootstrap">\n                <div class="loading"></div>\n            </div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="bootstrap container">\n    <div class="loading"></div>\n</div>');
       
       }).call(this);
       
@@ -3361,11 +3361,11 @@ window.require.register("tools/OntologyGraphTool/step-1", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <label>Type in Gene <em>id</em></label>\n            <input type="text" name="id" value="');
+        __out.push('<div class="foundation3 container">\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <div class="twelve columns">\n            <label>Type in Gene <em>id</em></label>\n            <input type="text" name="id" value="');
       
         __out.push(__sanitize(this.id));
       
-        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve stod columns">\n            <a id="submit" class="button">Show the Graph</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Show the Graph</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3415,7 +3415,7 @@ window.require.register("tools/OntologyGraphTool/step-2", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="loading"></div>\n</div>');
       
       }).call(this);
       
@@ -3465,7 +3465,7 @@ window.require.register("tools/OntologyGraphTool/step-3", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div id="ontology" class="foundation"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="foundation3 container">\n    <div id="ontology"></div>\n</div>');
       
       }).call(this);
       
@@ -3544,7 +3544,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
       UploadListToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
-          this.getDOM().addClass('foundation3').foundationCustomForms();
+          this.getDOM().foundationCustomForms();
           this.delegate('click', '#submit', function() {
             _this.ids = _this.clean(_this.getDOM().find('form textarea').val());
             if (_this.ids.length === 0) {
@@ -3608,7 +3608,6 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
           });
           break;
         case 4:
-          this.getDOM().addClass('bootstrap');
           _ref = this.model.get('data'), type = _ref.type, list = _ref.list;
           target = $(this.el).find('.im-table');
           query = {
@@ -3694,7 +3693,7 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
       (function() {
         var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="stod row">\n        <form class="custom">\n            <div class="six stod columns">\n                <label>List of identifiers</label>\n                ');
+        __out.push('<div class="foundation3 container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <form class="custom">\n            <div class="six columns">\n                <label>List of identifiers</label>\n                ');
       
         if (this.data && this.data.identifiers) {
           __out.push('\n                    <textarea name="identifiers">');
@@ -3711,7 +3710,7 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
           __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n                ');
         }
       
-        __out.push('\n            </div>\n            <div class="two stod columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
+        __out.push('\n            </div>\n            <div class="two columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
       
         _ref1 = this.types;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -3733,7 +3732,7 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
           __out.push('\n                    ');
         }
       
-        __out.push('\n                </select>\n            </div>\n            <div class="four stod columns">\n                <label>Organism</label>\n                <select name="organism" class="expand">\n                    ');
+        __out.push('\n                </select>\n            </div>\n            <div class="four columns">\n                <label>Organism</label>\n                <select name="organism" class="expand">\n                    ');
       
         _ref2 = this.organisms;
         for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
@@ -3755,7 +3754,7 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
           __out.push('\n                    ');
         }
       
-        __out.push('\n                </select>\n            </div>\n        </form>\n    </div>\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('\n                </select>\n            </div>\n        </form>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
@@ -3805,7 +3804,7 @@ window.require.register("tools/UploadListTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="loading"></div>\n</div>');
       
       }).call(this);
       
@@ -3855,7 +3854,7 @@ window.require.register("tools/UploadListTool/step-3", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="loading"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="container">\n    <div class="loading"></div>\n</div>');
       
       }).call(this);
       
@@ -3905,7 +3904,7 @@ window.require.register("tools/UploadListTool/step-4", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="stod row">\n        <div class="twelve stod columns">\n            <div class="im-table intermine"></div>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="bootstrap container">\n    <div class="im-table intermine"></div>\n</div>');
       
       }).call(this);
       

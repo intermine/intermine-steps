@@ -1,12 +1,12 @@
-<div class="container">
-    <div class="stod row">
-        <div class="twelve stod columns">
+<div class="foundation3 container">
+    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->
+        <div class="twelve columns">
             <label>Type in list name</label>
             <input type="text" name="list" value="<%= @list %>" />
         </div>
     </div>
     <div class="row">
-        <div class="twelve stod columns">
+        <div class="twelve columns">
             <a id="submit" class="button">Choose a list</span></a>
         </div>
     </div>

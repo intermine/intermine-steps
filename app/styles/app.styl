@@ -109,9 +109,10 @@ div.panel
 
 .button
     background: linear-gradient(#71B9EC, #54A1E7)
-    border-color: #5FA4DE
+    border: 1px solid #5FA4DE
     border-radius: 2px
-    font-size: 12px
+    font-size: 14px
+    font-weight: bold
     text-transform: uppercase
     text-shadow: 1px 1px rgba(0,0,0,0.25)
     display: inline-block
@@ -119,11 +120,16 @@ div.panel
     text-decoration: none
     position: relative
     line-height: 1
+    color: #FFF
+    cursor: pointer
+
+    &:hover
+        color: #FFF
 
     &:active
         top: 1px
 
-    &.secondary
+    &.secondary, &.secondary:hover
         background: linear-gradient(#FAFBFD, #E8ECF1)
         border-color: #BFCFDA
         color: #838B9F
@@ -263,7 +269,7 @@ ul.tools
                 height: 5px
                 position: absolute
                 top: 9px
-                left: 10px
+                left: 11px
                 background: #5b617d
 
             &:hover
@@ -416,7 +422,7 @@ header#top
 
             ul.tools
                 list-style-type: none
-                margin: 14px 0
+                margin: 11px 0 0 0
 
                 li
                     margin: 0
@@ -467,18 +473,25 @@ header#top
 // only on app pages
 body.app
     header#top
-        .column
-            display: inline-block
+        .row
+            width: auto
+            margin: 0 20px
 
-            &.second
-                padding-left: 20px
+            .column
+                &.first
+                    width: auto
 
-                input#search
-                    width: 400px
+                &.second
+                    width: auto
+                    
+                    input#search
+                        width: 400px
+                        float: left
+                        margin-right: 15px
 
-            &.third
-                float: right
-                width: 250px
+                &.third
+                    float: right
+                    width: 250px
 
 section#middle
     position: relative
@@ -720,6 +733,7 @@ section#middle
             em.ago
                 float: left
                 margin: 29px 0 0 0
+                font-size: 14px
 
             &:after
                 content: ""
@@ -785,6 +799,7 @@ section#middle
                 .content
                     display: none
                     padding: 15px
+                    overflow: hidden
         
                 &:not(.active)
                     .title
@@ -912,21 +927,16 @@ div#history
             border: 0
             margin: 0
             padding: 0
-            background: transparent
-
-            tr
-                background: transparent // no alt bg bullshit
 
             td
                 padding: 0
                 text-align: center
-                line-height: 18px
 
         // div based system
         div.step
             display: inline-block
             width: 100px
-            margin: 5px 0
+            margin: 0 0 5px 0
 
             div.wrap
                 width: 80px
@@ -956,7 +966,6 @@ div#history
                 color: inherit
 
             div.box
-                height: 25px
                 overflow: hidden
                 text-align: center
                 vertical-align: middle

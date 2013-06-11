@@ -112,10 +112,11 @@ div.panel {
   background: -o-linear-gradient(top, #71b9ec 0%, #54a1e7 100%);
   background: -ms-linear-gradient(top, #71b9ec 0%, #54a1e7 100%);
   background: linear-gradient(top, #71b9ec 0%, #54a1e7 100%);
-  border-color: #5fa4de;
+  border: 1px solid #5fa4de;
   -webkit-border-radius: 2px;
   border-radius: 2px;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: bold;
   text-transform: uppercase;
   text-shadow: 1px 1px rgba(0,0,0,0.25);
   display: inline-block;
@@ -123,11 +124,17 @@ div.panel {
   text-decoration: none;
   position: relative;
   line-height: 1;
+  color: #fff;
+  cursor: pointer;
+}
+.button:hover {
+  color: #fff;
 }
 .button:active {
   top: 1px;
 }
-.button.secondary {
+.button.secondary,
+.button.secondary:hover {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafbfd), color-stop(1, #e8ecf1));
   background: -webkit-linear-gradient(top, #fafbfd 0%, #e8ecf1 100%);
   background: -moz-linear-gradient(top, #fafbfd 0%, #e8ecf1 100%);
@@ -312,7 +319,7 @@ ul.tools li a:before {
   height: 5px;
   position: absolute;
   top: 9px;
-  left: 10px;
+  left: 11px;
   background: #5b617d;
 }
 ul.tools li a:hover {
@@ -491,7 +498,7 @@ header#top .second #always-on p.noactions {
 }
 header#top .second #always-on ul.tools {
   list-style-type: none;
-  margin: 14px 0;
+  margin: 11px 0 0 0;
 }
 header#top .second #always-on ul.tools li {
   margin: 0;
@@ -543,16 +550,22 @@ header#top .third span {
   font-size: 8px;
   height: 18px;
 }
-body.app header#top .column {
-  display: inline-block;
+body.app header#top .row {
+  width: auto;
+  margin: 0 20px;
 }
-body.app header#top .column.second {
-  padding-left: 20px;
+body.app header#top .row .column.first {
+  width: auto;
 }
-body.app header#top .column.second input#search {
+body.app header#top .row .column.second {
+  width: auto;
+}
+body.app header#top .row .column.second input#search {
   width: 400px;
+  float: left;
+  margin-right: 15px;
 }
-body.app header#top .column.third {
+body.app header#top .row .column.third {
   float: right;
   width: 250px;
 }
@@ -911,6 +924,7 @@ section#middle div#widget div.head .entypo {
 section#middle div#widget div.head em.ago {
   float: left;
   margin: 29px 0 0 0;
+  font-size: 14px;
 }
 section#middle div#widget div.head:after {
   content: "";
@@ -983,6 +997,7 @@ section#middle div#widget ul.accordion > li > div.title:after {
 section#middle div#widget ul.accordion > li .content {
   display: none;
   padding: 15px;
+  overflow: hidden;
 }
 section#middle div#widget ul.accordion > li:not(.active) .title {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f6f8fc), color-stop(1, #eceef3));
@@ -1111,20 +1126,15 @@ div#history #tools table.grid {
   border: 0;
   margin: 0;
   padding: 0;
-  background: transparent;
-}
-div#history #tools table.grid tr {
-  background: transparent;
 }
 div#history #tools table.grid td {
   padding: 0;
   text-align: center;
-  line-height: 18px;
 }
 div#history #tools div.step {
   display: inline-block;
   width: 100px;
-  margin: 5px 0;
+  margin: 0 0 5px 0;
 }
 div#history #tools div.step div.wrap {
   width: 80px;
@@ -1271,7 +1281,6 @@ div#history #tools div.step a {
   color: inherit;
 }
 div#history #tools div.step div.box {
-  height: 25px;
   overflow: hidden;
   text-align: center;
   vertical-align: middle;
