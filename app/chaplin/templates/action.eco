@@ -1,6 +1,6 @@
 <!-- help text provided? -->
 <% if @help: %>
-    <span class="entypo help" title="Show help for this item"></span>
+    <span class="entypo help -steps-ui" title="Show help for this item"></span>
 <% end %>
 
 <!-- the link -->

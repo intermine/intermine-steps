@@ -39,75 +39,92 @@ $table_border = #E0E3ED
     url('../fonts/Entypo.svg') format('svg')
 }
 
-/** ============== Generic styles ============== */
+// has slight effect on tools but is very common
+html
+    font-size: 62.5%
 
-html { font-size: 62.5%; }
-
+// has no effect on tools
 body
     background: url('../img/p6.png') !important
     margin: 0
 
+// font and font color for us
 body, h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
     font-family: Lato
     color: $text_color
 
+// link color for us
 a
     color: $link_color
     text-decoration: none
+    cursor: pointer
 
     &:hover
         color: darken($link_color, 30%)
 
-.label
-    border-radius: 2px
-    font-weight: normal
-    background: linear-gradient(rgba($text_color, 0.15), rgba($text_color, 0.4))
-    color: $text_color
-    text-shadow: -1px -1px rgba(255,255,255,0.3)
-    box-shadow: inset 1px 1px 3px rgba($text_color, 0.2)
-    border: 1px solid rgba($text_color, 0.3)
+.-steps-tool
+    // reset color and font for the tool container
+    h1, h2, h3, h4, p, li, table thead tr th, table tbody tr td
+        font-family: Helvetica, Arial, "Nimbus Sans L", sans-serif
+        color: #000
 
-code
-    font-size: 10px
-    background: inherit
+    // reset link color for the tool container
+    a
+        color: blue
+
+        &:hover
+            color: blue
+
+// .label
+//     border-radius: 2px
+//     font-weight: normal
+//     background: linear-gradient(rgba($text_color, 0.15), rgba($text_color, 0.4))
+//     color: $text_color
+//     text-shadow: -1px -1px rgba(255,255,255,0.3)
+//     box-shadow: inset 1px 1px 3px rgba($text_color, 0.2)
+//     border: 1px solid rgba($text_color, 0.3)
+
+// code
+//     font-size: 10px
+//     background: inherit
 
 p
     margin: 0
 
     code
-        font-weight: normal
         font-size: 11px
 
-ul, ol
+ul.-steps-ui, ol.-steps-ui
     font-size: 14px
     line-height: 1.6
-    margin-bottom: 0 0 17px 0
+    margin-bottom: 17px
     padding: 0
+    list-style-type: none
     list-style-position: inside
 
-::-webkit-input-placeholder
-    color: lighten(#5b617d, 50%)
+// ::-webkit-input-placeholder
+//     color: lighten(#5b617d, 50%)
 
-input[type="checkbox"]
-    cursor: pointer
+// input[type="checkbox"]
+//     cursor: pointer
 
-input.filter
-    display: none
+// input.filter
+//     display: none
 
-textarea
-    color: #141414
-    font-family: 'Lato'
-    font-size: 14px
+// textarea
+//     color: #141414
+//     font-family: 'Lato'
+//     font-size: 14px
 
-.help, .help:before
+.help.-steps-ui, .help.-steps-ui:before
     color: rgba(0,0,0,0.2)
     cursor: pointer
 
-div.panel
-    border-radius: 2px
-    border: 1px solid $border_color
+// div.panel
+//     border-radius: 2px
+//     border: 1px solid $border_color
 
-.button
+.button.-steps-ui
     background: linear-gradient(#71B9EC, #54A1E7)
     border: 1px solid #5FA4DE
     border-radius: 2px
@@ -135,31 +152,32 @@ div.panel
         color: #838B9F
         text-shadow: 1px 1px #FFF
 
-table
-    margin: 0
+// table
+//     margin: 0
 
-table.table
-    border-collapse: collapse
-    border: 0
+// table.table
+//     border-collapse: collapse
+//     border: 0
 
-    tbody
-        border: 1px solid $table_border
-        border-left: 3px solid $table_border
+//     tbody
+//         border: 1px solid $table_border
+//         border-left: 3px solid $table_border
 
-    tr
-        th
-            background: #FFF
-            border-bottom: 1px solid $table_border
+//     tr
+//         th
+//             background: #FFF
+//             border-bottom: 1px solid $table_border
 
-        &:nth-child(odd)
-            td
-                border-bottom: 1px solid $table_border
+//         &:nth-child(odd)
+//             td
+//                 border-bottom: 1px solid $table_border
 
-        &:nth-child(even)
-            td
-                background: #F5F6F9
+//         &:nth-child(even)
+//             td
+//                 background: #F5F6F9
 
-table.tabs
+// landing page messages or next steps tabs
+table.tabs.-steps-ui
     background: inherit
     border: 0
     border-collapse: collapse
@@ -233,9 +251,7 @@ table.tabs
                     background: linear-gradient(#AFBED4, #A3B4CE)
 
 // used on showing a listing of tools
-ul.tools
-    //list-style-type: none
-
+ul.tools.-steps-ui
     li
         margin: 0 -10px
         clear: both
@@ -280,7 +296,8 @@ ul.tools
                 text-shadow: 1px 1px #4D93D8
                 box-shadow: inset 0 0 2px 0 rgba(255,255,255,0.5)
 
-ul.timeline
+// landing page messages from the system
+ul.timeline.-steps-ui
     margin: 0
 
     li
@@ -321,39 +338,47 @@ ul.timeline
         p
             margin: 0
 
-.noactions
-    display: none
-    font-size: 13px
-    font-style: italic
+.-steps-ui
+    // filtering tools matched no actions
+    .noactions
+        display: none
+        font-size: 13px
+        font-style: italic
 
-.popup
-    font-size: 10px
-    padding: 0px 4px
-    border-radius: 2px
-    position: absolute
-    top: 7px
-    right: 5px
-    background: linear-gradient(#fafbfd, #e8ecf1)
-    border: 1px solid #BFCFDA
-    color: #838B9F
-    text-shadow: 1px 1px #FFF
-    cursor: pointer
-    opacity: 0.75
+    // button to show truncated tools
+    .show-truncated
+        display: none
 
-    &:hover
-        opacity: 1
+// .popup
+//     font-size: 10px
+//     padding: 0px 4px
+//     border-radius: 2px
+//     position: absolute
+//     top: 7px
+//     right: 5px
+//     background: linear-gradient(#fafbfd, #e8ecf1)
+//     border: 1px solid #BFCFDA
+//     color: #838B9F
+//     text-shadow: 1px 1px #FFF
+//     cursor: pointer
+//     opacity: 0.75
 
-.row
-    width: auto
-    min-width: 0
+//     &:hover
+//         opacity: 1
+
+// .row
+//     width: auto
+//     min-width: 0
 
 /** ============== Elements ============== */
 
+// wrapping all but history or footer
 div#wrapper
     width: 100%
     min-width: 1000px
     min-height: 100%
 
+// the blue header
 header#top
     width: 100%
     color: #97a5b8
@@ -472,6 +497,7 @@ header#top
 
 // only on app pages
 body.app
+    // the blue header
     header#top
         .row
             width: auto
@@ -493,7 +519,8 @@ body.app
                     float: right
                     width: 250px
 
-section#middle
+// the middle bit with the tool and next steps
+section#middle.-steps-ui
     position: relative
 
     &:after
@@ -506,10 +533,10 @@ section#middle
     &.narrow
         margin-top: 20px
 
-        .row
+        .row.-steps-ui
             width: 1000px
 
-    .row
+    .row.-steps-ui
         margin: 0 auto
 
         &:after
@@ -517,40 +544,30 @@ section#middle
             display: table
             clear: both
 
-        .column
+        .column.-steps-ui
             float: left
 
             &.first
                 width: 25%
-            
+
             &.second
                 width: 33.333%
-            
+
             &.third
                 width: 41.667%
 
-                .box
+                .box.-steps-ui
                     margin-right: 0
-
-        h2
-            font-size: 20px
-
-        h4
-            font-size: 16px
-            margin: 0
-            margin-bottom: 5px
-
-        ul
-            list-style-type: none
 
         &:not(:last-child)
             margin-bottom: 15px
 
 
-    .hidden
-        display: none !important
+    // .hidden
+    //     display: none !important
 
-    .box
+    // a landing page box with some content
+    .box.-steps-ui
         background: #FEFEFE
         border-radius: 2px
         border: 1px solid $border_color
@@ -558,6 +575,7 @@ section#middle
         margin: 0 15px
 
         h2
+            font-size: 20px
             margin: 0
             padding: 4px 15px
             border-radius: 2px 2px 0 0
@@ -568,6 +586,7 @@ section#middle
             text-transform: uppercase
             font-size: 12px
 
+        // tool listing inside
         div.tools
             padding: 15px
 
@@ -583,6 +602,8 @@ section#middle
                         float: right
 
             h4
+                font-size: 16px
+                margin: 0
                 margin-bottom: 10px
 
                 &:not(:first-child)
@@ -602,12 +623,14 @@ section#middle
         .content
             border-radius: 0 0 2px 2px 
 
-    .nobox
+    // a landing page box that does not look like a box at all... it is a nobox
+    .nobox.-steps-ui
         h2
+            font-size: 20px
             margin-top: 0
 
-
-    aside
+    // on a tool page, sidebar steps you can take from here
+    aside#right.-steps-ui
         position: absolute
         top: 0
         width: 250px
@@ -652,19 +675,16 @@ section#middle
                 background-repeat: no-repeat
                 background-position: 0 3px
 
+    // the most contentuous area, the actual widget
     div#widget
         overflow: hidden
-        margin-top: 1px
-        padding-bottom: 5px
+        padding-bottom: 5px // for the shade
 
-        ul.list, ol.list
-            a
-                cursor: pointer
+        // ul.list
+        //     list-style-type: none
 
-        ul.list
-            list-style-type: none
-
-        ul.breadcrumbs
+        // breadcrumbs showing recently used tools
+        ul.breadcrumbs.-steps-ui
             list-style-type: none
             display: none
             background: linear-gradient(#FFF, #F4F6FB)
@@ -702,7 +722,8 @@ section#middle
                     span
                         padding-left: 0
 
-        div.head
+        // the head showing the tool name, icon and possibly time ago.
+        div.head.-steps-ui
             background: $table_border
             box-shadow: inset 0 3px 5px rgba(0,0,0,0.03)
 
@@ -740,10 +761,11 @@ section#middle
                 display: block
                 clear: both
 
-        h2
-            font-size: 18px
+        // h2
+        //     font-size: 18px
 
-        .wrap
+        // the wrapper containing the widget content
+        > div > .wrap
             border-radius: 4px
             // margin: 20px 295px
             // margin-bottom: 0
@@ -753,18 +775,20 @@ section#middle
             box-shadow: -3px 3px 3px rgba(0,0,0,0.05)
             position: relative
 
-        .half
-            float: left
-            width: 50%
+        // .half
+        //     float: left
+        //     width: 50%
 
-        ul.accordion
+        // the accordion of tool steps
+        ul.accordion.-steps-ui
             margin: 0
             border: 0
             
+            // each step in a tool
             > li
-                list-style: none;
-                margin: 0;
-                padding: 0;
+                // list-style: none
+                margin: 0
+                padding: 0
                 border-top: 1px solid #CBD8E2
                 
                 &:last-child
@@ -772,6 +796,7 @@ section#middle
                         border-radius: 0 0 2px 2px
                         padding-bottom: 17px
 
+                // the title of this tool's step
                 > div.title
                     background: #f6f6f6
                     padding: 15px
@@ -796,66 +821,65 @@ section#middle
                         right: 15px
                         top: 21px;
                 
-                .content
+                // this is where the tool will render its step
+                > .content
                     display: none
                     padding: 15px
                     overflow: hidden
         
+                // on non active steps
                 &:not(.active)
-                    .title
+                    // make a grey background for the step title
+                    > .title
                         background: linear-gradient(#F6F8FC, #ECEEF3)
 
+                // an active accordion step
                 &.active
                     border-top: 1px solid $border_color
 
-                    .title
+                    // active title
+                    > .title
                         background: white
                         padding-top: 13px
                         
-                        &:after
-                            //content: ""
-                            display: block
-                            width: 0
-                            height: 0
-                            border: solid 6px
-                            border-color: #9d9d9d transparent transparent transparent
+                        // &:after
+                        //     display: block
+                        //     width: 0
+                        //     height: 0
+                        //     border: solid 6px
+                        //     border-color: #9d9d9d transparent transparent transparent
         
-                    .content
+                    // the container
+                    > .content
                         background: #FFF
                         display: block
 
-    code#example
-        overflow: hidden
-        display: block
-        line-height: 14px
-        font-size: 11px
+    // .description
+    //     p
+    //         margin: 10px 0 5px 0
 
-    .description
-        p
-            margin: 10px 0 5px 0
+    //     dl
+    //         margin-top: 10px
 
-        dl
-            margin-top: 10px
+    //         dt
+    //             font-size: 11px
+    //             font-family: monospace
+    //             margin-bottom: 5px
 
-            dt
-                font-size: 11px
-                font-family: monospace
-                margin-bottom: 5px
+    //         dd
+    //             padding-left: 20px
+    //             line-height: 16px
 
-            dd
-                padding-left: 20px
-                line-height: 16px
+    //             &:not(:last-child)
+    //                 margin-bottom: 15px
 
-                &:not(:last-child)
-                    margin-bottom: 15px
-
-div#history
+// tools used in the past
+div#history.-steps-ui
     position: fixed
     bottom: 0
-    // left: 275px
     width: 100%
-    // height: 33%
 
+    // added by Chaplin
     > div
         margin-right: 295px // width of the sidebar
         background: #FFF
@@ -863,15 +887,16 @@ div#history
         border-width: 1px 1px 0 0
         box-shadow: -10px 0 10px rgba(0,0,0,0.2)
 
-    div.container
-        background: #FFF
-        margin-left: 20px
-        height: 100%
-        border: 1px solid $border_color
-        border-bottom: 0
-        border-radius: 2px 2px 0 0
-        box-shadow: -3px 3px 3px rgba(0,0,0,0.05), 3px -3px 5px rgba(#DADEE9, 0.5)
+    // div.container
+    //     background: #FFF
+    //     margin-left: 20px
+    //     height: 100%
+    //     border: 1px solid $border_color
+    //     border-bottom: 0
+    //     border-radius: 2px 2px 0 0
+    //     box-shadow: -3px 3px 3px rgba(0,0,0,0.05), 3px -3px 5px rgba(#DADEE9, 0.5)
 
+    // the title box with buttons
     div.head
         padding: 10px
         background: $table_border
@@ -900,6 +925,7 @@ div#history
             clear: both
             display: block
 
+    // this thing has the boxes
     #tools
         margin: 0 10px
         padding: 0
@@ -917,7 +943,7 @@ div#history
                 stroke: lighten(#000, 80%)
                 stroke-width: 1px
 
-        // table based system
+        // the grid for tools
         table.grid
             position: absolute
             top: 0
@@ -932,7 +958,7 @@ div#history
                 padding: 0
                 text-align: center
 
-        // div based system
+        // ehm, one tool block
         div.step
             display: inline-block
             width: 100px
@@ -943,14 +969,14 @@ div#history
                 margin: 0 auto
 
             for clr in $colors
-                &.{clr[0]} .box
+                &.{clr[0]} .box.-steps-ui
                     background: lighten(clr[1], 40%)
                     border: 1px solid darken(clr[1], 20%)
                     border-width: 3px 1px 1px 1px
                     color: darken(clr[1], 20%)
                     box-shadow: inset 1px 1px 5px rgba(0,0,0,0.1)
 
-                &.active.{clr[0]} .box
+                &.active.{clr[0]} .box.-steps-ui
                     background: clr[1]
                     if dark(darken(clr[1], 20%))
                         color: #FFF
@@ -965,7 +991,8 @@ div#history
             a
                 color: inherit
 
-            div.box
+            // the clickable colored area
+            .box.-steps-ui
                 overflow: hidden
                 text-align: center
                 vertical-align: middle
@@ -980,7 +1007,8 @@ div#history
                 p
                     display: none
 
-footer
+// footer with copyright information
+footer.-steps-ui
     position: fixed
     bottom: 0
     left: 0
@@ -1001,52 +1029,51 @@ footer
             text-align: center
             padding: 20px
 
-/** ============== Progress/loading bar ============== */
-div.loading
+// loading bar
+div.loading.-steps-ui
     background: url('../img/loading.gif') no-repeat center
     width: 100%
     height: 19px
 
-div.progress
-    padding: 2px
-    margin-bottom: 10px
-    border: 1px solid #CCC
-    height: 25px
+// div.progress
+//     padding: 2px
+//     margin-bottom: 10px
+//     border: 1px solid #CCC
+//     height: 25px
     
-    .meter
-        background: #2ba6cb
-        height: 100%
-        display: block
-        width: 50%
+//     .meter
+//         background: #2ba6cb
+//         height: 100%
+//         display: block
+//         width: 50%
     
-    &.secondary
-        .meter
-            background: #e9e9e9
+//     &.secondary
+//         .meter
+//             background: #e9e9e9
 
-    &.success
-        .meter
-            background: #5da423
+//     &.success
+//         .meter
+//             background: #5da423
 
-    &.alert
-        .meter
-            background: #c60f13
+//     &.alert
+//         .meter
+//             background: #c60f13
 
     
-    &.radius
-        border-radius: 3px
+//     &.radius
+//         border-radius: 3px
 
-        .meter
-            border-radius: 2px
+//         .meter
+//             border-radius: 2px
 
-    &.round
-        border-radius: 1000px
+//     &.round
+//         border-radius: 1000px
 
-        .meter
-            border-radius: 1000px
+//         .meter
+//             border-radius: 1000px
 
-/** ============== Icon fonts ============== */
-
-.entypo
+// Entypo webfonts
+.entypo.-steps-ui
     &:before
         font-family: "Entypo"
         font-weight: normal
@@ -1057,8 +1084,6 @@ div.progress
         &.{font[0]}:before
             content: font[1]
 
-/** ============== Hacks ============== */
-
-// Opera.
+// fix connector line in History View in Opera
 doesnotexist:-o-prefocus, div#history #tools svg.canvas line.connector
     stroke-width: 2px

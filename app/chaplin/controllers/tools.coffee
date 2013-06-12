@@ -4,7 +4,6 @@ Mediator = require 'chaplin/core/Mediator'
 
 AppView = require 'chaplin/views/App'
 NextStepsHeaderView = require 'chaplin/views/NextStepsHeader'
-LeftSidebarView = require 'chaplin/views/LeftSidebar'
 RightSidebarView = require 'chaplin/views/RightSidebar'
 HistoryView = require 'chaplin/views/History'
 

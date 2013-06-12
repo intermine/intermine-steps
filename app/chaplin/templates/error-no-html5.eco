@@ -7,7 +7,7 @@
         </div>
     </header>
 
-    <section id="middle" class="narrow">
+    <section id="middle" class="narrow -steps-ui">
         <div id="landing" class="row">
             <h2>Your browser does not support either <a href="http://diveintohtml5.info/storage.html" target="_new">localStorage</a> or <a href="http://diveintohtml5.info/history.html" target="_new">pushState</a>, sadness &hellip;</h2>
             <p>Please use a different browser or disable a browser addon (related to cookies etc.) that could be blocking the functionality.</p>
@@ -15,6 +15,6 @@
     </section>
 </div>
 
-<footer id="wide">
+<footer id="wide" class="-steps-ui">
     <p>&copy; 2000-2013 InterMine, University of Cambridge</p>
 </footer>

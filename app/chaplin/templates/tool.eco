@@ -1,16 +1,14 @@
 <div class="wrap sidebar">
-    <!--<span class="entypo popup"></span>-->
-
     <!-- dynamically populated with event handling -->
-    <ul class="breadcrumbs"></ul>
+    <ul class="breadcrumbs -steps-ui"></ul>
 
-    <div class="head">
+    <div class="head -steps-ui">
         <h1 class="<%= @type %>"><%= @title %></h1>
         <em class="ago"></em>
     </div>
 
     <% if @steps.length isnt 0: %>
-        <ul class="accordion">
+        <ul class="accordion -steps-ui">
             <% for i, title of @steps: %>
                 <% i = parseInt(i) + 1 %>
                 <li class="<%= @type %><% if i is @step: %> active<% end %>" data-step="<%= i %>">
@@ -21,7 +19,7 @@
                             <h5><%= title %></h5>
                         <% end %>
                     </div>
-                    <div class="content">Loading content &hellip;</div>
+                    <div class="content -steps-tool">Loading content &hellip;</div>
                 </li>
             <% end %>
         </ul>
@@ -30,5 +28,4 @@
             No Tool Steps defined.
         </div>
     <% end %>
-
 </div>

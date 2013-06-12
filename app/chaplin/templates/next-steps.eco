@@ -1,3 +1,5 @@
-<div class="tools"><!-- tool labels go here --></div>
-<a class="tiny secondary button show hidden">&hellip;</a>
-<p class="noactions">The filter matched no actions.</p>
+<div class="-steps-ui">
+    <div class="tools"><!-- tool labels go here --></div>
+    <a class="tiny secondary button show-truncated -steps-ui">&hellip;</a>
+    <p class="noactions">The filter matched no actions.</p>
+</div>

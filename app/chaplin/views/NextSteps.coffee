@@ -30,7 +30,7 @@ module.exports = class NextStepsView extends View
         super
 
         # Representation of the list of actions & top level category.
-        @list = 'children': {}, 'entries': list = $('<ul/>', 'class': 'tools')
+        @list = 'children': {}, 'entries': list = $('<ul/>', 'class': 'tools -steps-ui')
         $(@el).find('div.tools').append list
 
         # Ask for tools on us.
@@ -40,7 +40,7 @@ module.exports = class NextStepsView extends View
         Mediator.subscribe 'app:search', @filterLabels, @
 
         # Show hidden tools.
-        @delegate 'click', '.show', @showHidden
+        @delegate 'click', '.show-truncated', @showHidden
 
         # Link to no actions text.
         @noActions = $(@el).find('p.noactions')
@@ -83,7 +83,7 @@ module.exports = class NextStepsView extends View
                     # Add a list saving it under our category.
                     dom[cat] =
                         'children': {}
-                        'entries': list = $('<ul/>', 'class': "tools size-#{i}")
+                        'entries': list = $('<ul/>', 'class': "tools size-#{i} -steps-ui")
                     target.append list
 
                 # We are now the parent.
@@ -108,9 +108,9 @@ module.exports = class NextStepsView extends View
             # Append the link to an existing category.            
             dom.entries.append view.el
 
-            # Do we have a hidden label now?
+            # Do we have a "show less important" button now?
             if obj.weight < 10
-                $(@el).find('.show.hidden').removeClass('hidden')
+                $(@el).find('.show-truncated').show()
 
     filterLabels: (query) =>
         assert typeof(query) is 'string', 'Query input not provided'

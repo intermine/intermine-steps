@@ -13,12 +13,12 @@
         </div>
     </header>
 
-    <section id="middle" class="narrow container">
-        <div class="row">
-            <div class="first column">
-                <div class="nobox">
-                    <h2><span class="entypo lifebuoy"></span> Help</h2>
-                    <ul class="tools">
+    <section id="middle" class="narrow container -steps-ui">
+        <div class="row -steps-ui">
+            <div class="first column -steps-ui">
+                <div class="nobox -steps-ui">
+                    <h2><span class="entypo lifebuoy -steps-ui"></span> Help</h2>
+                    <ul class="tools -steps-ui">
                         <li><a>What is <strong>new</strong> since 1.2</a></li>
                         <li><a>How do I use my <strong>tools</strong></a></li>
                         <li><a>Where are my <strong>templates</strong></a></li>
@@ -26,16 +26,16 @@
                     </ul>
                 </div>
             </div>
-            <div class="second column">
-                <div class="box">
-                    <h2><span class="entypo crossroads"></span> Tools</h2>
+            <div class="second column -steps-ui">
+                <div class="box -steps-ui">
+                    <h2><span class="entypo crossroads -steps-ui"></span> Tools</h2>
                     <!-- populate next steps here -->
                     <div id="next"></div>
                 </div>
             </div>
-            <div class="third column">
-                <div class="box">
-                    <table class="tabs">
+            <div class="third column -steps-ui">
+                <div class="box -steps-ui">
+                    <table class="tabs -steps-ui">
                         <tr>
                             <td class="active labeled">
                                 <div>
@@ -50,32 +50,32 @@
                         </tr>
                     </table>
                     <div class="content">
-                        <ul class="timeline">
+                        <ul class="timeline -steps-ui">
                             <li>
                                 <div class="head">
                                     <span class="ago">3m ago</span>
-                                    <span class="entypo database"></span><h5>System upgrade</h5>
+                                    <span class="entypo database -steps-ui"></span><h5>System upgrade</h5>
                                 </div>
                                 <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>
                             </li>
                             <li>
                                 <div class="head">
                                     <span class="ago">A day ago</span>
-                                    <span class="entypo download"></span><h5>Shared list</h5>
+                                    <span class="entypo download -steps-ui"></span><h5>Shared list</h5>
                                 </div>
                                 <p>A list <a>Secret Research Genes</a> has been shared with you.</p>
                             </li>
                             <li>
                                 <div class="head">
                                     <span class="ago">Jan 27</span>
-                                    <span class="entypo database"></span><h5>System upgrade</h5>
+                                    <span class="entypo database -steps-ui"></span><h5>System upgrade</h5>
                                 </div>
                                 <p>The system will go down in 30 minutes.</p>
                             </li>
                             <li>
                                 <div class="head">
                                     <span class="ago">Jan 26</span>
-                                    <span class="entypo clipboard"></span><h5>Job finished</h5>
+                                    <span class="entypo clipboard -steps-ui"></span><h5>Job finished</h5>
                                 </div>
                                 <p>Your job <a>Enriching a List</a> has finished.</p>
                             </li>
@@ -87,6 +87,6 @@
     </section>
 </div>
 
-<footer id="wide">
+<footer id="wide" class="-steps-ui">
     <p>&copy; 2000-2013 InterMine, University of Cambridge</p>
 </footer>

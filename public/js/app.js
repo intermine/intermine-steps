@@ -176,7 +176,7 @@ window.require.register("chaplin/controllers/landing", function(exports, require
   
 });
 window.require.register("chaplin/controllers/tools", function(exports, require, module) {
-  var AppView, Controller, HistoryView, LeftSidebarView, Mediator, NextStepsHeaderView, RightSidebarView, ToolsController, root,
+  var AppView, Controller, HistoryView, Mediator, NextStepsHeaderView, RightSidebarView, ToolsController, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -187,8 +187,6 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
   AppView = require('chaplin/views/App');
 
   NextStepsHeaderView = require('chaplin/views/NextStepsHeader');
-
-  LeftSidebarView = require('chaplin/views/LeftSidebar');
 
   RightSidebarView = require('chaplin/views/RightSidebar');
 
@@ -1140,7 +1138,7 @@ window.require.register("chaplin/templates/action", function(exports, require, m
         __out.push('<!-- help text provided? -->\n');
       
         if (this.help) {
-          __out.push('\n    <span class="entypo help" title="Show help for this item"></span>\n');
+          __out.push('\n    <span class="entypo help -steps-ui" title="Show help for this item"></span>\n');
         }
       
         __out.push('\n\n<!-- the link -->\n');
@@ -1213,7 +1211,7 @@ window.require.register("chaplin/templates/app", function(exports, require, modu
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="row">\n            <div class="third column">\n                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a></p>\n            </div>\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second column">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle">\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history"></div>');
+        __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="row">\n            <div class="third column">\n                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a></p>\n            </div>\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second column">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="-steps-ui">\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right" class="-steps-ui"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history" class="-steps-ui"></div>');
       
       }).call(this);
       
@@ -1263,7 +1261,7 @@ window.require.register("chaplin/templates/crumb", function(exports, require, mo
     (function() {
       (function() {
       
-        __out.push('<span class="entypo rightopen"></span>\n<a href="/tool/id/');
+        __out.push('<span class="entypo rightopen -steps-ui"></span>\n<a href="/tool/id/');
       
         __out.push(__sanitize(this.guid));
       
@@ -1321,7 +1319,7 @@ window.require.register("chaplin/templates/error-404", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow">\n        <div id="landing" class="row">\n            <h2>404, Not Found</h2>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow -steps-ui">\n        <div id="landing" class="row">\n            <h2>404, Not Found</h2>\n        </div>\n    </section>\n</div>\n\n<footer id="wide" class="-steps-ui">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1371,7 +1369,7 @@ window.require.register("chaplin/templates/error-500", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow">\n        <div id="landing" class="row">\n            <h2>500, Internal App Error</h2>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow -steps-ui">\n        <div id="landing" class="row">\n            <h2>500, Internal App Error</h2>\n        </div>\n    </section>\n</div>\n\n<footer id="wide" class="-steps-ui">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1421,7 +1419,7 @@ window.require.register("chaplin/templates/error-no-html5", function(exports, re
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow">\n        <div id="landing" class="row">\n            <h2>Your browser does not support either <a href="http://diveintohtml5.info/storage.html" target="_new">localStorage</a> or <a href="http://diveintohtml5.info/history.html" target="_new">pushState</a>, sadness &hellip;</h2>\n            <p>Please use a different browser or disable a browser addon (related to cookies etc.) that could be blocking the functionality.</p>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow -steps-ui">\n        <div id="landing" class="row">\n            <h2>Your browser does not support either <a href="http://diveintohtml5.info/storage.html" target="_new">localStorage</a> or <a href="http://diveintohtml5.info/history.html" target="_new">pushState</a>, sadness &hellip;</h2>\n            <p>Please use a different browser or disable a browser addon (related to cookies etc.) that could be blocking the functionality.</p>\n        </div>\n    </section>\n</div>\n\n<footer id="wide" class="-steps-ui">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1475,7 +1473,7 @@ window.require.register("chaplin/templates/history-tool", function(exports, requ
       
         __out.push(__sanitize(this.guid));
       
-        __out.push('">\n        <div class="box">\n            <h5>');
+        __out.push('">\n        <div class="box -steps-ui">\n            <h5>');
       
         __out.push(__sanitize(this.name));
       
@@ -1543,7 +1541,7 @@ window.require.register("chaplin/templates/history", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div class="head">\n    <a class="serialize button">Serialize</a>\n    <a class="hide secondary button" style="margin-right:10px">Hide</a>\n    <a href="/app/reset" class="button secondary" style="margin-right:10px">Clear</a>\n    <h1><span class="entypo flowbranch"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
+        __out.push('<div class="head">\n    <a class="serialize button -steps-ui">Serialize</a>\n    <a class="hide secondary button -steps-ui" style="margin-right:10px">Hide</a>\n    <a href="/app/reset" class="button secondary -steps-ui" style="margin-right:10px">Clear</a>\n    <h1><span class="entypo flowbranch -steps-ui"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
       
       }).call(this);
       
@@ -1593,7 +1591,7 @@ window.require.register("chaplin/templates/landing", function(exports, require, 
     (function() {
       (function() {
       
-        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second column">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n            <div class="third column">\n                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a></p>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow container">\n        <div class="row">\n            <div class="first column">\n                <div class="nobox">\n                    <h2><span class="entypo lifebuoy"></span> Help</h2>\n                    <ul class="tools">\n                        <li><a>What is <strong>new</strong> since 1.2</a></li>\n                        <li><a>How do I use my <strong>tools</strong></a></li>\n                        <li><a>Where are my <strong>templates</strong></a></li>\n                        <li><a>How do I <strong>cite</strong> this resource</a></li>\n                    </ul>\n                </div>\n            </div>\n            <div class="second column">\n                <div class="box">\n                    <h2><span class="entypo crossroads"></span> Tools</h2>\n                    <!-- populate next steps here -->\n                    <div id="next"></div>\n                </div>\n            </div>\n            <div class="third column">\n                <div class="box">\n                    <table class="tabs">\n                        <tr>\n                            <td class="active labeled">\n                                <div>\n                                    <h3>Messages</h3><span class="count">9</span>\n                                </div>\n                            </td>\n                            <td class="inactive">\n                                <div>\n                                    <h3>Continue research</h3>\n                                </div>\n                            </td>\n                        </tr>\n                    </table>\n                    <div class="content">\n                        <ul class="timeline">\n                            <li>\n                                <div class="head">\n                                    <span class="ago">3m ago</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">A day ago</span>\n                                    <span class="entypo download"></span><h5>Shared list</h5>\n                                </div>\n                                <p>A list <a>Secret Research Genes</a> has been shared with you.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 27</span>\n                                    <span class="entypo database"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system will go down in 30 minutes.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 26</span>\n                                    <span class="entypo clipboard"></span><h5>Job finished</h5>\n                                </div>\n                                <p>Your job <a>Enriching a List</a> has finished.</p>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
+        __out.push('<div id="wrapper">\n    <header id="top">\n        <div class="row">\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second column">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n            </div>\n            <div class="third column">\n                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a href="app/reset">Reset Database</a> <span>&#8226;</span> <a>Logout</a></p>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="narrow container -steps-ui">\n        <div class="row -steps-ui">\n            <div class="first column -steps-ui">\n                <div class="nobox -steps-ui">\n                    <h2><span class="entypo lifebuoy -steps-ui"></span> Help</h2>\n                    <ul class="tools -steps-ui">\n                        <li><a>What is <strong>new</strong> since 1.2</a></li>\n                        <li><a>How do I use my <strong>tools</strong></a></li>\n                        <li><a>Where are my <strong>templates</strong></a></li>\n                        <li><a>How do I <strong>cite</strong> this resource</a></li>\n                    </ul>\n                </div>\n            </div>\n            <div class="second column -steps-ui">\n                <div class="box -steps-ui">\n                    <h2><span class="entypo crossroads -steps-ui"></span> Tools</h2>\n                    <!-- populate next steps here -->\n                    <div id="next"></div>\n                </div>\n            </div>\n            <div class="third column -steps-ui">\n                <div class="box -steps-ui">\n                    <table class="tabs -steps-ui">\n                        <tr>\n                            <td class="active labeled">\n                                <div>\n                                    <h3>Messages</h3><span class="count">9</span>\n                                </div>\n                            </td>\n                            <td class="inactive">\n                                <div>\n                                    <h3>Continue research</h3>\n                                </div>\n                            </td>\n                        </tr>\n                    </table>\n                    <div class="content">\n                        <ul class="timeline -steps-ui">\n                            <li>\n                                <div class="head">\n                                    <span class="ago">3m ago</span>\n                                    <span class="entypo database -steps-ui"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system has been upgraded to the latest version <code>1.2.0</code>.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">A day ago</span>\n                                    <span class="entypo download -steps-ui"></span><h5>Shared list</h5>\n                                </div>\n                                <p>A list <a>Secret Research Genes</a> has been shared with you.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 27</span>\n                                    <span class="entypo database -steps-ui"></span><h5>System upgrade</h5>\n                                </div>\n                                <p>The system will go down in 30 minutes.</p>\n                            </li>\n                            <li>\n                                <div class="head">\n                                    <span class="ago">Jan 26</span>\n                                    <span class="entypo clipboard -steps-ui"></span><h5>Job finished</h5>\n                                </div>\n                                <p>Your job <a>Enriching a List</a> has finished.</p>\n                            </li>\n                        </ul>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </section>\n</div>\n\n<footer id="wide" class="-steps-ui">\n    <p>&copy; 2000-2013 InterMine, University of Cambridge</p>\n</footer>');
       
       }).call(this);
       
@@ -1693,57 +1691,7 @@ window.require.register("chaplin/templates/next-steps", function(exports, requir
     (function() {
       (function() {
       
-        __out.push('<div class="tools"><!-- tool labels go here --></div>\n<a class="tiny secondary button show hidden">&hellip;</a>\n<p class="noactions">The filter matched no actions.</p>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("chaplin/templates/sidebar-left", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="wrap">\n    <span class="entypo popup"></span>\n    <h3><span class="entypo crossroads"></span> Start new history</h3>\n    <div id="next"></div>\n</div>');
+        __out.push('<div class="-steps-ui">\n    <div class="tools"><!-- tool labels go here --></div>\n    <a class="tiny secondary button show-truncated -steps-ui">&hellip;</a>\n    <p class="noactions">The filter matched no actions.</p>\n</div>');
       
       }).call(this);
       
@@ -1793,7 +1741,7 @@ window.require.register("chaplin/templates/sidebar-right", function(exports, req
     (function() {
       (function() {
       
-        __out.push('<table class="tabs">\n    <tr>\n        <td class="active"><div><h3>Next Steps</h3></div></td>\n        <td class="inactive"><div><h3>Research Notes</h3></div></td>\n    </tr>\n</table>\n<div class="content">\n    <div id="continue"></div>\n</div>');
+        __out.push('<table class="tabs -steps-ui">\n    <tr>\n        <td class="active"><div><h3>Next Steps</h3></div></td>\n        <td class="inactive"><div><h3>Research Notes</h3></div></td>\n    </tr>\n</table>\n<div class="content">\n    <div id="continue"></div>\n</div>');
       
       }).call(this);
       
@@ -1844,7 +1792,7 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
       (function() {
         var i, title, _ref;
       
-        __out.push('<div class="wrap sidebar">\n    <!--<span class="entypo popup"></span>-->\n\n    <!-- dynamically populated with event handling -->\n    <ul class="breadcrumbs"></ul>\n\n    <div class="head">\n        <h1 class="');
+        __out.push('<div class="wrap sidebar">\n    <!-- dynamically populated with event handling -->\n    <ul class="breadcrumbs -steps-ui"></ul>\n\n    <div class="head -steps-ui">\n        <h1 class="');
       
         __out.push(__sanitize(this.type));
       
@@ -1855,7 +1803,7 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
         __out.push('</h1>\n        <em class="ago"></em>\n    </div>\n\n    ');
       
         if (this.steps.length !== 0) {
-          __out.push('\n        <ul class="accordion">\n            ');
+          __out.push('\n        <ul class="accordion -steps-ui">\n            ');
           _ref = this.steps;
           for (i in _ref) {
             title = _ref[i];
@@ -1880,14 +1828,14 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
               __out.push(__sanitize(title));
               __out.push('</h5>\n                        ');
             }
-            __out.push('\n                    </div>\n                    <div class="content">Loading content &hellip;</div>\n                </li>\n            ');
+            __out.push('\n                    </div>\n                    <div class="content -steps-tool">Loading content &hellip;</div>\n                </li>\n            ');
           }
           __out.push('\n        </ul>\n    ');
         } else {
           __out.push('\n        <div class="alert-box alert">\n            No Tool Steps defined.\n        </div>\n    ');
         }
       
-        __out.push('\n\n</div>');
+        __out.push('\n</div>');
       
       }).call(this);
       
@@ -2455,44 +2403,6 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
   })(View);
   
 });
-window.require.register("chaplin/views/LeftSidebar", function(exports, require, module) {
-  var LeftSidebarView, NextStepsAllView, View,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  View = require('chaplin/core/View');
-
-  NextStepsAllView = require('chaplin/views/NextStepsAll');
-
-  module.exports = LeftSidebarView = (function(_super) {
-
-    __extends(LeftSidebarView, _super);
-
-    function LeftSidebarView() {
-      return LeftSidebarView.__super__.constructor.apply(this, arguments);
-    }
-
-    LeftSidebarView.prototype.container = 'aside#left';
-
-    LeftSidebarView.prototype.containerMethod = 'html';
-
-    LeftSidebarView.prototype.autoRender = true;
-
-    LeftSidebarView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/sidebar-left');
-    };
-
-    LeftSidebarView.prototype.attach = function() {
-      LeftSidebarView.__super__.attach.apply(this, arguments);
-      this.views.push(new NextStepsAllView());
-      return this;
-    };
-
-    return LeftSidebarView;
-
-  })(View);
-  
-});
 window.require.register("chaplin/views/NextSteps", function(exports, require, module) {
   var Action, Mediator, NextStepsView, View, root,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -2547,13 +2457,13 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
       this.list = {
         'children': {},
         'entries': list = $('<ul/>', {
-          'class': 'tools'
+          'class': 'tools -steps-ui'
         })
       };
       $(this.el).find('div.tools').append(list);
       Mediator.publish('context:new');
       Mediator.subscribe('app:search', this.filterLabels, this);
-      this.delegate('click', '.show', this.showHidden);
+      this.delegate('click', '.show-truncated', this.showHidden);
       return this.noActions = $(this.el).find('p.noactions');
     };
 
@@ -2592,7 +2502,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
             dom[cat] = {
               'children': {},
               'entries': list = $('<ul/>', {
-                'class': "tools size-" + i
+                'class': "tools size-" + i + " -steps-ui"
               })
             };
             target.append(list);
@@ -2619,7 +2529,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
         })));
         dom.entries.append(view.el);
         if (obj.weight < 10) {
-          return $(this.el).find('.show.hidden').removeClass('hidden');
+          return $(this.el).find('.show-truncated').show();
         }
       }
     };
@@ -2734,7 +2644,7 @@ window.require.register("chaplin/views/NextStepsHeader", function(exports, requi
 
     NextStepsHeaderView.prototype.place = 'header';
 
-    NextStepsHeaderView.prototype.labelClass = 'button';
+    NextStepsHeaderView.prototype.labelClass = 'button -steps-ui';
 
     NextStepsHeaderView.prototype.getTemplateFunction = function() {
       return require('chaplin/templates/next-steps-header');
@@ -3158,7 +3068,7 @@ window.require.register("tools/ListWidgetTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="bootstrap container">\n    <div class="loading"></div>\n</div>');
+        __out.push('<div class="bootstrap container">\n    <div class="loading -steps-ui"></div>\n</div>');
       
       }).call(this);
       
@@ -3415,7 +3325,7 @@ window.require.register("tools/OntologyGraphTool/step-2", function(exports, requ
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="loading"></div>\n</div>');
+        __out.push('<div class="container">\n    <div class="loading -steps-ui"></div>\n</div>');
       
       }).call(this);
       
@@ -3804,7 +3714,7 @@ window.require.register("tools/UploadListTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="loading"></div>\n</div>');
+        __out.push('<div class="container">\n    <div class="loading -steps-ui"></div>\n</div>');
       
       }).call(this);
       
@@ -3854,7 +3764,7 @@ window.require.register("tools/UploadListTool/step-3", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="container">\n    <div class="loading"></div>\n</div>');
+        __out.push('<div class="container">\n    <div class="loading -steps-ui"></div>\n</div>');
       
       }).call(this);
       

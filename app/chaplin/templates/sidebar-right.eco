@@ -1,4 +1,4 @@
-<table class="tabs">
+<table class="tabs -steps-ui">
     <tr>
         <td class="active"><div><h3>Next Steps</h3></div></td>
         <td class="inactive"><div><h3>Research Notes</h3></div></td>

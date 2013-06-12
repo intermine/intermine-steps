@@ -9,6 +9,6 @@ module.exports = class NextStepsHeaderView extends NextStepsView
 
     place: 'header'
 
-    labelClass: 'button' # extra class for a label
+    labelClass: 'button -steps-ui' # extra class for a label
 
     getTemplateFunction: -> require 'chaplin/templates/next-steps-header'

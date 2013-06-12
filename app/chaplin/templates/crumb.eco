@@ -1,2 +1,2 @@
-<span class="entypo rightopen"></span>
+<span class="entypo rightopen -steps-ui"></span>
 <a href="/tool/id/<%= @guid %>"><%= @title %></a>

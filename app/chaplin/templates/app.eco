@@ -15,13 +15,13 @@
         </div>
     </header>
 
-    <section id="middle">
+    <section id="middle" class="-steps-ui">
         <!-- the tool -->
         <div id="widget"></div>
         <!-- from here -->
-        <aside id="right"></aside>
+        <aside id="right" class="-steps-ui"></aside>
     </section>
 </div>
 
 <!-- tools used in the history -->
-<div id="history"></div>
+<div id="history" class="-steps-ui"></div>

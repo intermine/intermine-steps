@@ -7,13 +7,13 @@
         </div>
     </header>
 
-    <section id="middle" class="narrow">
+    <section id="middle" class="narrow -steps-ui">
         <div id="landing" class="row">
             <h2>404, Not Found</h2>
         </div>
     </section>
 </div>
 
-<footer id="wide">
+<footer id="wide" class="-steps-ui">
     <p>&copy; 2000-2013 InterMine, University of Cambridge</p>
 </footer>
