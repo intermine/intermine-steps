@@ -1,6 +1,3 @@
-/** ============== Functions ============== */
-/** ============== Vars ============== */
-/** ============== Fonts ============== */
 @font-face {
   font-family: 'Lato';
   font-style: normal;
@@ -275,7 +272,7 @@ ul.tools.-steps-ui li a:before {
   width: 5px;
   height: 5px;
   position: absolute;
-  top: 9px;
+  top: 11px;
   left: 11px;
   background: #5b617d;
 }
@@ -868,7 +865,7 @@ section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li:last-child > div
 }
 section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li > div.title {
   background: #f6f6f6;
-  padding: 15px;
+  padding: 14px 15px;
   margin: 0;
   position: relative;
   -webkit-transition: 0.15s background linear;
@@ -900,7 +897,6 @@ section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li > div.title:afte
 section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li > .content {
   display: none;
   padding: 15px;
-  overflow: hidden;
 }
 section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li:not(.active) > .title {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f6f8fc), color-stop(1, #eceef3));
@@ -915,11 +911,13 @@ section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li.active {
 }
 section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li.active > .title {
   background: #fff;
-  padding-top: 13px;
 }
 section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li.active > .content {
   background: #fff;
   display: block;
+}
+section#middle.-steps-ui div#widget ul.accordion.-steps-ui > li.inactive > .title h5 {
+  color: rgba(104,113,138,0.2);
 }
 div#history.-steps-ui {
   position: fixed;

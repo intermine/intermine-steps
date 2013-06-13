@@ -8,4 +8,4 @@ module.exports = class OntologyGraphTool extends Tool
         'title': 'Ontology Graph'
         'description': 'Show an Ontology Graph for a Gene'
         'type': 'goldentainoi'
-        'steps': [ 'Choose a Gene', 'Convert Gene to a Symbol', 'See the Graph' ]
+        'steps': [ 'Input', 'Output' ]

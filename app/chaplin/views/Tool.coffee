@@ -4,6 +4,8 @@ Tool = require 'chaplin/models/Tool'
 GenericToolView = require 'chaplin/views/GenericTool'
 CrumbView = require 'chaplin/views/Crumb'
 
+root = @
+
 module.exports = class ToolView extends GenericToolView
 
     container:       'div#widget'
@@ -16,6 +18,7 @@ module.exports = class ToolView extends GenericToolView
     getTemplateData: ->
         # Extend Model by the step.
         data = _.extend @model.toJSON(), 'step': @step
+        
         # Further extend by previous step data if present.
         if @options.previous then data = _.extend data, 'previous': @options.previous?.data
 
@@ -24,6 +27,9 @@ module.exports = class ToolView extends GenericToolView
         # Split extra?
         if (extra = @options.extra) and extra not instanceof Array
             @options.extra = extra.split(',')
+
+        # Is this locked? Provide a root home.
+        if data.locked? then data.root = root.History.models[-1...][0].attributes.guid
 
         # Nice ret.
         data
@@ -66,14 +72,14 @@ module.exports = class ToolView extends GenericToolView
 
     # Check for latest breadcrumbs to show.
     checkCrumbs: =>
-        collection = window.History
+        collection = root.History
 
         if collection.length isnt 0
             # Get the 3 Models before the last one (current one).
             models = collection.models[-3...]
             # Have we already rendered all 3 of them?
             guids = ( model.get('guid') for model in models )
-            unless window.Utils.arrayEql @crumbs, guids
+            unless root.Utils.arrayEql @crumbs, guids
                 # Save for next time.
                 @crumbs = guids
                 # Clear any previous ones first.

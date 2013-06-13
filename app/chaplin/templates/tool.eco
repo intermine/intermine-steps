@@ -11,10 +11,11 @@
         <ul class="accordion -steps-ui">
             <% for i, title of @steps: %>
                 <% i = parseInt(i) + 1 %>
-                <li class="<%= @type %><% if i is @step: %> active<% end %>" data-step="<%= i %>">
+                <li class="<%= @type %><% if i is @step: %> active<% end %><% if i > @step: %> inactive<% end %>" data-step="<%= i %>">
                     <div class="title">
-                        <% if @steps.length isnt 1: %>
-                            <h5>#<%= i %>: <%= title %></h5>
+                        <!-- first step and root provided and us not on it? -->
+                        <% if i is 1 and i isnt @step and @root: %>
+                            <h5><a href="/tool/id/<%= @root %>"><%= title %></a></h5>
                         <% else: %>
                             <h5><%= title %></h5>
                         <% end %>

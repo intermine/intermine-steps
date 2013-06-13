@@ -62,6 +62,7 @@ module.exports = class UploadListToolView extends ToolView
                 (root.App.service.im.resolveIds
                     'identifiers': @ids
                     'type':        @type
+                    # 'extra':       @organism
                 ).then (job) =>
                     job.poll().then (results) =>
                         keys = _.keys results

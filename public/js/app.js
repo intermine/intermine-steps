@@ -1814,15 +1814,18 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
             if (i === this.step) {
               __out.push(' active');
             }
+            if (i > this.step) {
+              __out.push(' inactive');
+            }
             __out.push('" data-step="');
             __out.push(__sanitize(i));
-            __out.push('">\n                    <div class="title">\n                        ');
-            if (this.steps.length !== 1) {
-              __out.push('\n                            <h5>#');
-              __out.push(__sanitize(i));
-              __out.push(': ');
+            __out.push('">\n                    <div class="title">\n                        <!-- first step and root provided and us not on it? -->\n                        ');
+            if (i === 1 && i !== this.step && this.root) {
+              __out.push('\n                            <h5><a href="/tool/id/');
+              __out.push(__sanitize(this.root));
+              __out.push('">');
               __out.push(__sanitize(title));
-              __out.push('</h5>\n                        ');
+              __out.push('</a></h5>\n                        ');
             } else {
               __out.push('\n                            <h5>');
               __out.push(__sanitize(title));
@@ -2722,7 +2725,7 @@ window.require.register("chaplin/views/RightSidebar", function(exports, require,
   
 });
 window.require.register("chaplin/views/Tool", function(exports, require, module) {
-  var CrumbView, GenericToolView, Mediator, Tool, ToolView,
+  var CrumbView, GenericToolView, Mediator, Tool, ToolView, root,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2734,6 +2737,8 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
   GenericToolView = require('chaplin/views/GenericTool');
 
   CrumbView = require('chaplin/views/Crumb');
+
+  root = this;
 
   module.exports = ToolView = (function(_super) {
 
@@ -2770,6 +2775,9 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
       if ((extra = this.options.extra) && !(extra instanceof Array)) {
         this.options.extra = extra.split(',');
       }
+      if (data.locked != null) {
+        data.root = root.History.models.slice(-1)[0].attributes.guid;
+      }
       return data;
     };
 
@@ -2805,7 +2813,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     ToolView.prototype.checkCrumbs = function() {
       var collection, crumb, crumbs, guids, model, models, v, _fn, _i, _j, _len, _len1, _ref,
         _this = this;
-      collection = window.History;
+      collection = root.History;
       if (collection.length !== 0) {
         models = collection.models.slice(-3);
         guids = (function() {
@@ -2817,7 +2825,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
           }
           return _results;
         })();
-        if (!window.Utils.arrayEql(this.crumbs, guids)) {
+        if (!root.Utils.arrayEql(this.crumbs, guids)) {
           this.crumbs = guids;
           crumbs = $(this.el).find('ul.breadcrumbs');
           _ref = this.views;
@@ -2877,7 +2885,7 @@ window.require.register("tools/ListWidgetTool/Model", function(exports, require,
       'title': 'List Widget',
       'description': 'Show a List Widget',
       'type': 'kimberly',
-      'steps': ['Choose a list', 'See a Widget']
+      'steps': ['Input', 'Output']
     };
 
     return ListWidgetTool;
@@ -3098,7 +3106,7 @@ window.require.register("tools/OntologyGraphTool/Model", function(exports, requi
       'title': 'Ontology Graph',
       'description': 'Show an Ontology Graph for a Gene',
       'type': 'goldentainoi',
-      'steps': ['Choose a Gene', 'Convert Gene to a Symbol', 'See the Graph']
+      'steps': ['Input', 'Output']
     };
 
     return OntologyGraphTool;
@@ -3405,7 +3413,7 @@ window.require.register("tools/UploadListTool/Model", function(exports, require,
       'title': 'Upload a List',
       'description': 'Upload a list of identifiers',
       'type': 'deyork',
-      'steps': ['Input Identifiers', 'Resolve Identifiers', 'Convert to a List', 'See Results']
+      'steps': ['Input', 'Output']
     };
 
     return UploadListTool;

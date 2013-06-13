@@ -1,8 +1,4 @@
-/** ============== Functions ============== */
-
 @import 'nib'
-
-/** ============== Vars ============== */
 
 $colors = (terracotta #E2674A) (goldentainoi #FFCC66) (curiousblue #3399CC) (turq #33CCCC) (strikemaster #996699) (crail #C24747) (deyork #99CC99) (patina #669999) (hopbush #CC6699) (seagrn #339966) (kimberly #666699)
 $entypo = (lock "\1f512") (backintime "\e771") (lightup "\1f506") (rightopen "\e762") (clippy "\1f4ce") (crossroads "\e723") (flowbranch "\1F569") (openbook "\1f4d6") (lifebuoy "\e788") (comment "\e718") (help "\2753") (database "\1F4F8") (clipboard "\1F4CB") (download "\1F4E5") (popup "\E74C") (cog "\2699")
@@ -10,8 +6,6 @@ $text_color = #68718A
 $link_color = #579ED7
 $border_color = #BCCAD5
 $table_border = #E0E3ED
-
-/** ============== Fonts ============== */
 
 @font-face {
     font-family: 'Lato'
@@ -284,7 +278,7 @@ ul.tools.-steps-ui
                 width: 5px
                 height: 5px
                 position: absolute
-                top: 9px
+                top: 11px
                 left: 11px
                 background: #5b617d
 
@@ -799,7 +793,7 @@ section#middle.-steps-ui
                 // the title of this tool's step
                 > div.title
                     background: #f6f6f6
-                    padding: 15px
+                    padding: 14px 15px
                     margin: 0
                     position: relative
                     transition: 0.15s background linear
@@ -825,7 +819,6 @@ section#middle.-steps-ui
                 > .content
                     display: none
                     padding: 15px
-                    overflow: hidden
         
                 // on non active steps
                 &:not(.active)
@@ -839,8 +832,7 @@ section#middle.-steps-ui
 
                     // active title
                     > .title
-                        background: white
-                        padding-top: 13px
+                        background: #FFF
                         
                         // &:after
                         //     display: block
@@ -853,6 +845,12 @@ section#middle.-steps-ui
                     > .content
                         background: #FFF
                         display: block
+
+                // all steps after an active one need to be "inactive"
+                &.inactive
+                    > .title
+                        h5
+                            color: rgba(104, 113, 138, 0.2)
 
     // .description
     //     p

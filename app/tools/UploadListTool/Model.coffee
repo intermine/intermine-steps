@@ -8,4 +8,4 @@ module.exports = class UploadListTool extends Tool
         'title': 'Upload a List'
         'description': 'Upload a list of identifiers'
         'type': 'deyork'
-        'steps': [ 'Input Identifiers', 'Resolve Identifiers', 'Convert to a List', 'See Results' ]
+        'steps': [ 'Input', 'Output' ]
