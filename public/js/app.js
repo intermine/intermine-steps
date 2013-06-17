@@ -2396,8 +2396,6 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
         return Mediator.publish('app:search', $(e.target).val());
       });
       $('body').removeClass('app');
-      $(this.el).find('#example').html(JSON.stringify(registry[0], null, 4));
-      Rainbow.color();
       return this;
     };
 
