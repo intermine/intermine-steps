@@ -1,21 +1,24 @@
-Chaplin = require 'chaplin'
+Chaplin          = require 'chaplin'
 
-Mediator = require 'chaplin/core/Mediator'
-View = require 'chaplin/core/View'
+Mediator         = require 'chaplin/core/Mediator'
+View             = require 'chaplin/core/View'
 
 NextStepsAllView = require 'chaplin/views/NextStepsAll'
 
-{ registry } = require 'tools/config'
+template         = require 'chaplin/templates/landing'
+
+{ registry }     = require 'tools/config'
 
 root = @
 
+# The app when you first land on it.
 module.exports = class LandingView extends View
 
     container:       'body'
     containerMethod: 'html'
     autoRender:      true
 
-    getTemplateFunction: -> require 'chaplin/templates/landing'
+    getTemplateFunction: -> template
 
     attach: ->
         super

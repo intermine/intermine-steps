@@ -1,7 +1,8 @@
-Mediator = require 'chaplin/core/Mediator'
+Mediator      = require 'chaplin/core/Mediator'
 
 NextStepsView = require 'chaplin/views/NextSteps'
 
+# Landing page all tools available.
 module.exports = class NextStepsAllView extends NextStepsView
 
     container: '#next' # where to render

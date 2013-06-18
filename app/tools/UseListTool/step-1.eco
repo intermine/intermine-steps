@@ -1,4 +1,20 @@
 <div class="foundation4 container">
+    <!-- we can either upload identifiers or use an existing list -->
+    <div class="section-container auto" data-section>
+        <section>
+            <p class="title" data-section-title><a href="#panel1">Use an existing list</a></p>
+            <div class="content" data-section-content>
+                <p>Content of section 1.</p>
+            </div>
+        </section>
+        <section>
+            <p class="title" data-section-title><a href="#panel2">Upload new identifiers</a></p>
+            <div class="content" data-section-content>
+                <p>Content of section 2.</p>
+            </div>
+        </section>
+    </div>
+
     <div class="row">
         <div class="large-12 columns">
             <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>

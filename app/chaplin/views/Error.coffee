@@ -1,5 +1,6 @@
 View = require 'chaplin/core/View'
 
+# The app when an error happens.
 module.exports = class ErrorView extends View
 
     container:       'body'

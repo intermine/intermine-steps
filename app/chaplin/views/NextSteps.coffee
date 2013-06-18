@@ -1,17 +1,20 @@
 Mediator = require 'chaplin/core/Mediator'
-View = require 'chaplin/core/View'
+View     = require 'chaplin/core/View'
 
-Action = require 'chaplin/views/Action'
+Action   = require 'chaplin/views/Action'
+
+template = require 'chaplin/templates/next-steps'
 
 root = @
 
+# Generic next steps class, could be on landing page, in the head or on the right.
 module.exports = class NextStepsView extends View
 
     containerMethod: 'html'
     autoRender:      true
     tagName:         'div'
 
-    getTemplateFunction: -> require 'chaplin/templates/next-steps'
+    getTemplateFunction: -> template
 
     initialize: ->
         super

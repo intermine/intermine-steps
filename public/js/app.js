@@ -1842,7 +1842,7 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
   }
 });
 window.require.register("chaplin/views/Action", function(exports, require, module) {
-  var ActionView, Mediator, View, root,
+  var ActionView, Mediator, View, root, template,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -1850,6 +1850,8 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
   View = require('chaplin/core/View');
 
   Mediator = require('chaplin/core/Mediator');
+
+  template = require('chaplin/templates/action');
 
   root = this;
 
@@ -1869,7 +1871,7 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
     ActionView.prototype.tagName = 'li';
 
     ActionView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/action');
+      return template;
     };
 
     ActionView.prototype.getTemplateData = function() {
@@ -1917,13 +1919,15 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
   
 });
 window.require.register("chaplin/views/App", function(exports, require, module) {
-  var AppView, Mediator, View, root,
+  var AppView, Mediator, View, root, template,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  View = require('chaplin/core/View');
+
   Mediator = require('chaplin/core/Mediator');
 
-  View = require('chaplin/core/View');
+  template = require('chaplin/templates/app');
 
   root = this;
 
@@ -1942,7 +1946,7 @@ window.require.register("chaplin/views/App", function(exports, require, module) 
     AppView.prototype.autoRender = true;
 
     AppView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/app');
+      return template;
     };
 
     AppView.prototype.getTemplateData = function() {
@@ -1983,11 +1987,13 @@ window.require.register("chaplin/views/App", function(exports, require, module) 
   
 });
 window.require.register("chaplin/views/Crumb", function(exports, require, module) {
-  var CrumbView, View,
+  var CrumbView, View, template,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('chaplin/core/View');
+
+  template = require('chaplin/templates/crumb');
 
   module.exports = CrumbView = (function(_super) {
 
@@ -2004,7 +2010,7 @@ window.require.register("chaplin/views/Crumb", function(exports, require, module
     CrumbView.prototype.tagName = 'li';
 
     CrumbView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/crumb');
+      return template;
     };
 
     return CrumbView;
@@ -2088,7 +2094,7 @@ window.require.register("chaplin/views/GenericTool", function(exports, require, 
   
 });
 window.require.register("chaplin/views/History", function(exports, require, module) {
-  var Controller, HistoryToolView, HistoryView, Mediator, Tool, View, root,
+  var Controller, HistoryToolView, HistoryView, Mediator, Tool, View, root, template,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2102,6 +2108,8 @@ window.require.register("chaplin/views/History", function(exports, require, modu
   HistoryToolView = require('chaplin/views/HistoryTool');
 
   Tool = require('chaplin/models/Tool');
+
+  template = require('chaplin/templates/history');
 
   root = this;
 
@@ -2127,7 +2135,7 @@ window.require.register("chaplin/views/History", function(exports, require, modu
     HistoryView.prototype['autoRender'] = true;
 
     HistoryView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/history');
+      return template;
     };
 
     HistoryView.prototype.initialize = function() {
@@ -2296,7 +2304,7 @@ window.require.register("chaplin/views/History", function(exports, require, modu
   
 });
 window.require.register("chaplin/views/HistoryTool", function(exports, require, module) {
-  var Chaplin, GenericToolView, HistoryToolView, Mediator,
+  var Chaplin, GenericToolView, HistoryToolView, Mediator, template,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2305,6 +2313,8 @@ window.require.register("chaplin/views/HistoryTool", function(exports, require, 
   Mediator = require('chaplin/core/Mediator');
 
   GenericToolView = require('chaplin/views/GenericTool');
+
+  template = require('chaplin/templates/history-tool');
 
   module.exports = HistoryToolView = (function(_super) {
 
@@ -2319,7 +2329,7 @@ window.require.register("chaplin/views/HistoryTool", function(exports, require, 
     HistoryToolView.prototype['autoRender'] = true;
 
     HistoryToolView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/history-tool');
+      return template;
     };
 
     HistoryToolView.prototype.getTemplateData = function() {
@@ -2352,7 +2362,7 @@ window.require.register("chaplin/views/HistoryTool", function(exports, require, 
   
 });
 window.require.register("chaplin/views/Landing", function(exports, require, module) {
-  var Chaplin, LandingView, Mediator, NextStepsAllView, View, registry, root,
+  var Chaplin, LandingView, Mediator, NextStepsAllView, View, registry, root, template,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -2363,6 +2373,8 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
   View = require('chaplin/core/View');
 
   NextStepsAllView = require('chaplin/views/NextStepsAll');
+
+  template = require('chaplin/templates/landing');
 
   registry = require('tools/config').registry;
 
@@ -2383,7 +2395,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
     LandingView.prototype.autoRender = true;
 
     LandingView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/landing');
+      return template;
     };
 
     LandingView.prototype.attach = function() {
@@ -2402,7 +2414,7 @@ window.require.register("chaplin/views/Landing", function(exports, require, modu
   
 });
 window.require.register("chaplin/views/NextSteps", function(exports, require, module) {
-  var Action, Mediator, NextStepsView, View, root,
+  var Action, Mediator, NextStepsView, View, root, template,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2412,6 +2424,8 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
   View = require('chaplin/core/View');
 
   Action = require('chaplin/views/Action');
+
+  template = require('chaplin/templates/next-steps');
 
   root = this;
 
@@ -2435,7 +2449,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     NextStepsView.prototype.tagName = 'div';
 
     NextStepsView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/next-steps');
+      return template;
     };
 
     NextStepsView.prototype.initialize = function() {
@@ -2621,13 +2635,15 @@ window.require.register("chaplin/views/NextStepsAll", function(exports, require,
   
 });
 window.require.register("chaplin/views/NextStepsHeader", function(exports, require, module) {
-  var Mediator, NextStepsHeaderView, NextStepsView,
+  var Mediator, NextStepsHeaderView, NextStepsView, template,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Mediator = require('chaplin/core/Mediator');
 
   NextStepsView = require('chaplin/views/NextSteps');
+
+  template = require('chaplin/templates/next-steps-header');
 
   module.exports = NextStepsHeaderView = (function(_super) {
 
@@ -2646,7 +2662,7 @@ window.require.register("chaplin/views/NextStepsHeader", function(exports, requi
     NextStepsHeaderView.prototype.labelClass = 'button -steps-ui';
 
     NextStepsHeaderView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/next-steps-header');
+      return template;
     };
 
     return NextStepsHeaderView;
@@ -2683,13 +2699,15 @@ window.require.register("chaplin/views/NextStepsRight", function(exports, requir
   
 });
 window.require.register("chaplin/views/RightSidebar", function(exports, require, module) {
-  var NextStepsRightView, RightSidebarView, View,
+  var NextStepsRightView, RightSidebarView, View, template,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('chaplin/core/View');
 
   NextStepsRightView = require('chaplin/views/NextStepsRight');
+
+  template = require('chaplin/templates/sidebar-right');
 
   module.exports = RightSidebarView = (function(_super) {
 
@@ -2706,7 +2724,7 @@ window.require.register("chaplin/views/RightSidebar", function(exports, require,
     RightSidebarView.prototype.autoRender = true;
 
     RightSidebarView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/sidebar-right');
+      return template;
     };
 
     RightSidebarView.prototype.attach = function() {
@@ -2721,7 +2739,7 @@ window.require.register("chaplin/views/RightSidebar", function(exports, require,
   
 });
 window.require.register("chaplin/views/Tool", function(exports, require, module) {
-  var CrumbView, GenericToolView, Mediator, Tool, ToolView, root,
+  var CrumbView, GenericToolView, Mediator, Tool, ToolView, root, template,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2733,6 +2751,8 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
   GenericToolView = require('chaplin/views/GenericTool');
 
   CrumbView = require('chaplin/views/Crumb');
+
+  template = require('chaplin/templates/tool');
 
   root = this;
 
@@ -2754,7 +2774,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     ToolView.prototype.autoRender = true;
 
     ToolView.prototype.getTemplateFunction = function() {
-      return require('chaplin/templates/tool');
+      return template;
     };
 
     ToolView.prototype.getTemplateData = function() {
@@ -3614,7 +3634,7 @@ window.require.register("tools/UseListTool/step-1", function(exports, require, m
       (function() {
         var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="foundation4 container">\n    <div class="row">\n        <div class="large-12 columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <form class="custom">\n            <div class="large-6 columns">\n                <label>List of identifiers</label>\n                ');
+        __out.push('<div class="foundation4 container">\n    <!-- we can either upload identifiers or use an existing list -->\n    <div class="section-container auto" data-section>\n        <section>\n            <p class="title" data-section-title><a href="#panel1">Use an existing list</a></p>\n            <div class="content" data-section-content>\n                <p>Content of section 1.</p>\n            </div>\n        </section>\n        <section>\n            <p class="title" data-section-title><a href="#panel2">Upload new identifiers</a></p>\n            <div class="content" data-section-content>\n                <p>Content of section 2.</p>\n            </div>\n        </section>\n    </div>\n\n    <div class="row">\n        <div class="large-12 columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <form class="custom">\n            <div class="large-6 columns">\n                <label>List of identifiers</label>\n                ');
       
         if (this.data && this.data.identifiers) {
           __out.push('\n                    <textarea name="identifiers">');

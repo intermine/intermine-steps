@@ -1,15 +1,18 @@
-View = require 'chaplin/core/View'
+View     = require 'chaplin/core/View'
 Mediator = require 'chaplin/core/Mediator'
+
+template = require 'chaplin/templates/action'
 
 root = @
 
+# One of the tool labels ready to serve you.
 module.exports = class ActionView extends View
 
     containerMethod: 'html'
     autoRender:      true
     tagName:         'li'
 
-    getTemplateFunction: -> require 'chaplin/templates/action'
+    getTemplateFunction: -> template
 
     # Custom data prep.
     getTemplateData: -> _.extend root.Utils.cloneDeep(@options), 'label': @markup @options.label

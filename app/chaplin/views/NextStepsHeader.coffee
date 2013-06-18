@@ -1,7 +1,10 @@
-Mediator = require 'chaplin/core/Mediator'
+Mediator      = require 'chaplin/core/Mediator'
 
 NextStepsView = require 'chaplin/views/NextSteps'
 
+template      = require 'chaplin/templates/next-steps-header'
+
+# Quick access tools like Uploading a list etc.
 module.exports = class NextStepsHeaderView extends NextStepsView
 
     container: '#always-on' # where to render
@@ -11,4 +14,4 @@ module.exports = class NextStepsHeaderView extends NextStepsView
 
     labelClass: 'button -steps-ui' # extra class for a label
 
-    getTemplateFunction: -> require 'chaplin/templates/next-steps-header'
+    getTemplateFunction: -> template

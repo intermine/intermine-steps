@@ -1,11 +1,14 @@
-Mediator = require 'chaplin/core/Mediator'
-Tool = require 'chaplin/models/Tool'
+Mediator        = require 'chaplin/core/Mediator'
+Tool            = require 'chaplin/models/Tool'
 
 GenericToolView = require 'chaplin/views/GenericTool'
-CrumbView = require 'chaplin/views/Crumb'
+CrumbView       = require 'chaplin/views/Crumb'
+
+template        = require 'chaplin/templates/tool'
 
 root = @
 
+# Manage input, switching to output and rendering of breadcrumbs of a Tool in the main section of the app.
 module.exports = class ToolView extends GenericToolView
 
     container:       'div#widget'
@@ -13,7 +16,7 @@ module.exports = class ToolView extends GenericToolView
     autoRender:      true
 
     # Accordion template.
-    getTemplateFunction: -> require 'chaplin/templates/tool'
+    getTemplateFunction: -> template
 
     getTemplateData: ->
         # Extend Model by the step.

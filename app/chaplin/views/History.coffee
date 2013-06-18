@@ -1,20 +1,22 @@
-Mediator = require 'chaplin/core/Mediator'
-View = require 'chaplin/core/View'
-Controller = require 'chaplin/core/Controller'
+Mediator        = require 'chaplin/core/Mediator'
+View            = require 'chaplin/core/View'
+Controller      = require 'chaplin/core/Controller'
 
 HistoryToolView = require 'chaplin/views/HistoryTool'
+Tool            = require 'chaplin/models/Tool'
 
-Tool = require 'chaplin/models/Tool'
+template        = require 'chaplin/templates/history'
 
 root = @
 
+# The thing at the bottom showing you a bunch of boxes in a grid.
 module.exports = class HistoryView extends View
 
     'container':       '#history'
     'containerMethod': 'html'
     'autoRender':      true
 
-    getTemplateFunction: -> require 'chaplin/templates/history'
+    getTemplateFunction: -> template
 
     initialize: ->
         super

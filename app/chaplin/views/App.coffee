@@ -1,16 +1,18 @@
+View     = require 'chaplin/core/View'
 Mediator = require 'chaplin/core/Mediator'
 
-View = require 'chaplin/core/View'
+template = require 'chaplin/templates/app'
 
 root = @
 
+# Represents the app when looking at a tool.
 module.exports = class AppView extends View
 
     container:       'body'
     containerMethod: 'html'
     autoRender:      true
 
-    getTemplateFunction: -> require 'chaplin/templates/app'
+    getTemplateFunction: -> template
 
     getTemplateData: -> 'showHistory': root.App.showHistory
 

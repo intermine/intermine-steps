@@ -1,7 +1,8 @@
-Mediator = require 'chaplin/core/Mediator'
+Mediator      = require 'chaplin/core/Mediator'
 
 NextStepsView = require 'chaplin/views/NextSteps'
 
+# Next steps to go to on the right.
 module.exports = class NextStepsRightView extends NextStepsView
 
     container: '#continue' # where to render

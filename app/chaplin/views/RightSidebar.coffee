@@ -1,14 +1,17 @@
-View = require 'chaplin/core/View'
+View               = require 'chaplin/core/View'
 
 NextStepsRightView = require 'chaplin/views/NextStepsRight'
 
+template           = require 'chaplin/templates/sidebar-right'
+
+# Why the hell is this class needed I have no idea...
 module.exports = class RightSidebarView extends View
 
     container:       'aside#right'
     containerMethod: 'html'
     autoRender:      true
 
-    getTemplateFunction: -> require 'chaplin/templates/sidebar-right'
+    getTemplateFunction: -> template
 
     attach: ->
         super
