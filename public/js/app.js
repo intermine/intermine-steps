@@ -2867,7 +2867,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     };
 
     ToolView.prototype.getDOM = function() {
-      return $(this.el).find('ul.accordion li.active div.content');
+      return $(this.el).find('ul.accordion > li.active > div.content');
     };
 
     ToolView.prototype.nextStep = function() {
@@ -3469,93 +3469,18 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
     };
 
     UploadListToolView.prototype.attach = function() {
-      var list, query, self, type, _ref,
+      var list, query, switcher, type, _ref,
         _this = this;
       UploadListToolView.__super__.attach.apply(this, arguments);
-      self = this;
       switch (this.step) {
         case 1:
           this.getDOM().foundationCustomForms();
-          this.delegate('click', '#submit', function() {
-            var clean, dom, input;
-            clean = function(value) {
-              value = value.replace(/^\s+|\s+$/g, '').replace(/\s{2,}/g, ' ');
-              if (value === '') {
-                return [];
-              }
-              return value.split(/\s/g);
-            };
-            input = {};
-            dom = self.getDOM();
-            dom.append($('<div/>', {
-              'class': 'loading -steps-ui'
-            }));
-            return async.waterfall([
-              function(cb) {
-                input.ids = clean(dom.find('form textarea').val());
-                if (input.ids.length === 0) {
-                  return cb('No identifiers have been provided');
-                }
-                input.organism = dom.find('select[name="organism"]').val();
-                input.type = dom.find('select[name="type"]').val();
-                return cb(null);
-              }, function(cb) {
-                return (root.App.service.im.resolveIds({
-                  'identifiers': input.ids,
-                  'type': input.type
-                })).then(function(job) {
-                  return cb(null, job);
-                });
-              }, function(job, cb) {
-                return job.poll().then(function(results) {
-                  var keys, query;
-                  keys = _.keys(results);
-                  if (keys.length === 0) {
-                    return cb('No identifiers were resolved');
-                  }
-                  query = {
-                    'model': {
-                      'name': 'genomic'
-                    },
-                    'select': ["" + input.type + ".*"],
-                    'constraints': [
-                      {
-                        'path': "" + input.type + ".id",
-                        'op': 'ONE OF',
-                        'values': keys
-                      }
-                    ]
-                  };
-                  return cb(null, query);
-                });
-              }, function(query, cb) {
-                return root.App.service.im.query(query, function(q) {
-                  return cb(null, q);
-                });
-              }, function(q, cb) {
-                var name;
-                name = root.Utils.guid();
-                return q.saveAsList({
-                  'name': name
-                }, function(l) {
-                  self.model.set('data', {
-                    'identifiers': input.ids,
-                    'organism': input.organism,
-                    'type': input.type,
-                    'query': query,
-                    'list': name
-                  });
-                  Mediator.publish('history:add', self.model);
-                  return cb(null);
-                });
-              }
-            ], function(err) {
-              if (err) {
-                return console.log(err);
-              }
-              return self.nextStep();
-            });
+          switcher = $('.section-container');
+          switcher.find('p.title a').click(function(e) {
+            switcher.find('section.active').removeClass('active');
+            return $(e.target).closest('section').addClass('active');
           });
+          this.delegate('click', '#submit', this.idResolution);
           break;
         case 2:
           _ref = this.model.get('data'), type = _ref.type, list = _ref.list;
@@ -3585,6 +3510,88 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
           Mediator.publish('context:new', ['have:list', 'type:' + type], this.model.get('guid'));
       }
       return this;
+    };
+
+    UploadListToolView.prototype.idResolution = function() {
+      var clean, dom, input, self;
+      self = this;
+      clean = function(value) {
+        value = value.replace(/^\s+|\s+$/g, '').replace(/\s{2,}/g, ' ');
+        if (value === '') {
+          return [];
+        }
+        return value.split(/\s/g);
+      };
+      input = {};
+      dom = self.getDOM();
+      dom.append($('<div/>', {
+        'class': 'loading -steps-ui'
+      }));
+      return async.waterfall([
+        function(cb) {
+          input.ids = clean(dom.find('form textarea').val());
+          if (input.ids.length === 0) {
+            return cb('No identifiers have been provided');
+          }
+          input.organism = dom.find('select[name="organism"]').val();
+          input.type = dom.find('select[name="type"]').val();
+          return cb(null);
+        }, function(cb) {
+          return (root.App.service.im.resolveIds({
+            'identifiers': input.ids,
+            'type': input.type
+          })).then(function(job) {
+            return cb(null, job);
+          });
+        }, function(job, cb) {
+          return job.poll().then(function(results) {
+            var keys, query;
+            keys = _.keys(results);
+            if (keys.length === 0) {
+              return cb('No identifiers were resolved');
+            }
+            query = {
+              'model': {
+                'name': 'genomic'
+              },
+              'select': ["" + input.type + ".*"],
+              'constraints': [
+                {
+                  'path': "" + input.type + ".id",
+                  'op': 'ONE OF',
+                  'values': keys
+                }
+              ]
+            };
+            return cb(null, query);
+          });
+        }, function(query, cb) {
+          return root.App.service.im.query(query, function(q) {
+            return cb(null, q, query);
+          });
+        }, function(q, query, cb) {
+          var name;
+          name = root.Utils.guid();
+          return q.saveAsList({
+            'name': name
+          }, function(l) {
+            self.model.set('data', {
+              'identifiers': input.ids,
+              'organism': input.organism,
+              'type': input.type,
+              'query': query,
+              'list': name
+            });
+            Mediator.publish('history:add', self.model);
+            return cb(null);
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return console.log(err);
+        }
+        return self.nextStep();
+      });
     };
 
     return UploadListToolView;
@@ -3634,10 +3641,10 @@ window.require.register("tools/UseListTool/step-1", function(exports, require, m
       (function() {
         var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="foundation4 container">\n    <!-- we can either upload identifiers or use an existing list -->\n    <div class="section-container auto" data-section>\n        <section>\n            <p class="title" data-section-title><a href="#panel1">Use an existing list</a></p>\n            <div class="content" data-section-content>\n                <p>Content of section 1.</p>\n            </div>\n        </section>\n        <section>\n            <p class="title" data-section-title><a href="#panel2">Upload new identifiers</a></p>\n            <div class="content" data-section-content>\n                <p>Content of section 2.</p>\n            </div>\n        </section>\n    </div>\n\n    <div class="row">\n        <div class="large-12 columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <form class="custom">\n            <div class="large-6 columns">\n                <label>List of identifiers</label>\n                ');
+        __out.push('<div class="foundation4 container">\n    <div class="row">\n        <div class="large-12 columns">\n            <!-- we can either upload identifiers or use an existing list -->\n            <div class="section-container" data-section>\n                <section class="active">\n                    <p class="title">\n                        <a>Use an existing list</a>\n                    </p>\n                    <div class="content">\n                        <p>Content of section 1</p>\n                    </div>\n                </section>\n                <section>\n                    <p class="title">\n                        <a>Upload new identifiers</a>\n                    </p>\n                    <div class="content">\n                        <div class="row">\n                            <div class="large-12 columns">\n                                <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n                            </div>\n                        </div>\n                        <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n                            <form class="custom">\n                                <div class="large-6 columns">\n                                    <label>List of identifiers</label>\n                                    ');
       
         if (this.data && this.data.identifiers) {
-          __out.push('\n                    <textarea name="identifiers">');
+          __out.push('\n                                        <textarea name="identifiers">');
           _ref = this.data.identifiers;
           for (i in _ref) {
             id = _ref[i];
@@ -3646,56 +3653,56 @@ window.require.register("tools/UseListTool/step-1", function(exports, require, m
               __out.push(' ');
             }
           }
-          __out.push('</textarea>\n                ');
+          __out.push('</textarea>\n                                    ');
         } else {
-          __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n                ');
+          __out.push('\n                                        <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n                                    ');
         }
       
-        __out.push('\n            </div>\n            <div class="large-2 columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
+        __out.push('\n                                </div>\n                                <div class="large-2 columns">\n                                    <label>Type</label>\n                                    <select name="type" class="expand">\n                                        ');
       
         _ref1 = this.types;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           type = _ref1[_i];
-          __out.push('\n                        ');
+          __out.push('\n                                            ');
           if (this.data && this.data.type && this.data.type === type) {
-            __out.push('\n                            <option value="');
+            __out.push('\n                                                <option value="');
             __out.push(__sanitize(type));
             __out.push('" selected="selected">');
             __out.push(__sanitize(owl.pluralize(type)));
-            __out.push('</option>\n                        ');
+            __out.push('</option>\n                                            ');
           } else {
-            __out.push('\n                            <option value="');
+            __out.push('\n                                                <option value="');
             __out.push(__sanitize(type));
             __out.push('">');
             __out.push(__sanitize(owl.pluralize(type)));
-            __out.push('</option>\n                        ');
+            __out.push('</option>\n                                            ');
           }
-          __out.push('\n                    ');
+          __out.push('\n                                        ');
         }
       
-        __out.push('\n                </select>\n            </div>\n            <div class="large-4 columns">\n                <label>Organism</label>\n                <select name="organism" class="expand">\n                    ');
+        __out.push('\n                                    </select>\n                                </div>\n                                <div class="large-4 columns">\n                                    <label>Superfluous constraint</label>\n                                    <select name="organism" class="expand">\n                                        ');
       
         _ref2 = this.organisms;
         for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
           organism = _ref2[_j];
-          __out.push('\n                        ');
+          __out.push('\n                                            ');
           if (this.data && this.data.organism && this.data.organism === organism) {
-            __out.push('\n                            <option value="');
+            __out.push('\n                                                <option value="');
             __out.push(__sanitize(organism));
             __out.push('" selected="selected">');
             __out.push(__sanitize(organism));
-            __out.push('</option>\n                        ');
+            __out.push('</option>\n                                            ');
           } else {
-            __out.push('\n                            <option value="');
+            __out.push('\n                                                <option value="');
             __out.push(__sanitize(organism));
             __out.push('">');
             __out.push(__sanitize(organism));
-            __out.push('</option>\n                        ');
+            __out.push('</option>\n                                            ');
           }
-          __out.push('\n                    ');
+          __out.push('\n                                        ');
         }
       
-        __out.push('\n                </select>\n            </div>\n        </form>\n    </div>\n    <div class="row">\n        <div class="large-12 columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('\n                                    </select>\n                                </div>\n                            </form>\n                        </div>\n                        <div class="row">\n                            <div class="large-12 columns">\n                                <a id="submit" class="button">Upload a list</span></a>\n                            </div>\n                        </div>\n                    </div>\n                </section>\n            </div>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       

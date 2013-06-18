@@ -101,7 +101,7 @@ module.exports = class ToolView extends GenericToolView
         @timeouts.push setTimeout @checkCrumbs, 1000
 
     # Get DOM for current step.
-    getDOM: -> $(@el).find('ul.accordion li.active div.content')
+    getDOM: -> $(@el).find('ul.accordion > li.active > div.content')
 
     # A shortcut for moving to the next step.
     nextStep: => Mediator.publish 'tool:step', @step += 1
