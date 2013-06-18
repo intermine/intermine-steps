@@ -1,0 +1,24 @@
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Type</th>
+            <th>Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% for list in @lists: %>
+            <% if list.status is 'CURRENT': %>
+                <tr>
+                    <td><button class="small">Use</button></td>
+                    <td><%= list.name %></td>
+                    <td><%= list.size %></td>
+                    <td><%= list.type %></td>
+                    <td><%= list.dateCreated %></td>
+                </tr>
+            <% end %>
+        <% end %>
+    </tbody>
+</table>

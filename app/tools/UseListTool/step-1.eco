@@ -1,21 +1,24 @@
 <div class="foundation4 container">
     <div class="row">
         <div class="large-12 columns">
-            <!-- we can either upload identifiers or use an existing list -->
             <div class="section-container" data-section>
+
+                <!-- use existing -->
                 <section class="active">
                     <p class="title">
                         <a>Use an existing list</a>
                     </p>
-                    <div class="content">
-                        <p>Content of section 1</p>
+                    <div data-content="choose" class="content">
+                        <!-- lists.eco -->
                     </div>
                 </section>
+
+                <!-- upload new -->
                 <section>
                     <p class="title">
                         <a>Upload new identifiers</a>
                     </p>
-                    <div class="content">
+                    <div data-content="upload" class="content">
                         <div class="row">
                             <div class="large-12 columns">
                                 <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>

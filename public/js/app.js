@@ -3480,6 +3480,18 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
             switcher.find('section.active').removeClass('active');
             return $(e.target).closest('section').addClass('active');
           });
+          async.waterfall([
+            this.getLists, function(lists, cb) {
+              $('div.content[data-content=choose]').html(require('tools/UseListTool/lists')({
+                'lists': lists
+              }));
+              return cb(null);
+            }
+          ], function(err) {
+            if (err) {
+              return console.log(err);
+            }
+          });
           this.delegate('click', '#submit', this.idResolution);
           break;
         case 2:
@@ -3510,6 +3522,12 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
           Mediator.publish('context:new', ['have:list', 'type:' + type], this.model.get('guid'));
       }
       return this;
+    };
+
+    UploadListToolView.prototype.getLists = function(cb) {
+      return root.App.service.im.fetchLists().then(function(lists) {
+        return cb(null, lists);
+      });
     };
 
     UploadListToolView.prototype.idResolution = function() {
@@ -3599,6 +3617,77 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
   })(ToolView);
   
 });
+window.require.register("tools/UseListTool/lists", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+        var list, _i, _len, _ref;
+      
+        __out.push('<table>\n    <thead>\n        <tr>\n            <th></th>\n            <th>Name</th>\n            <th>Size</th>\n            <th>Type</th>\n            <th>Created</th>\n        </tr>\n    </thead>\n    <tbody>\n        ');
+      
+        _ref = this.lists;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          list = _ref[_i];
+          __out.push('\n            ');
+          if (list.status === 'CURRENT') {
+            __out.push('\n                <tr>\n                    <td><button class="small">Use</button></td>\n                    <td>');
+            __out.push(__sanitize(list.name));
+            __out.push('</td>\n                    <td>');
+            __out.push(__sanitize(list.size));
+            __out.push('</td>\n                    <td>');
+            __out.push(__sanitize(list.type));
+            __out.push('</td>\n                    <td>');
+            __out.push(__sanitize(list.dateCreated));
+            __out.push('</td>\n                </tr>\n            ');
+          }
+          __out.push('\n        ');
+        }
+      
+        __out.push('\n    </tbody>\n</table>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
 window.require.register("tools/UseListTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
@@ -3641,7 +3730,7 @@ window.require.register("tools/UseListTool/step-1", function(exports, require, m
       (function() {
         var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="foundation4 container">\n    <div class="row">\n        <div class="large-12 columns">\n            <!-- we can either upload identifiers or use an existing list -->\n            <div class="section-container" data-section>\n                <section class="active">\n                    <p class="title">\n                        <a>Use an existing list</a>\n                    </p>\n                    <div class="content">\n                        <p>Content of section 1</p>\n                    </div>\n                </section>\n                <section>\n                    <p class="title">\n                        <a>Upload new identifiers</a>\n                    </p>\n                    <div class="content">\n                        <div class="row">\n                            <div class="large-12 columns">\n                                <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n                            </div>\n                        </div>\n                        <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n                            <form class="custom">\n                                <div class="large-6 columns">\n                                    <label>List of identifiers</label>\n                                    ');
+        __out.push('<div class="foundation4 container">\n    <div class="row">\n        <div class="large-12 columns">\n            <div class="section-container" data-section>\n\n                <!-- use existing -->\n                <section class="active">\n                    <p class="title">\n                        <a>Use an existing list</a>\n                    </p>\n                    <div data-content="choose" class="content">\n                        <!-- lists.eco -->\n                    </div>\n                </section>\n\n                <!-- upload new -->\n                <section>\n                    <p class="title">\n                        <a>Upload new identifiers</a>\n                    </p>\n                    <div data-content="upload" class="content">\n                        <div class="row">\n                            <div class="large-12 columns">\n                                <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n                            </div>\n                        </div>\n                        <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n                            <form class="custom">\n                                <div class="large-6 columns">\n                                    <label>List of identifiers</label>\n                                    ');
       
         if (this.data && this.data.identifiers) {
           __out.push('\n                                        <textarea name="identifiers">');

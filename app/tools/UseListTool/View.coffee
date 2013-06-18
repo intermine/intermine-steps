@@ -47,6 +47,18 @@ module.exports = class UploadListToolView extends ToolView
                     # Switch us on.
                     $(e.target).closest('section').addClass('active')
 
+                # Get our lists.
+                async.waterfall [ @getLists
+                
+                # Render the template with them.
+                (lists, cb) ->
+                    $('div.content[data-content=choose]').html require('tools/UseListTool/lists') 'lists': lists
+                    
+                    cb null
+                
+                ], (err) ->
+                    return console.log err if err
+
                 # Capture submit clicks.
                 @delegate 'click', '#submit', @idResolution
 
@@ -84,6 +96,11 @@ module.exports = class UploadListToolView extends ToolView
                 Mediator.publish 'context:new', [ 'have:list', 'type:' + type ], @model.get('guid')
 
         @
+
+    # Get lists for a user.
+    getLists: (cb) ->
+        root.App.service.im.fetchLists().then (lists) ->
+            cb null, lists
 
     # Upload a list of identifiers and make them into a list.
     idResolution: ->
