@@ -3457,7 +3457,7 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
         case 1:
           this.getDOM().foundationCustomForms();
           this.delegate('click', '#submit', function() {
-            var clean, input;
+            var clean, dom, input;
             clean = function(value) {
               value = value.replace(/^\s+|\s+$/g, '').replace(/\s{2,}/g, ' ');
               if (value === '') {
@@ -3466,10 +3466,12 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
               return value.split(/\s/g);
             };
             input = {};
+            dom = self.getDOM();
+            dom.append($('<div/>', {
+              'class': 'loading -steps-ui'
+            }));
             return async.waterfall([
               function(cb) {
-                var dom;
-                dom = self.getDOM();
                 input.ids = clean(dom.find('form textarea').val());
                 if (input.ids.length === 0) {
                   return cb('No identifiers have been provided');

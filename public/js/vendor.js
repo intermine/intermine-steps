@@ -38453,7 +38453,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Wed May 08 2013 17:00:45 GMT+0100 (BST)
+ * Built at Fri Jun 14 2013 16:36:51 GMT+0100 (BST)
 */
 
 
@@ -38732,7 +38732,7 @@ $.widget("ui.sortable", $.ui.mouse, {
   }, true);
 
   (function($) {
-    var ClosableCollection, ERROR, ItemView, Tab, addStylePrefix, copy, getContainer, getOrganisms, getParameter, modelIsBio, numToString, openWindowWithPost, organisable, pluralise, renderError, requiresAuthentication, uniquelyFlat, walk, _ref, _ref1;
+    var ClosableCollection, ERROR, ItemView, Tab, addStylePrefix, copy, getContainer, getOrganisms, getParameter, getReplacedTest, longestCommonPrefix, modelIsBio, numToString, openWindowWithPost, organisable, pluralise, renderError, requiresAuthentication, uniquelyFlat, walk, _ref, _ref1;
 
     walk = function(obj, f) {
       var k, v, _results;
@@ -38829,6 +38829,41 @@ $.widget("ui.sortable", $.ui.mouse, {
       return path.getEndClass().name === 'Organism' || (path.getType().fields['organism'] != null);
     };
     uniquelyFlat = _.compose(_.uniq, _.flatten);
+    longestCommonPrefix = function(paths) {
+      var nextPrefix, part, parts, prefix, prefixesAll, _i, _len;
+
+      parts = paths[0].split(/\./);
+      prefix = parts.shift();
+      prefixesAll = function(pf) {
+        return _.all(paths, function(path) {
+          return 0 === path.indexOf(pf);
+        });
+      };
+      for (_i = 0, _len = parts.length; _i < _len; _i++) {
+        part = parts[_i];
+        if (prefixesAll(nextPrefix = "" + prefix + "." + part)) {
+          prefix = nextPrefix;
+        }
+      }
+      return prefix;
+    };
+    getReplacedTest = function(replacedBy, explicitReplacements) {
+      return function(col) {
+        var p, replacer;
+
+        p = col.path;
+        if (!(intermine.results.shouldFormat(p) || explicitReplacements[p])) {
+          return false;
+        }
+        replacer = replacedBy[p];
+        if (p.isAttribute() && p.end.name === 'id') {
+          if (replacer == null) {
+            replacer = replacedBy[p.getParent()];
+          }
+        }
+        return replacer && (replacer.formatter != null) && col !== replacer;
+      };
+    };
     getOrganisms = function(query, cb) {
       var c, def, done, mustBe, n, newView, opath, toRun;
 
@@ -39006,7 +39041,9 @@ $.widget("ui.sortable", $.ui.mouse, {
       pluralise: pluralise,
       addStylePrefix: addStylePrefix,
       getContainer: getContainer,
-      openWindowWithPost: openWindowWithPost
+      openWindowWithPost: openWindowWithPost,
+      longestCommonPrefix: longestCommonPrefix,
+      getReplacedTest: getReplacedTest
     });
   })(jQuery);
 
@@ -39041,7 +39078,8 @@ $.widget("ui.sortable", $.ui.mouse, {
       resources: {
         prettify: ['/js/google-code-prettify/latest/prettify.js', '/js/google-code-prettify/latest/prettify.css'],
         d3: '/js/d3/3.0.6/d3.v3.min.js',
-        'font-awesome': "/css/font-awesome/3.0.2/css/font-awesome.css"
+        'font-awesome': "/css/font-awesome/3.0.2/css/font-awesome.css",
+        'filesaver': '/js/filesaver.js/FileSaver.min.js'
       }
     },
     D3: {
@@ -39097,7 +39135,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         if (ns == null) {
           ns = '';
         }
-        ns = 'intermine.options' + ns;
+        ns = ns === '' || /^\./.test(ns) ? 'intermine.options' + ns : ns;
         return scope(ns, opts, true);
       }
     });
@@ -39182,6 +39220,7 @@ $.widget("ui.sortable", $.ui.mouse, {
     Edit: 'icon-cogs',
     Download: 'icon-file-alt',
     ClipBoard: 'icon-paper-clip',
+    Composed: 'icon-columns',
     tsv: 'icon-table',
     csv: 'icon-table',
     xml: 'icon-xml',
@@ -40560,87 +40599,36 @@ $.widget("ui.sortable", $.ui.mouse, {
         return _ref;
       }
 
-      OuterJoinDropDown.prototype.className = "im-summary-selector";
+      OuterJoinDropDown.prototype.className = "im-summary-selector no-margins";
 
       OuterJoinDropDown.prototype.tagName = 'ul';
 
-      OuterJoinDropDown.prototype.initialize = function(query, path) {
+      OuterJoinDropDown.prototype.initialize = function(query, path, model) {
+        var _ref1;
+
         this.query = query;
         this.path = path;
+        return _ref1 = model.toJSON(), this.replaces = _ref1.replaces, this.isFormatted = _ref1.isFormatted, _ref1;
+      };
+
+      OuterJoinDropDown.prototype.getSubpaths = function() {
+        return this.replaces.slice();
       };
 
       OuterJoinDropDown.prototype.render = function() {
-        var a, as, f, formatter, name, node, parent, prefix, r, replaces, str, v, vs, _fn, _i, _len,
+        var node, v, vs, _fn, _i, _len,
           _this = this;
 
         vs = [];
         node = this.path;
-        if (!this.path.isAttribute()) {
-          str = this.path.toString();
-          vs = (function() {
-            var _i, _len, _ref1, _results;
-
-            _ref1 = this.query.views;
-            _results = [];
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              v = _ref1[_i];
-              if (v.match(str)) {
-                _results.push(v);
-              }
-            }
-            return _results;
-          }).call(this);
-        } else {
-          node = parent = this.path.getParent();
-          formatter = intermine.results.getFormatter(this.path);
-          if (replaces = formatter != null ? formatter.replaces : void 0) {
-            prefix = parent + '.';
-            vs = (function() {
-              var _i, _len, _results;
-
-              _results = [];
-              for (_i = 0, _len = replaces.length; _i < _len; _i++) {
-                r = replaces[_i];
-                _results.push(prefix + r);
-              }
-              return _results;
-            })();
-          } else {
-            f = function(a) {
-              return intermine.options.ShowId || a !== 'id';
-            };
-            as = (function() {
-              var _ref1, _results;
-
-              _ref1 = parent.getEndClass().attributes;
-              _results = [];
-              for (name in _ref1) {
-                a = _ref1[name];
-                if (f(name)) {
-                  _results.push(name);
-                }
-              }
-              return _results;
-            })();
-            vs = (function() {
-              var _i, _len, _results;
-
-              _results = [];
-              for (_i = 0, _len = as.length; _i < _len; _i++) {
-                a = as[_i];
-                _results.push(parent.append(a).toString());
-              }
-              return _results;
-            })();
-          }
-        }
+        vs = this.getSubpaths();
         if (vs.length === 1) {
           this.showPathSummary(vs[0]);
         } else {
           _fn = function(v) {
             var li;
 
-            li = $("<li class=\"im-outer-joined-path\"><a href=\"#\"></a></li>");
+            li = $("<li class=\"im-subpath im-outer-joined-path\"><a href=\"#\"></a></li>");
             _this.$el.append(li);
             $.when(node.getDisplayName(), _this.query.getPathInfo(v).getDisplayName()).done(function(parent, name) {
               return li.find('a').text(name.replace(parent, '').replace(/^\s*>\s*/, ''));
@@ -40693,7 +40681,6 @@ $.widget("ui.sortable", $.ui.mouse, {
       DropDownColumnSummary.prototype.initialize = function(query, view) {
         this.query = query;
         this.view = view;
-        return this.$el.on('destroyed', this.close);
       };
 
       DropDownColumnSummary.prototype.remove = function() {
@@ -41320,7 +41307,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         });
         this.exportedCols.on('add remove reset', this.initCols);
         this.exportedCols.on('add remove change:excluded', this.updateColTabText, this);
-        this.exportedCols.on('add remove change:excluded', this.buildPermaLink);
+        this.exportedCols.on('add remove reset change:excluded', this.buildPermaLink);
         return this.requestInfo.on('change:start change:end', function() {
           var end, start, text, _ref4;
 
@@ -41718,7 +41705,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       ExportDialogue.prototype.getExportQuery = function() {
-        var columns, f, node, path, q, _i, _len, _ref1;
+        var columns, f, newOrder, node, path, q, viewNodes, _i, _len, _ref1;
 
         q = this.query.clone();
         f = this.requestInfo.get('format');
@@ -41750,10 +41737,16 @@ $.widget("ui.sortable", $.ui.mouse, {
             });
           }
         }
-        if (__indexOf.call(BIO_FORMATS, f) >= 0) {
-          q.orderBy([]);
-        }
-        return q;
+        newOrder = __indexOf.call(BIO_FORMATS, f) >= 0 ? [] : (viewNodes = q.getViewNodes(), _.filter(q.sortOrder, function(_arg) {
+          var parent, path;
+
+          path = _arg.path;
+          parent = q.getPathInfo(path).getParent();
+          return _.any(viewNodes, function(node) {
+            return parent.equals(node);
+          });
+        }));
+        return q.orderBy(newOrder);
       };
 
       ExportDialogue.prototype.getExportParams = function() {
@@ -42078,15 +42071,10 @@ $.widget("ui.sortable", $.ui.mouse, {
           placeholder: 'im-resorting-placeholder im-exported-col',
           forcePlaceholderSize: true,
           update: function(e, ui) {
-            var silent;
-
             _this.$('.im-reset-cols').removeClass('disabled');
-            silent = true;
             return _this.exportedCols.reset(cols.find('li').map(function() {
               return $(this).data('model');
-            }).get(), {
-              silent: silent
-            });
+            }).get());
           }
         });
         this.initColumnOptions();
@@ -44204,10 +44192,19 @@ $.widget("ui.sortable", $.ui.mouse, {
   });
 
   define('formatters/bio/core/chromosome-location', function() {
-    var ChrLocFormatter;
+    var ChrLocFormatter, fetch;
 
+    fetch = function(service, id) {
+      return service.rows({
+        from: 'Location',
+        select: ChrLocFormatter.replaces,
+        where: {
+          id: id
+        }
+      });
+    };
     return ChrLocFormatter = (function() {
-      ChrLocFormatter.replaces = ['locatedOn.primaryIdentifier', 'start', 'end', 'strand'];
+      ChrLocFormatter.replaces = ['locatedOn.primaryIdentifier', 'start', 'end'];
 
       ChrLocFormatter.merge = function(location, chromosome) {
         if (chromosome.has('primaryIdentifier')) {
@@ -44226,12 +44223,15 @@ $.widget("ui.sortable", $.ui.mouse, {
         if (!((model._fetching != null) || _.all(needs, function(n) {
           return model.has(n);
         }))) {
-          model._fetching = this.options.query.service.findById('Location', id);
-          model._fetching.done(function(loc) {
+          model._fetching = fetch(this.options.query.service, id);
+          model._fetching.done(function(_arg) {
+            var chr, end, start, _ref;
+
+            _ref = _arg[0], chr = _ref[0], start = _ref[1], end = _ref[2];
             return model.set({
-              start: loc.start,
-              end: loc.end,
-              chr: loc.locatedOn.primaryIdentifier
+              chr: chr,
+              start: start,
+              end: end
             });
           });
         }
@@ -44268,23 +44268,43 @@ $.widget("ui.sortable", $.ui.mouse, {
   });
 
   define('formatters/bio/core/organism', function() {
-    var Organism, templ;
+    var Organism, ensureData, getData, templ;
 
+    getData = function(model, prop, backupProp) {
+      var ret, val;
+
+      ret = {};
+      val = ret[prop] = model.get(prop);
+      if (val == null) {
+        ret[prop] = model.get(backupProp);
+      }
+      return ret;
+    };
+    ensureData = function(model, service) {
+      var p;
+
+      if ((model._fetching != null) || model.has('shortName')) {
+        return;
+      }
+      model._fetching = p = service.findById('Organism', model.get('id'));
+      return p.done(function(org) {
+        return model.set({
+          shortName: org.shortName
+        });
+      });
+    };
     templ = _.template("<span class=\"name\"><%- shortName %></span>");
-    return Organism = function(model, query, $cell) {
-      var data, p;
+    return Organism = function(model) {
+      var data;
 
       this.$el.addClass('organism');
-      if (!((model._fetching != null) || model.has('shortName'))) {
-        model._fetching = p = this.options.query.service.findById('Organism', model.get('id'));
-        p.done(function(org) {
-          return model.set(org);
-        });
+      ensureData(model, this.options.query.service);
+      if (model.get('id')) {
+        data = getData(model, 'shortName', 'name');
+        return templ(data);
+      } else {
+        return "<span class=\"null-value\">&nbsp;</span>";
       }
-      data = _.extend({
-        shortName: ''
-      }, model.toJSON());
-      return templ(data);
     };
   });
 
@@ -44336,12 +44356,154 @@ $.widget("ui.sortable", $.ui.mouse, {
       Organism: Org
     });
     return scope('intermine.results.formatsets.genomic', {
-      'Location.*': true,
-      'Organism.name': true,
-      'Publication.title': true,
-      'Sequence.residues': true
+      'Location.start': false,
+      'Location.end': false,
+      'Organism.name': false,
+      'Publication.title': false,
+      'Sequence.residues': false
     });
   }])));
+
+  (function() {
+    var FormattedSorting, ICONS, INIT_CARETS, NEXT_DIRECTION_OF, ROW, _ref;
+
+    ROW = "<li class=\"im-formatted-part im-subpath\"><a><i class=\"sort-icon\"></i></a></li>";
+    INIT_CARETS = /^\s*>\s*/;
+    ICONS = function() {
+      return {
+        ASC: intermine.css.sortedASC,
+        DESC: intermine.css.sortedDESC,
+        NONE: intermine.css.unsorted
+      };
+    };
+    NEXT_DIRECTION_OF = {
+      ASC: 'DESC',
+      DESC: 'ASC',
+      NONE: 'ASC'
+    };
+    FormattedSorting = (function(_super) {
+      __extends(FormattedSorting, _super);
+
+      function FormattedSorting() {
+        this.appendSortOption = __bind(this.appendSortOption, this);        _ref = FormattedSorting.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      FormattedSorting.prototype.className = 'im-col-sort-menu no-margins';
+
+      FormattedSorting.prototype.tagName = 'ul';
+
+      FormattedSorting.prototype.initialize = function(query, path, model) {
+        this.query = query;
+        this.path = path;
+        this.model = model;
+      };
+
+      FormattedSorting.prototype.toggleSort = function(paths) {
+        var currentDir, direction, path;
+
+        console.log("Ordering by " + paths);
+        currentDir = this.currentDir(paths);
+        direction = NEXT_DIRECTION_OF[currentDir];
+        this.query.orderBy((function() {
+          var _i, _len, _results;
+
+          _results = [];
+          for (_i = 0, _len = paths.length; _i < _len; _i++) {
+            path = paths[_i];
+            _results.push({
+              path: path,
+              direction: direction
+            });
+          }
+          return _results;
+        })());
+        this.model.set({
+          direction: direction
+        });
+        return this.remove();
+      };
+
+      FormattedSorting.prototype.currentDir = function(paths) {
+        var current, dirs, p;
+
+        dirs = (function() {
+          var _i, _len, _results;
+
+          _results = [];
+          for (_i = 0, _len = paths.length; _i < _len; _i++) {
+            p = paths[_i];
+            _results.push(this.query.getSortDirection(p));
+          }
+          return _results;
+        }).call(this);
+        if (_.unique(dirs).length === 1) {
+          current = dirs[0];
+        }
+        return current != null ? current : 'NONE';
+      };
+
+      FormattedSorting.prototype.render = function() {
+        var paths, replaces;
+
+        console.log("Rendering FormattedSorting for " + this.path);
+        paths = [];
+        replaces = this.model.get('replaces');
+        if (replaces.length > 1) {
+          paths = [replaces].concat(replaces.map(function(x) {
+            return [x];
+          }));
+        } else {
+          paths = [this.path];
+        }
+        if (paths.length === 1) {
+          this.toggleSort(paths[0]);
+        } else {
+          paths.forEach(this.appendSortOption);
+        }
+        return this;
+      };
+
+      FormattedSorting.prototype.appendSortOption = function(paths) {
+        var $a, currentDir, icons, li, p, _fn, _i, _len,
+          _this = this;
+
+        li = $(ROW);
+        $a = li.find('a');
+        icons = ICONS();
+        _fn = function(p) {
+          var $span, path;
+
+          console.log("Adding span for " + p);
+          $span = $("<span class=\"im-sort-path\">");
+          $a.append($span);
+          path = _this.query.getPathInfo(p);
+          return $.when(_this.path.getDisplayName(), path.getDisplayName()).done(function(pn, cn) {
+            return $span.text(cn.replace(pn, '').replace(INIT_CARETS, ''));
+          });
+        };
+        for (_i = 0, _len = paths.length; _i < _len; _i++) {
+          p = paths[_i];
+          _fn(p);
+        }
+        $a.click(function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          return _this.toggleSort(paths);
+        });
+        currentDir = paths === this.model.get('replaces') ? this.currentDir(paths) : this.currentDir(this.model.get('replaces')) !== 'NONE' ? 'NONE' : this.currentDir(paths);
+        li.find('i').addClass(icons[currentDir]);
+        this.$el.append(li);
+        return null;
+      };
+
+      return FormattedSorting;
+
+    })(Backbone.View);
+    return scope("intermine.query", {
+      FormattedSorting: FormattedSorting
+    });
+  })();
 
   (function() {
     var DynamicPopover;
@@ -44731,15 +44893,20 @@ $.widget("ui.sortable", $.ui.mouse, {
         if ((_ref1 = this.columnHeaders) == null) {
           this.columnHeaders = new Backbone.Collection;
         }
+        this.blacklistedFormatters = [];
         this.minimisedCols = {};
         this.query.on("set:sortorder", function(oes) {
           _this.lastAction = 'resort';
           return _this.fill();
         });
-        return this.query.on('columnvis:toggle', function(view) {
+        this.query.on('columnvis:toggle', function(view) {
           _this.minimisedCols[view] = !_this.minimisedCols[view];
           _this.query.trigger('change:minimisedCols', _.extend({}, _this.minimisedCols));
           return _this.fill();
+        });
+        return this.query.on("formatter:blacklist", function(path, formatter) {
+          _this.blacklistedFormatters.push(formatter);
+          return _this.fill().then(_this.addColumnHeaders);
         });
       };
 
@@ -44942,11 +45109,12 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       ResultsTable.prototype.getEffectiveView = function(row) {
-        var cell, col, cols, explicitReplacements, formatter, isReplaced, p, path, q, r, replacedBy, replaces, subPath, v, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _name, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _results;
+        var cell, col, cols, commonPrefix, explicitReplacements, formatter, getReplacedTest, isReplaced, longestCommonPrefix, p, path, q, r, replacedBy, replaces, subPath, v, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _name, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _results;
 
         q = this.query;
         replacedBy = {};
         this.columnHeaders.reset();
+        _ref1 = intermine.utils, longestCommonPrefix = _ref1.longestCommonPrefix, getReplacedTest = _ref1.getReplacedTest;
         cols = (function() {
           var _i, _len, _results;
 
@@ -44954,19 +45122,17 @@ $.widget("ui.sortable", $.ui.mouse, {
           for (_i = 0, _len = row.length; _i < _len; _i++) {
             cell = row[_i];
             path = q.getPathInfo(cell.column);
-            replaces = cell.view != null ? (function() {
-              var _j, _len1, _ref1, _results1;
+            replaces = cell.view != null ? (commonPrefix = longestCommonPrefix(cell.view), path = q.getPathInfo(commonPrefix), replaces = (function() {
+              var _j, _len1, _ref2, _results1;
 
-              _ref1 = q.views;
+              _ref2 = cell.view;
               _results1 = [];
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                v = _ref1[_j];
-                if (v.indexOf(cell.column) === 0) {
-                  _results1.push(q.getPathInfo(v));
-                }
+              for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+                v = _ref2[_j];
+                _results1.push(q.getPathInfo(v));
               }
               return _results1;
-            })() : [];
+            })()) : [];
             _results.push({
               path: path,
               replaces: replaces
@@ -44980,48 +45146,36 @@ $.widget("ui.sortable", $.ui.mouse, {
             continue;
           }
           p = col.path;
-          col.isFormatted = true;
-          if ((_ref1 = replacedBy[_name = p.getParent()]) == null) {
+          if ((_ref2 = replacedBy[_name = p.getParent()]) == null) {
             replacedBy[_name] = col;
           }
           formatter = intermine.results.getFormatter(p);
-          col.formatter = formatter;
-          _ref3 = (_ref2 = formatter.replaces) != null ? _ref2 : [];
-          for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
-            r = _ref3[_j];
-            subPath = "" + (p.getParent()) + "." + r;
-            if ((_ref4 = replacedBy[subPath]) == null) {
-              replacedBy[subPath] = col;
-            }
-            if (__indexOf.call(q.views, subPath) >= 0) {
-              col.replaces.push(q.getPathInfo(subPath));
+          if (__indexOf.call(this.blacklistedFormatters, formatter) < 0) {
+            col.isFormatted = true;
+            col.formatter = formatter;
+            _ref4 = (_ref3 = formatter.replaces) != null ? _ref3 : [];
+            for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
+              r = _ref4[_j];
+              subPath = "" + (p.getParent()) + "." + r;
+              if ((_ref5 = replacedBy[subPath]) == null) {
+                replacedBy[subPath] = col;
+              }
+              if (__indexOf.call(q.views, subPath) >= 0) {
+                col.replaces.push(q.getPathInfo(subPath));
+              }
             }
           }
         }
         explicitReplacements = {};
         for (_k = 0, _len2 = cols.length; _k < _len2; _k++) {
           col = cols[_k];
-          _ref5 = col.replaces;
-          for (_l = 0, _len3 = _ref5.length; _l < _len3; _l++) {
-            r = _ref5[_l];
+          _ref6 = col.replaces;
+          for (_l = 0, _len3 = _ref6.length; _l < _len3; _l++) {
+            r = _ref6[_l];
             explicitReplacements[r] = col;
           }
         }
-        isReplaced = function(col) {
-          var replacer;
-
-          p = col.path;
-          if (!(intermine.results.shouldFormat(p) || explicitReplacements[p])) {
-            return false;
-          }
-          replacer = replacedBy[p];
-          if (p.isAttribute() && p.end.name === 'id') {
-            if (replacer == null) {
-              replacer = replacedBy[p.getParent()];
-            }
-          }
-          return replacer && col !== replacer;
-        };
+        isReplaced = getReplacedTest(replacedBy, explicitReplacements);
         _results = [];
         for (_m = 0, _len4 = cols.length; _m < _len4; _m++) {
           col = cols[_m];
@@ -45029,7 +45183,7 @@ $.widget("ui.sortable", $.ui.mouse, {
             continue;
           }
           if (col.isFormatted) {
-            if (_ref6 = col.path, __indexOf.call(col.replaces, _ref6) < 0) {
+            if (_ref7 = col.path, __indexOf.call(col.replaces, _ref7) < 0) {
               col.replaces.push(col.path);
             }
             col.path = col.path.getParent();
@@ -45040,16 +45194,16 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       ResultsTable.prototype.addColumnHeaders = function() {
-        var get, invoke, thead, tr, _ref1,
+        var thead, tr,
           _this = this;
 
-        _ref1 = intermine.funcutils, get = _ref1.get, invoke = _ref1.invoke;
         thead = $("<thead>");
         tr = $("<tr>");
         thead.append(tr);
         this.columnHeaders.each(function(model) {
           return _this.buildColumnHeader(model, tr);
         });
+        this.$el.children('thead').remove();
         return thead.appendTo(this.el);
       };
 
@@ -45454,20 +45608,29 @@ $.widget("ui.sortable", $.ui.mouse, {
           return _results;
         }).call(this);
         makeCell = function(obj) {
-          var args, field, model, node, _base, _name;
+          var args, field, model, node, type, _base, _name, _ref3, _ref4;
 
           if (_.has(obj, 'rows')) {
             node = _this.query.getPathInfo(obj.column);
             return new intermine.results.table.SubTable({
               query: _this.query,
               cellify: makeCell,
+              blacklistedFormatters: (_ref3 = (_ref4 = _this.table) != null ? _ref4.blacklistedFormatters : void 0) != null ? _ref3 : [],
               subtable: obj,
               node: node
             });
           } else {
             node = _this.query.getPathInfo(obj.column).getParent();
             field = obj.column.replace(/^.*\./, '');
-            model = obj.id != null ? (_base = _this.itemModels)[_name = obj.id] || (_base[_name] = new intermine.model.IMObject(_this.query, obj, field, base)) : obj["class"] == null ? new intermine.model.NullObject(_this.query, field) : new intermine.model.FPObject(_this.query, obj, field, node.getType().name);
+            model = obj.id != null ? (_base = _this.itemModels)[_name = obj.id] || (_base[_name] = new intermine.model.IMObject(_this.query, obj, field, base)) : obj["class"] == null ? (type = node.getParent().name, new intermine.model.NullObject({}, {
+              query: _this.query,
+              field: field,
+              type: type
+            })) : new intermine.model.FPObject({}, {
+              query: _this.query,
+              obj: obj,
+              field: field
+            });
             model.merge(obj, field);
             args = {
               model: model,
@@ -45872,9 +46035,17 @@ $.widget("ui.sortable", $.ui.mouse, {
   })();
 
   (function() {
-    var CELL_HTML, Cell, NullCell, SubTable, _ref, _ref1, _ref2;
+    var CELL_HTML, Cell, NullCell, SubTable, _CELL_HTML, _ref, _ref1, _ref2;
 
-    CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\"\n  <% if (checked) { %> checked <% } %>\n  <% if (disabled) { %> disabled <% } %>\n  style=\"display: <%= display %>\"\n>\n<a class=\"im-cell-link\" href=\"<%= url %>\">\n  <% if (url != null && !url.match(host)) { %>\n    <% if (icon) { %>\n      <img src=\"<%= icon %>\" class=\"im-external-link\"></img>\n    <% } else { %>\n      <i class=\"icon-globe\"></i>\n    <% } %>\n  <% } %>\n  <% if (value == null) { %>\n    <span class=\"null-value\">&nbsp;</span>\n  <% } else { %>\n    <span class=\"im-displayed-value\">\n      <%= value %>\n    </span>\n  <% } %>\n</a>\n<% if (field == 'url' && value != url) { %>\n    <a class=\"im-cell-link external\" href=\"<%= value %>\"><i class=\"icon-globe\"></i>link</a>\n<% } %>");
+    _CELL_HTML = _.template("<input class=\"list-chooser\" type=\"checkbox\"\n  <% if (checked) { %> checked <% } %>\n  <% if (disabled) { %> disabled <% } %>\n  style=\"display: <%= display %>\"\n>\n<a class=\"im-cell-link\" target=\"<%= target %>\" href=\"<%= url %>\">\n  <% if (isForeign) { %>\n    <% if (icon) { %>\n      <img src=\"<%= icon %>\" class=\"im-external-link\"></img>\n    <% } else { %>\n      <i class=\"icon-globe\"></i>\n    <% } %>\n  <% } %>\n  <% if (value == null) { %>\n    <span class=\"null-value\">&nbsp;</span>\n  <% } else { %>\n    <span class=\"im-displayed-value\">\n      <%= value %>\n    </span>\n  <% } %>\n</a>\n<% if (rawValue != null && field == 'url' && rawValue != url) { %>\n    <a class=\"im-cell-link external\" href=\"<%= rawValue %>\">\n      <i class=\"icon-globe\"></i>\n      link\n    </a>\n<% } %>");
+    CELL_HTML = function(data) {
+      var host, url;
+
+      url = data.url, host = data.host;
+      data.isForeign = url && !url.match(host);
+      data.target = data.isForeign ? '_blank' : '';
+      return _CELL_HTML(data);
+    };
     SubTable = (function(_super) {
       __extends(SubTable, _super);
 
@@ -45911,63 +46082,131 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       SubTable.prototype.getSummaryText = function() {
-        var level;
+        var def, level;
 
+        def = jQuery.Deferred();
         if (this.column.isCollection()) {
-          return "" + this.rows.length + " " + (this.column.getType().name) + "s";
+          def.resolve("" + this.rows.length + " " + (this.column.getType().name) + "s");
         } else {
           if (this.rows.length === 0) {
             level = this.query.isOuterJoined(this.view[0]) ? this.query.getPathInfo(this.query.getOuterJoin(this.view[0])) : this.column;
-            return "No " + (level.getType().name);
+            def.resolve("<span class=\"im-no-value\">No " + (level.getType().name) + "</span>");
           } else {
-            return "" + this.rows[0][0].value + " (" + (this.rows[0].slice(1).map(function(c) {
+            def.resolve("" + this.rows[0][0].value + " (" + (this.rows[0].slice(1).map(function(c) {
               return c.value;
-            }).join(', ')) + ")";
+            }).join(', ')) + ")");
           }
         }
+        return def.promise();
       };
 
-      SubTable.prototype.renderHead = function(headers) {
-        var columns, v, _i, _len, _results,
+      SubTable.prototype.getEffectiveView = function() {
+        var c, cell, col, columns, commonPrefix, explicitReplacements, fieldExpr, formatter, getFormatter, getReplacedTest, isReplaced, longestCommonPrefix, parent, path, r, replacedBy, replaces, row, shouldFormat, subPath, sv, view, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+
+        _ref1 = intermine.utils, getReplacedTest = _ref1.getReplacedTest, longestCommonPrefix = _ref1.longestCommonPrefix;
+        _ref2 = intermine.results, shouldFormat = _ref2.shouldFormat, getFormatter = _ref2.getFormatter;
+        row = this.rows[0];
+        replacedBy = {};
+        explicitReplacements = {};
+        columns = (function() {
+          var _i, _len, _ref3, _results;
+
+          _results = [];
+          for (_i = 0, _len = row.length; _i < _len; _i++) {
+            cell = row[_i];
+            _ref3 = cell.view != null ? (commonPrefix = longestCommonPrefix(cell.view), path = this.query.getPathInfo(commonPrefix), [
+              path, (function() {
+                var _j, _len1, _ref3, _results1;
+
+                _ref3 = cell.view;
+                _results1 = [];
+                for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+                  sv = _ref3[_j];
+                  _results1.push(this.query.getPathInfo(sv));
+                }
+                return _results1;
+              }).call(this)
+            ]) : (path = this.query.getPathInfo(cell.column), [path, [path]]), path = _ref3[0], replaces = _ref3[1];
+            _results.push({
+              path: path,
+              replaces: replaces
+            });
+          }
+          return _results;
+        }).call(this);
+        for (_i = 0, _len = columns.length; _i < _len; _i++) {
+          c = columns[_i];
+          if (!(c.path.isAttribute() && shouldFormat(c.path))) {
+            continue;
+          }
+          parent = c.path.getParent();
+          if ((_ref3 = replacedBy[parent]) == null) {
+            replacedBy[parent] = c;
+          }
+          formatter = getFormatter(c.path);
+          if (__indexOf.call(this.options.blacklistedFormatters, formatter) < 0) {
+            c.isFormatted = true;
+            c.formatter = formatter;
+            _ref5 = (_ref4 = formatter.replaces) != null ? _ref4 : [];
+            for (_j = 0, _len1 = _ref5.length; _j < _len1; _j++) {
+              fieldExpr = _ref5[_j];
+              subPath = this.query.getPathInfo("" + parent + "." + fieldExpr);
+              if ((_ref6 = replacedBy[subPath]) == null) {
+                replacedBy[subPath] = c;
+              }
+              c.replaces.push(subPath);
+            }
+          }
+          _ref7 = c.replaces;
+          for (_k = 0, _len2 = _ref7.length; _k < _len2; _k++) {
+            r = _ref7[_k];
+            explicitReplacements[r] = c;
+          }
+        }
+        isReplaced = getReplacedTest(replacedBy, explicitReplacements);
+        view = [];
+        for (_l = 0, _len3 = columns.length; _l < _len3; _l++) {
+          col = columns[_l];
+          if (!(!isReplaced(col))) {
+            continue;
+          }
+          if (col.isFormatted) {
+            col.path = col.path.getParent();
+          }
+          view.push(col);
+        }
+        return view;
+      };
+
+      SubTable.prototype.renderHead = function(headers, columns) {
+        var c, tableNamePromise, _i, _len, _results,
           _this = this;
 
-        columns = this.rows[0].map(function(cell) {
-          return cell.column;
-        });
+        tableNamePromise = this.column.getDisplayName();
         _results = [];
         for (_i = 0, _len = columns.length; _i < _len; _i++) {
-          v = columns[_i];
-          _results.push((function(v) {
-            var path, th;
+          c = columns[_i];
+          _results.push((function(c) {
+            var th;
 
             th = $("<th>\n    <i class=\"" + intermine.css.headerIconRemove + "\"></i>\n    <span></span>\n</th>");
             th.find('i').click(function(e) {
-              return _this.query.removeFromSelect(v);
+              return _this.query.removeFromSelect(c.replaces);
             });
-            path = _this.query.getPathInfo(v);
-            _this.column.getDisplayName(function(colName) {
-              var span;
+            $.when(tableNamePromise, c.path.getDisplayName()).then(function(tableName, colName) {
+              var span, text;
 
-              span = th.find('span');
-              if (intermine.results.shouldFormat(path)) {
-                path = path.getParent();
-              }
-              return path.getDisplayName(function(pathName) {
-                if (pathName.match(colName)) {
-                  return span.text(pathName.replace(colName, '').replace(/^\s*>?\s*/, ''));
-                } else {
-                  return span.text(pathName.replace(/^[^>]*\s*>\s*/, ''));
-                }
-              });
+              text = colName.match(tableName) ? colName.replace(tableName, '').replace(/^\s*>?\s*/, '') : colName.replace(/^[^>]*\s*>\s*/, '');
+              return span = th.find('span').text(text);
             });
             return headers.append(th);
-          })(v));
+          })(c));
         }
         return _results;
       };
 
-      SubTable.prototype.appendRow = function(row, tbody) {
-        var cell, tr, w, _fn, _i, _len,
+      SubTable.prototype.appendRow = function(columns, row, tbody) {
+        var c, cell, cells, processed, r, replacedBy, tr, w, _fn, _i, _j, _k, _len, _len1, _len2, _ref1,
           _this = this;
 
         if (tbody == null) {
@@ -45975,20 +46214,52 @@ $.widget("ui.sortable", $.ui.mouse, {
         }
         tr = $('<tr>');
         w = this.$el.width() / this.view.length;
-        _fn = function(tr, cell) {
-          var view;
-
-          view = _this.cellify(cell);
-          if (intermine.results.shouldFormat(view.path)) {
-            view.formatter = intermine.results.getFormatter(view.path);
-          } else {
-
+        processed = {};
+        replacedBy = {};
+        for (_i = 0, _len = columns.length; _i < _len; _i++) {
+          c = columns[_i];
+          _ref1 = c.replaces;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            r = _ref1[_j];
+            replacedBy[r] = c;
           }
-          tr.append(view.el);
-          return view.render().setWidth(w);
+        }
+        cells = row.map(this.cellify);
+        _fn = function(tr, cell) {
+          var formatter, otherC, path, replaces, _l, _len3, _len4, _m, _ref2, _ref3;
+
+          if (processed[cell.path]) {
+            return;
+          }
+          processed[cell.path] = true;
+          _ref3 = (_ref2 = replacedBy[cell.path]) != null ? _ref2 : {}, replaces = _ref3.replaces, formatter = _ref3.formatter, path = _ref3.path;
+          if (replaces.length > 1) {
+            if (!path.equals(cell.path.getParent())) {
+              return;
+            }
+            if ((formatter != null ? formatter.merge : void 0) != null) {
+              for (_l = 0, _len3 = row.length; _l < _len3; _l++) {
+                otherC = row[_l];
+                if (_.any(replaces, function(repl) {
+                  return repl.equals(otherC.path);
+                })) {
+                  formatter.merge(cell.model, otherC.model);
+                }
+              }
+            }
+          }
+          for (_m = 0, _len4 = replaces.length; _m < _len4; _m++) {
+            r = replaces[_m];
+            processed[r] = true;
+          }
+          if (formatter != null) {
+            cell.formatter = formatter;
+          }
+          tr.append(cell.el);
+          return cell.render().setWidth(w);
         };
-        for (_i = 0, _len = row.length; _i < _len; _i++) {
-          cell = row[_i];
+        for (_k = 0, _len2 = cells.length; _k < _len2; _k++) {
+          cell = cells[_k];
           _fn(tr, cell);
         }
         tbody.append(tr);
@@ -45996,7 +46267,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       SubTable.prototype.renderTable = function($table) {
-        var colRoot, colStr, row, tbody, _i, _len, _ref1;
+        var colRoot, colStr, columns, row, tbody, _i, _len, _ref1;
 
         if ($table == null) {
           $table = this.$('.im-subtable');
@@ -46007,16 +46278,17 @@ $.widget("ui.sortable", $.ui.mouse, {
         colRoot = this.column.getType().name;
         colStr = this.column.toString();
         if (this.rows.length > 0) {
-          this.renderHead($table.find('thead tr'));
+          columns = this.getEffectiveView();
+          this.renderHead($table.find('thead tr'), columns);
           tbody = $table.find('tbody');
           if (this.column.isCollection()) {
             _ref1 = this.rows;
             for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
               row = _ref1[_i];
-              _.defer(this.appendRow, row, tbody);
+              _.defer(this.appendRow, columns, row, tbody);
             }
           } else {
-            this.appendRow(this.rows[0], tbody);
+            this.appendRow(columns, this.rows[0], tbody);
           }
         }
         this.tableRendered = true;
@@ -46041,8 +46313,11 @@ $.widget("ui.sortable", $.ui.mouse, {
         var icon, summary;
 
         icon = this.rows.length > 0 ? '<i class=icon-table></i>' : '<i class=icon-non-existent></i>';
-        summary = $("<span class=\"im-subtable-summary\">\n  " + icon + "&nbsp;" + (this.getSummaryText()) + "\n</span>");
+        summary = $("<span class=\"im-subtable-summary\">\n  " + icon + "&nbsp;\n</span>");
         summary.appendTo(this.$el);
+        this.getSummaryText().done(function(content) {
+          return summary.append(content);
+        });
         this.$el.append("<table class=\"im-subtable table table-condensed table-striped\">\n  <thead><tr></tr></thead>\n  <tbody></tbody>\n</table>");
         return this;
       };
@@ -46121,7 +46396,6 @@ $.widget("ui.sortable", $.ui.mouse, {
             return (_ref2 = _this.model.cachedPopover) != null ? _ref2.detach() : void 0;
           },
           'click': 'activateChooser',
-          'click': 'reportClick',
           'click a.im-cell-link': function(e) {
             return e != null ? e.stopPropagation() : void 0;
           }
@@ -46282,6 +46556,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         field = this.options.field;
         data = {
           value: this.formatter(this.model),
+          rawValue: this.model.get(field),
           field: field,
           url: this.model.get('service:url'),
           host: IndicateOffHostLinks ? window.location.host : /.*/,
@@ -46326,6 +46601,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       Cell.prototype.activateChooser = function() {
         var selectable, selected, selecting, _ref2;
 
+        this.reportClick();
         _ref2 = this.model.selectionState(), selected = _ref2.selected, selectable = _ref2.selectable, selecting = _ref2.selecting;
         if (selectable && selecting) {
           return this.model.set({
@@ -46645,10 +46921,11 @@ $.widget("ui.sortable", $.ui.mouse, {
         css_hide: intermine.css.headerIconHide,
         css_reveal: intermine.css.headerIconReveal,
         css_filter: intermine.icons.Filter,
-        css_summary: intermine.icons.Summary
+        css_summary: intermine.icons.Summary,
+        css_composed: intermine.icons.Composed
       };
     };
-    TEMPLATE = _.template(" \n<div class=\"im-column-header\">\n  <div class=\"im-th-buttons\">\n    <% if (sortable) { %>\n      <a href=\"#\" class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n        <i class=\"icon-sorting <%- css_unsorted %> <%- css_header %>\"></i>\n      </a>\n    <% }; %>\n    <a href=\"#\" class=\"im-th-button im-col-remover\"\n       title=\"remove this column\">\n      <i class=\"<%- css_remove %> <%- css_header %>\"></i>\n    </a>\n    <a href=\"#\" class=\"im-th-button im-col-minumaximiser\"\n       title=\"Toggle column\">\n      <i class=\"<%- css_hide %> <%- css_header %>\"></i>\n    </a>\n    <span class=\"dropdown im-filter-summary im-th-dropdown\">\n      <a href=\"#\" class=\"im-th-button im-col-filters dropdown-toggle\"\n         title=\"\"\n         data-toggle=\"dropdown\" >\n        <i class=\"<%- css_filter %> <%- css_header %>\"></i>\n      </a>\n      <div class=\"dropdown-menu\">\n        <div>Could not ititialise the filter summary.</div>\n      </div>\n    </span>\n    <span class=\"dropdown im-summary im-th-dropdown\">\n      <a href=\"#\" class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n        data-toggle=\"dropdown\" >\n        <i class=\"<%- css_summary %> <%- css_header %>\"></i>\n      </a>\n      <div class=\"dropdown-menu\">\n        <div>Could not ititialise the column summary.</div>\n      </div>\n    </span>\n  </div>\n  <div style=\"clear:both\"></div>\n  <div class=\"im-col-title\">\n    <%- path %>\n  </div>\n</div>");
+    TEMPLATE = _.template(" \n<div class=\"im-column-header\">\n  <div class=\"im-th-buttons\">\n    <% if (sortable) { %>\n      <span class=\"im-th-dropdown im-col-sort dropdown\">\n        <a href=\"#\" class=\"im-th-button im-col-sort-indicator\" title=\"sort this column\">\n          <i class=\"icon-sorting <%- css_unsorted %> <%- css_header %>\"></i>\n        </a>\n        <div class=\"dropdown-menu\">\n          <div>Could not intitialise the sorting menu.</div>\n        </div>\n      </span>\n    <% }; %>\n    <a href=\"#\" class=\"im-th-button im-col-remover\"\n       title=\"remove this column\">\n      <i class=\"<%- css_remove %> <%- css_header %>\"></i>\n    </a>\n    <a href=\"#\" class=\"im-th-button im-col-minumaximiser\"\n       title=\"Toggle column visibility\">\n      <i class=\"<%- css_hide %> <%- css_header %>\"></i>\n    </a>\n    <span class=\"dropdown im-filter-summary im-th-dropdown\">\n      <a href=\"#\" class=\"im-th-button im-col-filters dropdown-toggle\"\n         title=\"\"\n         data-toggle=\"dropdown\" >\n        <i class=\"<%- css_filter %> <%- css_header %>\"></i>\n      </a>\n      <div class=\"dropdown-menu\">\n        <div>Could not ititialise the filter summary.</div>\n      </div>\n    </span>\n    <span class=\"dropdown im-summary im-th-dropdown\">\n      <a href=\"#\" class=\"im-th-button summary-img dropdown-toggle\" title=\"column summary\"\n        data-toggle=\"dropdown\" >\n        <i class=\"<%- css_summary %> <%- css_header %>\"></i>\n      </a>\n      <div class=\"dropdown-menu\">\n        <div>Could not ititialise the column summary.</div>\n      </div>\n    </span>\n    <a href=\"#\" class=\"im-th-button im-col-composed\"\n        title=\"Toggle formatting\">\n      <i class=\"<%- css_composed %> <%- css_header %>\"></i>\n    </a>\n  </div>\n  <div class=\"im-col-title\">\n    <%- path %>\n  </div>\n</div>");
     COL_FILTER_TITLE = function(count) {
       if (count > 0) {
         return "" + count + " active filters";
@@ -46662,6 +46939,8 @@ $.widget("ui.sortable", $.ui.mouse, {
       DESC: 'ASC'
     };
     ColumnHeader = (function(_super) {
+      var firstResult, getCompositionTitle;
+
       __extends(ColumnHeader, _super);
 
       function ColumnHeader() {
@@ -46675,7 +46954,8 @@ $.widget("ui.sortable", $.ui.mouse, {
         this.bestFit = __bind(this.bestFit, this);
         this.displaySortDirection = __bind(this.displaySortDirection, this);
         this.displayConCount = __bind(this.displayConCount, this);
-        this.updateModel = __bind(this.updateModel, this);        _ref = ColumnHeader.__super__.constructor.apply(this, arguments);
+        this.updateModel = __bind(this.updateModel, this);
+        this.renderName = __bind(this.renderName, this);        _ref = ColumnHeader.__super__.constructor.apply(this, arguments);
         return _ref;
       }
 
@@ -46716,48 +46996,78 @@ $.widget("ui.sortable", $.ui.mouse, {
             });
           }
         });
+        this.query.on('showing:column-summary', function(path) {
+          var _ref1;
+
+          if (!path.equals(_this.model.get('path'))) {
+            return (_ref1 = _this.summary) != null ? _ref1.remove() : void 0;
+          }
+        });
         this.model.on('change:conCount', this.displayConCount);
         return this.model.on('change:direction', this.displaySortDirection);
       };
 
+      getCompositionTitle = function(replaces) {
+        return "This column replaces " + replaces.length + " others. Click here\nto show the individual columns separately.";
+      };
+
+      ColumnHeader.prototype.renderName = function() {
+        var ancestors, content, last, p, parentType, parts, penult, title, _i, _ref1;
+
+        _ref1 = parts = this.model.get('name').split(' > '), ancestors = 3 <= _ref1.length ? __slice.call(_ref1, 0, _i = _ref1.length - 2) : (_i = 0, []), penult = _ref1[_i++], last = _ref1[_i++];
+        parentType = ancestors.length ? 'non-root' : 'root';
+        parts = (function() {
+          var _j, _len, _results;
+
+          _results = [];
+          for (_j = 0, _len = parts.length; _j < _len; _j++) {
+            p = parts[_j];
+            _results.push("<span class=\"im-name-part\">" + p + "</span>");
+          }
+          return _results;
+        })();
+        content = RENDER_TITLE({
+          penult: penult,
+          last: last,
+          parentType: parentType
+        });
+        title = parts.join('');
+        return this.$('.im-col-title').html(content).popover({
+          title: title,
+          placement: 'bottom',
+          html: true
+        });
+      };
+
+      ColumnHeader.prototype.isComposed = function() {
+        if (this.query.isOuterJoined(this.view)) {
+          return false;
+        }
+        return (this.model.get('replaces') || []).length > 1;
+      };
+
       ColumnHeader.prototype.render = function() {
-        var _this = this;
+        var replaces,
+          _this = this;
 
         this.$el.empty();
         this.$el.append(this.html());
         this.displayConCount();
         this.displaySortDirection();
-        this.namePromise.done(function() {
-          var ancestors, last, p, parentType, parts, penult, _i, _ref1;
-
-          _ref1 = parts = _this.model.get('name').split(' > '), ancestors = 3 <= _ref1.length ? __slice.call(_ref1, 0, _i = _ref1.length - 2) : (_i = 0, []), penult = _ref1[_i++], last = _ref1[_i++];
-          parentType = ancestors.length ? 'non-root' : 'root';
-          parts = (function() {
-            var _j, _len, _results;
-
-            _results = [];
-            for (_j = 0, _len = parts.length; _j < _len; _j++) {
-              p = parts[_j];
-              _results.push("<span class=\"im-name-part\">" + p + "</span>");
-            }
-            return _results;
-          })();
-          return _this.$('.im-col-title').html(RENDER_TITLE({
-            penult: penult,
-            last: last,
-            parentType: parentType
-          })).popover({
-            placement: 'bottom',
-            html: true,
-            title: parts.join('')
-          });
+        this.namePromise.done(this.renderName);
+        this.$('.summary-img').click(this.showColumnSummary);
+        this.$('.im-col-filters').click(this.showFilterSummary);
+        replaces = this.model.get('replaces');
+        this.$('.im-col-composed').attr({
+          title: getCompositionTitle(replaces)
+        }).click(function() {
+          return _this.query.trigger('formatter:blacklist', _this.view, _this.model.get('formatter'));
         });
+        this.$el.toggleClass('im-is-composed', this.isComposed());
         this.$('.im-th-button').tooltip({
           placement: this.bestFit,
           container: this.el
         });
-        this.$('.summary-img').click(this.showColumnSummary);
-        this.$('.im-col-filters').click(this.showFilterSummary);
         this.$('.dropdown .dropdown-toggle').dropdown();
         if (!this.model.get('path').isAttribute() && this.query.isOuterJoined(this.view)) {
           this.addExpander();
@@ -46765,12 +47075,17 @@ $.widget("ui.sortable", $.ui.mouse, {
         return this;
       };
 
+      firstResult = _.compose(_.first, _.compact, _.map);
+
       ColumnHeader.prototype.updateModel = function() {
-        var _ref1,
+        var direction,
           _this = this;
 
+        direction = firstResult(this.model.get('replaces').concat(this.view), function(p) {
+          return _this.query.getSortDirection(p);
+        });
         return this.model.set({
-          direction: this.query.getSortDirection((_ref1 = this.model.get('replaces')[0]) != null ? _ref1 : this.view),
+          direction: direction,
           sortable: !this.query.isOuterJoined(this.view),
           conCount: _.size(_.filter(this.query.constraints, function(c) {
             return !!c.path.match(_this.view);
@@ -46810,10 +47125,9 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       ColumnHeader.prototype.events = {
-        'click .im-col-sort-indicator': 'setSortOrder',
+        'click .im-col-sort': 'setSortOrder',
         'click .im-col-minumaximiser': 'toggleColumnVisibility',
         'click .im-col-filters': 'showFilterSummary',
-        'click .im-summary': 'showColumnSummary',
         'click .im-subtable-expander': 'toggleSubTable',
         'click .im-col-remover': 'removeColumn',
         'toggle .im-th-button': 'summaryToggled'
@@ -46879,8 +47193,12 @@ $.widget("ui.sortable", $.ui.mouse, {
           ignore(e);
           _this.checkHowFarOver(e != null ? $(e.currentTarget) : _this.$el);
           if (!_this.$(selector).hasClass('open')) {
-            summary = new View(_this.query, _this.model.get('path'));
+            _this.query.trigger('showing:column-summary', _this.model.get('path'));
+            summary = new View(_this.query, _this.model.get('path'), _this.model);
             $menu = _this.$(selector + ' .dropdown-menu');
+            if (!$menu.length) {
+              console.log("" + selector + " not found");
+            }
             $menu.html(summary.el);
             summary.render();
             _this.summary = summary;
@@ -46892,7 +47210,7 @@ $.widget("ui.sortable", $.ui.mouse, {
       ColumnHeader.prototype.showColumnSummary = function(e) {
         var cls;
 
-        cls = this.model.get('path').isAttribute() ? intermine.query.results.DropDownColumnSummary : intermine.query.results.OuterJoinDropDown;
+        cls = this.path().isAttribute() ? intermine.query.results.DropDownColumnSummary : intermine.query.results.OuterJoinDropDown;
         return this.showSummary('.im-summary', cls)(e);
       };
 
@@ -46921,39 +47239,27 @@ $.widget("ui.sortable", $.ui.mouse, {
         return this.$('.im-col-title').toggle(!minimised);
       };
 
-      ColumnHeader.prototype.setSortOrder = function(e) {
-        var currentDirection, direction, path, _ref1;
+      ColumnHeader.prototype.path = function() {
+        return this.model.get('path');
+      };
 
-        if (e != null) {
-          e.preventDefault();
-        }
-        if (e != null) {
-          e.stopPropagation();
-        }
-        currentDirection = this.model.get('direction');
-        direction = (_ref1 = NEXT_DIRECTION_OF[currentDirection]) != null ? _ref1 : 'ASC';
-        if (this.model.get('replaces').length === 0) {
+      ColumnHeader.prototype.setSortOrder = function(e) {
+        var direction, formatter, replaces, _ref1, _ref2;
+
+        _ref1 = this.model.toJSON(), direction = _ref1.direction, replaces = _ref1.replaces;
+        direction = (_ref2 = NEXT_DIRECTION_OF[direction]) != null ? _ref2 : 'ASC';
+        formatter = intermine.results.getFormatter(this.path());
+        if (replaces.length) {
+          this.showSummary('.im-col-sort', intermine.query.FormattedSorting)(e);
+          return this.$('.im-col-sort').toggleClass('open');
+        } else {
+          this.$('.im-col-sort').removeClass('open');
           return this.query.orderBy([
             {
               path: this.view,
               direction: direction
             }
           ]);
-        } else {
-          return this.query.orderBy((function() {
-            var _i, _len, _ref2, _results;
-
-            _ref2 = this.model.get('replaces');
-            _results = [];
-            for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-              path = _ref2[_i];
-              _results.push({
-                path: path,
-                direction: direction
-              });
-            }
-            return _results;
-          }).call(this));
         }
       };
 
@@ -47102,7 +47408,10 @@ $.widget("ui.sortable", $.ui.mouse, {
         return _ref1;
       }
 
-      NullObject.prototype.initialize = function(query, field, type) {
+      NullObject.prototype.initialize = function(_, _arg) {
+        var field, query, type;
+
+        query = _arg.query, field = _arg.field, type = _arg.type;
         this.set({
           'id': null,
           'obj:type': type,
@@ -47130,7 +47439,11 @@ $.widget("ui.sortable", $.ui.mouse, {
         return _ref2;
       }
 
-      FPObject.prototype.initialize = function(query, obj, field) {
+      FPObject.prototype.initialize = function(_arg, _arg1) {
+        var field, obj, query;
+
+        _arg;
+        query = _arg1.query, obj = _arg1.obj, field = _arg1.field;
         this.set({
           'id': null,
           'obj:type': obj["class"],
@@ -47440,12 +47753,34 @@ $.widget("ui.sortable", $.ui.mouse, {
       __extends(FrequencyFacet, _super);
 
       function FrequencyFacet() {
-        this.addItem = __bind(this.addItem, this);        _ref2 = FrequencyFacet.__super__.constructor.apply(this, arguments);
+        this.addItem = __bind(this.addItem, this);
+        this.showMore = __bind(this.showMore, this);        _ref2 = FrequencyFacet.__super__.constructor.apply(this, arguments);
         return _ref2;
       }
 
+      FrequencyFacet.prototype.showMore = function(e) {
+        var areVisible, got, more,
+          _this = this;
+
+        more = $(e.target);
+        got = this.$('dd').length();
+        areVisible = this.$('dd').first().is(':visible');
+        e.stopPropagation();
+        e.preventDefault();
+        return this.query.summarise(this.facet.path, function(items) {
+          var item, _i, _len, _ref3;
+
+          _ref3 = items.slice(got);
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            item = _ref3[_i];
+            _this.addItem(item).toggle(areVisible);
+          }
+          return more.tooltip('hide').remove();
+        });
+      };
+
       FrequencyFacet.prototype.render = function(filterTerm) {
-        var $progress, getSummary, limit,
+        var $progress, getSummary, limit, placement,
           _this = this;
 
         if (filterTerm == null) {
@@ -47462,8 +47797,9 @@ $.widget("ui.sortable", $.ui.mouse, {
         getSummary = this.query.filterSummary(this.facet.path, filterTerm, this.limit);
         getSummary.fail(this.remove);
         limit = this.limit;
+        placement = 'left';
         return getSummary.done(function(results, stats, count) {
-          var Vizualization, hasMore, more, summaryView, _ref3;
+          var Vizualization, hasMore, summaryView, _ref3;
 
           _this.query.trigger('got:summary:total', _this.facet.path, stats.uniqueValues, results.length, count);
           $progress.remove();
@@ -47472,26 +47808,9 @@ $.widget("ui.sortable", $.ui.mouse, {
           }
           hasMore = results.length < limit ? false : stats.uniqueValues > limit;
           if (hasMore) {
-            more = $(MORE_FACETS_HTML).appendTo(_this.$dt).tooltip({
-              placement: 'left'
-            }).click(function(e) {
-              var areVisible, got;
-
-              e.stopPropagation();
-              e.preventDefault();
-              got = _this.$('dd').length();
-              areVisible = _this.$('dd').first().is(':visible');
-              return _this.query.summarise(_this.facet.path, function(items) {
-                var item, _i, _len, _ref4;
-
-                _ref4 = items.slice(got);
-                for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-                  item = _ref4[_i];
-                  _this.addItem(item).toggle(areVisible);
-                }
-                return more.tooltip('hide').remove();
-              });
-            });
+            $(MORE_FACETS_HTML).appendTo(_this.$dt).tooltip({
+              placement: placement
+            }).click(_this.showMore);
           }
           summaryView = stats.uniqueValues <= 1 ? (_this.$el.empty(), stats.uniqueValues ? intermine.snippets.facets.OnlyOne(results[0]) : "No results") : (Vizualization = _this.getVizualization(stats), new Vizualization(_this.query, _this.facet, results, hasMore, filterTerm));
           _this.$el.append(summaryView.el ? summaryView.el : summaryView);
@@ -47565,9 +47884,27 @@ $.widget("ui.sortable", $.ui.mouse, {
         return _.extend({}, this._defaults, this.attributes);
       };
 
+      NumericRange.prototype.nullify = function() {
+        var evt, _i, _len, _ref4, _results;
+
+        this.set({
+          min: null,
+          max: null
+        });
+        this.nulled = true;
+        _ref4 = ['change:min', 'change:max', 'change'];
+        _results = [];
+        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+          evt = _ref4[_i];
+          _results.push(this.trigger(evt, this));
+        }
+        return _results;
+      };
+
       NumericRange.prototype.set = function(name, value) {
         var meth;
 
+        this.nulled = false;
         if (_.isString(name) && (name in this._defaults)) {
           meth = name === 'min' ? 'max' : 'min';
           return NumericRange.__super__.set.call(this, name, Math[meth](this._defaults[name], value));
@@ -47579,6 +47916,9 @@ $.widget("ui.sortable", $.ui.mouse, {
       NumericRange.prototype.isNotAll = function() {
         var max, min, _ref4;
 
+        if (this.nulled) {
+          return true;
+        }
         _ref4 = this.toJSON(), min = _ref4.min, max = _ref4.max;
         return ((min != null) && min !== this._defaults.min) || ((max != null) && max !== this._defaults.max);
       };
@@ -47587,6 +47927,8 @@ $.widget("ui.sortable", $.ui.mouse, {
 
     })(Backbone.Model);
     NumericFacet = (function(_super) {
+      var fracWithinRange, getPartialCount, sumCounts;
+
       __extends(NumericFacet, _super);
 
       function NumericFacet() {
@@ -47610,14 +47952,30 @@ $.widget("ui.sortable", $.ui.mouse, {
           var width, _ref5;
 
           if (_this.shouldDrawBox()) {
-            x = _this.xForVal(_this.range.get('min'));
-            width = _this.xForVal(_this.range.get('max')) - x;
-            return _this.drawSelection(x, width);
+            if (_this.range.nulled) {
+              return _this.drawSelection(0, 25);
+            } else {
+              x = _this.xForVal(_this.range.get('min'));
+              width = _this.xForVal(_this.range.get('max')) - x;
+              return _this.drawSelection(x, width);
+            }
           } else {
             if ((_ref5 = _this.selection) != null) {
               _ref5.remove();
             }
             return _this.selection = null;
+          }
+        });
+        this.range.on('change', function() {
+          var _ref5;
+
+          if (_this.range.isNotAll()) {
+            return _this.drawEstCount();
+          } else {
+            if ((_ref5 = _this.estCount) != null) {
+              _ref5.remove();
+            }
+            return _this.estCount = null;
           }
         });
         this.range.on('reset', function() {
@@ -47646,6 +48004,9 @@ $.widget("ui.sortable", $.ui.mouse, {
           return _this.range.on("change:" + prop, function(m, val) {
             var _ref6, _ref7;
 
+            if (m.nulled) {
+              _this.$("input.im-range-" + prop).val("null");
+            }
             if (val == null) {
               return;
             }
@@ -47663,7 +48024,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         return this.range.on('change', function() {
           var changed;
 
-          changed = _this.range.get('min') > _this.min || _this.range.get('max') < _this.max;
+          changed = _this.range.isNotAll();
           return _this.$('.btn').toggleClass("disabled", !changed);
         });
       };
@@ -47696,17 +48057,26 @@ $.widget("ui.sortable", $.ui.mouse, {
         this.query.constraints = _(this.query.constraints).filter(function(c) {
           return c.path !== fpath;
         });
-        newConstraints = [
-          {
-            path: this.facet.path,
-            op: ">=",
-            value: this.range.get('min')
-          }, {
-            path: this.facet.path,
-            op: "<=",
-            value: this.range.get('max')
-          }
-        ];
+        if (this.range.nulled) {
+          newConstraints = [
+            {
+              path: this.facet.path,
+              op: 'IS NULL'
+            }
+          ];
+        } else {
+          newConstraints = [
+            {
+              path: this.facet.path,
+              op: ">=",
+              value: this.range.get('min')
+            }, {
+              path: this.facet.path,
+              op: "<=",
+              value: this.range.get('max')
+            }
+          ];
+        }
         return this.query.addConstraints(newConstraints);
       };
 
@@ -47876,15 +48246,20 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       NumericFacet.prototype.drawChart = function(items) {
+        var _this = this;
+
         if (typeof d3 !== "undefined" && d3 !== null) {
-          return this._drawD3Chart(items);
+          return setTimeout((function() {
+            return _this._drawD3Chart(items);
+          }), 0);
         }
       };
 
       NumericFacet.prototype._drawD3Chart = function(items) {
-        var axis, bottomMargin, chart, container, h, most, n, rects, rightMargin, val, xToVal, y,
+        var axis, barClickHandler, bottomMargin, bucketRange, bucketVal, chart, container, getTitle, h, item, most, n, rects, rightMargin, val, xToVal, y, _i, _len,
           _this = this;
 
+        this.items = items;
         bottomMargin = 18;
         rightMargin = 14;
         n = items[0].buckets + 1;
@@ -47900,23 +48275,73 @@ $.widget("ui.sortable", $.ui.mouse, {
         val = function(x) {
           return _this.round(xToVal(x));
         };
+        bucketVal = function(x) {
+          var raw;
+
+          raw = val(x);
+          if (raw < _this.min) {
+            return _this.min;
+          } else if (raw > _this.max) {
+            return _this.max;
+          } else {
+            return raw;
+          }
+        };
+        bucketRange = function(bucket) {
+          var delta, max, min, _ref5, _ref6;
+
+          if (bucket != null) {
+            _ref5 = (function() {
+              var _i, _len, _ref5, _results;
+
+              _ref5 = [0, 1];
+              _results = [];
+              for (_i = 0, _len = _ref5.length; _i < _len; _i++) {
+                delta = _ref5[_i];
+                _results.push(bucketVal(bucket + delta));
+              }
+              return _results;
+            })(), min = _ref5[0], max = _ref5[1];
+          } else {
+            _ref6 = [0 - bucketVal(2), bucketVal(1)], min = _ref6[0], max = _ref6[1];
+          }
+          return {
+            min: min,
+            max: max
+          };
+        };
+        getTitle = function(item) {
+          var brange, title;
+
+          return title = item.bucket != null ? (brange = bucketRange(item.bucket), "" + brange.min + " >= x < " + brange.max + ": " + item.count + " items") : "x is null: " + item.count + " items";
+        };
         this.paper = chart = d3.select(this.canvas).append('svg').attr('class', 'chart').attr('width', this.w).attr('height', h);
         container = this.canvas;
+        barClickHandler = function(d, i) {
+          var _ref5, _ref6;
+
+          if (d.bucket != null) {
+            return (_ref5 = _this.range) != null ? _ref5.set(bucketRange(d.bucket)) : void 0;
+          } else {
+            return (_ref6 = _this.range) != null ? _ref6.nullify() : void 0;
+          }
+        };
+        for (_i = 0, _len = items.length; _i < _len; _i++) {
+          item = items[_i];
+          if (item.bucket != null) {
+            item.brange = bucketRange(item.bucket);
+          }
+        }
         chart.selectAll('rect').data(items).enter().append('rect').attr('x', function(d, i) {
           return x(d.bucket) - 0.5;
         }).attr('y', h - bottomMargin).attr('width', function(d) {
           return x(d.bucket + 1) - x(d.bucket);
-        }).attr('height', 0).on('click', function(d, i) {
-          var _ref5;
-
-          return (_ref5 = _this.range) != null ? _ref5.set({
-            min: val(d.bucket),
-            max: val(d.bucket + 1)
-          }) : void 0;
-        }).each(function(d, i) {
+        }).attr('height', 0).classed('im-null-bucket', function(d) {
+          return d.bucket === null;
+        }).on('click', barClickHandler).each(function(d, i) {
           var title;
 
-          title = "" + (val(d.bucket)) + " >= x < " + (val(d.bucket + 1)) + ": " + d.count + " items";
+          title = getTitle(d);
           return $(this).tooltip({
             title: title,
             container: container
@@ -47933,6 +48358,68 @@ $.widget("ui.sortable", $.ui.mouse, {
         return this;
       };
 
+      NumericFacet.prototype.drawEstCount = function() {
+        var _ref5;
+
+        if ((_ref5 = this.estCount) != null) {
+          _ref5.remove();
+        }
+        if (typeof d3 === "undefined" || d3 === null) {
+          return false;
+        }
+        return this.estCount = this.paper.append('text').classed('im-est-count', true).attr('x', this.w * 0.75).attr('y', 22).text("~" + (this.estimateCount()));
+      };
+
+      sumCounts = function(xs) {
+        return _.reduce(xs, (function(total, x) {
+          return total + x.count;
+        }), 0);
+      };
+
+      fracWithinRange = function(range, min, max) {
+        var overlap, rangeSize;
+
+        if (!range) {
+          return 0;
+        }
+        rangeSize = range.max - range.min;
+        overlap = range.min < min ? Math.min(range.max, max) - min : max - Math.max(range.min, min);
+        return overlap / rangeSize;
+      };
+
+      getPartialCount = function(min, max) {
+        return function(item) {
+          if (item != null) {
+            return item.count * fracWithinRange(item.brange, min, max);
+          } else {
+            return 0;
+          }
+        };
+      };
+
+      NumericFacet.prototype.estimateCount = function() {
+        var fullBuckets, left, max, min, partialLeft, partialRight, right, _ref5, _ref6;
+
+        if (this.range.nulled) {
+          return sumCounts(this.items.filter(function(i) {
+            return i.bucket === null;
+          }));
+        } else {
+          _ref5 = this.range.toJSON(), min = _ref5.min, max = _ref5.max;
+          fullBuckets = sumCounts(this.items.filter(function(i) {
+            return (i.brange != null) && i.brange.min >= min && i.brange.max <= max;
+          }));
+          partialLeft = this.items.filter(function(i) {
+            return (i.brange != null) && i.brange.min < min && i.brange.max > min;
+          })[0];
+          partialRight = this.items.filter(function(i) {
+            return (i.brange != null) && i.brange.max > max && i.brange.min < max;
+          })[0];
+          _ref6 = [partialLeft, partialRight].map(getPartialCount(min, max)), left = _ref6[0], right = _ref6[1];
+          return this.round(fullBuckets + left + right);
+        }
+      };
+
       NumericFacet.prototype.drawSelection = function(x, width) {
         var _ref5;
 
@@ -47943,7 +48430,7 @@ $.widget("ui.sortable", $.ui.mouse, {
           return;
         }
         if (typeof d3 !== "undefined" && d3 !== null) {
-          return this.selection = this.paper.append('svg:rect').attr('x', x).attr('y', 0).attr('width', width).attr('height', this.chartHeight).attr('class', 'rubberband-selection');
+          return this.selection = this.paper.append('svg:rect').attr('x', x).attr('y', 0).attr('width', width).attr('height', this.chartHeight * 0.9).classed('rubberband-selection', true);
         } else {
           return console.error("Cannot draw selection without SVG lib");
         }
@@ -47955,7 +48442,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 
     })(FacetView);
     PieFacet = (function(_super) {
-      var basicOps, negateOps;
+      var IGNORE_E, basicOps, getChartPalette, negateOps;
 
       __extends(PieFacet, _super);
 
@@ -48015,10 +48502,17 @@ $.widget("ui.sortable", $.ui.mouse, {
         return ret;
       };
 
+      IGNORE_E = function(e) {
+        console.log("Ignoring an event");
+        e.preventDefault();
+        return e.stopPropagation();
+      };
+
       PieFacet.prototype.events = function() {
         var _this = this;
 
         return {
+          'submit .im-facet form': IGNORE_E,
           'click .im-filter .btn-cancel': 'resetOptions',
           'click .im-filter .btn-toggle-selection': 'toggleSelection',
           'click .im-export-summary': 'exportSummary',
@@ -48030,7 +48524,8 @@ $.widget("ui.sortable", $.ui.mouse, {
             return _this.addConstraint(e, negateOps(basicOps));
           },
           'keyup .im-filter-values': 'filterItems',
-          'click .im-clear-value-filter': 'clearValueFilter'
+          'click .im-clear-value-filter': 'clearValueFilter',
+          'click': IGNORE_E
         };
       };
 
@@ -48203,14 +48698,34 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       PieFacet.prototype.addChart = function() {
+        var _this = this;
+
+        this.chartElem = this.make("div");
+        this.$el.append(this.chartElem);
         if (typeof d3 !== "undefined" && d3 !== null) {
-          this._drawD3Chart();
+          setTimeout((function() {
+            return _this._drawD3Chart();
+          }), 0);
         }
         return this;
       };
 
+      getChartPalette = function() {
+        var PieColors, paint;
+
+        PieColors = intermine.options.PieColors;
+        if (_.isFunction(PieColors)) {
+          paint = PieColors;
+        } else {
+          paint = d3.scale[PieColors]();
+        }
+        return function(d, i) {
+          return paint(i);
+        };
+      };
+
       PieFacet.prototype._drawD3Chart = function() {
-        var PieColors, arc, arc_group, centre_group, chart, colour, donut, elem, getTween, h, ir, label_group, paint, paths, percent, r, total, w, whiteCircle,
+        var arc, arc_group, centre_group, chart, colour, donut, getTween, h, ir, label_group, paths, percent, r, total, w, whiteCircle,
           _this = this;
 
         h = this.chartHeight;
@@ -48220,18 +48735,8 @@ $.widget("ui.sortable", $.ui.mouse, {
         donut = d3.layout.pie().value(function(d) {
           return d.get('count');
         });
-        PieColors = intermine.options.PieColors;
-        if (_.isFunction(PieColors)) {
-          paint = PieColors;
-        } else {
-          paint = d3.scale[PieColors]();
-        }
-        colour = function(d, i) {
-          return paint(i);
-        };
-        elem = this.make("div");
-        this.$el.append(elem);
-        chart = d3.select(elem).append('svg').attr('class', 'chart').attr('height', h).attr('width', w);
+        colour = getChartPalette();
+        chart = d3.select(this.chartElem).append('svg').attr('class', 'chart').attr('height', h).attr('width', w);
         arc = d3.svg.arc().startAngle(function(d) {
           return d.startAngle;
         }).endAngle(function(d) {
@@ -48288,7 +48793,7 @@ $.widget("ui.sortable", $.ui.mouse, {
           return $(this).tooltip({
             title: title,
             placement: placement,
-            container: elem
+            container: this.chartElem
           });
         });
         paths.transition().duration(intermine.options.D3.Transition.Duration).ease(intermine.options.D3.Transition.Easing).attrTween("d", getTween);
@@ -48359,10 +48864,8 @@ $.widget("ui.sortable", $.ui.mouse, {
           trigger: 'manual'
         });
         imd.click(function(e) {
-          console.log("popping over", e);
           return imd.popover('toggle');
         });
-        console.log(imd);
         this.initFilter();
         $grp.appendTo(this.el);
         return this;
@@ -48479,16 +48982,20 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       FacetRow.prototype.onChangeSelected = function() {
-        var isSelected;
+        var f, isSelected,
+          _this = this;
 
         isSelected = !!this.item.get("selected");
         if (this.item.has("path")) {
           item.get("path").node.setAttribute("class", isSelected ? "selected" : "");
         }
-        this.$el.toggleClass("active", isSelected);
-        if (isSelected !== this.$('input').prop("checked")) {
-          return this.$('input').prop("checked", isSelected);
-        }
+        f = function() {
+          _this.$el.toggleClass("active", isSelected);
+          if (isSelected !== _this.$('input').prop("checked")) {
+            return _this.$('input').prop("checked", isSelected);
+          }
+        };
+        return setTimeout(f, 0);
       };
 
       FacetRow.prototype.events = {
@@ -48518,8 +49025,12 @@ $.widget("ui.sortable", $.ui.mouse, {
       };
 
       FacetRow.prototype.handleChange = function(e) {
+        var _this = this;
+
         e.stopPropagation();
-        return this.item.set("selected", this.$('input').is(':checked'));
+        return setTimeout((function() {
+          return _this.item.set("selected", _this.$('input').is(':checked'));
+        }), 0);
       };
 
       return FacetRow;
@@ -48543,12 +49054,6 @@ $.widget("ui.sortable", $.ui.mouse, {
 
       HistoFacet.prototype.columnHeaders = [' ', 'Item', 'Count'];
 
-      HistoFacet.prototype.addChart = function() {
-        if (typeof d3 !== "undefined" && d3 !== null) {
-          return this._drawD3Chart();
-        }
-      };
-
       HistoFacet.prototype._drawD3Chart = function() {
         var chart, data, f, h, itemW, max, n, onSelection, rectClass, rects, w, y,
           _this = this;
@@ -48567,9 +49072,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         max = f.get("count");
         x = d3.scale.linear().domain([0, n]).range([this.leftMargin, w]);
         y = d3.scale.linear().domain([0, max]).rangeRound([0, h]);
-        chart = this.make("div");
-        this.$el.append(chart);
-        chart = d3.select(chart).append('svg').attr('class', 'chart').attr('width', w).attr('height', h);
+        chart = d3.select(this.chartElem).append('svg').attr('class', 'chart').attr('width', w).attr('height', h);
         rectClass = n > w / 4 ? 'squashed' : 'bar';
         rects = chart.selectAll('rect');
         rects.data(data).enter().append('rect').attr('class', rectClass).attr('width', itemW).attr('y', h).attr('height', 0).attr('x', function(d, i) {
@@ -48661,6 +49164,8 @@ $.widget("ui.sortable", $.ui.mouse, {
     var ListManager, _ref;
 
     return ListManager = (function(_super) {
+      var descendedFrom, pathOf;
+
       __extends(ListManager, _super);
 
       function ListManager() {
@@ -48717,6 +49222,23 @@ $.widget("ui.sortable", $.ui.mouse, {
         return dialog.startPicking();
       };
 
+      descendedFrom = function(putativeParent) {
+        var prefix;
+
+        if (putativeParent.isAttribute()) {
+          return function() {
+            return false;
+          };
+        } else {
+          prefix = putativeParent + '.';
+          return function(suspectedChild) {
+            return suspectedChild.substring(0, prefix.length) === prefix;
+          };
+        }
+      };
+
+      pathOf = intermine.funcutils.get('path');
+
       ListManager.prototype.updateTypeOptions = function() {
         var node, query, ul, viewNodes, _fn, _i, _len,
           _this = this;
@@ -48726,7 +49248,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         query = this.states.currentQuery;
         viewNodes = query.getViewNodes();
         _fn = function(node) {
-          var countQuery, err, inCons, li, missingNode, ns, unselected, _j, _len1;
+          var countQuery, err, inCons, li, missingNode, needsAsserting, unselected, _j, _len1;
 
           li = $("<li></li>");
           ul.append(li);
@@ -48738,16 +49260,30 @@ $.widget("ui.sortable", $.ui.mouse, {
             console.error(err);
             return;
           }
+          if (query.isOuterJoined(countQuery.views[0])) {
+            (function(path) {
+              var style, _results;
+
+              style = 'INNER';
+              _results = [];
+              while (!path.isRoot()) {
+                countQuery.addJoin({
+                  path: path,
+                  style: style
+                });
+                _results.push(path = path.getParent());
+              }
+              return _results;
+            })(node);
+          }
           unselected = viewNodes.filter(function(n) {
             return n !== node;
           });
           for (_j = 0, _len1 = unselected.length; _j < _len1; _j++) {
             missingNode = unselected[_j];
-            ns = missingNode.toPathString();
-            inCons = _.any(query.constraints, function(c) {
-              return c.path.substring(0, ns.length) === ns;
-            });
-            if (!(inCons || query.isOuterJoined(missingNode))) {
+            inCons = _.any(countQuery.constraints, _.compose(descendedFrom(missingNode), pathOf));
+            needsAsserting = (!inCons) || (query.isOuterJoined(missingNode));
+            if (needsAsserting) {
               countQuery.addConstraint([missingNode.append("id"), "IS NOT NULL"]);
             }
           }
@@ -48761,7 +49297,7 @@ $.widget("ui.sortable", $.ui.mouse, {
           li.mouseout(function() {
             return query.trigger("stop:highlight");
           });
-          return countQuery.count(function(n) {
+          return countQuery.count().then(function(n) {
             var quantifier, typeName;
 
             if (n < 1) {
@@ -49455,7 +49991,7 @@ $.widget("ui.sortable", $.ui.mouse, {
   });
 
   define('actions/code-gen', using('html/code-gen', function(HTML) {
-    var CODE_GEN_LANGS, CodeGenerator, alreadyDone, indent, _ref;
+    var CODE_GEN_LANGS, CodeGenerator, alreadyDone, alreadyRejected, indent, _ref;
 
     CODE_GEN_LANGS = [
       {
@@ -49508,7 +50044,12 @@ $.widget("ui.sortable", $.ui.mouse, {
     alreadyDone = jQuery.Deferred(function() {
       return this.resolve(true);
     });
+    alreadyRejected = jQuery.Deferred(function() {
+      return this.reject('not available');
+    });
     return CodeGenerator = (function(_super) {
+      var canSaveFromMemory;
+
       __extends(CodeGenerator, _super);
 
       function CodeGenerator() {
@@ -49567,8 +50108,19 @@ $.widget("ui.sortable", $.ui.mouse, {
         return this.model.trigger('set:lang');
       };
 
+      canSaveFromMemory = function() {
+        if (typeof Blob === "undefined" || Blob === null) {
+          alreadyRejected;
+        }
+        if (typeof saveAs !== "undefined" && saveAs !== null) {
+          return alreadyDone;
+        } else {
+          return intermine.cdn.load('filesaver');
+        }
+      };
+
       CodeGenerator.prototype.displayLang = function() {
-        var $m, code, ext, href, lang, query, ready;
+        var $m, code, ext, href, lang, query, ready, saveBtn;
 
         $m = this.$('.modal');
         lang = this.model.get('lang');
@@ -49579,9 +50131,26 @@ $.widget("ui.sortable", $.ui.mouse, {
         ready = typeof prettyPrintOne !== "undefined" && prettyPrintOne !== null ? alreadyDone : intermine.cdn.load('prettify');
         this.$('a .im-code-lang').text(lang);
         this.$('.modal h3 .im-code-lang').text(lang);
-        this.$('.modal .btn-save').attr({
-          href: query.getCodeURI(lang)
+        saveBtn = this.$('.modal .btn-save').removeClass('disabled').unbind('click').attr({
+          href: null
         });
+        if (lang === 'xml') {
+          saveBtn.addClass('disabled');
+          canSaveFromMemory().done(function() {
+            return saveBtn.removeClass('disabled').click(function() {
+              var blob;
+
+              blob = new Blob([code], {
+                type: 'application/xml;charset=utf8'
+              });
+              return saveAs(blob, 'query.xml');
+            });
+          });
+        } else {
+          saveBtn.attr({
+            href: query.getCodeURI(lang)
+          });
+        }
         return jQuery.when(code, ready).then(function(code) {
           var formatted;
 
@@ -51043,8 +51612,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 
   }).call(context);
 
-}).call(window);
-;
+}).call(window);;
 (function() {
   var cutoff, document, head, intermine, jobs, load, loading, log, paths, root, _auto, _contains, _each, _get, _keys, _map, _reduce, _setImmediate,
     __slice = [].slice;

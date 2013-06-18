@@ -57,11 +57,14 @@ module.exports = class UploadListToolView extends ToolView
                     # Expose the input here.
                     input = {}
 
+                    # Get the DOM.
+                    dom = self.getDOM()
+
+                    # Say we are working.
+                    dom.append $ '<div/>', 'class': 'loading -steps-ui'
+
                     # Get the form.
                     async.waterfall [ (cb) ->
-                        # Get the DOM.
-                        dom = self.getDOM()
-
                         # Get the identifiers.
                         input.ids = clean dom.find('form textarea').val()
 
