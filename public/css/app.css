@@ -211,6 +211,14 @@ table.tabs.-steps-ui td.inactive div:before {
 ul.tools.-steps-ui li {
   margin: 0 -10px;
   clear: both;
+  -webkit-transition: background-color 3s;
+  -moz-transition: background-color 3s;
+  -o-transition: background-color 3s;
+  -ms-transition: background-color 3s;
+  transition: background-color 3s;
+}
+ul.tools.-steps-ui li.new {
+  background-color: rgba(255,255,0,0.5);
 }
 ul.tools.-steps-ui li.terracotta a:before {
   background: #e2674a;

@@ -249,6 +249,10 @@ ul.tools.-steps-ui
     li
         margin: 0 -10px
         clear: both
+        transition: background-color 3s // new tool highlight
+
+        &.new
+            background-color: rgba(#FFFF00, 0.5) // new tool highlight color
 
         for clr in $colors
             &.{clr[0]}

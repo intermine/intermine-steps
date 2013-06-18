@@ -1890,7 +1890,7 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
       ActionView.__super__.attach.apply(this, arguments);
       $(this.el).addClass(function() {
         var classes;
-        classes = [_this.options.type, _this.options.labelClass];
+        classes = [_this.options.type, _this.options.labelClass, 'new'];
         if (_this.options.weight < 10) {
           classes.push('hidden');
         }
@@ -1898,7 +1898,10 @@ window.require.register("chaplin/views/Action", function(exports, require, modul
       });
       words = this.options.label.replace(/[^a-zA-Z ]/g, '').replace(/\s+/g, ' ').toLowerCase().split(' ');
       this.keywords = _.uniq(words.concat(this.options.keywords)).join(' ');
-      return this.delegate('click', '.help', this.showHelp);
+      this.delegate('click', '.help', this.showHelp);
+      return setTimeout(function() {
+        return $(_this.el).removeClass('new');
+      }, 100);
     };
 
     ActionView.prototype.markup = function(text) {
@@ -2444,6 +2447,7 @@ window.require.register("chaplin/views/NextSteps", function(exports, require, mo
     NextStepsView.prototype.initialize = function() {
       var _this = this;
       NextStepsView.__super__.initialize.apply(this, arguments);
+      this.context = [];
       assert(this.place, 'Placement for these NextSteps not defined');
       return Mediator.subscribe('context:render', function(place, context, obj) {
         if (_this.place === place) {

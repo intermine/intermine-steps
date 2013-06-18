@@ -19,7 +19,7 @@ module.exports = class ActionView extends View
 
         $(@el).addClass =>
             # Apply class that corresponds to the type of the tool.
-            classes = [ @options.type, @options.labelClass ]
+            classes = [ @options.type, @options.labelClass, 'new' ]
             # Do we hide it?
             if @options.weight < 10 then classes.push 'hidden'
             classes.join(' ')
@@ -32,6 +32,11 @@ module.exports = class ActionView extends View
 
         # Capture help clicks.
         @delegate 'click', '.help', @showHelp
+
+        # Trigger a new element effect.
+        setTimeout =>
+            $(@el).removeClass 'new'
+        , 100
 
     # Convert markup with HTML.
     markup: (text) ->

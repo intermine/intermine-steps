@@ -16,12 +16,15 @@ module.exports = class NextStepsView extends View
     initialize: ->
         super
 
+        # Keep track of the changing tools so we can highlight new ones.
+        @context = []
+
         # Make sure we have placement.
         assert @place, 'Placement for these NextSteps not defined'
 
         # Render tool labels on us
         Mediator.subscribe 'context:render', (place, context, obj) =>
-            # Does this context and place fit us?
+            # Does this place fit us?
             if @place is place
                 @add obj
         , @
