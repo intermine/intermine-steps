@@ -39,7 +39,7 @@ module.exports = class UploadListToolView extends ToolView
         switch @step
             # Get the identifiers from a form.
             when 1
-                # Use Foundation3 forms.
+                # Use Foundation forms.
                 @getDOM().foundationCustomForms()
 
                 # Capture submit clicks.

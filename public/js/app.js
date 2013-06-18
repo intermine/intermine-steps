@@ -3614,7 +3614,7 @@ window.require.register("tools/UseListTool/step-1", function(exports, require, m
       (function() {
         var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
       
-        __out.push('<div class="foundation3 container">\n    <div class="row">\n        <div class="twelve columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <form class="custom">\n            <div class="six columns">\n                <label>List of identifiers</label>\n                ');
+        __out.push('<div class="foundation4 container">\n    <div class="row">\n        <div class="large-12 columns">\n            <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n        </div>\n    </div>\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <form class="custom">\n            <div class="large-6 columns">\n                <label>List of identifiers</label>\n                ');
       
         if (this.data && this.data.identifiers) {
           __out.push('\n                    <textarea name="identifiers">');
@@ -3631,7 +3631,7 @@ window.require.register("tools/UseListTool/step-1", function(exports, require, m
           __out.push('\n                    <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n                ');
         }
       
-        __out.push('\n            </div>\n            <div class="two columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
+        __out.push('\n            </div>\n            <div class="large-2 columns">\n                <label>Type</label>\n                <select name="type" class="expand">\n                    ');
       
         _ref1 = this.types;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -3653,7 +3653,7 @@ window.require.register("tools/UseListTool/step-1", function(exports, require, m
           __out.push('\n                    ');
         }
       
-        __out.push('\n                </select>\n            </div>\n            <div class="four columns">\n                <label>Organism</label>\n                <select name="organism" class="expand">\n                    ');
+        __out.push('\n                </select>\n            </div>\n            <div class="large-4 columns">\n                <label>Organism</label>\n                <select name="organism" class="expand">\n                    ');
       
         _ref2 = this.organisms;
         for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
@@ -3675,7 +3675,7 @@ window.require.register("tools/UseListTool/step-1", function(exports, require, m
           __out.push('\n                    ');
         }
       
-        __out.push('\n                </select>\n            </div>\n        </form>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('\n                </select>\n            </div>\n        </form>\n    </div>\n    <div class="row">\n        <div class="large-12 columns">\n            <a id="submit" class="button">Upload a list</span></a>\n        </div>\n    </div>\n</div>');
       
       }).call(this);
       
