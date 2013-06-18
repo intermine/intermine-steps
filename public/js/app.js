@@ -1800,45 +1800,39 @@ window.require.register("chaplin/templates/tool", function(exports, require, mod
       
         __out.push(__sanitize(this.title));
       
-        __out.push('</h1>\n        <em class="ago"></em>\n    </div>\n\n    ');
+        __out.push('</h1>\n        <em class="ago"></em>\n    </div>\n\n    <ul class="accordion -steps-ui">\n        <!-- we are hardcoding only two steps possible -->\n        ');
       
-        if (this.steps.length !== 0) {
-          __out.push('\n        <ul class="accordion -steps-ui">\n            ');
-          _ref = this.steps;
-          for (i in _ref) {
-            title = _ref[i];
-            __out.push('\n                ');
-            i = parseInt(i) + 1;
-            __out.push('\n                <li class="');
-            __out.push(__sanitize(this.type));
-            if (i === this.step) {
-              __out.push(' active');
-            }
-            if (i > this.step) {
-              __out.push(' inactive');
-            }
-            __out.push('" data-step="');
-            __out.push(__sanitize(i));
-            __out.push('">\n                    <div class="title">\n                        <!-- first step and root provided and us not on it? -->\n                        ');
-            if (i === 1 && i !== this.step && this.root) {
-              __out.push('\n                            <h5><a href="/tool/id/');
-              __out.push(__sanitize(this.root));
-              __out.push('">');
-              __out.push(__sanitize(title));
-              __out.push('</a></h5>\n                        ');
-            } else {
-              __out.push('\n                            <h5>');
-              __out.push(__sanitize(title));
-              __out.push('</h5>\n                        ');
-            }
-            __out.push('\n                    </div>\n                    <div class="content -steps-tool">Loading content &hellip;</div>\n                </li>\n            ');
+        _ref = ['Input', 'Output'];
+        for (i in _ref) {
+          title = _ref[i];
+          __out.push('\n            ');
+          i = parseInt(i) + 1;
+          __out.push('\n            <li class="');
+          __out.push(__sanitize(this.type));
+          if (i === this.step) {
+            __out.push(' active');
           }
-          __out.push('\n        </ul>\n    ');
-        } else {
-          __out.push('\n        <div class="alert-box alert">\n            No Tool Steps defined.\n        </div>\n    ');
+          if (i > this.step) {
+            __out.push(' inactive');
+          }
+          __out.push('" data-step="');
+          __out.push(__sanitize(i));
+          __out.push('">\n                <div class="title">\n                    <!-- first step and root provided and us not on it? -->\n                    ');
+          if (i === 1 && i !== this.step && this.root) {
+            __out.push('\n                        <h5><a href="/tool/id/');
+            __out.push(__sanitize(this.root));
+            __out.push('">');
+            __out.push(__sanitize(title));
+            __out.push('</a></h5>\n                    ');
+          } else {
+            __out.push('\n                        <h5>');
+            __out.push(__sanitize(title));
+            __out.push('</h5>\n                    ');
+          }
+          __out.push('\n                </div>\n                <div class="content -steps-tool">Loading content &hellip;</div>\n            </li>\n        ');
         }
       
-        __out.push('\n</div>');
+        __out.push('\n    </ul>\n</div>');
       
       }).call(this);
       
@@ -2773,7 +2767,6 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
           'previous': (_ref = this.options.previous) != null ? _ref.data : void 0
         });
       }
-      assert(data.steps && data.steps instanceof Array, '`steps` not defined in Model');
       if ((extra = this.options.extra) && !(extra instanceof Array)) {
         this.options.extra = extra.split(',');
       }
@@ -2886,8 +2879,7 @@ window.require.register("tools/ListWidgetTool/Model", function(exports, require,
       'name': 'ListWidgetTool',
       'title': 'List Widget',
       'description': 'Show a List Widget',
-      'type': 'kimberly',
-      'steps': ['Input', 'Output']
+      'type': 'kimberly'
     };
 
     return ListWidgetTool;
@@ -3107,8 +3099,7 @@ window.require.register("tools/OntologyGraphTool/Model", function(exports, requi
       'name': 'OntologyGraphTool',
       'title': 'Ontology Graph',
       'description': 'Show an Ontology Graph for a Gene',
-      'type': 'goldentainoi',
-      'steps': ['Input', 'Output']
+      'type': 'goldentainoi'
     };
 
     return OntologyGraphTool;
@@ -3394,36 +3385,35 @@ window.require.register("tools/OntologyGraphTool/step-3", function(exports, requ
     return __out.join('');
   }
 });
-window.require.register("tools/UploadListTool/Model", function(exports, require, module) {
-  var Tool, UploadListTool,
+window.require.register("tools/UseListTool/Model", function(exports, require, module) {
+  var Tool, UseListTool,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Tool = require('chaplin/models/Tool');
 
-  module.exports = UploadListTool = (function(_super) {
+  module.exports = UseListTool = (function(_super) {
 
-    __extends(UploadListTool, _super);
+    __extends(UseListTool, _super);
 
-    function UploadListTool() {
-      return UploadListTool.__super__.constructor.apply(this, arguments);
+    function UseListTool() {
+      return UseListTool.__super__.constructor.apply(this, arguments);
     }
 
-    UploadListTool.prototype.defaults = {
-      'slug': 'upload-list-tool',
-      'name': 'UploadListTool',
-      'title': 'Upload a List',
-      'description': 'Upload a list of identifiers',
-      'type': 'deyork',
-      'steps': ['Input', 'Output']
+    UseListTool.prototype.defaults = {
+      'slug': 'use-list-tool',
+      'name': 'UseListTool',
+      'title': 'Use a List',
+      'description': 'Upload a list of identifiers or use an existing list',
+      'type': 'deyork'
     };
 
-    return UploadListTool;
+    return UseListTool;
 
   })(Tool);
   
 });
-window.require.register("tools/UploadListTool/View", function(exports, require, module) {
+window.require.register("tools/UseListTool/View", function(exports, require, module) {
   var Mediator, ToolView, UploadListToolView, organisms, root, types,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -3459,77 +3449,94 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
     };
 
     UploadListToolView.prototype.attach = function() {
-      var list, query, target, type, _ref,
+      var list, query, self, type, _ref,
         _this = this;
       UploadListToolView.__super__.attach.apply(this, arguments);
+      self = this;
       switch (this.step) {
         case 1:
           this.getDOM().foundationCustomForms();
           this.delegate('click', '#submit', function() {
-            _this.ids = _this.clean(_this.getDOM().find('form textarea').val());
-            if (_this.ids.length === 0) {
-              return console.log({
-                'title': 'Oops &hellip;',
-                'text': 'No identifiers have been provided.'
-              });
-            }
-            _this.organism = _this.getDOM().find('select[name="organism"]').val();
-            _this.type = _this.getDOM().find('select[name="type"]').val();
-            return _this.nextStep();
+            var clean, input;
+            clean = function(value) {
+              value = value.replace(/^\s+|\s+$/g, '').replace(/\s{2,}/g, ' ');
+              if (value === '') {
+                return [];
+              }
+              return value.split(/\s/g);
+            };
+            input = {};
+            return async.waterfall([
+              function(cb) {
+                var dom;
+                dom = self.getDOM();
+                input.ids = clean(dom.find('form textarea').val());
+                if (input.ids.length === 0) {
+                  return cb('No identifiers have been provided');
+                }
+                input.organism = dom.find('select[name="organism"]').val();
+                input.type = dom.find('select[name="type"]').val();
+                return cb(null);
+              }, function(cb) {
+                return (root.App.service.im.resolveIds({
+                  'identifiers': input.ids,
+                  'type': input.type
+                })).then(function(job) {
+                  return cb(null, job);
+                });
+              }, function(job, cb) {
+                return job.poll().then(function(results) {
+                  var keys, query;
+                  keys = _.keys(results);
+                  if (keys.length === 0) {
+                    return cb('No identifiers were resolved');
+                  }
+                  query = {
+                    'model': {
+                      'name': 'genomic'
+                    },
+                    'select': ["" + input.type + ".*"],
+                    'constraints': [
+                      {
+                        'path': "" + input.type + ".id",
+                        'op': 'ONE OF',
+                        'values': keys
+                      }
+                    ]
+                  };
+                  return cb(null, query);
+                });
+              }, function(query, cb) {
+                return root.App.service.im.query(query, function(q) {
+                  return cb(null, q);
+                });
+              }, function(q, cb) {
+                var name;
+                name = root.Utils.guid();
+                return q.saveAsList({
+                  'name': name
+                }, function(l) {
+                  self.model.set('data', {
+                    'identifiers': input.ids,
+                    'organism': input.organism,
+                    'type': input.type,
+                    'query': query,
+                    'list': name
+                  });
+                  Mediator.publish('history:add', self.model);
+                  return cb(null);
+                });
+              }
+            ], function(err) {
+              if (err) {
+                return console.log(err);
+              }
+              return self.nextStep();
+            });
           });
           break;
         case 2:
-          (root.App.service.im.resolveIds({
-            'identifiers': this.ids,
-            'type': this.type
-          })).then(function(job) {
-            return job.poll().then(function(results) {
-              var keys;
-              keys = _.keys(results);
-              if (keys.length === 0) {
-                return $(_this.el).find('.target').append($('<p/>', {
-                  'text': 'No identifiers were resolved.'
-                }));
-              }
-              _this.query = {
-                'model': {
-                  'name': 'genomic'
-                },
-                'select': ["" + _this.type + ".*"],
-                'constraints': [
-                  {
-                    'path': "" + _this.type + ".id",
-                    'op': 'ONE OF',
-                    'values': keys
-                  }
-                ]
-              };
-              return _this.nextStep();
-            });
-          });
-          break;
-        case 3:
-          root.App.service.im.query(this.query, function(q) {
-            var name;
-            name = root.Utils.guid();
-            return q.saveAsList({
-              'name': name
-            }, function(l) {
-              _this.model.set('data', {
-                'identifiers': _this.ids,
-                'organism': _this.organism,
-                'type': _this.type,
-                'query': _this.query,
-                'list': name
-              });
-              Mediator.publish('history:add', _this.model);
-              return _this.nextStep();
-            });
-          });
-          break;
-        case 4:
           _ref = this.model.get('data'), type = _ref.type, list = _ref.list;
-          target = $(this.el).find('.im-table');
           query = {
             'model': {
               'name': 'genomic'
@@ -3543,7 +3550,7 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
               }
             ]
           };
-          target.imWidget({
+          $(this.el).find('.im-table').imWidget({
             'type': 'minimal',
             'service': root.App.service.im,
             'query': query,
@@ -3558,20 +3565,12 @@ window.require.register("tools/UploadListTool/View", function(exports, require, 
       return this;
     };
 
-    UploadListToolView.prototype.clean = function(value) {
-      value = value.replace(/^\s+|\s+$/g, '').replace(/\s{2,}/g, ' ');
-      if (value === '') {
-        return [];
-      }
-      return value.split(/\s/g);
-    };
-
     return UploadListToolView;
 
   })(ToolView);
   
 });
-window.require.register("tools/UploadListTool/step-1", function(exports, require, module) {
+window.require.register("tools/UseListTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
     var __out = [], __capture = function(callback) {
@@ -3683,107 +3682,7 @@ window.require.register("tools/UploadListTool/step-1", function(exports, require
     return __out.join('');
   }
 });
-window.require.register("tools/UploadListTool/step-2", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="container">\n    <div class="loading -steps-ui"></div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/UploadListTool/step-3", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="container">\n    <div class="loading -steps-ui"></div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/UploadListTool/step-4", function(exports, require, module) {
+window.require.register("tools/UseListTool/step-2", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
     var __out = [], __capture = function(callback) {
@@ -3842,7 +3741,7 @@ window.require.register("tools/config", function(exports, require, module) {
 
   exports.registry = [
     {
-      'slug': 'upload-list-tool',
+      'slug': 'use-list-tool',
       'help': 'Upload & resolve a list of identifiers',
       'labels': [
         {
@@ -3861,11 +3760,11 @@ window.require.register("tools/config", function(exports, require, module) {
       'slug': 'ontology-graph-tool',
       'labels': [
         {
-          'label': 'Ontology Graph',
+          'label': 'Ontology Graph for a Gene',
           'weight': 10,
           'context': ['have:list', 'have:one', 'type:Gene'],
           'place': 'right',
-          'category': ['Report Widgets']
+          'category': ['Category 2']
         }
       ]
     }, {
@@ -3876,77 +3775,77 @@ window.require.register("tools/config", function(exports, require, module) {
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['chart', 'flyatlas_for_gene']
         }, {
           'label': 'mRNA subcellular localisation (fly-FISH)',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['chart', 'flyfish']
         }, {
           'label': 'BDGP expression patterns',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['chart', 'bdgp']
         }, {
           'label': 'MiRNA Enrichment',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['enrichment', 'miranda_enrichment']
         }, {
           'label': 'Gene Ontology Enrichment',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['enrichment', 'go_enrichment_for_gene']
         }, {
           'label': 'Protein Domain Enrichment',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['enrichment', 'prot_dom_enrichment_for_gene']
         }, {
           'label': 'BDGP Enrichment',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['enrichment', 'bdgp_enrichment']
         }, {
           'label': 'Publication Enrichment',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['enrichment', 'publication_enrichment']
         }, {
           'label': 'Pathway Enrichment',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['enrichment', 'pathway_enrichment']
         }, {
           'label': 'Orthologues',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['table', 'orthologues']
         }, {
           'label': 'Chromosome Distribution',
           'weight': 10,
           'context': ['have:list', 'type:Gene'],
           'place': 'right',
-          'category': ['List Widgets'],
+          'category': ['Category 1'],
           'extra': ['chart', 'chromosome_distribution_for_gene']
         }
       ]

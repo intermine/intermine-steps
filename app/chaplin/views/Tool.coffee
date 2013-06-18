@@ -22,8 +22,6 @@ module.exports = class ToolView extends GenericToolView
         # Further extend by previous step data if present.
         if @options.previous then data = _.extend data, 'previous': @options.previous?.data
 
-        assert data.steps and data.steps instanceof Array, '`steps` not defined in Model'
-
         # Split extra?
         if (extra = @options.extra) and extra not instanceof Array
             @options.extra = extra.split(',')

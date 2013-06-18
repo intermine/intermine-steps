@@ -211,11 +211,11 @@ table.tabs.-steps-ui td.inactive div:before {
 ul.tools.-steps-ui li {
   margin: 0 -10px;
   clear: both;
-  -webkit-transition: background-color 3s;
-  -moz-transition: background-color 3s;
-  -o-transition: background-color 3s;
-  -ms-transition: background-color 3s;
-  transition: background-color 3s;
+  -webkit-transition: background-color 4s;
+  -moz-transition: background-color 4s;
+  -o-transition: background-color 4s;
+  -ms-transition: background-color 4s;
+  transition: background-color 4s;
 }
 ul.tools.-steps-ui li.new {
   background-color: rgba(255,255,0,0.5);

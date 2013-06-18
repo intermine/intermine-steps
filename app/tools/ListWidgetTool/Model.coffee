@@ -8,4 +8,3 @@ module.exports = class ListWidgetTool extends Tool
         'title': 'List Widget'
         'description': 'Show a List Widget'
         'type': 'kimberly'
-        'steps': [ 'Input', 'Output' ]

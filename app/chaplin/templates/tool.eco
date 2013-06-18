@@ -7,26 +7,21 @@
         <em class="ago"></em>
     </div>
 
-    <% if @steps.length isnt 0: %>
-        <ul class="accordion -steps-ui">
-            <% for i, title of @steps: %>
-                <% i = parseInt(i) + 1 %>
-                <li class="<%= @type %><% if i is @step: %> active<% end %><% if i > @step: %> inactive<% end %>" data-step="<%= i %>">
-                    <div class="title">
-                        <!-- first step and root provided and us not on it? -->
-                        <% if i is 1 and i isnt @step and @root: %>
-                            <h5><a href="/tool/id/<%= @root %>"><%= title %></a></h5>
-                        <% else: %>
-                            <h5><%= title %></h5>
-                        <% end %>
-                    </div>
-                    <div class="content -steps-tool">Loading content &hellip;</div>
-                </li>
-            <% end %>
-        </ul>
-    <% else: %>
-        <div class="alert-box alert">
-            No Tool Steps defined.
-        </div>
-    <% end %>
+    <ul class="accordion -steps-ui">
+        <!-- we are hardcoding only two steps possible -->
+        <% for i, title of [ 'Input', 'Output' ]: %>
+            <% i = parseInt(i) + 1 %>
+            <li class="<%= @type %><% if i is @step: %> active<% end %><% if i > @step: %> inactive<% end %>" data-step="<%= i %>">
+                <div class="title">
+                    <!-- first step and root provided and us not on it? -->
+                    <% if i is 1 and i isnt @step and @root: %>
+                        <h5><a href="/tool/id/<%= @root %>"><%= title %></a></h5>
+                    <% else: %>
+                        <h5><%= title %></h5>
+                    <% end %>
+                </div>
+                <div class="content -steps-tool">Loading content &hellip;</div>
+            </li>
+        <% end %>
+    </ul>
 </div>

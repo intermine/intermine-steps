@@ -8,7 +8,7 @@ exports.config =
 # Tool configuration based on the user logged in.
 exports.registry = [
     {
-        'slug': 'upload-list-tool'
+        'slug': 'use-list-tool'
         'help': 'Upload & resolve a list of identifiers'
         'labels': [
             {
@@ -27,11 +27,11 @@ exports.registry = [
         'slug': 'ontology-graph-tool'
         'labels': [
             {
-                'label': 'Ontology Graph'
+                'label': 'Ontology Graph for a Gene'
                 'weight': 10
                 'context': [ 'have:list', 'have:one', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'Report Widgets' ]
+                'category': [ 'Category 2' ]
             }
         ]
     }, {
@@ -42,77 +42,77 @@ exports.registry = [
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'chart', 'flyatlas_for_gene' ]
             }, {
                 'label': 'mRNA subcellular localisation (fly-FISH)'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'chart', 'flyfish' ]
             }, {
                 'label': 'BDGP expression patterns'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'chart', 'bdgp' ]
             }, {
                 'label': 'MiRNA Enrichment'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'enrichment', 'miranda_enrichment' ]
             }, {
                 'label': 'Gene Ontology Enrichment'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'enrichment', 'go_enrichment_for_gene' ]
             }, {
                 'label': 'Protein Domain Enrichment'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'enrichment', 'prot_dom_enrichment_for_gene' ]
             }, {
                 'label': 'BDGP Enrichment'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'enrichment', 'bdgp_enrichment' ]
             }, {
                 'label': 'Publication Enrichment'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'enrichment', 'publication_enrichment' ]
             }, {
                 'label': 'Pathway Enrichment'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'enrichment', 'pathway_enrichment' ]
             }, {
                 'label': 'Orthologues'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'table', 'orthologues' ]
             }, {
                 'label': 'Chromosome Distribution'
                 'weight': 10
                 'context': [ 'have:list', 'type:Gene' ]
                 'place': 'right'
-                'category': [ 'List Widgets' ]
+                'category': [ 'Category 1' ]
                 'extra': [ 'chart', 'chromosome_distribution_for_gene' ]
             }
         ]
