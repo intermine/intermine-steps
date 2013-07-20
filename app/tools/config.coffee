@@ -3,35 +3,40 @@ exports.config =
     # Root URL for all mine requests (for now we only work with 1 mine).
     'mine': 'http://beta.flymine.org/beta'
     # A token so we can be creating lists in the background (throwaway account).
-    'token': 'T153WfD21eK7C20fb95f'
+    'token': 'X133AbT7J0Z0HfV316Q4'
 
 # Tool configuration based on the user logged in.
 exports.registry = [
     {
-        'slug': 'use-list-tool'
+        'slug': 'resolve-ids-tool'
         'help': 'Upload & resolve a list of identifiers'
         'labels': [
             {
-                'label': 'Upload a list'
+                'label': 'Upload list'
+                'weight': 10
+                'place': 'header'
+                'keywords': [ 'list', 'resolve', 'identifiers', 'upload' ]
+            }, {
+                'label': 'Upload a new list'
+                'weight': 10
+                'place': 'home'
+                'keywords': [ 'list', 'resolve', 'identifiers', 'upload' ]
+            }
+        ]
+    }, {
+        'slug': 'choose-list-tool'
+        'help': 'Choose an exsting list'
+        'labels': [
+            {
+                'label': 'Choose list'
                 'weight': 10
                 'place': 'header'
                 'keywords': [ 'list' ]
             }, {
-                'label': 'Upload a list'
+                'label': 'Choose an existing list'
                 'weight': 10
                 'place': 'home'
                 'keywords': [ 'list' ]
-            }
-        ]
-    }, {
-        'slug': 'ontology-graph-tool'
-        'labels': [
-            {
-                'label': 'Ontology Graph for a Gene'
-                'weight': 10
-                'context': [ 'have:list', 'have:one', 'type:Gene' ]
-                'place': 'right'
-                'category': [ 'Category 2' ]
             }
         ]
     }, {

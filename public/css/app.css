@@ -23,6 +23,11 @@ body {
   background: url("../img/p6.png") !important;
   margin: 0;
 }
+iframe {
+  border: 0;
+  width: 100%;
+  height: 100%;
+}
 body,
 h1,
 h2,

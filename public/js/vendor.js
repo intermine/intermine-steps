@@ -79,224 +79,6 @@
   globals.require.brunch = true;
 })();
 
-(function (global, undefined) {
-    "use strict";
-
-    var tasks = (function () {
-        function Task(handler, args) {
-            this.handler = handler;
-            this.args = args;
-        }
-        Task.prototype.run = function () {
-            // See steps in section 5 of the spec.
-            if (typeof this.handler === "function") {
-                // Choice of `thisArg` is not in the setImmediate spec; `undefined` is in the setTimeout spec though:
-                // http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html
-                this.handler.apply(undefined, this.args);
-            } else {
-                var scriptSource = "" + this.handler;
-                /*jshint evil: true */
-                eval(scriptSource);
-            }
-        };
-
-        var nextHandle = 1; // Spec says greater than zero
-        var tasksByHandle = {};
-        var currentlyRunningATask = false;
-
-        return {
-            addFromSetImmediateArguments: function (args) {
-                var handler = args[0];
-                var argsToHandle = Array.prototype.slice.call(args, 1);
-                var task = new Task(handler, argsToHandle);
-
-                var thisHandle = nextHandle++;
-                tasksByHandle[thisHandle] = task;
-                return thisHandle;
-            },
-            runIfPresent: function (handle) {
-                // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
-                // So if we're currently running a task, we'll need to delay this invocation.
-                if (!currentlyRunningATask) {
-                    var task = tasksByHandle[handle];
-                    if (task) {
-                        currentlyRunningATask = true;
-                        try {
-                            task.run();
-                        } finally {
-                            delete tasksByHandle[handle];
-                            currentlyRunningATask = false;
-                        }
-                    }
-                } else {
-                    // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
-                    // "too much recursion" error.
-                    global.setTimeout(function () {
-                        tasks.runIfPresent(handle);
-                    }, 0);
-                }
-            },
-            remove: function (handle) {
-                delete tasksByHandle[handle];
-            }
-        };
-    }());
-
-    function canUseNextTick() {
-        // Don't get fooled by e.g. browserify environments.
-        return typeof process === "object" &&
-               Object.prototype.toString.call(process) === "[object process]";
-    }
-
-    function canUseMessageChannel() {
-        return !!global.MessageChannel;
-    }
-
-    function canUsePostMessage() {
-        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-        // where `global.postMessage` means something completely different and can't be used for this purpose.
-
-        if (!global.postMessage || global.importScripts) {
-            return false;
-        }
-
-        var postMessageIsAsynchronous = true;
-        var oldOnMessage = global.onmessage;
-        global.onmessage = function () {
-            postMessageIsAsynchronous = false;
-        };
-        global.postMessage("", "*");
-        global.onmessage = oldOnMessage;
-
-        return postMessageIsAsynchronous;
-    }
-
-    function canUseReadyStateChange() {
-        return "document" in global && "onreadystatechange" in global.document.createElement("script");
-    }
-
-    function installNextTickImplementation(attachTo) {
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            process.nextTick(function () {
-                tasks.runIfPresent(handle);
-            });
-
-            return handle;
-        };
-    }
-
-    function installMessageChannelImplementation(attachTo) {
-        var channel = new global.MessageChannel();
-        channel.port1.onmessage = function (event) {
-            var handle = event.data;
-            tasks.runIfPresent(handle);
-        };
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            channel.port2.postMessage(handle);
-
-            return handle;
-        };
-    }
-
-    function installPostMessageImplementation(attachTo) {
-        // Installs an event handler on `global` for the `message` event: see
-        // * https://developer.mozilla.org/en/DOM/window.postMessage
-        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
-
-        var MESSAGE_PREFIX = "com.bn.NobleJS.setImmediate" + Math.random();
-
-        function isStringAndStartsWith(string, putativeStart) {
-            return typeof string === "string" && string.substring(0, putativeStart.length) === putativeStart;
-        }
-
-        function onGlobalMessage(event) {
-            // This will catch all incoming messages (even from other windows!), so we need to try reasonably hard to
-            // avoid letting anyone else trick us into firing off. We test the origin is still this window, and that a
-            // (randomly generated) unpredictable identifying prefix is present.
-            if (event.source === global && isStringAndStartsWith(event.data, MESSAGE_PREFIX)) {
-                var handle = event.data.substring(MESSAGE_PREFIX.length);
-                tasks.runIfPresent(handle);
-            }
-        }
-        if (global.addEventListener) {
-            global.addEventListener("message", onGlobalMessage, false);
-        } else {
-            global.attachEvent("onmessage", onGlobalMessage);
-        }
-
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            // Make `global` post a message to itself with the handle and identifying prefix, thus asynchronously
-            // invoking our onGlobalMessage listener above.
-            global.postMessage(MESSAGE_PREFIX + handle, "*");
-
-            return handle;
-        };
-    }
-
-    function installReadyStateChangeImplementation(attachTo) {
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-            var scriptEl = global.document.createElement("script");
-            scriptEl.onreadystatechange = function () {
-                tasks.runIfPresent(handle);
-
-                scriptEl.onreadystatechange = null;
-                scriptEl.parentNode.removeChild(scriptEl);
-                scriptEl = null;
-            };
-            global.document.documentElement.appendChild(scriptEl);
-
-            return handle;
-        };
-    }
-
-    function installSetTimeoutImplementation(attachTo) {
-        attachTo.setImmediate = function () {
-            var handle = tasks.addFromSetImmediateArguments(arguments);
-
-            global.setTimeout(function () {
-                tasks.runIfPresent(handle);
-            }, 0);
-
-            return handle;
-        };
-    }
-
-    if (!global.setImmediate) {
-        // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
-        var attachTo = typeof Object.getPrototypeOf === "function" && "setTimeout" in Object.getPrototypeOf(global) ?
-                          Object.getPrototypeOf(global)
-                        : global;
-
-        if (canUseNextTick()) {
-            // For Node.js before 0.9
-            installNextTickImplementation(attachTo);
-        } else if (canUsePostMessage()) {
-            // For non-IE10 modern browsers
-            installPostMessageImplementation(attachTo);
-        } else if (canUseMessageChannel()) {
-            // For web workers, where supported
-            installMessageChannelImplementation(attachTo);
-        } else if (canUseReadyStateChange()) {
-            // For IE 6–8
-            installReadyStateChangeImplementation(attachTo);
-        } else {
-            // For older browsers
-            installSetTimeoutImplementation(attachTo);
-        }
-
-        attachTo.clearImmediate = tasks.remove;
-    }
-}(typeof global === "object" && global ? global : this));;
 /*!
  * jQuery JavaScript Library v1.9.1
  * http://jquery.com/
@@ -52182,7 +51964,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 }).call(this);
 ;
 (function() {
-  var ReportWidgets, root, _each, _extend, _setImmediate, _uid,
+  var AppsClient, root, _base, _base1, _each, _extend, _id, _ref, _ref1, _setImmediate,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   root = this;
@@ -52232,8 +52014,8 @@ $.widget("ui.sortable", $.ui.mouse, {
     return obj;
   };
 
-  _uid = function() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  _id = function() {
+    return 'xxxxxxxx'.replace(/[xy]/g, function(c) {
       var r;
 
       r = Math.random() * 16 | 0;
@@ -52247,28 +52029,26 @@ $.widget("ui.sortable", $.ui.mouse, {
     throw 'An old & unsupported browser detected';
   }
 
-  ReportWidgets = (function() {
-    ReportWidgets.prototype.selectorPrefix = 'w';
-
-    function ReportWidgets(server) {
+  AppsClient = (function() {
+    function AppsClient(server) {
       this.load = __bind(this.load, this);
       var callback,
         _this = this;
 
       this.server = server.replace(/\/+$/, '');
-      callback = 'rwc' + +(new Date);
+      callback = 'appcall' + +(new Date);
       root[callback] = function(config) {
         _this.config = config;
       };
       root.intermine.load([
         {
-          'path': "" + this.server + "/widget/report?callback=" + callback,
+          'path': "" + this.server + "/middleware/apps/a?callback=" + callback,
           'type': 'js'
         }
       ]);
     }
 
-    ReportWidgets.prototype.load = function(widgetId, target, options) {
+    AppsClient.prototype.load = function(appId, target, options) {
       var again, deps, run,
         _this = this;
 
@@ -52276,46 +52056,52 @@ $.widget("ui.sortable", $.ui.mouse, {
         options = {};
       }
       again = function() {
-        return _this.load(widgetId, target, options);
+        return _this.load(appId, target, options);
       };
       if (!this.config) {
         return _setImmediate(again);
       }
       run = function(err) {
-        var uid;
+        var id;
 
         if (err) {
-          throw err;
+          throw new Error(err);
         }
-        uid = _uid();
+        id = _id();
         return root.intermine.load([
           {
-            'path': "" + _this.server + "/widget/report/" + widgetId + "?callback=" + uid,
+            'path': "" + _this.server + "/middleware/apps/a/" + appId + "?callback=" + id,
             'type': 'js'
           }
         ], function(err) {
-          var Widget, article, config, div, generalConfig, instance, selector, templates, widget;
+          var app, config, div, instance, module, templates;
 
-          article = document.createElement('article');
-          article.setAttribute('class', "im-report-widget " + widgetId);
           div = document.createElement('div');
-          div.setAttribute('id', 'w' + uid);
-          div.appendChild(article);
+          div.setAttribute('class', "-im-apps-a " + appId);
+          div.setAttribute('id', 'a' + id);
           document.querySelector(target).appendChild(div);
           if (!root.intermine.temp) {
-            throw '`intermine.temp` object cache does not exist';
+            throw new Error('`intermine.temp` object cache does not exist');
           }
-          if (!(widget = root.intermine.temp.widgets[uid])) {
-            throw "Unknown widget `" + uid + "`";
+          if (!(app = root.intermine.temp.apps[id])) {
+            throw new Error("Unknown app `" + id + "`");
           }
-          Widget = widget[0], generalConfig = widget[1], templates = widget[2];
-          config = _extend({}, generalConfig, options);
-          selector = "#w" + uid + " article.im-report-widget";
-          instance = new Widget(config, templates);
-          return instance.render(selector);
+          module = app[0], config = app[1], templates = app[2];
+          if (!module.App) {
+            throw new Error('Root module is not exporting App');
+          }
+          config = _extend(config, options);
+          instance = new module.App(config, templates);
+          if (!(instance && typeof instance === 'object')) {
+            throw new Error('App failed to instantiate');
+          }
+          if (!(instance.render && typeof instance.render === 'function')) {
+            throw new Error('App does not implement `render` function');
+          }
+          return instance.render("#a" + id + ".-im-apps-a");
         });
       };
-      deps = this.config[widgetId];
+      deps = this.config[appId];
       if (deps != null) {
         return root.intermine.load(deps, run);
       } else {
@@ -52323,14 +52109,22 @@ $.widget("ui.sortable", $.ui.mouse, {
       }
     };
 
-    return ReportWidgets;
+    return AppsClient;
 
   })();
 
   if (!root.intermine) {
-    throw 'You need to include the InterMine API Loader first!';
+    throw new Error('You need to include the InterMine API Loader first!');
   } else {
-    root.intermine.reportWidgets = root.intermine.reportWidgets || ReportWidgets;
+    root.intermine.appsA = root.intermine.appsA || AppsClient;
+  }
+
+  if ((_ref = (_base = root.intermine).temp) == null) {
+    _base.temp = {};
+  }
+
+  if ((_ref1 = (_base1 = root.intermine.temp).apps) == null) {
+    _base1.apps = {};
   }
 
 }).call(this);
@@ -55153,1283 +54947,625 @@ $.widget("ui.sortable", $.ui.mouse, {
   
 }).call(this);;
 /*
- * jQuery Custom Forms Plugin 1.0
- * www.ZURB.com
- * Copyright 2010, ZURB
- * Free to use under the MIT license.
- * http://www.opensource.org/licenses/mit-license.php
-*/
+ * js_channel is a very lightweight abstraction on top of
+ * postMessage which defines message formats and semantics
+ * to support interactions more rich than just message passing
+ * js_channel supports:
+ *  + query/response - traditional rpc
+ *  + query/update/response - incremental async return of results
+ *    to a query
+ *  + notifications - fire and forget
+ *  + error handling
+ *
+ * js_channel is based heavily on json-rpc, but is focused at the
+ * problem of inter-iframe RPC.
+ *
+ * Message types:
+ *  There are 5 types of messages that can flow over this channel,
+ *  and you may determine what type of message an object is by
+ *  examining its parameters:
+ *  1. Requests
+ *    + integer id
+ *    + string method
+ *    + (optional) any params
+ *  2. Callback Invocations (or just "Callbacks")
+ *    + integer id
+ *    + string callback
+ *    + (optional) params
+ *  3. Error Responses (or just "Errors)
+ *    + integer id
+ *    + string error
+ *    + (optional) string message
+ *  4. Responses
+ *    + integer id
+ *    + (optional) any result
+ *  5. Notifications
+ *    + string method
+ *    + (optional) any params
+ */
 
-(function( $ ){
+;var Channel = (function() {
+    "use strict";
 
-  /**
-   * Helper object used to quickly adjust all hidden parent element's, display and visibility properties.
-   * This is currently used for the custom drop downs. When the dropdowns are contained within a reveal modal
-   * we cannot accurately determine the list-item elements width property, since the modal's display property is set
-   * to 'none'.
-   *
-   * This object will help us work around that problem.
-   *
-   * NOTE: This could also be plugin.
-   *
-   * @function hiddenFix
-   */
-  var hiddenFix = function() {
+    // current transaction id, start out at a random *odd* number between 1 and a million
+    // There is one current transaction counter id per page, and it's shared between
+    // channel instances.  That means of all messages posted from a single javascript
+    // evaluation context, we'll never have two with the same id.
+    var s_curTranId = Math.floor(Math.random()*1000001);
 
-    return {
-      /**
-       * Sets all hidden parent elements and self to visibile.
-       *
-       * @method adjust
-       * @param {jQuery Object} $child
-       */
+    // no two bound channels in the same javascript evaluation context may have the same origin, scope, and window.
+    // futher if two bound channels have the same window and scope, they may not have *overlapping* origins
+    // (either one or both support '*').  This restriction allows a single onMessage handler to efficiently
+    // route messages based on origin and scope.  The s_boundChans maps origins to scopes, to message
+    // handlers.  Request and Notification messages are routed using this table.
+    // Finally, channels are inserted into this table when built, and removed when destroyed.
+    var s_boundChans = { };
 
-      // We'll use this to temporarily store style properties.
-      tmp : [],
+    // add a channel to s_boundChans, throwing if a dup exists
+    function s_addBoundChan(win, origin, scope, handler) {
+        function hasWin(arr) {
+            for (var i = 0; i < arr.length; i++) if (arr[i].win === win) return true;
+            return false;
+        }
 
-      // We'll use this to set hidden parent elements.
-      hidden : null,
+        // does she exist?
+        var exists = false;
 
-      adjust : function( $child ) {
-        // Internal reference.
-        var _self = this;
 
-        // Set all hidden parent elements, including this element.
-        _self.hidden = $child.parents().andSelf().filter( ":hidden" );
+        if (origin === '*') {
+            // we must check all other origins, sadly.
+            for (var k in s_boundChans) {
+                if (!s_boundChans.hasOwnProperty(k)) continue;
+                if (k === '*') continue;
+                if (typeof s_boundChans[k][scope] === 'object') {
+                    exists = hasWin(s_boundChans[k][scope]);
+                    if (exists) break;
+                }
+            }
+        } else {
+            // we must check only '*'
+            if ((s_boundChans['*'] && s_boundChans['*'][scope])) {
+                exists = hasWin(s_boundChans['*'][scope]);
+            }
+            if (!exists && s_boundChans[origin] && s_boundChans[origin][scope])
+            {
+                exists = hasWin(s_boundChans[origin][scope]);
+            }
+        }
+        if (exists) throw "A channel is already bound to the same window which overlaps with origin '"+ origin +"' and has scope '"+scope+"'";
 
-        // Loop through all hidden elements.
-        _self.hidden.each( function() {
+        if (typeof s_boundChans[origin] != 'object') s_boundChans[origin] = { };
+        if (typeof s_boundChans[origin][scope] != 'object') s_boundChans[origin][scope] = [ ];
+        s_boundChans[origin][scope].push({win: win, handler: handler});
+    }
 
-          // Cache the element.
-          var $elem = $( this );
+    function s_removeBoundChan(win, origin, scope) {
+        var arr = s_boundChans[origin][scope];
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].win === win) {
+                arr.splice(i,1);
+            }
+        }
+        if (s_boundChans[origin][scope].length === 0) {
+            delete s_boundChans[origin][scope];
+        }
+    }
 
-          // Store the style attribute.
-          // Undefined if element doesn't have a style attribute.
-          _self.tmp.push( $elem.attr( 'style' ) );
+    function s_isArray(obj) {
+        if (Array.isArray) return Array.isArray(obj);
+        else {
+            return (obj.constructor.toString().indexOf("Array") != -1);
+        }
+    }
 
-          // Set the element's display property to block,
-          // but ensure it's visibility is hidden.
-          $elem.css( { 'visibility' : 'hidden', 'display' : 'block' } );
-        });
+    // No two outstanding outbound messages may have the same id, period.  Given that, a single table
+    // mapping "transaction ids" to message handlers, allows efficient routing of Callback, Error, and
+    // Response messages.  Entries are added to this table when requests are sent, and removed when
+    // responses are received.
+    var s_transIds = { };
 
-      }, // end adjust
+    // class singleton onMessage handler
+    // this function is registered once and all incoming messages route through here.  This
+    // arrangement allows certain efficiencies, message data is only parsed once and dispatch
+    // is more efficient, especially for large numbers of simultaneous channels.
+    var s_onMessage = function(e) {
+        try {
+          var m = JSON.parse(e.data);
+          if (typeof m !== 'object' || m === null) throw "malformed";
+        } catch(e) {
+          // just ignore any posted messages that do not consist of valid JSON
+          return;
+        }
 
-      /**
-       * Resets the elements previous state.
-       *
-       * @method reset
-       */
-      reset : function() {
-        // Internal reference.
-        var _self = this;
-        // Loop through our hidden element collection.
-        _self.hidden.each( function( i ) {
-          // Cache this element.
-          var $elem = $( this ),
-              _tmp = _self.tmp[ i ]; // Get the stored 'style' value for this element.
+        var w = e.source;
+        var o = e.origin;
+        var s, i, meth;
 
-          // If the stored value is undefined.
-          if( _tmp === undefined )
-            // Remove the style attribute.
-            $elem.removeAttr( 'style' );
-          else
-            // Otherwise, reset the element style attribute.
-            $elem.attr( 'style', _tmp );
+        if (typeof m.method === 'string') {
+            var ar = m.method.split('::');
+            if (ar.length == 2) {
+                s = ar[0];
+                meth = ar[1];
+            } else {
+                meth = m.method;
+            }
+        }
 
-        });
-        // Reset the tmp array.
-        _self.tmp = [];
-        // Reset the hidden elements variable.
-        _self.hidden = null;
+        if (typeof m.id !== 'undefined') i = m.id;
 
-      } // end reset
+        // w is message source window
+        // o is message origin
+        // m is parsed message
+        // s is message scope
+        // i is message id (or undefined)
+        // meth is unscoped method name
+        // ^^ based on these factors we can route the message
 
-    }; // end return
+        // if it has a method it's either a notification or a request,
+        // route using s_boundChans
+        if (typeof meth === 'string') {
+            var delivered = false;
+            if (s_boundChans[o] && s_boundChans[o][s]) {
+                for (var j = 0; j < s_boundChans[o][s].length; j++) {
+                    if (s_boundChans[o][s][j].win === w) {
+                        s_boundChans[o][s][j].handler(o, meth, m);
+                        delivered = true;
+                        break;
+                    }
+                }
+            }
 
-  };
-
-  jQuery.foundation = jQuery.foundation || {};
-  jQuery.foundation.customForms = jQuery.foundation.customForms || {};
-
-  $.foundation.customForms.appendCustomMarkup = function ( options ) {
-
-    var defaults = {
-      disable_class: "js-disable-custom"
+            if (!delivered && s_boundChans['*'] && s_boundChans['*'][s]) {
+                for (var j = 0; j < s_boundChans['*'][s].length; j++) {
+                    if (s_boundChans['*'][s][j].win === w) {
+                        s_boundChans['*'][s][j].handler(o, meth, m);
+                        break;
+                    }
+                }
+            }
+        }
+        // otherwise it must have an id (or be poorly formed
+        else if (typeof i != 'undefined') {
+            if (s_transIds[i]) s_transIds[i](o, meth, m);
+        }
     };
 
-    options = $.extend( defaults, options );
-
-    function appendCustomMarkup(idx, sel) {
-      var $this = $(sel).hide(),
-          type  = $this.attr('type'),
-          $span = $this.next('span.custom.' + type);
-
-      if ($span.length === 0) {
-        $span = $('<span class="custom ' + type + '"></span>').insertAfter($this);
-      }
-
-      $span.toggleClass('checked', $this.is(':checked'));
-      $span.toggleClass('disabled', $this.is(':disabled'));
-    }
-
-    function appendCustomSelect(idx, sel) {
-      var hiddenFixObj = hiddenFix();
-          //
-          // jQueryify the <select> element and cache it.
-          //
-      var $this = $( sel ),
-          //
-          // Find the custom drop down element.
-          //
-          $customSelect = $this.next( 'div.custom.dropdown' ),
-          //
-          // Find the custom select element within the custom drop down.
-          //
-          $customList = $customSelect.find( 'ul' ),
-          //
-          // Find the custom a.current element.
-          //
-          $selectCurrent = $customSelect.find( ".current" ),
-          //
-          // Find the custom a.selector element (the drop-down icon).
-          //
-          $selector = $customSelect.find( ".selector" ),
-          //
-          // Get the <options> from the <select> element.
-          //
-          $options = $this.find( 'option' ),
-          //
-          // Filter down the selected options
-          //
-          $selectedOption = $options.filter( ':selected' ),
-          //
-          // Initial max width.
-          //
-          maxWidth = 0,
-          //
-          // We'll use this variable to create the <li> elements for our custom select.
-          //
-          liHtml = '',
-          //
-          // We'll use this to cache the created <li> elements within our custom select.
-          //
-          $listItems
-      ;
-      var $currentSelect = false;
-      //
-      // Should we not create a custom list?
-      //
-      if ( $this.hasClass( 'no-custom' ) ) return;
-
-      //
-      // Did we not create a custom select element yet?
-      //
-      if ( $customSelect.length === 0 ) {
-        //
-        // Let's create our custom select element!
-        //
-
-            //
-            // Determine what select size to use.
-            //
-        var customSelectSize = $this.hasClass( 'small' )   ? 'small'   :
-                               $this.hasClass( 'medium' )  ? 'medium'  :
-                               $this.hasClass( 'large' )   ? 'large'   :
-                               $this.hasClass( 'expand' )  ? 'expand'  : ''
-        ;
-        //
-        // Build our custom list.
-        //
-        $customSelect = $('<div class="' + ['custom', 'dropdown', customSelectSize ].join( ' ' ) + '"><a href="#" class="selector"></a><ul /></div>"');
-        //
-        // Grab the selector element
-        //
-        $selector = $customSelect.find( ".selector" );
-        //
-        // Grab the unordered list element from the custom list.
-        //
-        $customList = $customSelect.find( "ul" );
-        //
-        // Build our <li> elements.
-        //
-        liHtml = $options.map( function() { return "<li>" + $( this ).html() + "</li>"; } ).get().join( '' );
-        //
-        // Append our <li> elements to the custom list (<ul>).
-        //
-        $customList.append( liHtml );
-        //
-        // Insert the the currently selected list item before all other elements.
-        // Then, find the element and assign it to $currentSelect.
-        //
-
-        $currentSelect = $customSelect.prepend( '<a href="#" class="current">' + $selectedOption.html() + '</a>' ).find( ".current" );
-        //
-        // Add the custom select element after the <select> element.
-        //
-        $this.after( $customSelect )
-        //
-        //then hide the <select> element.
-        //
-        .hide();
-
-      } else {
-        //
-        // Create our list item <li> elements.
-        //
-        liHtml = $options.map( function() { return "<li>" + $( this ).html() + "</li>"; } ).get().join( '' );
-        //
-        // Refresh the ul with options from the select in case the supplied markup doesn't match.
-        // Clear what's currently in the <ul> element.
-        //
-        $customList.html( '' )
-        //
-        // Populate the list item <li> elements.
-        //
-        .append( liHtml );
-
-      } // endif $customSelect.length === 0
-
-      //
-      // Determine whether or not the custom select element should be disabled.
-      //
-      $customSelect.toggleClass( 'disabled', $this.is( ':disabled' ) );
-      //
-      // Cache our List item elements.
-      //
-      $listItems = $customList.find( 'li' );
-
-      //
-      // Determine which elements to select in our custom list.
-      //
-      $options.each( function ( index ) {
-
-        if ( this.selected ) {
-          //
-          // Add the selected class to the current li element
-          //
-          $listItems.eq( index ).addClass( 'selected' );
-          //
-          // Update the current element with the option value.
-          //
-          if ($currentSelect) {
-            $currentSelect.html( $( this ).html() );
-          }
-
-        }
-
-      });
-
-      //
-      // Update the custom <ul> list width property.
-      //
-      $customList.css( 'width', 'inherit' );
-      //
-      // Set the custom select width property.
-      //
-      $customSelect.css( 'width', 'inherit' );
-
-      //
-      // If we're not specifying a predetermined form size.
-      //
-      if ( !$customSelect.is( '.small, .medium, .large, .expand' ) ) {
-
-        // ------------------------------------------------------------------------------------
-        // This is a work-around for when elements are contained within hidden parents.
-        // For example, when custom-form elements are inside of a hidden reveal modal.
-        //
-        // We need to display the current custom list element as well as hidden parent elements
-        // in order to properly calculate the list item element's width property.
-        // -------------------------------------------------------------------------------------
-
-        //
-        // Show the drop down.
-        // This should ensure that the list item's width values are properly calculated.
-        //
-        $customSelect.addClass( 'open' );
-        //
-        // Quickly, display all parent elements.
-        // This should help us calcualate the width of the list item's within the drop down.
-        //
-        hiddenFixObj.adjust( $customList );
-        //
-        // Grab the largest list item width.
-        //
-        maxWidth = ( $listItems.outerWidth() > maxWidth ) ? $listItems.outerWidth() : maxWidth;
-        //
-        // Okay, now reset the parent elements.
-        // This will hide them again.
-        //
-        hiddenFixObj.reset();
-        //
-        // Finally, hide the drop down.
-        //
-        $customSelect.removeClass( 'open' );
-        //
-        // Set the custom list width.
-        //
-        $customSelect.width( maxWidth + 18);
-        //
-        // Set the custom list element (<ul />) width.
-        //
-        $customList.width(  maxWidth + 16 );
-
-      } // endif
-
-    }
-
-    $('form.custom input:radio[data-customforms!=disabled]').each(appendCustomMarkup);
-    $('form.custom input:checkbox[data-customforms!=disabled]').each(appendCustomMarkup);
-    $('form.custom select[data-customforms!=disabled]').each(appendCustomSelect);
-  };
-
-  var refreshCustomSelect = function($select) {
-    var maxWidth = 0,
-        $customSelect = $select.next();
-    $options = $select.find('option');
-    $customSelect.find('ul').html('');
-
-    $options.each(function () {
-      $li = $('<li>' + $(this).html() + '</li>');
-      $customSelect.find('ul').append($li);
-    });
-
-    // re-populate
-    $options.each(function (index) {
-      if (this.selected) {
-        $customSelect.find('li').eq(index).addClass('selected');
-        $customSelect.find('.current').html($(this).html());
-      }
-    });
-
-    // fix width
-    $customSelect.removeAttr('style')
-      .find('ul').removeAttr('style');
-    $customSelect.find('li').each(function () {
-      $customSelect.addClass('open');
-      if ($(this).outerWidth() > maxWidth) {
-        maxWidth = $(this).outerWidth();
-      }
-      $customSelect.removeClass('open');
-    });
-    $customSelect.css('width', maxWidth + 18 + 'px');
-    $customSelect.find('ul').css('width', maxWidth + 16 + 'px');
-
-  };
-
-  var toggleCheckbox = function($element) {
-    var $input = $element.prev(),
-        input = $input[0];
-
-    if (false === $input.is(':disabled')) {
-        input.checked = ((input.checked) ? false : true);
-        $element.toggleClass('checked');
-        
-        $input.trigger('change');
-    }
-  };
-
-  var toggleRadio = function($element) {
-    var $input = $element.prev(),
-        input = $input[0];
-
-    if (false === $input.is(':disabled')) {
-      
-      $('input:radio[name="' + $input.attr('name') + '"]').next().not($element).removeClass('checked');
-      $element.toggleClass('checked');
-      input.checked = $element.hasClass('checked');
-
-      $input.trigger('change');
-    }
-  };
-
-  $(document).on('click', 'form.custom span.custom.checkbox', function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    toggleCheckbox($(this));
-  });
-
-  $(document).on('click', 'form.custom span.custom.radio', function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    toggleRadio($(this));
-  });
-
-  $(document).on('change', 'form.custom select[data-customforms!=disabled]', function (event) {
-    refreshCustomSelect($(this));
-  });
-
-  $(document).on('click', 'form.custom label', function (event) {
-    var $associatedElement = $('#' + $(this).attr('for')),
-        $customCheckbox,
-        $customRadio;
-    if ($associatedElement.length !== 0) {
-      if ($associatedElement.attr('type') === 'checkbox') {
-        event.preventDefault();
-        $customCheckbox = $(this).find('span.custom.checkbox');
-        toggleCheckbox($customCheckbox);
-      } else if ($associatedElement.attr('type') === 'radio') {
-        event.preventDefault();
-        $customRadio = $(this).find('span.custom.radio');
-        toggleRadio($customRadio);
-      }
-    }
-  });
-
-  $(document).on('click', 'form.custom div.custom.dropdown a.current, form.custom div.custom.dropdown a.selector', function (event) {
-    var $this = $(this),
-        $dropdown = $this.closest('div.custom.dropdown'),
-        $select = $dropdown.prev();
-
-    event.preventDefault();
-    $('div.dropdown').removeClass('open');
-
-    if (false === $select.is(':disabled')) {
-        $dropdown.toggleClass('open');
-
-        if ($dropdown.hasClass('open')) {
-          $(document).bind('click.customdropdown', function (event) {
-            $dropdown.removeClass('open');
-            $(document).unbind('.customdropdown');
-          });
-        } else {
-          $(document).unbind('.customdropdown');
-        }
-        return false;
-    }
-  });
-
-  $(document).on('click', 'form.custom div.custom.dropdown li', function (event) {
-    var $this = $(this),
-        $customDropdown = $this.closest('div.custom.dropdown'),
-        $select = $customDropdown.prev(),
-        selectedIndex = 0;
-
-    event.preventDefault();
-    event.stopPropagation();
-    $('div.dropdown').removeClass('open');
-
-    $this
-      .closest('ul')
-      .find('li')
-      .removeClass('selected');
-    $this.addClass('selected');
-
-    $customDropdown
-      .removeClass('open')
-      .find('a.current')
-      .html($this.html());
-
-    $this.closest('ul').find('li').each(function (index) {
-      if ($this[0] == this) {
-        selectedIndex = index;
-      }
-
-    });
-    $select[0].selectedIndex = selectedIndex;
-
-    $select.trigger('change');
-  });
-
-
-  $.fn.foundationCustomForms = $.foundation.customForms.appendCustomMarkup;
-
-})( jQuery );;
-/*
- * jQuery Reveal Plugin 1.1
- * www.ZURB.com
- * Copyright 2010, ZURB
- * Free to use under the MIT license.
- * http://www.opensource.org/licenses/mit-license.php
-*/
-/*globals jQuery */
-
-(function ($) {
-  'use strict';
-  //
-  // Global variable.
-  // Helps us determine if the current modal is being queued for display.
-  //
-  var modalQueued = false;
-
-  //
-  // Bind the live 'click' event to all anchor elemnets with the data-reveal-id attribute.
-  //
-  $(document).on('click', 'a[data-reveal-id]', function ( event ) {
-    //
-    // Prevent default action of the event.
-    //
-    event.preventDefault();
-    //
-    // Get the clicked anchor data-reveal-id attribute value.
-    //
-    var modalLocation = $( this ).attr( 'data-reveal-id' );
-    //
-    // Find the element with that modalLocation id and call the reveal plugin.
-    //
-    $( '#' + modalLocation ).reveal( $( this ).data() );
-
-  });
-
-  /**
-   * @module reveal
-   * @property {Object} [options] Reveal options
-   */
-  $.fn.reveal = function ( options ) {
-      /*
-       * Cache the document object.
-       */
-    var $doc = $( document ),
-        /*
-         * Default property values.
-         */
-        defaults = {
-          /**
-           * Possible options: fade, fadeAndPop, none
-           *
-           * @property animation
-           * @type {String}
-           * @default fadeAndPop
-           */
-          animation: 'fadeAndPop',
-          /**
-           * Speed at which the reveal should show. How fast animtions are.
-           *
-           * @property animationSpeed
-           * @type {Integer}
-           * @default 300
-           */
-          animationSpeed: 300,
-          /**
-           * Should the modal close when the background is clicked?
-           *
-           * @property closeOnBackgroundClick
-           * @type {Boolean}
-           * @default true
-           */
-          closeOnBackgroundClick: true,
-          /**
-           * Specify a class name for the 'close modal' element.
-           * This element will close an open modal.
-           *
-           @example
-           <a href='#close' class='close-reveal-modal'>Close Me</a>
-           *
-           * @property dismissModalClass
-           * @type {String}
-           * @default close-reveal-modal
-           */
-          dismissModalClass: 'close-reveal-modal',
-          /**
-           * Specify a callback function that triggers 'before' the modal opens.
-           *
-           * @property open
-           * @type {Function}
-           * @default function(){}
-           */
-          open: $.noop,
-          /**
-           * Specify a callback function that triggers 'after' the modal is opened.
-           *
-           * @property opened
-           * @type {Function}
-           * @default function(){}
-           */
-          opened: $.noop,
-          /**
-           * Specify a callback function that triggers 'before' the modal prepares to close.
-           *
-           * @property close
-           * @type {Function}
-           * @default function(){}
-           */
-          close: $.noop,
-          /**
-           * Specify a callback function that triggers 'after' the modal is closed.
-           *
-           * @property closed
-           * @type {Function}
-           * @default function(){}
-           */
-          closed: $.noop
-        }
-    ;
-    //
-    // Extend the default options.
-    // This replaces the passed in option (options) values with default values.
-    //
-    options = $.extend( {}, defaults, options );
-
-    //
-    // Apply the plugin functionality to each element in the jQuery collection.
-    //
-    return this.not('.reveal-modal.open').each( function () {
-        //
-        // Cache the modal element
-        //
-      var modal = $( this ),
-        //
-        // Get the current css 'top' property value in decimal format.
-        //
-        topMeasure = parseInt( modal.css( 'top' ), 10 ),
-        //
-        // Calculate the top offset.
-        //
-        topOffset = modal.height() + topMeasure,
-        //
-        // Helps determine if the modal is locked.
-        // This way we keep the modal from triggering while it's in the middle of animating.
-        //
-        locked = false,
-        //
-        // Get the modal background element.
-        //
-        modalBg = $( '.reveal-modal-bg' ),
-        //
-        // Show modal properties
-        //
-        cssOpts = {
-          //
-          // Used, when we show the modal.
-          //
-          open : {
-            //
-            // Set the 'top' property to the document scroll minus the calculated top offset.
-            //
-            'top': 0,
-            //
-            // Opacity gets set to 0.
-            //
-            'opacity': 0,
-            //
-            // Show the modal
-            //
-            'visibility': 'visible',
-            //
-            // Ensure it's displayed as a block element.
-            //
-            'display': 'block'
-          },
-          //
-          // Used, when we hide the modal.
-          //
-          close : {
-            //
-            // Set the default 'top' property value.
-            //
-            'top': topMeasure,
-            //
-            // Has full opacity.
-            //
-            'opacity': 1,
-            //
-            // Hide the modal
-            //
-            'visibility': 'hidden',
-            //
-            // Ensure the elment is hidden.
-            //
-            'display': 'none'
-          }
-
-        },
-        //
-        // Initial closeButton variable.
-        //
-        $closeButton
-      ;
-
-      //
-      // Do we have a modal background element?
-      //
-      if ( modalBg.length === 0 ) {
-        //
-        // No we don't. So, let's create one.
-        //
-        modalBg = $( '<div />', { 'class' : 'reveal-modal-bg' } )
-        //
-        // Then insert it after the modal element.
-        //
-        .insertAfter( modal );
-        //
-        // Now, fade it out a bit.
-        //
-        modalBg.fadeTo( 'fast', 0.8 );
-      }
-
-      //
-      // Helper Methods
-      //
-
-      /**
-       * Unlock the modal for animation.
-       *
-       * @method unlockModal
-       */
-      function unlockModal() {
-        locked = false;
-      }
-
-      /**
-       * Lock the modal to prevent further animation.
-       *
-       * @method lockModal
-       */
-      function lockModal() {
-        locked = true;
-      }
-
-      /**
-       * Closes all open modals.
-       *
-       * @method closeOpenModal
-       */
-      function closeOpenModals() {
-        //
-        // Get all reveal-modal elements with the .open class.
-        //
-        var $openModals = $( ".reveal-modal.open" );
-        //
-        // Do we have modals to close?
-        //
-        if ( $openModals.length === 1 ) {
-          //
-          // Set the modals for animation queuing.
-          //
-          modalQueued = true;
-          //
-          // Trigger the modal close event.
-          //
-          $openModals.trigger( "reveal:close" );
-        }
-
-      }
-      /**
-       * Animates the modal opening.
-       * Handles the modal 'open' event.
-       *
-       * @method openAnimation
-       */
-      function openAnimation() {
-        //
-        // First, determine if we're in the middle of animation.
-        //
-        if ( !locked ) {
-          //
-          // We're not animating, let's lock the modal for animation.
-          //
-          lockModal();
-          //
-          // Close any opened modals.
-          //
-          closeOpenModals();
-          //
-          // Now, add the open class to this modal.
-          //
-          modal.addClass( "open" );
-
-          //
-          // Are we executing the 'fadeAndPop' animation?
-          //
-          if ( options.animation === "fadeAndPop" ) {
-            //
-            // Yes, we're doing the 'fadeAndPop' animation.
-            // Okay, set the modal css properties.
-            //
-            //
-            // Set the 'top' property to the document scroll minus the calculated top offset.
-            //
-            cssOpts.open.top = $doc.scrollTop() - topOffset;
-            //
-            // Flip the opacity to 0.
-            //
-            cssOpts.open.opacity = 0;
-            //
-            // Set the css options.
-            //
-            modal.css( cssOpts.open );
-            //
-            // Fade in the background element, at half the speed of the modal element.
-            // So, faster than the modal element.
-            //
-            modalBg.fadeIn( options.animationSpeed / 2 );
-
-            //
-            // Let's delay the next animation queue.
-            // We'll wait until the background element is faded in.
-            //
-            modal.delay( options.animationSpeed / 2 )
-            //
-            // Animate the following css properties.
-            //
-            .animate( {
-              //
-              // Set the 'top' property to the document scroll plus the calculated top measure.
-              //
-              "top": $doc.scrollTop() + topMeasure + 'px',
-              //
-              // Set it to full opacity.
-              //
-              "opacity": 1
-
-            },
-            /*
-             * Fade speed.
-             */
-            options.animationSpeed,
-            /*
-             * End of animation callback.
-             */
-            function () {
-              //
-              // Trigger the modal reveal:opened event.
-              // This should trigger the functions set in the options.opened property.
-              //
-              modal.trigger( 'reveal:opened' );
-
-            }); // end of animate.
-
-          } // end if 'fadeAndPop'
-
-          //
-          // Are executing the 'fade' animation?
-          //
-          if ( options.animation === "fade" ) {
-            //
-            // Yes, were executing 'fade'.
-            // Okay, let's set the modal properties.
-            //
-            cssOpts.open.top = $doc.scrollTop() + topMeasure;
-            //
-            // Flip the opacity to 0.
-            //
-            cssOpts.open.opacity = 0;
-            //
-            // Set the css options.
-            //
-            modal.css( cssOpts.open );
-            //
-            // Fade in the modal background at half the speed of the modal.
-            // So, faster than modal.
-            //
-            modalBg.fadeIn( options.animationSpeed / 2 );
-
-            //
-            // Delay the modal animation.
-            // Wait till the modal background is done animating.
-            //
-            modal.delay( options.animationSpeed / 2 )
-            //
-            // Now animate the modal.
-            //
-            .animate( {
-              //
-              // Set to full opacity.
-              //
-              "opacity": 1
-            },
-
-            /*
-             * Animation speed.
-             */
-            options.animationSpeed,
-
-            /*
-             * End of animation callback.
-             */
-            function () {
-              //
-              // Trigger the modal reveal:opened event.
-              // This should trigger the functions set in the options.opened property.
-              //
-              modal.trigger( 'reveal:opened' );
-
-            });
-
-          } // end if 'fade'
-
-          //
-          // Are we not animating?
-          //
-          if ( options.animation === "none" ) {
-            //
-            // We're not animating.
-            // Okay, let's set the modal css properties.
-            //
-            //
-            // Set the top property.
-            //
-            cssOpts.open.top = $doc.scrollTop() + topMeasure;
-            //
-            // Set the opacity property to full opacity, since we're not fading (animating).
-            //
-            cssOpts.open.opacity = 1;
-            //
-            // Set the css property.
-            //
-            modal.css( cssOpts.open );
-            //
-            // Show the modal Background.
-            //
-            modalBg.css( { "display": "block" } );
-            //
-            // Trigger the modal opened event.
-            //
-            modal.trigger( 'reveal:opened' );
-
-          } // end if animating 'none'
-
-        }// end if !locked
-
-      }// end openAnimation
-
-
-      function openVideos() {
-        var video = modal.find('.flex-video'),
-            iframe = video.find('iframe');
-        if (iframe.length > 0) {
-          iframe.attr("src", iframe.data("src"));
-          video.fadeIn(100);
-        }
-      }
-
-      //
-      // Bind the reveal 'open' event.
-      // When the event is triggered, openAnimation is called
-      // along with any function set in the options.open property.
-      //
-      modal.bind( 'reveal:open.reveal', openAnimation );
-      modal.bind( 'reveal:open.reveal', openVideos);
-
-      /**
-       * Closes the modal element(s)
-       * Handles the modal 'close' event.
-       *
-       * @method closeAnimation
-       */
-      function closeAnimation() {
-        //
-        // First, determine if we're in the middle of animation.
-        //
-        if ( !locked ) {
-          //
-          // We're not animating, let's lock the modal for animation.
-          //
-          lockModal();
-          //
-          // Clear the modal of the open class.
-          //
-          modal.removeClass( "open" );
-
-          //
-          // Are we using the 'fadeAndPop' animation?
-          //
-          if ( options.animation === "fadeAndPop" ) {
-            //
-            // Yes, okay, let's set the animation properties.
-            //
-            modal.animate( {
-              //
-              // Set the top property to the document scrollTop minus calculated topOffset.
-              //
-              "top":  $doc.scrollTop() - topOffset + 'px',
-              //
-              // Fade the modal out, by using the opacity property.
-              //
-              "opacity": 0
-
-            },
-            /*
-             * Fade speed.
-             */
-            options.animationSpeed / 2,
-            /*
-             * End of animation callback.
-             */
-            function () {
-              //
-              // Set the css hidden options.
-              //
-              modal.css( cssOpts.close );
-
-            });
-            //
-            // Is the modal animation queued?
-            //
-            if ( !modalQueued ) {
-              //
-              // Oh, the modal(s) are mid animating.
-              // Let's delay the animation queue.
-              //
-              modalBg.delay( options.animationSpeed )
-              //
-              // Fade out the modal background.
-              //
-              .fadeOut(
-              /*
-               * Animation speed.
-               */
-              options.animationSpeed,
-             /*
-              * End of animation callback.
-              */
-              function () {
-                //
-                // Trigger the modal 'closed' event.
-                // This should trigger any method set in the options.closed property.
-                //
-                modal.trigger( 'reveal:closed' );
-
-              });
-
-            } else {
-              //
-              // We're not mid queue.
-              // Trigger the modal 'closed' event.
-              // This should trigger any method set in the options.closed propety.
-              //
-              modal.trigger( 'reveal:closed' );
-
-            } // end if !modalQueued
-
-          } // end if animation 'fadeAndPop'
-
-          //
-          // Are we using the 'fade' animation.
-          //
-          if ( options.animation === "fade" ) {
-            //
-            // Yes, we're using the 'fade' animation.
-            //
-            modal.animate( { "opacity" : 0 },
-              /*
-               * Animation speed.
-               */
-              options.animationSpeed,
-              /*
-               * End of animation callback.
-               */
-              function () {
-              //
-              // Set the css close options.
-              //
-              modal.css( cssOpts.close );
-
-            }); // end animate
-
-            //
-            // Are we mid animating the modal(s)?
-            //
-            if ( !modalQueued ) {
-              //
-              // Oh, the modal(s) are mid animating.
-              // Let's delay the animation queue.
-              //
-              modalBg.delay( options.animationSpeed )
-              //
-              // Let's fade out the modal background element.
-              //
-              .fadeOut(
-              /*
-               * Animation speed.
-               */
-              options.animationSpeed,
-                /*
-                 * End of animation callback.
-                 */
-                function () {
-                  //
-                  // Trigger the modal 'closed' event.
-                  // This should trigger any method set in the options.closed propety.
-                  //
-                  modal.trigger( 'reveal:closed' );
-
-              }); // end fadeOut
-
-            } else {
-              //
-              // We're not mid queue.
-              // Trigger the modal 'closed' event.
-              // This should trigger any method set in the options.closed propety.
-              //
-              modal.trigger( 'reveal:closed' );
-
-            } // end if !modalQueued
-
-          } // end if animation 'fade'
-
-          //
-          // Are we not animating?
-          //
-          if ( options.animation === "none" ) {
-            //
-            // We're not animating.
-            // Set the modal close css options.
-            //
-            modal.css( cssOpts.close );
-            //
-            // Is the modal in the middle of an animation queue?
-            //
-            if ( !modalQueued ) {
-              //
-              // It's not mid queueu. Just hide it.
-              //
-              modalBg.css( { 'display': 'none' } );
+    // Setup postMessage event listeners
+    if (window.addEventListener) window.addEventListener('message', s_onMessage, false);
+    else if(window.attachEvent) window.attachEvent('onmessage', s_onMessage);
+
+    /* a messaging channel is constructed from a window and an origin.
+     * the channel will assert that all messages received over the
+     * channel match the origin
+     *
+     * Arguments to Channel.build(cfg):
+     *
+     *   cfg.window - the remote window with which we'll communicate
+     *   cfg.origin - the expected origin of the remote window, may be '*'
+     *                which matches any origin
+     *   cfg.scope  - the 'scope' of messages.  a scope string that is
+     *                prepended to message names.  local and remote endpoints
+     *                of a single channel must agree upon scope. Scope may
+     *                not contain double colons ('::').
+     *   cfg.debugOutput - A boolean value.  If true and window.console.log is
+     *                a function, then debug strings will be emitted to that
+     *                function.
+     *   cfg.debugOutput - A boolean value.  If true and window.console.log is
+     *                a function, then debug strings will be emitted to that
+     *                function.
+     *   cfg.postMessageObserver - A function that will be passed two arguments,
+     *                an origin and a message.  It will be passed these immediately
+     *                before messages are posted.
+     *   cfg.gotMessageObserver - A function that will be passed two arguments,
+     *                an origin and a message.  It will be passed these arguments
+     *                immediately after they pass scope and origin checks, but before
+     *                they are processed.
+     *   cfg.onReady - A function that will be invoked when a channel becomes "ready",
+     *                this occurs once both sides of the channel have been
+     *                instantiated and an application level handshake is exchanged.
+     *                the onReady function will be passed a single argument which is
+     *                the channel object that was returned from build().
+     */
+    return {
+        build: function(cfg) {
+            var debug = function(m) {
+                if (cfg.debugOutput && window.console && window.console.log) {
+                    // try to stringify, if it doesn't work we'll let javascript's built in toString do its magic
+                    try { if (typeof m !== 'string') m = JSON.stringify(m); } catch(e) { }
+                    console.log("["+chanId+"] " + m);
+                }
+            };
+
+            /* browser capabilities check */
+            if (!window.postMessage) throw("jschannel cannot run this browser, no postMessage");
+            if (!window.JSON || !window.JSON.stringify || ! window.JSON.parse) {
+                throw("jschannel cannot run this browser, no JSON parsing/serialization");
             }
-            //
-            // Trigger the modal 'closed' event.
-            // This should trigger any method set in the options.closed propety.
-            //
-            modal.trigger( 'reveal:closed' );
 
-          } // end if not animating
-          //
-          // Reset the modalQueued variable.
-          //
-          modalQueued = false;
-        } // end if !locked
+            /* basic argument validation */
+            if (typeof cfg != 'object') throw("Channel build invoked without a proper object argument");
 
-      } // end closeAnimation
+            if (!cfg.window || !cfg.window.postMessage) throw("Channel.build() called without a valid window argument");
 
-      /**
-       * Destroys the modal and it's events.
-       *
-       * @method destroy
-       */
-      function destroy() {
-        //
-        // Unbind all .reveal events from the modal.
-        //
-        modal.unbind( '.reveal' );
-        //
-        // Unbind all .reveal events from the modal background.
-        //
-        modalBg.unbind( '.reveal' );
-        //
-        // Unbind all .reveal events from the modal 'close' button.
-        //
-        $closeButton.unbind( '.reveal' );
-        //
-        // Unbind all .reveal events from the body.
-        //
-        $( 'body' ).unbind( '.reveal' );
+            /* we'd have to do a little more work to be able to run multiple channels that intercommunicate the same
+             * window...  Not sure if we care to support that */
+            if (window === cfg.window) throw("target window is same as present window -- not allowed");
 
-      }
+            // let's require that the client specify an origin.  if we just assume '*' we'll be
+            // propagating unsafe practices.  that would be lame.
+            var validOrigin = false;
+            if (typeof cfg.origin === 'string') {
+                var oMatch;
+                if (cfg.origin === "*") validOrigin = true;
+                // allow valid domains under http and https.  Also, trim paths off otherwise valid origins.
+                else if (null !== (oMatch = cfg.origin.match(/^https?:\/\/(?:[-a-zA-Z0-9_\.])+(?::\d+)?/))) {
+                    cfg.origin = oMatch[0].toLowerCase();
+                    validOrigin = true;
+                }
+            }
 
-      function closeVideos() {
-        var video = modal.find('.flex-video'),
-            iframe = video.find('iframe');
-        if (iframe.length > 0) {
-          iframe.data("src", iframe.attr("src"));
-          iframe.attr("src", "");
-          video.fadeOut(100);  
+            if (!validOrigin) throw ("Channel.build() called with an invalid origin");
+
+            if (typeof cfg.scope !== 'undefined') {
+                if (typeof cfg.scope !== 'string') throw 'scope, when specified, must be a string';
+                if (cfg.scope.split('::').length > 1) throw "scope may not contain double colons: '::'";
+            }
+
+            /* private variables */
+            // generate a random and psuedo unique id for this channel
+            var chanId = (function () {
+                var text = "";
+                var alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                for(var i=0; i < 5; i++) text += alpha.charAt(Math.floor(Math.random() * alpha.length));
+                return text;
+            })();
+
+            // registrations: mapping method names to call objects
+            var regTbl = { };
+            // current oustanding sent requests
+            var outTbl = { };
+            // current oustanding received requests
+            var inTbl = { };
+            // are we ready yet?  when false we will block outbound messages.
+            var ready = false;
+            var pendingQueue = [ ];
+
+            var createTransaction = function(id,origin,callbacks) {
+                var shouldDelayReturn = false;
+                var completed = false;
+
+                return {
+                    origin: origin,
+                    invoke: function(cbName, v) {
+                        // verify in table
+                        if (!inTbl[id]) throw "attempting to invoke a callback of a nonexistent transaction: " + id;
+                        // verify that the callback name is valid
+                        var valid = false;
+                        for (var i = 0; i < callbacks.length; i++) if (cbName === callbacks[i]) { valid = true; break; }
+                        if (!valid) throw "request supports no such callback '" + cbName + "'";
+
+                        // send callback invocation
+                        postMessage({ id: id, callback: cbName, params: v});
+                    },
+                    error: function(error, message) {
+                        completed = true;
+                        // verify in table
+                        if (!inTbl[id]) throw "error called for nonexistent message: " + id;
+
+                        // remove transaction from table
+                        delete inTbl[id];
+
+                        // send error
+                        postMessage({ id: id, error: error, message: message });
+                    },
+                    complete: function(v) {
+                        completed = true;
+                        // verify in table
+                        if (!inTbl[id]) throw "complete called for nonexistent message: " + id;
+                        // remove transaction from table
+                        delete inTbl[id];
+                        // send complete
+                        postMessage({ id: id, result: v });
+                    },
+                    delayReturn: function(delay) {
+                        if (typeof delay === 'boolean') {
+                            shouldDelayReturn = (delay === true);
+                        }
+                        return shouldDelayReturn;
+                    },
+                    completed: function() {
+                        return completed;
+                    }
+                };
+            };
+
+            var setTransactionTimeout = function(transId, timeout, method) {
+              return window.setTimeout(function() {
+                if (outTbl[transId]) {
+                  // XXX: what if client code raises an exception here?
+                  var msg = "timeout (" + timeout + "ms) exceeded on method '" + method + "'";
+                  (1,outTbl[transId].error)("timeout_error", msg);
+                  delete outTbl[transId];
+                  delete s_transIds[transId];
+                }
+              }, timeout);
+            };
+
+            var onMessage = function(origin, method, m) {
+                // if an observer was specified at allocation time, invoke it
+                if (typeof cfg.gotMessageObserver === 'function') {
+                    // pass observer a clone of the object so that our
+                    // manipulations are not visible (i.e. method unscoping).
+                    // This is not particularly efficient, but then we expect
+                    // that message observers are primarily for debugging anyway.
+                    try {
+                        cfg.gotMessageObserver(origin, m);
+                    } catch (e) {
+                        debug("gotMessageObserver() raised an exception: " + e.toString());
+                    }
+                }
+
+                // now, what type of message is this?
+                if (m.id && method) {
+                    // a request!  do we have a registered handler for this request?
+                    if (regTbl[method]) {
+                        var trans = createTransaction(m.id, origin, m.callbacks ? m.callbacks : [ ]);
+                        inTbl[m.id] = { };
+                        try {
+                            // callback handling.  we'll magically create functions inside the parameter list for each
+                            // callback
+                            if (m.callbacks && s_isArray(m.callbacks) && m.callbacks.length > 0) {
+                                for (var i = 0; i < m.callbacks.length; i++) {
+                                    var path = m.callbacks[i];
+                                    var obj = m.params;
+                                    var pathItems = path.split('/');
+                                    for (var j = 0; j < pathItems.length - 1; j++) {
+                                        var cp = pathItems[j];
+                                        if (typeof obj[cp] !== 'object') obj[cp] = { };
+                                        obj = obj[cp];
+                                    }
+                                    obj[pathItems[pathItems.length - 1]] = (function() {
+                                        var cbName = path;
+                                        return function(params) {
+                                            return trans.invoke(cbName, params);
+                                        };
+                                    })();
+                                }
+                            }
+                            var resp = regTbl[method](trans, m.params);
+                            if (!trans.delayReturn() && !trans.completed()) trans.complete(resp);
+                        } catch(e) {
+                            // automagic handling of exceptions:
+                            var error = "runtime_error";
+                            var message = null;
+                            // * if it's a string then it gets an error code of 'runtime_error' and string is the message
+                            if (typeof e === 'string') {
+                                message = e;
+                            } else if (typeof e === 'object') {
+                                // either an array or an object
+                                // * if it's an array of length two, then  array[0] is the code, array[1] is the error message
+                                if (e && s_isArray(e) && e.length == 2) {
+                                    error = e[0];
+                                    message = e[1];
+                                }
+                                // * if it's an object then we'll look form error and message parameters
+                                else if (typeof e.error === 'string') {
+                                    error = e.error;
+                                    if (!e.message) message = "";
+                                    else if (typeof e.message === 'string') message = e.message;
+                                    else e = e.message; // let the stringify/toString message give us a reasonable verbose error string
+                                }
+                            }
+
+                            // message is *still* null, let's try harder
+                            if (message === null) {
+                                try {
+                                    message = JSON.stringify(e);
+                                    /* On MSIE8, this can result in 'out of memory', which
+                                     * leaves message undefined. */
+                                    if (typeof(message) == 'undefined')
+                                      message = e.toString();
+                                } catch (e2) {
+                                    message = e.toString();
+                                }
+                            }
+
+                            trans.error(error,message);
+                        }
+                    }
+                } else if (m.id && m.callback) {
+                    if (!outTbl[m.id] ||!outTbl[m.id].callbacks || !outTbl[m.id].callbacks[m.callback])
+                    {
+                        debug("ignoring invalid callback, id:"+m.id+ " (" + m.callback +")");
+                    } else {
+                        // XXX: what if client code raises an exception here?
+                        outTbl[m.id].callbacks[m.callback](m.params);
+                    }
+                } else if (m.id) {
+                    if (!outTbl[m.id]) {
+                        debug("ignoring invalid response: " + m.id);
+                    } else {
+                        // XXX: what if client code raises an exception here?
+                        if (m.error) {
+                            (1,outTbl[m.id].error)(m.error, m.message);
+                        } else {
+                            if (m.result !== undefined) (1,outTbl[m.id].success)(m.result);
+                            else (1,outTbl[m.id].success)();
+                        }
+                        delete outTbl[m.id];
+                        delete s_transIds[m.id];
+                    }
+                } else if (method) {
+                    // tis a notification.
+                    if (regTbl[method]) {
+                        // yep, there's a handler for that.
+                        // transaction has only origin for notifications.
+                        regTbl[method]({ origin: origin }, m.params);
+                        // if the client throws, we'll just let it bubble out
+                        // what can we do?  Also, here we'll ignore return values
+                    }
+                }
+            };
+
+            // now register our bound channel for msg routing
+            s_addBoundChan(cfg.window, cfg.origin, ((typeof cfg.scope === 'string') ? cfg.scope : ''), onMessage);
+
+            // scope method names based on cfg.scope specified when the Channel was instantiated
+            var scopeMethod = function(m) {
+                if (typeof cfg.scope === 'string' && cfg.scope.length) m = [cfg.scope, m].join("::");
+                return m;
+            };
+
+            // a small wrapper around postmessage whose primary function is to handle the
+            // case that clients start sending messages before the other end is "ready"
+            var postMessage = function(msg, force) {
+                if (!msg) throw "postMessage called with null message";
+
+                // delay posting if we're not ready yet.
+                var verb = (ready ? "post  " : "queue ");
+                debug(verb + " message: " + JSON.stringify(msg));
+                if (!force && !ready) {
+                    pendingQueue.push(msg);
+                } else {
+                    if (typeof cfg.postMessageObserver === 'function') {
+                        try {
+                            cfg.postMessageObserver(cfg.origin, msg);
+                        } catch (e) {
+                            debug("postMessageObserver() raised an exception: " + e.toString());
+                        }
+                    }
+
+                    cfg.window.postMessage(JSON.stringify(msg), cfg.origin);
+                }
+            };
+
+            var onReady = function(trans, type) {
+                debug('ready msg received');
+                if (ready) throw "received ready message while in ready state.  help!";
+
+                if (type === 'ping') {
+                    chanId += '-R';
+                } else {
+                    chanId += '-L';
+                }
+
+                obj.unbind('__ready'); // now this handler isn't needed any more.
+                ready = true;
+                debug('ready msg accepted.');
+
+                if (type === 'ping') {
+                    obj.notify({ method: '__ready', params: 'pong' });
+                }
+
+                // flush queue
+                while (pendingQueue.length) {
+                    postMessage(pendingQueue.pop());
+                }
+
+                // invoke onReady observer if provided
+                if (typeof cfg.onReady === 'function') cfg.onReady(obj);
+            };
+
+            var obj = {
+                // tries to unbind a bound message handler.  returns false if not possible
+                unbind: function (method) {
+                    if (regTbl[method]) {
+                        if (!(delete regTbl[method])) throw ("can't delete method: " + method);
+                        return true;
+                    }
+                    return false;
+                },
+                bind: function (method, cb) {
+                    if (!method || typeof method !== 'string') throw "'method' argument to bind must be string";
+                    if (!cb || typeof cb !== 'function') throw "callback missing from bind params";
+
+                    if (regTbl[method]) throw "method '"+method+"' is already bound!";
+                    regTbl[method] = cb;
+                    return this;
+                },
+                call: function(m) {
+                    if (!m) throw 'missing arguments to call function';
+                    if (!m.method || typeof m.method !== 'string') throw "'method' argument to call must be string";
+                    if (!m.success || typeof m.success !== 'function') throw "'success' callback missing from call";
+
+                    // now it's time to support the 'callback' feature of jschannel.  We'll traverse the argument
+                    // object and pick out all of the functions that were passed as arguments.
+                    var callbacks = { };
+                    var callbackNames = [ ];
+                    var seen = [ ];
+
+                    var pruneFunctions = function (path, obj) {
+                        if (seen.indexOf(obj) >= 0) {
+                            throw "params cannot be a recursive data structure"
+                        }
+                        seen.push(obj);
+                       
+                        if (typeof obj === 'object') {
+                            for (var k in obj) {
+                                if (!obj.hasOwnProperty(k)) continue;
+                                var np = path + (path.length ? '/' : '') + k;
+                                if (typeof obj[k] === 'function') {
+                                    callbacks[np] = obj[k];
+                                    callbackNames.push(np);
+                                    delete obj[k];
+                                } else if (typeof obj[k] === 'object') {
+                                    pruneFunctions(np, obj[k]);
+                                }
+                            }
+                        }
+                    };
+                    pruneFunctions("", m.params);
+
+                    // build a 'request' message and send it
+                    var msg = { id: s_curTranId, method: scopeMethod(m.method), params: m.params };
+                    if (callbackNames.length) msg.callbacks = callbackNames;
+
+                    if (m.timeout)
+                      // XXX: This function returns a timeout ID, but we don't do anything with it.
+                      // We might want to keep track of it so we can cancel it using clearTimeout()
+                      // when the transaction completes.
+                      setTransactionTimeout(s_curTranId, m.timeout, scopeMethod(m.method));
+
+                    // insert into the transaction table
+                    outTbl[s_curTranId] = { callbacks: callbacks, error: m.error, success: m.success };
+                    s_transIds[s_curTranId] = onMessage;
+
+                    // increment current id
+                    s_curTranId++;
+
+                    postMessage(msg);
+                },
+                notify: function(m) {
+                    if (!m) throw 'missing arguments to notify function';
+                    if (!m.method || typeof m.method !== 'string') throw "'method' argument to notify must be string";
+
+                    // no need to go into any transaction table
+                    postMessage({ method: scopeMethod(m.method), params: m.params });
+                },
+                destroy: function () {
+                    s_removeBoundChan(cfg.window, cfg.origin, ((typeof cfg.scope === 'string') ? cfg.scope : ''));
+                    if (window.removeEventListener) window.removeEventListener('message', onMessage, false);
+                    else if(window.detachEvent) window.detachEvent('onmessage', onMessage);
+                    ready = false;
+                    regTbl = { };
+                    inTbl = { };
+                    outTbl = { };
+                    cfg.origin = null;
+                    pendingQueue = [ ];
+                    debug("channel destroyed");
+                    chanId = "";
+                }
+            };
+
+            obj.bind('__ready', onReady);
+            setTimeout(function() {
+                postMessage({ method: scopeMethod('__ready'), params: "ping" }, true);
+            }, 0);
+
+            return obj;
         }
-      }
-
-      //
-      // Bind the modal 'close' event
-      //
-      modal.bind( 'reveal:close.reveal', closeAnimation );
-      modal.bind( 'reveal:closed.reveal', closeVideos );
-      //
-      // Bind the modal 'opened' + 'closed' event
-      // Calls the unlockModal method.
-      //
-      modal.bind( 'reveal:opened.reveal reveal:closed.reveal', unlockModal );
-      //
-      // Bind the modal 'closed' event.
-      // Calls the destroy method.
-      //
-      modal.bind( 'reveal:closed.reveal', destroy );
-      //
-      // Bind the modal 'open' event
-      // Handled by the options.open property function.
-      //
-      modal.bind( 'reveal:open.reveal', options.open );
-      //
-      // Bind the modal 'opened' event.
-      // Handled by the options.opened property function.
-      //
-      modal.bind( 'reveal:opened.reveal', options.opened );
-      //
-      // Bind the modal 'close' event.
-      // Handled by the options.close property function.
-      //
-      modal.bind( 'reveal:close.reveal', options.close );
-      //
-      // Bind the modal 'closed' event.
-      // Handled by the options.closed property function.
-      //
-      modal.bind( 'reveal:closed.reveal', options.closed );
-
-      //
-      // We're running this for the first time.
-      // Trigger the modal 'open' event.
-      //
-      modal.trigger( 'reveal:open' );
-
-      //
-      // Get the closeButton variable element(s).
-      //
-     $closeButton = $( '.' + options.dismissModalClass )
-     //
-     // Bind the element 'click' event and handler.
-     //
-     .bind( 'click.reveal', function () {
-        //
-        // Trigger the modal 'close' event.
-        //
-        modal.trigger( 'reveal:close' );
-
-      });
-
-     //
-     // Should we close the modal background on click?
-     //
-     if ( options.closeOnBackgroundClick ) {
-      //
-      // Yes, close the modal background on 'click'
-      // Set the modal background css 'cursor' propety to pointer.
-      // Adds a pointer symbol when you mouse over the modal background.
-      //
-      modalBg.css( { "cursor": "pointer" } );
-      //
-      // Bind a 'click' event handler to the modal background.
-      //
-      modalBg.bind( 'click.reveal', function () {
-        //
-        // Trigger the modal 'close' event.
-        //
-        modal.trigger( 'reveal:close' );
-
-      });
-
-     }
-
-     //
-     // Bind keyup functions on the body element.
-     // We'll want to close the modal when the 'escape' key is hit.
-     //
-     $( 'body' ).bind( 'keyup.reveal', function ( event ) {
-      //
-      // Did the escape key get triggered?
-      //
-       if ( event.which === 27 ) { // 27 is the keycode for the Escape key
-         //
-         // Escape key was triggered.
-         // Trigger the modal 'close' event.
-         //
-         modal.trigger( 'reveal:close' );
-       }
-
-      }); // end $(body)
-
-    }); // end this.each
-
-  }; // end $.fn
-
-} ( jQuery ) );;
+    };
+})();;
 /* Modernizr 2.6.2 (Custom Build) | MIT & BSD
  * Build: http://modernizr.com/download/#-history-localstorage-shiv-cssclasses-load
  */

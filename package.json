@@ -1,6 +1,6 @@
 {
     "name": "intermine-steps",
-    "version": "0.3.3",
+    "version": "0.4.0-alpha",
     "author": "Radek <rs676@cam.ac.uk>",
     "private": true,
     "dependencies": {
@@ -15,7 +15,8 @@
         "eco-brunch": "1.5.0",
         "css-brunch": "1.5.0",
         "stylus-brunch": "1.5.0",
-        "uglify-js-brunch": "1.5.0"
+        "uglify-js-brunch": "1.5.0",
+        "apps-a-middleware": "1.2.2"
     },
     "scripts": {
         "start": "start.js"

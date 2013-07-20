@@ -2,8 +2,9 @@ exports.config =
     files:
         javascripts:
             joinTo:
-                'js/app.js': /^app\/(chaplin|tools)/
+                'js/app.js': /^app\/(chaplin|tools|iframe)/
                 'js/vendor.js': /^vendor\/js/
+                'js/iframe.js': /^vendor\/js\/(intermine\/intermine\.(api|apps-a))|(jschannel)/
             order:
                 before: [
                     'vendor/js/setImmediate-1.0.1.js'

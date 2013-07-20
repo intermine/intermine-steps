@@ -5,6 +5,9 @@ connect  = require 'connect'
 send     = require 'send'
 path     = require 'path'
 
+# Middlewares.
+appsA = require 'apps-a-middleware'
+
 # Store all histories here.
 history = []
 
@@ -17,6 +20,11 @@ exports.startServer = (port, dir='public') ->
             connect.favicon()
             # Static file serving.
             connect.static "./#{dir}"
+            # Apps/A Middleware.
+            appsA
+                'apps': [
+                    'git://github.com/intermine/intermine-apps-a.git'
+                ]
         ]
         'onError': (err, req, res) ->
             if err.status is 404

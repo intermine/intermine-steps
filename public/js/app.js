@@ -351,8 +351,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
           'root': config.mine + '/service/',
           'token': config.token,
           'skipDeps': true
-        }),
-        'report': new intermine.reportWidgets('http://intermine-report-widgets-service.labs.intermine.org')
+        })
       };
       this.initRouter(Routes);
       this.initDispatcher({
@@ -2874,10 +2873,249 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
       return Mediator.publish('tool:step', this.step += 1);
     };
 
+    ToolView.prototype.iframe = function(target) {
+      var chan, child, iframe, isOnline;
+      isOnline = function() {
+        return false;
+      };
+      iframe = document.createElement('iframe');
+      iframe.name = 'frame';
+      iframe.src = '/iframe.html';
+      $(target)[0].appendChild(iframe);
+      child = window.frames['frame'];
+      chan = Channel.build({
+        'window': child,
+        'origin': '*',
+        'scope': 'steps'
+      });
+      return chan.call({
+        'method': 'apps',
+        'params': {
+          'name': 'choose-list',
+          'config': {
+            'mine': root.App.service.im.root,
+            'token': root.App.service.im.token,
+            'cb': null
+          }
+        },
+        'success': function() {}
+      });
+    };
+
     return ToolView;
 
   })(GenericToolView);
   
+});
+window.require.register("tools/ChooseListTool/Model", function(exports, require, module) {
+  var ChooseListTool, Tool,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Tool = require('chaplin/models/Tool');
+
+  module.exports = ChooseListTool = (function(_super) {
+
+    __extends(ChooseListTool, _super);
+
+    function ChooseListTool() {
+      return ChooseListTool.__super__.constructor.apply(this, arguments);
+    }
+
+    ChooseListTool.prototype.defaults = {
+      'slug': 'choose-list-tool',
+      'name': 'ChooseListTool',
+      'title': 'Choose a List',
+      'description': 'Use an existing list',
+      'type': 'deyork'
+    };
+
+    return ChooseListTool;
+
+  })(Tool);
+  
+});
+window.require.register("tools/ChooseListTool/View", function(exports, require, module) {
+  var ChooseListToolView, Mediator, ToolView, root,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Mediator = require('chaplin/core/Mediator');
+
+  ToolView = require('chaplin/views/Tool');
+
+  root = this;
+
+  module.exports = ChooseListToolView = (function(_super) {
+
+    __extends(ChooseListToolView, _super);
+
+    function ChooseListToolView() {
+      return ChooseListToolView.__super__.constructor.apply(this, arguments);
+    }
+
+    ChooseListToolView.prototype.attach = function() {
+      var handler, name, provided, query, type, _ref, _ref1, _ref2,
+        _this = this;
+      ChooseListToolView.__super__.attach.apply(this, arguments);
+      switch (this.step) {
+        case 1:
+          this.iframe('.app.container');
+          return;
+          provided = {
+            'hidden': ['temp']
+          };
+          if (name = (_ref = this.model.get('data')) != null ? (_ref1 = _ref.list) != null ? _ref1.name : void 0 : void 0) {
+            provided.selected = name;
+          }
+          handler = function(err, working, list) {
+            console.log(err, 'Working', working, 'view', self.cid, list);
+            if (err) {
+              throw err;
+            }
+            if (list) {
+              self.model.set('data', {
+                'list': list
+              });
+              Mediator.publish('history:add', self.model);
+              return self.nextStep();
+            }
+          };
+          break;
+        case 2:
+          _ref2 = this.model.get('data').list, type = _ref2.type, name = _ref2.name;
+          query = {
+            'model': {
+              'name': 'genomic'
+            },
+            'select': ["" + type + ".*"],
+            'constraints': [
+              {
+                'path': type,
+                'op': 'IN',
+                'value': name
+              }
+            ]
+          };
+          $(this.el).find('.im-table').imWidget({
+            'type': 'minimal',
+            'service': root.App.service.im,
+            'query': query,
+            'events': {
+              'imo:click': function(type, id) {
+                return Mediator.publish('context:new', ['have:list', 'type:' + type, 'have:one'], _this.model.get('guid'), id);
+              }
+            }
+          });
+          Mediator.publish('context:new', ['have:list', 'type:' + type], this.model.get('guid'));
+      }
+      return this;
+    };
+
+    return ChooseListToolView;
+
+  })(ToolView);
+  
+});
+window.require.register("tools/ChooseListTool/step-1", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="app container"></div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
+});
+window.require.register("tools/ChooseListTool/step-2", function(exports, require, module) {
+  module.exports = function (__obj) {
+    if (!__obj) __obj = {};
+    var __out = [], __capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return __safe(result);
+    }, __sanitize = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else if (typeof value !== 'undefined' && value != null) {
+        return __escape(value);
+      } else {
+        return '';
+      }
+    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
+    __safe = __obj.safe = function(value) {
+      if (value && value.ecoSafe) {
+        return value;
+      } else {
+        if (!(typeof value !== 'undefined' && value != null)) value = '';
+        var result = new String(value);
+        result.ecoSafe = true;
+        return result;
+      }
+    };
+    if (!__escape) {
+      __escape = __obj.escape = function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      };
+    }
+    (function() {
+      (function() {
+      
+        __out.push('<div class="bootstrap container">\n    <div class="im-table intermine"></div>\n</div>');
+      
+      }).call(this);
+      
+    }).call(__obj);
+    __obj.safe = __objSafe, __obj.escape = __escape;
+    return __out.join('');
+  }
 });
 window.require.register("tools/ListWidgetTool/Model", function(exports, require, module) {
   var ListWidgetTool, Tool,
@@ -3405,36 +3643,36 @@ window.require.register("tools/OntologyGraphTool/step-3", function(exports, requ
     return __out.join('');
   }
 });
-window.require.register("tools/UseListTool/Model", function(exports, require, module) {
-  var Tool, UseListTool,
+window.require.register("tools/ResolveIdsTool/Model", function(exports, require, module) {
+  var ResolveIdsTool, Tool,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Tool = require('chaplin/models/Tool');
 
-  module.exports = UseListTool = (function(_super) {
+  module.exports = ResolveIdsTool = (function(_super) {
 
-    __extends(UseListTool, _super);
+    __extends(ResolveIdsTool, _super);
 
-    function UseListTool() {
-      return UseListTool.__super__.constructor.apply(this, arguments);
+    function ResolveIdsTool() {
+      return ResolveIdsTool.__super__.constructor.apply(this, arguments);
     }
 
-    UseListTool.prototype.defaults = {
-      'slug': 'use-list-tool',
-      'name': 'UseListTool',
-      'title': 'Use a List',
-      'description': 'Upload a list of identifiers or use an existing list',
+    ResolveIdsTool.prototype.defaults = {
+      'slug': 'resolve-ids-tool',
+      'name': 'ResolveIdsTool',
+      'title': 'Resolve identifiers to a List',
+      'description': 'Upload a list of identifiers',
       'type': 'deyork'
     };
 
-    return UseListTool;
+    return ResolveIdsTool;
 
   })(Tool);
   
 });
-window.require.register("tools/UseListTool/View", function(exports, require, module) {
-  var Mediator, ToolView, UploadListToolView, organisms, root, types,
+window.require.register("tools/ResolveIdsTool/View", function(exports, require, module) {
+  var Mediator, ResolveIdsToolView, ToolView, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3444,55 +3682,28 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
 
   root = this;
 
-  types = ['Gene', 'Protein'];
+  module.exports = ResolveIdsToolView = (function(_super) {
 
-  organisms = ['Caenorhabditis elegans', 'Danio rerio', 'Drosophila melanogaster', 'Homo sapiens', 'Mus musculus', 'Rattus norvegicus', 'Saccharomyces cerevisiae'];
+    __extends(ResolveIdsToolView, _super);
 
-  module.exports = UploadListToolView = (function(_super) {
-
-    __extends(UploadListToolView, _super);
-
-    function UploadListToolView() {
-      return UploadListToolView.__super__.constructor.apply(this, arguments);
+    function ResolveIdsToolView() {
+      return ResolveIdsToolView.__super__.constructor.apply(this, arguments);
     }
 
-    UploadListToolView.prototype.getTemplateData = function() {
-      switch (this.step) {
-        case 1:
-          return _.extend(UploadListToolView.__super__.getTemplateData.apply(this, arguments), {
-            'types': types,
-            'organisms': organisms
-          });
-        default:
-          return UploadListToolView.__super__.getTemplateData.apply(this, arguments);
-      }
-    };
-
-    UploadListToolView.prototype.attach = function() {
-      var list, query, switcher, type, _ref,
+    ResolveIdsToolView.prototype.attach = function() {
+      var list, query, type, _ref,
         _this = this;
-      UploadListToolView.__super__.attach.apply(this, arguments);
+      ResolveIdsToolView.__super__.attach.apply(this, arguments);
       switch (this.step) {
         case 1:
-          this.getDOM().foundationCustomForms();
-          switcher = $('.section-container');
-          switcher.find('p.title a').click(function(e) {
-            switcher.find('section.active').removeClass('active');
-            return $(e.target).closest('section').addClass('active');
-          });
-          async.waterfall([
-            this.getLists, function(lists, cb) {
-              $('div.content[data-content=choose]').html(require('tools/UseListTool/lists')({
-                'lists': lists
-              }));
-              return cb(null);
-            }
-          ], function(err) {
-            if (err) {
-              return console.log(err);
+          root.App.service.apps.load('identifier-resolution', '.app.container', {
+            cb: function(err, working, list) {
+              if (err) {
+                throw err;
+              }
+              return console.log(working, list);
             }
           });
-          this.delegate('click', '#submit', this.idResolution);
           break;
         case 2:
           _ref = this.model.get('data'), type = _ref.type, list = _ref.list;
@@ -3524,100 +3735,12 @@ window.require.register("tools/UseListTool/View", function(exports, require, mod
       return this;
     };
 
-    UploadListToolView.prototype.getLists = function(cb) {
-      return root.App.service.im.fetchLists().then(function(lists) {
-        return cb(null, lists);
-      });
-    };
-
-    UploadListToolView.prototype.idResolution = function() {
-      var clean, dom, input, self;
-      self = this;
-      clean = function(value) {
-        value = value.replace(/^\s+|\s+$/g, '').replace(/\s{2,}/g, ' ');
-        if (value === '') {
-          return [];
-        }
-        return value.split(/\s/g);
-      };
-      input = {};
-      dom = self.getDOM();
-      dom.append($('<div/>', {
-        'class': 'loading -steps-ui'
-      }));
-      return async.waterfall([
-        function(cb) {
-          input.ids = clean(dom.find('form textarea').val());
-          if (input.ids.length === 0) {
-            return cb('No identifiers have been provided');
-          }
-          input.organism = dom.find('select[name="organism"]').val();
-          input.type = dom.find('select[name="type"]').val();
-          return cb(null);
-        }, function(cb) {
-          return (root.App.service.im.resolveIds({
-            'identifiers': input.ids,
-            'type': input.type
-          })).then(function(job) {
-            return cb(null, job);
-          });
-        }, function(job, cb) {
-          return job.poll().then(function(results) {
-            var keys, query;
-            keys = _.keys(results);
-            if (keys.length === 0) {
-              return cb('No identifiers were resolved');
-            }
-            query = {
-              'model': {
-                'name': 'genomic'
-              },
-              'select': ["" + input.type + ".*"],
-              'constraints': [
-                {
-                  'path': "" + input.type + ".id",
-                  'op': 'ONE OF',
-                  'values': keys
-                }
-              ]
-            };
-            return cb(null, query);
-          });
-        }, function(query, cb) {
-          return root.App.service.im.query(query, function(q) {
-            return cb(null, q, query);
-          });
-        }, function(q, query, cb) {
-          var name;
-          name = root.Utils.guid();
-          return q.saveAsList({
-            'name': name
-          }, function(l) {
-            self.model.set('data', {
-              'identifiers': input.ids,
-              'organism': input.organism,
-              'type': input.type,
-              'query': query,
-              'list': name
-            });
-            Mediator.publish('history:add', self.model);
-            return cb(null);
-          });
-        }
-      ], function(err) {
-        if (err) {
-          return console.log(err);
-        }
-        return self.nextStep();
-      });
-    };
-
-    return UploadListToolView;
+    return ResolveIdsToolView;
 
   })(ToolView);
   
 });
-window.require.register("tools/UseListTool/lists", function(exports, require, module) {
+window.require.register("tools/ResolveIdsTool/step-1", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
     var __out = [], __capture = function(callback) {
@@ -3657,29 +3780,8 @@ window.require.register("tools/UseListTool/lists", function(exports, require, mo
     }
     (function() {
       (function() {
-        var list, _i, _len, _ref;
       
-        __out.push('<table>\n    <thead>\n        <tr>\n            <th></th>\n            <th>Name</th>\n            <th>Size</th>\n            <th>Type</th>\n            <th>Created</th>\n        </tr>\n    </thead>\n    <tbody>\n        ');
-      
-        _ref = this.lists;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          list = _ref[_i];
-          __out.push('\n            ');
-          if (list.status === 'CURRENT') {
-            __out.push('\n                <tr>\n                    <td><button class="small">Use</button></td>\n                    <td>');
-            __out.push(__sanitize(list.name));
-            __out.push('</td>\n                    <td>');
-            __out.push(__sanitize(list.size));
-            __out.push('</td>\n                    <td>');
-            __out.push(__sanitize(list.type));
-            __out.push('</td>\n                    <td>');
-            __out.push(__sanitize(list.dateCreated));
-            __out.push('</td>\n                </tr>\n            ');
-          }
-          __out.push('\n        ');
-        }
-      
-        __out.push('\n    </tbody>\n</table>');
+        __out.push('<div class="foundation app container"></div>');
       
       }).call(this);
       
@@ -3688,119 +3790,7 @@ window.require.register("tools/UseListTool/lists", function(exports, require, mo
     return __out.join('');
   }
 });
-window.require.register("tools/UseListTool/step-1", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-        var i, id, organism, type, _i, _j, _len, _len1, _ref, _ref1, _ref2;
-      
-        __out.push('<div class="foundation4 container">\n    <div class="row">\n        <div class="large-12 columns">\n            <div class="section-container" data-section>\n\n                <!-- use existing -->\n                <section class="active">\n                    <p class="title">\n                        <a>Use an existing list</a>\n                    </p>\n                    <div data-content="choose" class="content">\n                        <!-- lists.eco -->\n                    </div>\n                </section>\n\n                <!-- upload new -->\n                <section>\n                    <p class="title">\n                        <a>Upload new identifiers</a>\n                    </p>\n                    <div data-content="upload" class="content">\n                        <div class="row">\n                            <div class="large-12 columns">\n                                <p>Type/paste in identifiers that are whitespace (space, tab, newline) separated.</p>\n                            </div>\n                        </div>\n                        <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n                            <form class="custom">\n                                <div class="large-6 columns">\n                                    <label>List of identifiers</label>\n                                    ');
-      
-        if (this.data && this.data.identifiers) {
-          __out.push('\n                                        <textarea name="identifiers">');
-          _ref = this.data.identifiers;
-          for (i in _ref) {
-            id = _ref[i];
-            __out.push(__sanitize(id));
-            if (parseInt(i) !== this.data.identifiers.length - 1) {
-              __out.push(' ');
-            }
-          }
-          __out.push('</textarea>\n                                    ');
-        } else {
-          __out.push('\n                                        <textarea name="identifiers">PPARG ZEN MAD ftz Adh</textarea>\n                                    ');
-        }
-      
-        __out.push('\n                                </div>\n                                <div class="large-2 columns">\n                                    <label>Type</label>\n                                    <select name="type" class="expand">\n                                        ');
-      
-        _ref1 = this.types;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          type = _ref1[_i];
-          __out.push('\n                                            ');
-          if (this.data && this.data.type && this.data.type === type) {
-            __out.push('\n                                                <option value="');
-            __out.push(__sanitize(type));
-            __out.push('" selected="selected">');
-            __out.push(__sanitize(owl.pluralize(type)));
-            __out.push('</option>\n                                            ');
-          } else {
-            __out.push('\n                                                <option value="');
-            __out.push(__sanitize(type));
-            __out.push('">');
-            __out.push(__sanitize(owl.pluralize(type)));
-            __out.push('</option>\n                                            ');
-          }
-          __out.push('\n                                        ');
-        }
-      
-        __out.push('\n                                    </select>\n                                </div>\n                                <div class="large-4 columns">\n                                    <label>Superfluous constraint</label>\n                                    <select name="organism" class="expand">\n                                        ');
-      
-        _ref2 = this.organisms;
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          organism = _ref2[_j];
-          __out.push('\n                                            ');
-          if (this.data && this.data.organism && this.data.organism === organism) {
-            __out.push('\n                                                <option value="');
-            __out.push(__sanitize(organism));
-            __out.push('" selected="selected">');
-            __out.push(__sanitize(organism));
-            __out.push('</option>\n                                            ');
-          } else {
-            __out.push('\n                                                <option value="');
-            __out.push(__sanitize(organism));
-            __out.push('">');
-            __out.push(__sanitize(organism));
-            __out.push('</option>\n                                            ');
-          }
-          __out.push('\n                                        ');
-        }
-      
-        __out.push('\n                                    </select>\n                                </div>\n                            </form>\n                        </div>\n                        <div class="row">\n                            <div class="large-12 columns">\n                                <a id="submit" class="button">Upload a list</span></a>\n                            </div>\n                        </div>\n                    </div>\n                </section>\n            </div>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/UseListTool/step-2", function(exports, require, module) {
+window.require.register("tools/ResolveIdsTool/step-2", function(exports, require, module) {
   module.exports = function (__obj) {
     if (!__obj) __obj = {};
     var __out = [], __capture = function(callback) {
@@ -3854,35 +3844,40 @@ window.require.register("tools/config", function(exports, require, module) {
   
   exports.config = {
     'mine': 'http://beta.flymine.org/beta',
-    'token': 'T153WfD21eK7C20fb95f'
+    'token': 'X133AbT7J0Z0HfV316Q4'
   };
 
   exports.registry = [
     {
-      'slug': 'use-list-tool',
+      'slug': 'resolve-ids-tool',
       'help': 'Upload & resolve a list of identifiers',
       'labels': [
         {
-          'label': 'Upload a list',
+          'label': 'Upload list',
+          'weight': 10,
+          'place': 'header',
+          'keywords': ['list', 'resolve', 'identifiers', 'upload']
+        }, {
+          'label': 'Upload a new list',
+          'weight': 10,
+          'place': 'home',
+          'keywords': ['list', 'resolve', 'identifiers', 'upload']
+        }
+      ]
+    }, {
+      'slug': 'choose-list-tool',
+      'help': 'Choose an exsting list',
+      'labels': [
+        {
+          'label': 'Choose list',
           'weight': 10,
           'place': 'header',
           'keywords': ['list']
         }, {
-          'label': 'Upload a list',
+          'label': 'Choose an existing list',
           'weight': 10,
           'place': 'home',
           'keywords': ['list']
-        }
-      ]
-    }, {
-      'slug': 'ontology-graph-tool',
-      'labels': [
-        {
-          'label': 'Ontology Graph for a Gene',
-          'weight': 10,
-          'context': ['have:list', 'have:one', 'type:Gene'],
-          'place': 'right',
-          'category': ['Category 2']
         }
       ]
     }, {

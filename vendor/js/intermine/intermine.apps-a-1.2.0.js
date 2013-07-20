@@ -1,5 +1,5 @@
 (function() {
-  var ReportWidgets, root, _each, _extend, _setImmediate, _uid,
+  var AppsClient, root, _base, _base1, _each, _extend, _id, _ref, _ref1, _setImmediate,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   root = this;
@@ -49,8 +49,8 @@
     return obj;
   };
 
-  _uid = function() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  _id = function() {
+    return 'xxxxxxxx'.replace(/[xy]/g, function(c) {
       var r;
 
       r = Math.random() * 16 | 0;
@@ -64,28 +64,26 @@
     throw 'An old & unsupported browser detected';
   }
 
-  ReportWidgets = (function() {
-    ReportWidgets.prototype.selectorPrefix = 'w';
-
-    function ReportWidgets(server) {
+  AppsClient = (function() {
+    function AppsClient(server) {
       this.load = __bind(this.load, this);
       var callback,
         _this = this;
 
       this.server = server.replace(/\/+$/, '');
-      callback = 'rwc' + +(new Date);
+      callback = 'appcall' + +(new Date);
       root[callback] = function(config) {
         _this.config = config;
       };
       root.intermine.load([
         {
-          'path': "" + this.server + "/widget/report?callback=" + callback,
+          'path': "" + this.server + "/middleware/apps/a?callback=" + callback,
           'type': 'js'
         }
       ]);
     }
 
-    ReportWidgets.prototype.load = function(widgetId, target, options) {
+    AppsClient.prototype.load = function(appId, target, options) {
       var again, deps, run,
         _this = this;
 
@@ -93,46 +91,52 @@
         options = {};
       }
       again = function() {
-        return _this.load(widgetId, target, options);
+        return _this.load(appId, target, options);
       };
       if (!this.config) {
         return _setImmediate(again);
       }
       run = function(err) {
-        var uid;
+        var id;
 
         if (err) {
-          throw err;
+          throw new Error(err);
         }
-        uid = _uid();
+        id = _id();
         return root.intermine.load([
           {
-            'path': "" + _this.server + "/widget/report/" + widgetId + "?callback=" + uid,
+            'path': "" + _this.server + "/middleware/apps/a/" + appId + "?callback=" + id,
             'type': 'js'
           }
         ], function(err) {
-          var Widget, article, config, div, generalConfig, instance, selector, templates, widget;
+          var app, config, div, instance, module, templates;
 
-          article = document.createElement('article');
-          article.setAttribute('class', "im-report-widget " + widgetId);
           div = document.createElement('div');
-          div.setAttribute('id', 'w' + uid);
-          div.appendChild(article);
+          div.setAttribute('class', "-im-apps-a " + appId);
+          div.setAttribute('id', 'a' + id);
           document.querySelector(target).appendChild(div);
           if (!root.intermine.temp) {
-            throw '`intermine.temp` object cache does not exist';
+            throw new Error('`intermine.temp` object cache does not exist');
           }
-          if (!(widget = root.intermine.temp.widgets[uid])) {
-            throw "Unknown widget `" + uid + "`";
+          if (!(app = root.intermine.temp.apps[id])) {
+            throw new Error("Unknown app `" + id + "`");
           }
-          Widget = widget[0], generalConfig = widget[1], templates = widget[2];
-          config = _extend({}, generalConfig, options);
-          selector = "#w" + uid + " article.im-report-widget";
-          instance = new Widget(config, templates);
-          return instance.render(selector);
+          module = app[0], config = app[1], templates = app[2];
+          if (!module.App) {
+            throw new Error('Root module is not exporting App');
+          }
+          config = _extend(config, options);
+          instance = new module.App(config, templates);
+          if (!(instance && typeof instance === 'object')) {
+            throw new Error('App failed to instantiate');
+          }
+          if (!(instance.render && typeof instance.render === 'function')) {
+            throw new Error('App does not implement `render` function');
+          }
+          return instance.render("#a" + id + ".-im-apps-a");
         });
       };
-      deps = this.config[widgetId];
+      deps = this.config[appId];
       if (deps != null) {
         return root.intermine.load(deps, run);
       } else {
@@ -140,14 +144,22 @@
       }
     };
 
-    return ReportWidgets;
+    return AppsClient;
 
   })();
 
   if (!root.intermine) {
-    throw 'You need to include the InterMine API Loader first!';
+    throw new Error('You need to include the InterMine API Loader first!');
   } else {
-    root.intermine.reportWidgets = root.intermine.reportWidgets || ReportWidgets;
+    root.intermine.appsA = root.intermine.appsA || AppsClient;
+  }
+
+  if ((_ref = (_base = root.intermine).temp) == null) {
+    _base.temp = {};
+  }
+
+  if ((_ref1 = (_base1 = root.intermine.temp).apps) == null) {
+    _base1.apps = {};
   }
 
 }).call(this);
