@@ -1434,46 +1434,166 @@
     };
 })();;
 window.require.register("iframe/Samskipti", function(exports, require, module) {
-  var Samskipti, root,
+  var Samskipti, root, type, _, _fn, _i, _len, _ref,
     __slice = [].slice;
 
   root = this;
 
   module.exports = Samskipti = (function() {
 
+    Samskipti.prototype.prefix = '__function__';
+
     function Samskipti(opts) {
       var fn, self, _fn, _i, _len, _ref;
       self = this;
+      self.id = 'Sam::' + Math.random().toString(36).substring(7).slice(0, 3) + '::Skipti';
+      this.idCounter = 0;
       this.channel = root.Channel.build(opts);
-      self.invoke = {};
-      self.listenOn = {};
-      _ref = ['apps'];
+      this.invoke = {};
+      this.listenOn = {};
+      this.callbacks = {};
+      _ref = ['apps', self.prefix];
       _fn = function(fn) {
         self.invoke[fn] = function() {
-          var opts;
+          var callbacks, defunc, json, opts;
           opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          callbacks = [];
+          defunc = function(obj) {
+            var id, key, value;
+            if (_.isFunction(obj)) {
+              callbacks.push(id = self.prefix + ++self.idCounter);
+              self.callbacks[id] = obj;
+              return id;
+            } else {
+              if (_.isArray(obj)) {
+                return obj.map(defunc);
+              }
+              if (_.isObject(obj)) {
+                for (key in obj) {
+                  value = obj[key];
+                  obj[key] = defunc(value);
+                }
+                return obj;
+              }
+              return obj;
+            }
+          };
+          json = JSON.stringify(defunc(opts));
           return self.channel.call({
             'method': fn,
-            'params': opts,
-            'success': function() {}
+            'params': [json],
+            'success': function(thoseCallbacks) {
+              if (!_.areArraysEqual(callbacks, thoseCallbacks)) {
+                return console.log("" + self.id + " Not all callbacks got recognized");
+              }
+            }
           });
         };
-        return self.channel.bind(fn, function(trans, args) {
+        return self.channel.bind(fn, function(trans, _arg) {
+          var callbacks, json, makefunc;
+          json = _arg[0];
+          callbacks = [];
+          makefunc = function(obj) {
+            var key, value;
+            if (_.isArray(obj)) {
+              return obj.map(makefunc);
+            }
+            if (_.isObject(obj)) {
+              for (key in obj) {
+                value = obj[key];
+                obj[key] = makefunc(value);
+              }
+              return obj;
+            }
+            if (_.isString(obj)) {
+              if (obj.match(new RegExp('^' + self.prefix + '\\d+$'))) {
+                callbacks.push(obj);
+                return function() {
+                  return self.invoke[self.prefix].apply(null, ['call::' + obj, arguments]);
+                };
+              }
+            }
+            return obj;
+          };
           if (self.listenOn[fn] && typeof self.listenOn[fn] === 'function') {
-            return self.listenOn[fn].apply(null, args);
+            self.listenOn[fn].apply(null, makefunc(JSON.parse(json)));
+            return callbacks;
           }
-          return console.log("Why u no define `" + fn + "`?");
+          return console.log("" + self.id + " Why u no define `" + fn + "`?");
         });
       };
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         fn = _ref[_i];
         _fn(fn);
       }
+      this.listenOn[self.prefix] = function(call, obj) {
+        var args, key, matches, value;
+        if (_.isString(call) && (matches = call.match(new RegExp('^call::(' + self.prefix + '\\d+)$')))) {
+          if (fn = self.callbacks[matches[1]]) {
+            args = (function() {
+              var _results;
+              _results = [];
+              for (key in obj) {
+                value = obj[key];
+                _results.push(value);
+              }
+              return _results;
+            })();
+            fn.apply(null, args);
+            return;
+          }
+          return console.log("" + self.id + " Unrecognized function `" + matches[1] + "`");
+        }
+        return console.log("" + self.id + " Why `call` malformed?");
+      };
     }
 
     return Samskipti;
 
   })();
+
+  _ = {};
+
+  _.functions = function(obj) {
+    var key, _results;
+    _results = [];
+    for (key in obj) {
+      if (_.isFunction(obj[key])) {
+        _results.push(key);
+      }
+    }
+    return _results;
+  };
+
+  _.values = function(obj) {
+    var key, _results;
+    _results = [];
+    for (key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        _results.push(obj[key]);
+      }
+    }
+    return _results;
+  };
+
+  _ref = ['Function', 'Array', 'String'];
+  _fn = function(type) {
+    return _["is" + type] = function(obj) {
+      return Object.prototype.toString.call(obj) === ("[object " + type + "]");
+    };
+  };
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    type = _ref[_i];
+    _fn(type);
+  }
+
+  _.isObject = function(obj) {
+    return obj === Object(obj);
+  };
+
+  _.areArraysEqual = function(a, b) {
+    return !(a < b || b < a);
+  };
   
 });
 window.require.register("iframe/child", function(exports, require, module) {
@@ -1489,8 +1609,8 @@ window.require.register("iframe/child", function(exports, require, module) {
       'origin': '*',
       'scope': 'steps'
     });
-    return channel.listenOn.apps = function(args) {
-      return console.log(args);
+    return channel.listenOn.apps = function(name, config) {
+      return apps.load(name, 'body', config);
     };
   };
   

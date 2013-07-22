@@ -109,9 +109,6 @@ module.exports = class ToolView extends GenericToolView
     nextStep: => Mediator.publish 'tool:step', @step += 1
 
     iframe: (target) ->
-        # Is child online?
-        isOnline = -> false
-
         # Create the iframe.
         iframe = document.createElement 'iframe'
         iframe.name = 'frame'
@@ -126,13 +123,3 @@ module.exports = class ToolView extends GenericToolView
             'window': child
             'origin': '*'
             'scope': 'steps'
-        
-        # Make me an app.
-        channel.invoke.apps
-            'name': 'choose-list'
-            'config':
-                # Pass the following to the App from the client.
-                'mine': root.App.service.im.root # which mine to connect to
-                'token': root.App.service.im.token # token so we can access private lists
-                # A callback called at least once.
-                'cb': null

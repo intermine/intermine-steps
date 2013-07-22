@@ -11,5 +11,6 @@ module.exports = ->
         'scope': 'steps'
 
     # Someone wants an app built?
-    channel.listenOn.apps = (args) ->
-        console.log args
+    channel.listenOn.apps = (name, config) ->
+        # Load it into my body.
+        apps.load name, 'body', config

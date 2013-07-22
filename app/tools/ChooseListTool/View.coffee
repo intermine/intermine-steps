@@ -8,28 +8,37 @@ module.exports = class ChooseListToolView extends ToolView
     attach: ->
         super
 
+        self = @
+
         switch @step
             when 1
-                @iframe '.app.container'
+                # Pass the following to the App from the client.
+                opts =
+                    'mine': root.App.service.im.root # which mine to connect to
+                    'token': root.App.service.im.token # token so we can access private lists
+                    # Status messages and when user submits a list.
+                    'cb': (err, working, list) ->
+                        # Has error happened?
+                        throw err if err
+                        # Have input?
+                        if list
+                            # Save the input proper.
+                            self.model.set 'data', 'list': list
+                            # Update the history, we are set.
+                            Mediator.publish 'history:add', self.model
+                            # Go on.
+                            self.nextStep()
 
-                return
+                # Do we have a list selected already?
+                opts.provided =
+                    'selected': @model.get('data')?.list.name
+                    'hidden': [ 'temp' ] # need to pass it now for the app to work
 
-                provided = 'hidden': [ 'temp' ]
-                if name = @model.get('data')?.list?.name then provided.selected = name
+                # Build me an iframe with a channel.
+                channel = @iframe '.app.container'
 
-                # Status messages and when user submits a list.
-                handler = (err, working, list) ->
-                    console.log err, 'Working', working, 'view', self.cid, list
-                    # Has error happened?
-                    throw err if err
-                    # Have input?
-                    if list
-                        # Save the input proper.
-                        self.model.set 'data', 'list': list
-                        # Update the history, we are set.
-                        Mediator.publish 'history:add', self.model
-                        # Go on.
-                        self.nextStep()
+                # Make me an app.
+                channel.invoke.apps 'choose-list', opts
 
             when 2
                 # Expand on us.
