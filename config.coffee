@@ -2,9 +2,23 @@ exports.config =
     files:
         javascripts:
             joinTo:
-                'js/app.js': /^app\/(chaplin|tools|iframe)/
+                # App.
+                'js/app.js': /// ^ (
+                    ( app/chaplin )
+                  | ( app/tools )
+                  | ( app/iframe/Samskipti )
+                ) ///
+                
+                # Vendor libs.
                 'js/vendor.js': /^vendor\/js/
-                'js/iframe.js': /^vendor\/js\/(intermine\/intermine\.(api|apps-a))|(jschannel)/
+                
+                # iframe comms.
+                'js/iframe.js': /// ^ (
+                    ( vendor/js/intermine/intermine\.api )    # api loader
+                  | ( vendor/js/intermine/intermine\.apps-a ) # apps/a
+                  | ( vendor/js/jschannel )                   # channel comms
+                  | ( app/iframe )                            # child script etc.
+                ) ///
             order:
                 before: [
                     'vendor/js/setImmediate-1.0.1.js'

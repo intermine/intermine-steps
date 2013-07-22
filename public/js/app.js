@@ -2738,7 +2738,7 @@ window.require.register("chaplin/views/RightSidebar", function(exports, require,
   
 });
 window.require.register("chaplin/views/Tool", function(exports, require, module) {
-  var CrumbView, GenericToolView, Mediator, Tool, ToolView, root, template,
+  var CrumbView, GenericToolView, Mediator, Samskipti, Tool, ToolView, root, template,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -2752,6 +2752,8 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
   CrumbView = require('chaplin/views/Crumb');
 
   template = require('chaplin/templates/tool');
+
+  Samskipti = require('iframe/Samskipti');
 
   root = this;
 
@@ -2874,7 +2876,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     };
 
     ToolView.prototype.iframe = function(target) {
-      var chan, child, iframe, isOnline;
+      var channel, child, iframe, isOnline;
       isOnline = function() {
         return false;
       };
@@ -2883,28 +2885,67 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
       iframe.src = '/iframe.html';
       $(target)[0].appendChild(iframe);
       child = window.frames['frame'];
-      chan = Channel.build({
+      channel = new Samskipti({
         'window': child,
         'origin': '*',
         'scope': 'steps'
       });
-      return chan.call({
-        'method': 'apps',
-        'params': {
-          'name': 'choose-list',
-          'config': {
-            'mine': root.App.service.im.root,
-            'token': root.App.service.im.token,
-            'cb': null
-          }
-        },
-        'success': function() {}
+      return channel.invoke.apps({
+        'name': 'choose-list',
+        'config': {
+          'mine': root.App.service.im.root,
+          'token': root.App.service.im.token,
+          'cb': null
+        }
       });
     };
 
     return ToolView;
 
   })(GenericToolView);
+  
+});
+window.require.register("iframe/Samskipti", function(exports, require, module) {
+  var Samskipti, root,
+    __slice = [].slice;
+
+  root = this;
+
+  module.exports = Samskipti = (function() {
+
+    function Samskipti(opts) {
+      var fn, self, _fn, _i, _len, _ref;
+      self = this;
+      this.channel = root.Channel.build(opts);
+      self.invoke = {};
+      self.listenOn = {};
+      _ref = ['apps'];
+      _fn = function(fn) {
+        self.invoke[fn] = function() {
+          var opts;
+          opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          return self.channel.call({
+            'method': fn,
+            'params': opts,
+            'success': function() {}
+          });
+        };
+        return self.channel.bind(fn, function(trans, args) {
+          if (self.listenOn[fn] && typeof self.listenOn[fn] === 'function') {
+            return self.listenOn[fn].apply(null, args);
+          }
+          return console.log("Why u no define `" + fn + "`?");
+        });
+      };
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        fn = _ref[_i];
+        _fn(fn);
+      }
+    }
+
+    return Samskipti;
+
+  })();
   
 });
 window.require.register("tools/ChooseListTool/Model", function(exports, require, module) {

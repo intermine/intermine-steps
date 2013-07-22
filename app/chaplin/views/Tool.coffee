@@ -6,6 +6,8 @@ CrumbView       = require 'chaplin/views/Crumb'
 
 template        = require 'chaplin/templates/tool'
 
+Samskipti       = require 'iframe/Samskipti'
+
 root = @
 
 # Manage input, switching to output and rendering of breadcrumbs of a Tool in the main section of the app.
@@ -119,20 +121,18 @@ module.exports = class ToolView extends GenericToolView
         # Refer to the iframe's document.
         child = window.frames['frame']
 
-        # Build a channel.
-        chan = Channel.build
+        # Build a channel with the child.
+        channel = new Samskipti
             'window': child
             'origin': '*'
             'scope': 'steps'
-        chan.call
-            'method': 'apps',
-            'params':
-                'name': 'choose-list'
-                'config':
-                    # Pass the following to the App from the client.
-                    'mine': root.App.service.im.root # which mine to connect to
-                    'token': root.App.service.im.token # token so we can access private lists
-                    # A callback called at least once.
-                    'cb': null
-            
-            'success': ->
+        
+        # Make me an app.
+        channel.invoke.apps
+            'name': 'choose-list'
+            'config':
+                # Pass the following to the App from the client.
+                'mine': root.App.service.im.root # which mine to connect to
+                'token': root.App.service.im.token # token so we can access private lists
+                # A callback called at least once.
+                'cb': null

@@ -1433,3 +1433,65 @@
         }
     };
 })();;
+window.require.register("iframe/Samskipti", function(exports, require, module) {
+  var Samskipti, root,
+    __slice = [].slice;
+
+  root = this;
+
+  module.exports = Samskipti = (function() {
+
+    function Samskipti(opts) {
+      var fn, self, _fn, _i, _len, _ref;
+      self = this;
+      this.channel = root.Channel.build(opts);
+      self.invoke = {};
+      self.listenOn = {};
+      _ref = ['apps'];
+      _fn = function(fn) {
+        self.invoke[fn] = function() {
+          var opts;
+          opts = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          return self.channel.call({
+            'method': fn,
+            'params': opts,
+            'success': function() {}
+          });
+        };
+        return self.channel.bind(fn, function(trans, args) {
+          if (self.listenOn[fn] && typeof self.listenOn[fn] === 'function') {
+            return self.listenOn[fn].apply(null, args);
+          }
+          return console.log("Why u no define `" + fn + "`?");
+        });
+      };
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        fn = _ref[_i];
+        _fn(fn);
+      }
+    }
+
+    return Samskipti;
+
+  })();
+  
+});
+window.require.register("iframe/child", function(exports, require, module) {
+  var Samskipti;
+
+  Samskipti = require('iframe/Samskipti');
+
+  module.exports = function() {
+    var apps, channel;
+    apps = new intermine.appsA(document.location.href.replace('/iframe.html', ''));
+    channel = new Samskipti({
+      'window': window.parent,
+      'origin': '*',
+      'scope': 'steps'
+    });
+    return channel.listenOn.apps = function(args) {
+      return console.log(args);
+    };
+  };
+  
+});
