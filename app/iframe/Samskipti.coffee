@@ -86,7 +86,7 @@ module.exports = class Samskipti
                     return obj
 
                 # Can we exec locally?
-                if self.listenOn[fn] and typeof self.listenOn[fn] is 'function'
+                if self.listenOn[fn] and _.isFunction self.listenOn[fn]
                     # Functionalize.
                     self.listenOn[fn].apply null, makefunc(JSON.parse(json))
                     # Return back the list of callbacks.
@@ -101,7 +101,7 @@ module.exports = class Samskipti
             # We better be a call.
             if _.isString(call) and matches = call.match new RegExp '^call::(' + self.prefix + '\\d+)$'
                 # Do we know it?
-                if fn = self.callbacks[matches[1]]
+                if fn = self.callbacks[matches[1]] and _.isFunction fn
                     # Convert args.
                     args = ( value for key, value of obj )
 
