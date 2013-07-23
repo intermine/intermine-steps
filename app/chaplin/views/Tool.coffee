@@ -100,7 +100,7 @@ module.exports = class ToolView extends GenericToolView
                     crumbs.append view.el
 
         # Check again later on.
-        @timeouts.push setTimeout @checkCrumbs, 1000
+        @timeouts.push setTimeout @checkCrumbs, 1e3
 
     # Get DOM for current step.
     getDOM: -> $(@el).find('ul.accordion > li.active > div.content')
@@ -108,7 +108,8 @@ module.exports = class ToolView extends GenericToolView
     # A shortcut for moving to the next step.
     nextStep: => Mediator.publish 'tool:step', @step += 1
 
-    iframe: (target) ->
+    # Make an iframe and return a channel to it.
+    makeIframe: (target, cb) ->
         # Create the iframe.
         iframe = document.createElement 'iframe'
         iframe.name = 'frame'
@@ -119,7 +120,8 @@ module.exports = class ToolView extends GenericToolView
         child = window.frames['frame']
 
         # Build a channel with the child.
-        channel = new Samskipti
+        channel = new Samskipti 'A',
             'window': child
             'origin': '*'
             'scope': 'steps'
+        , cb

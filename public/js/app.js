@@ -2864,7 +2864,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
           }
         }
       }
-      return this.timeouts.push(setTimeout(this.checkCrumbs, 1000));
+      return this.timeouts.push(setTimeout(this.checkCrumbs, 1e3));
     };
 
     ToolView.prototype.getDOM = function() {
@@ -2875,18 +2875,18 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
       return Mediator.publish('tool:step', this.step += 1);
     };
 
-    ToolView.prototype.iframe = function(target) {
+    ToolView.prototype.makeIframe = function(target, cb) {
       var channel, child, iframe;
       iframe = document.createElement('iframe');
       iframe.name = 'frame';
       iframe.src = '/iframe.html';
       $(target)[0].appendChild(iframe);
       child = window.frames['frame'];
-      return channel = new Samskipti({
+      return channel = new Samskipti('A', {
         'window': child,
         'origin': '*',
         'scope': 'steps'
-      });
+      }, cb);
     };
 
     return ToolView;
@@ -2904,15 +2904,23 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
 
     Samskipti.prototype.prefix = '__function__';
 
-    function Samskipti(opts) {
+    function Samskipti(name, opts, cb) {
       var fn, self, _fn, _i, _len, _ref;
       self = this;
-      self.id = 'Sam::' + Math.random().toString(36).substring(7).slice(0, 3) + '::Skipti';
-      this.idCounter = 0;
-      this.channel = root.Channel.build(opts);
-      this.invoke = {};
-      this.listenOn = {};
-      this.callbacks = {};
+      self.id = 'Samskipti::' + name;
+      if (!_.isFunction(cb)) {
+        cb = (function(err) {
+          throw err;
+        });
+      }
+      this.err = function(err) {
+        return cb(self.id + ' ' + err);
+      };
+      self.idCounter = 0;
+      self.channel = root.Channel.build(opts);
+      self.invoke = {};
+      self.listenOn = {};
+      self.callbacks = {};
       _ref = ['apps', self.prefix];
       _fn = function(fn) {
         self.invoke[fn] = function() {
@@ -2945,8 +2953,12 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
             'params': [json],
             'success': function(thoseCallbacks) {
               if (!_.areArraysEqual(callbacks, thoseCallbacks)) {
-                return console.log("" + self.id + " Not all callbacks got recognized");
+                return self.err('Not all callbacks got recognized');
               }
+            },
+            'error': function(type, message) {
+              console.log(arguments);
+              return self.err(message);
             }
           });
         };
@@ -2976,11 +2988,11 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
             }
             return obj;
           };
-          if (self.listenOn[fn] && typeof self.listenOn[fn] === 'function') {
+          if (self.listenOn[fn] && _.isFunction(self.listenOn[fn])) {
             self.listenOn[fn].apply(null, makefunc(JSON.parse(json)));
             return callbacks;
           }
-          return console.log("" + self.id + " Why u no define `" + fn + "`?");
+          return self.err("Why u no define `" + fn + "`?");
         });
       };
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -2990,7 +3002,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
       this.listenOn[self.prefix] = function(call, obj) {
         var args, key, matches, value;
         if (_.isString(call) && (matches = call.match(new RegExp('^call::(' + self.prefix + '\\d+)$')))) {
-          if (fn = self.callbacks[matches[1]]) {
+          if ((fn = self.callbacks[matches[1]]) && _.isFunction(fn)) {
             args = (function() {
               var _results;
               _results = [];
@@ -3003,9 +3015,9 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
             fn.apply(null, args);
             return;
           }
-          return console.log("" + self.id + " Unrecognized function `" + matches[1] + "`");
+          return self.err("Unrecognized function `" + matches[1] + "`");
         }
-        return console.log("" + self.id + " Why `call` malformed?");
+        return self.err('Why `call` malformed?');
       };
     }
 
@@ -3131,7 +3143,7 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
             'selected': (_ref = this.model.get('data')) != null ? _ref.list.name : void 0,
             'hidden': ['temp']
           };
-          channel = this.iframe('.app.container');
+          channel = this.makeIframe('.app.container');
           channel.invoke.apps('choose-list', opts);
           break;
         case 2:
@@ -3843,19 +3855,41 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
     }
 
     ResolveIdsToolView.prototype.attach = function() {
-      var list, query, type, _ref,
+      var channel, errors, list, opts, query, self, type, _ref,
         _this = this;
       ResolveIdsToolView.__super__.attach.apply(this, arguments);
+      self = this;
       switch (this.step) {
         case 1:
-          root.App.service.apps.load('identifier-resolution', '.app.container', {
-            cb: function(err, working, list) {
+          errors = function(err) {
+            return console.log(err);
+          };
+          opts = {
+            'mine': root.App.service.im.root,
+            'type': 'many',
+            'cb': function(err, working, query) {
               if (err) {
-                throw err;
+                return errors(err);
               }
-              return console.log(working, list);
+              if (query) {
+                return console.log('query:', query);
+                self.model.set('data', {
+                  'list': list
+                });
+                Mediator.publish('history:add', self.model);
+                return self.nextStep();
+              }
+            }
+          };
+          ({
+            'provided': {
+              'identifiers': ['MAD'],
+              'type': 'Gene',
+              'organism': 'C. elegans'
             }
           });
+          channel = this.makeIframe('.app.container', errors);
+          channel.invoke.apps('identifier-resolution', opts);
           break;
         case 2:
           _ref = this.model.get('data'), type = _ref.type, list = _ref.list;

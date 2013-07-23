@@ -35,7 +35,7 @@ module.exports = class ChooseListToolView extends ToolView
                     'hidden': [ 'temp' ] # need to pass it now for the app to work
 
                 # Build me an iframe with a channel.
-                channel = @iframe '.app.container'
+                channel = @makeIframe '.app.container'
 
                 # Make me an app.
                 channel.invoke.apps 'choose-list', opts

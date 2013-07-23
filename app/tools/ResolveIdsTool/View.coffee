@@ -8,16 +8,43 @@ module.exports = class ResolveIdsToolView extends ToolView
     attach: ->
         super
 
+        self = @
+
         switch @step
             when 1
-                # Upload identifiers to resolve app.
-                root.App.service.apps.load 'identifier-resolution', '.app.container',
-                    # A callback called at least once.
-                    cb: (err, working, list) ->
+                # An error handler...
+                errors = (err) -> console.log err
+
+                # Pass the following to the App from the client.
+                opts =
+                    'mine': root.App.service.im.root # which mine to connect to
+                    'type': 'many' # one OR many
+                    # Status messages and when user receives resolved identifiers.
+                    'cb': (err, working, query) ->
                         # Has error happened?
-                        throw err if err
-                        # Status.
-                        console.log working, list
+                        return errors err if err
+                        # Have input?
+                        if query
+                            return console.log 'query:', query
+
+                            # Save the input proper.
+                            self.model.set 'data', 'list': list
+                            # Update the history, we are set.
+                            Mediator.publish 'history:add', self.model
+                            # Go on.
+                            self.nextStep()
+
+                'provided': {
+                    'identifiers': [ 'MAD' ],
+                    'type': 'Gene',
+                    'organism': 'C. elegans'
+                }
+
+                # Build me an iframe with a channel.
+                channel = @makeIframe '.app.container', errors
+
+                # Make me an app.
+                channel.invoke.apps 'identifier-resolution', opts
 
             # We have resolved the identifiers & have a list reference.
             when 2

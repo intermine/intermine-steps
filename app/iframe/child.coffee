@@ -5,7 +5,7 @@ module.exports = ->
     apps = new intermine.appsA document.location.href.replace('/iframe.html', '')
 
     # Build a channel with our parent.
-    channel = new Samskipti
+    channel = new Samskipti 'B',
         'window': window.parent
         'origin': '*'
         'scope': 'steps'

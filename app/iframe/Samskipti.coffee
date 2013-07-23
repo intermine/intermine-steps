@@ -6,22 +6,26 @@ module.exports = class Samskipti
     # Prefix string for callbacks that get fake serialized.
     prefix: '__function__'
 
-    constructor: (opts) ->
+    constructor: (name, opts, cb) ->
         self = @
 
         # A new Sam is born!
-        self.id = 'Sam::' + Math.random().toString(36).substring(7)[0...3] + '::Skipti'
+        self.id = 'Samskipti::' + name
+
+        # Error handler? Just throw it.
+        cb = ( (err) -> throw err ) unless _.isFunction cb
+        @err = (err) -> cb self.id + ' ' + err
 
         # Init the id counter.
-        @idCounter = 0
+        self.idCounter = 0
 
         # Build an internal channel.
-        @channel = root.Channel.build opts
+        self.channel = root.Channel.build opts
 
         # Init our fn maps.
-        @invoke = {}
-        @listenOn = {}
-        @callbacks = {}
+        self.invoke = {}
+        self.listenOn = {}
+        self.callbacks = {}
 
         # We know these functions...
         for fn in [ 'apps', self.prefix ] then do (fn) ->
@@ -57,7 +61,11 @@ module.exports = class Samskipti
                     'params': [ json ]
                     'success': (thoseCallbacks) ->
                         # Trouble?
-                        console.log "#{self.id} Not all callbacks got recognized" unless _.areArraysEqual callbacks, thoseCallbacks
+                        self.err 'Not all callbacks got recognized' unless _.areArraysEqual callbacks, thoseCallbacks
+                    # Needs to be defined or things go pear shaped.
+                    'error': (type, message) ->
+                        console.log arguments
+                        self.err(message)
 
             # We listen to them.
             self.channel.bind fn, (trans, [ json ]) ->
@@ -93,7 +101,7 @@ module.exports = class Samskipti
                     return callbacks
 
                 # Trouble.
-                console.log "#{self.id} Why u no define `#{fn}`?"
+                self.err "Why u no define `#{fn}`?"
 
 
         # Dogfooding the callbacks.
@@ -101,7 +109,7 @@ module.exports = class Samskipti
             # We better be a call.
             if _.isString(call) and matches = call.match new RegExp '^call::(' + self.prefix + '\\d+)$'
                 # Do we know it?
-                if fn = self.callbacks[matches[1]] and _.isFunction fn
+                if (fn = self.callbacks[matches[1]]) and _.isFunction fn
                     # Convert args.
                     args = ( value for key, value of obj )
 
@@ -110,10 +118,10 @@ module.exports = class Samskipti
                     return
 
                 # Trouble.
-                return console.log "#{self.id} Unrecognized function `#{matches[1]}`"
+                return self.err "Unrecognized function `#{matches[1]}`"
             
             # Trouble.
-            console.log "#{self.id} Why `call` malformed?"
+            self.err 'Why `call` malformed?'
 
 # Mini Underscore.
 _ = {}
