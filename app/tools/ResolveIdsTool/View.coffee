@@ -20,25 +20,20 @@ module.exports = class ResolveIdsToolView extends ToolView
                     'mine': root.App.service.im.root # which mine to connect to
                     'type': 'many' # one OR many
                     # Status messages and when user receives resolved identifiers.
-                    'cb': (err, working, query) ->
+                    'cb': (err, working, out) ->
                         # Has error happened?
                         return errors err if err
                         # Have input?
-                        if query
-                            return console.log 'query:', query
-
+                        if out and out.query
                             # Save the input proper.
-                            self.model.set 'data', 'list': list
+                            self.model.set 'data', out
                             # Update the history, we are set.
                             Mediator.publish 'history:add', self.model
                             # Go on.
                             self.nextStep()
 
-                'provided': {
-                    'identifiers': [ 'MAD' ],
-                    'type': 'Gene',
-                    'organism': 'C. elegans'
-                }
+                # Do we have input already?
+                opts.provided = @model.get('data')?.input or {} # default is rubbish
 
                 # Build me an iframe with a channel.
                 channel = @makeIframe '.app.container', errors
@@ -49,18 +44,7 @@ module.exports = class ResolveIdsToolView extends ToolView
             # We have resolved the identifiers & have a list reference.
             when 2
                 # Expand on us.
-                { type, list } = @model.get('data')
-
-                # Form the query constraining on a ĺist.
-                query =
-                    'model':
-                        'name': 'genomic'
-                    'select': [
-                        "#{type}.*"
-                    ]
-                    'constraints': [
-                        { 'path': type, 'op': 'IN', 'value': list }
-                    ]
+                { input, query } = @model.get('data')
 
                 # Show a minimal Results Table.
                 $(@el).find('.im-table').imWidget
@@ -77,6 +61,6 @@ module.exports = class ResolveIdsToolView extends ToolView
                             ], @model.get('guid'), id
 
                 # We have a list!
-                Mediator.publish 'context:new', [ 'have:list', 'type:' + type ], @model.get('guid')
+                Mediator.publish 'context:new', [ 'have:list', 'type:' + input.type ], @model.get('guid')
 
         @

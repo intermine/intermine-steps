@@ -7,4 +7,4 @@ module.exports = class ResolveIdsTool extends Tool
         'name': 'ResolveIdsTool'
         'title': 'Resolve identifiers to a List'
         'description': 'Upload a list of identifiers'
-        'type': 'deyork'
+        'type': 'strikemaster'

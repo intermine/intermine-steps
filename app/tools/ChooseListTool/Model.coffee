@@ -7,4 +7,4 @@ module.exports = class ChooseListTool extends Tool
         'name': 'ChooseListTool'
         'title': 'Choose a List'
         'description': 'Use an existing list'
-        'type': 'deyork'
+        'type': 'goldentainoi'

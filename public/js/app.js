@@ -3089,7 +3089,7 @@ window.require.register("tools/ChooseListTool/Model", function(exports, require,
       'name': 'ChooseListTool',
       'title': 'Choose a List',
       'description': 'Use an existing list',
-      'type': 'deyork'
+      'type': 'goldentainoi'
     };
 
     return ChooseListTool;
@@ -3827,7 +3827,7 @@ window.require.register("tools/ResolveIdsTool/Model", function(exports, require,
       'name': 'ResolveIdsTool',
       'title': 'Resolve identifiers to a List',
       'description': 'Upload a list of identifiers',
-      'type': 'deyork'
+      'type': 'strikemaster'
     };
 
     return ResolveIdsTool;
@@ -3855,7 +3855,7 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
     }
 
     ResolveIdsToolView.prototype.attach = function() {
-      var channel, errors, list, opts, query, self, type, _ref,
+      var channel, errors, input, opts, query, self, _ref, _ref1,
         _this = this;
       ResolveIdsToolView.__super__.attach.apply(this, arguments);
       self = this;
@@ -3867,45 +3867,23 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
           opts = {
             'mine': root.App.service.im.root,
             'type': 'many',
-            'cb': function(err, working, query) {
+            'cb': function(err, working, out) {
               if (err) {
                 return errors(err);
               }
-              if (query) {
-                return console.log('query:', query);
-                self.model.set('data', {
-                  'list': list
-                });
+              if (out && out.query) {
+                self.model.set('data', out);
                 Mediator.publish('history:add', self.model);
                 return self.nextStep();
               }
             }
           };
-          ({
-            'provided': {
-              'identifiers': ['MAD'],
-              'type': 'Gene',
-              'organism': 'C. elegans'
-            }
-          });
+          opts.provided = ((_ref = this.model.get('data')) != null ? _ref.input : void 0) || {};
           channel = this.makeIframe('.app.container', errors);
           channel.invoke.apps('identifier-resolution', opts);
           break;
         case 2:
-          _ref = this.model.get('data'), type = _ref.type, list = _ref.list;
-          query = {
-            'model': {
-              'name': 'genomic'
-            },
-            'select': ["" + type + ".*"],
-            'constraints': [
-              {
-                'path': type,
-                'op': 'IN',
-                'value': list
-              }
-            ]
-          };
+          _ref1 = this.model.get('data'), input = _ref1.input, query = _ref1.query;
           $(this.el).find('.im-table').imWidget({
             'type': 'minimal',
             'service': root.App.service.im,
@@ -3916,7 +3894,7 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
               }
             }
           });
-          Mediator.publish('context:new', ['have:list', 'type:' + type], this.model.get('guid'));
+          Mediator.publish('context:new', ['have:list', 'type:' + input.type], this.model.get('guid'));
       }
       return this;
     };
