@@ -5,6 +5,15 @@ root = @
 
 module.exports = class ChooseListToolView extends ToolView
 
+    # Form the query constraining on a ĺist.
+    queryForList = ({type, name}) ->
+        'from': type,
+        'select': ['*'],
+        'constraints': [[type, 'IN', name]]
+
+    getPublisher = (guid) -> (type, id) ->
+        Mediator.publish 'context:new', ['have:list', "type:#{type}", "have:one"], guid, id
+
     attach: ->
         super
 
@@ -41,35 +50,17 @@ module.exports = class ChooseListToolView extends ToolView
                 channel.invoke.apps 'choose-list', opts
 
             when 2
-                # Expand on us.
-                { type, name } = @model.get('data').list
-
-                # Form the query constraining on a ĺist.
-                query =
-                    'model':
-                        'name': 'genomic'
-                    'select': [
-                        "#{type}.*"
-                    ]
-                    'constraints': [
-                        { 'path': type, 'op': 'IN', 'value': name }
-                    ]
-
                 # Show a minimal Results Table.
+                guid = @model.get('guid')
                 $(@el).find('.im-table').imWidget
                     'type': 'minimal'
                     'service': root.App.service.im
-                    'query': query
+                    'query': (queryForList @model.get('data').list)
                     'events':
                         # Fire off new context on cell selection.
-                        'imo:click': (type, id) =>
-                            Mediator.publish 'context:new', [
-                                'have:list'
-                                'type:' + type
-                                'have:one'
-                            ], @model.get('guid'), id
+                        'imo:click': (getPublisher guid)
 
                 # We have a list!
-                Mediator.publish 'context:new', [ 'have:list', 'type:' + type ], @model.get('guid')
+                Mediator.publish 'context:new', [ 'have:list', 'type:' + type ], guid
 
         @
