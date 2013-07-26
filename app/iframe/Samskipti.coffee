@@ -28,7 +28,7 @@ module.exports = class Samskipti
         self.callbacks = {}
 
         # We know these functions...
-        for fn in [ 'apps', self.prefix ] then do (fn) ->
+        for fn in [ 'apps', 'tables', self.prefix ] then do (fn) ->
             # We can invoke them.
             self.invoke[fn] = (opts...) ->
                 # So we can make sure the other side got all of the callbacks.
