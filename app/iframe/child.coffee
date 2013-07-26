@@ -14,3 +14,8 @@ module.exports = ->
     channel.listenOn.apps = (name, config) ->
         # Load it into my body.
         apps.load name, 'body', config
+
+    channel.listenOn.tables = (config) ->
+        # Load the table into the body.
+        config.type ?= "table"
+        jQuery('body').imWidget(config)
