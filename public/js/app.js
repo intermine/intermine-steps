@@ -2921,7 +2921,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
       self.invoke = {};
       self.listenOn = {};
       self.callbacks = {};
-      _ref = ['apps', self.prefix];
+      _ref = ['apps', 'tables', self.prefix];
       _fn = function(fn) {
         self.invoke[fn] = function() {
           var callbacks, defunc, json, opts;
@@ -3109,6 +3109,7 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
   root = this;
 
   module.exports = ChooseListToolView = (function(_super) {
+    var getPublisher, queryForList;
 
     __extends(ChooseListToolView, _super);
 
@@ -3116,9 +3117,24 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
       return ChooseListToolView.__super__.constructor.apply(this, arguments);
     }
 
+    queryForList = function(_arg) {
+      var name, type;
+      type = _arg.type, name = _arg.name;
+      return {
+        'from': type,
+        'select': ['*'],
+        'constraints': [[type, 'IN', name]]
+      };
+    };
+
+    getPublisher = function(guid) {
+      return function(type, id) {
+        return Mediator.publish('context:new', ['have:list', "type:" + type, "have:one"], guid, id);
+      };
+    };
+
     ChooseListToolView.prototype.attach = function() {
-      var channel, name, opts, query, self, type, _ref, _ref1,
-        _this = this;
+      var channel, guid, opts, self, _ref;
       ChooseListToolView.__super__.attach.apply(this, arguments);
       self = this;
       switch (this.step) {
@@ -3147,31 +3163,16 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
           channel.invoke.apps('choose-list', opts);
           break;
         case 2:
-          _ref1 = this.model.get('data').list, type = _ref1.type, name = _ref1.name;
-          query = {
-            'model': {
-              'name': 'genomic'
-            },
-            'select': ["" + type + ".*"],
-            'constraints': [
-              {
-                'path': type,
-                'op': 'IN',
-                'value': name
-              }
-            ]
-          };
+          guid = this.model.get('guid');
           $(this.el).find('.im-table').imWidget({
             'type': 'minimal',
             'service': root.App.service.im,
-            'query': query,
+            'query': queryForList(this.model.get('data').list),
             'events': {
-              'imo:click': function(type, id) {
-                return Mediator.publish('context:new', ['have:list', 'type:' + type, 'have:one'], _this.model.get('guid'), id);
-              }
+              'imo:click': getPublisher(guid)
             }
           });
-          Mediator.publish('context:new', ['have:list', 'type:' + type], this.model.get('guid'));
+          Mediator.publish('context:new', ['have:list', 'type:' + type], guid);
       }
       return this;
     };

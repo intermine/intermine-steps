@@ -1460,7 +1460,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
       self.invoke = {};
       self.listenOn = {};
       self.callbacks = {};
-      _ref = ['apps', self.prefix];
+      _ref = ['apps', 'tables', self.prefix];
       _fn = function(fn) {
         self.invoke[fn] = function() {
           var callbacks, defunc, json, opts;
@@ -1614,15 +1614,26 @@ window.require.register("iframe/child", function(exports, require, module) {
   Samskipti = require('iframe/Samskipti');
 
   module.exports = function() {
-    var apps, channel;
-    apps = new intermine.appsA(document.location.href.replace('/iframe.html', ''));
+    var channel, libs;
+    libs = {};
     channel = new Samskipti('B', {
       'window': window.parent,
       'origin': '*',
       'scope': 'steps'
     });
-    return channel.listenOn.apps = function(name, config) {
-      return apps.load(name, 'body', config);
+    channel.listenOn.apps = function(name, config) {
+      var _ref;
+      if ((_ref = libs.apps) == null) {
+        libs.apps = new intermine.appsA(document.location.href.replace('/iframe.html', ''));
+      }
+      return libs.apps.load(name, 'body', config);
+    };
+    return channel.listenOn.tables = function(config) {
+      var _ref;
+      if ((_ref = config.type) == null) {
+        config.type = "table";
+      }
+      return jQuery('body').imWidget(config);
     };
   };
   
