@@ -264,8 +264,8 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       return this.adjustTitle(model.get('title'));
     };
 
-    ToolsController.prototype.old = function(_arg) {
-      var Clazz, guid, model, name;
+    ToolsController.prototype.old = function(_arg, route) {
+      var Clazz, guid, model, name, step;
       guid = _arg.guid;
       model = this.collection.where({
         'guid': guid
@@ -283,8 +283,10 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
         assert(false, "Unknown tool `" + name + "`");
       }
       model = this.collection.dupe(model);
+      step = route.action === 'results' ? 2 : 1;
       this.views.push(new Clazz({
-        'model': model
+        'model': model,
+        'step': step
       }));
       Mediator.publish('history:activate', guid);
       return this.adjustTitle(model.get('title'));
@@ -336,23 +338,7 @@ window.require.register("chaplin/core/Application", function(exports, require, m
     InterMineSteps.prototype.showHistory = true;
 
     InterMineSteps.prototype.initialize = function() {
-      var _this = this;
       InterMineSteps.__super__.initialize.apply(this, arguments);
-      this.service = {
-        'im': new intermine.Service({
-          'root': config.mine,
-          'token': config.token,
-          'errorHandler': function(err) {
-            (new Controller).redirectToRoute('500');
-            return assert(false, err);
-          }
-        }),
-        'list': new intermine.widgets({
-          'root': config.mine + '/service/',
-          'token': config.token,
-          'skipDeps': true
-        })
-      };
       this.initRouter(Routes);
       this.initDispatcher({
         'controllerPath': 'chaplin/controllers/',
@@ -2762,8 +2748,6 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     __extends(ToolView, _super);
 
     function ToolView() {
-      this.nextStep = __bind(this.nextStep, this);
-
       this.checkCrumbs = __bind(this.checkCrumbs, this);
       return ToolView.__super__.constructor.apply(this, arguments);
     }
@@ -2798,17 +2782,12 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     };
 
     ToolView.prototype.initialize = function() {
-      var extra,
-        _this = this;
+      var extra;
       ToolView.__super__.initialize.apply(this, arguments);
       if ((extra = this.options.extra) && !(extra instanceof Array)) {
         this.options.extra = extra.split(',');
       }
-      this.step = this.options.step || 1;
-      return Mediator.subscribe('tool:step', function(step) {
-        _this.step = step;
-        return _this.render();
-      }, this);
+      return this.step = this.options.step || 1;
     };
 
     ToolView.prototype.attach = function() {
@@ -2871,12 +2850,9 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
       return $(this.el).find('ul.accordion > li.active > div.content');
     };
 
-    ToolView.prototype.nextStep = function() {
-      return Mediator.publish('tool:step', this.step += 1);
-    };
-
     ToolView.prototype.makeIframe = function(target, cb) {
       var channel, child, iframe;
+      $(target).html('');
       iframe = document.createElement('iframe');
       iframe.name = 'frame';
       iframe.src = '/iframe.html';
@@ -2895,10 +2871,12 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
   
 });
 window.require.register("iframe/Samskipti", function(exports, require, module) {
-  var Samskipti, root, type, _, _fn, _i, _len, _ref,
+  var Samskipti, functions, root, type, _, _fn, _i, _len, _ref,
     __slice = [].slice;
 
   root = this;
+
+  functions = ['apps', 'imtables'];
 
   module.exports = Samskipti = (function() {
 
@@ -2921,7 +2899,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
       self.invoke = {};
       self.listenOn = {};
       self.callbacks = {};
-      _ref = ['apps', 'tables', self.prefix];
+      _ref = functions.concat([self.prefix]);
       _fn = function(fn) {
         self.invoke[fn] = function() {
           var callbacks, defunc, json, opts;
@@ -3098,13 +3076,15 @@ window.require.register("tools/ChooseListTool/Model", function(exports, require,
   
 });
 window.require.register("tools/ChooseListTool/View", function(exports, require, module) {
-  var ChooseListToolView, Mediator, ToolView, root,
+  var ChooseListToolView, Mediator, ToolView, config, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Mediator = require('chaplin/core/Mediator');
 
   ToolView = require('chaplin/views/Tool');
+
+  config = require('tools/config').config;
 
   root = this;
 
@@ -3140,8 +3120,8 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
       switch (this.step) {
         case 1:
           opts = {
-            'mine': root.App.service.im.root,
-            'token': root.App.service.im.token,
+            'mine': config.root,
+            'token': config.token,
             'cb': function(err, working, list) {
               if (err) {
                 throw err;
@@ -3150,8 +3130,7 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
                 self.model.set('data', {
                   'list': list
                 });
-                Mediator.publish('history:add', self.model);
-                return self.nextStep();
+                return Mediator.publish('history:add', self.model);
               }
             }
           };
@@ -3164,14 +3143,15 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
           break;
         case 2:
           guid = this.model.get('guid');
-          $(this.el).find('.im-table').imWidget({
+          opts = _.extend({}, config, {
             'type': 'minimal',
-            'service': root.App.service.im,
             'query': queryForList(this.model.get('data').list),
             'events': {
               'imo:click': getPublisher(guid)
             }
           });
+          channel = this.makeIframe('.app.container');
+          channel.invoke.imtables(opts);
           Mediator.publish('context:new', ['have:list', 'type:' + type], guid);
       }
       return this;
@@ -3273,7 +3253,7 @@ window.require.register("tools/ChooseListTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="bootstrap container">\n    <div class="im-table intermine"></div>\n</div>');
+        __out.push('<div class="app container"></div>');
       
       }).call(this);
       

@@ -1,5 +1,5 @@
 (function() {
-  var cutoff, document, head, intermine, jobs, load, loading, log, paths, root, _auto, _contains, _each, _get, _keys, _map, _reduce, _setImmediate,
+  var document, head, intermine, jobs, load, loading, log, paths, root, _auto, _contains, _each, _get, _keys, _map, _reduce, _setImmediate,
     __slice = [].slice;
 
   paths = {
@@ -50,21 +50,23 @@
     return;
   }
 
-  intermine.loader = function(path, type, cb) {
-    if (type == null) {
-      type = 'js';
-    }
-    switch (type) {
-      case 'js':
-        return _get.script(path, cb);
-      case 'css':
-        return _get.style(path, cb);
-      default:
-        return cb("Unrecognized type `" + type + "`");
+  intermine.loader = {
+    'timeout': 1e4,
+    'processing': 50,
+    'fn': function(path, type, cb) {
+      if (type == null) {
+        type = 'js';
+      }
+      switch (type) {
+        case 'js':
+          return _get.script(path, cb);
+        case 'css':
+          return _get.style(path, cb);
+        default:
+          return cb("Unrecognized type `" + type + "`");
+      }
     }
   };
-
-  cutoff = 50;
 
   loading = {};
 
@@ -143,14 +145,28 @@
         'message': 'will download'
       });
       obj[key] = function(cb) {
+        var postCall, timeout;
+
         log({
           'job': job,
           'library': key,
           'message': 'downloading'
         });
-        return intermine.loader(path, type, function(err) {
-          var isAvailable, isReady, timeout;
+        timeout = root.window.setTimeout(function() {
+          log({
+            'job': job,
+            'library': key,
+            'message': 'timed out'
+          });
+          return postCall("The library `" + key + "` has timed out");
+        }, intermine.loader.timeout);
+        postCall = function(err) {
+          var isAvailable, isReady;
 
+          if (exited) {
+            return;
+          }
+          clearTimeout(timeout);
           if (err) {
             delete loading[key];
             return exit(err);
@@ -172,7 +188,7 @@
             delete loading[key];
             return cb(null);
           };
-          timeout = root.window.setTimeout(isReady, cutoff);
+          timeout = root.window.setTimeout(isReady, intermine.loader.processing);
           return (isAvailable = function() {
             if (!!(test && typeof test === 'function' && test()) || onWindow(key)) {
               log({
@@ -186,7 +202,8 @@
               return _setImmediate(isAvailable);
             }
           })();
-        });
+        };
+        return intermine.loader.fn(path, type, postCall);
       };
       if (depends && depends instanceof Array) {
         for (_i = 0, _len = depends.length; _i < _len; _i++) {
@@ -538,19 +555,22 @@
       loaded = false;
       script.type = 'text/javascript';
       script.charset = 'utf-8';
-      script.onload = script.onreadystatechange = function() {
-        var state;
-
-        state = this.readyState;
-        if (!loaded && (!state || state === 'complete' || state === 'loaded')) {
+      script.async = true;
+      script.src = url;
+      script.onload = script.onreadystatechange = function(event) {
+        event = event || root.window.event;
+        if (event.type === 'load' || (/loaded|complete/.test(script.readyState) && (!document.documentMode || document.documentMode < 9))) {
           loaded = true;
+          script.onload = script.onreadystatechange = script.onerror = null;
           return _setImmediate(done);
         }
       };
-      script.onerror = done;
-      script.async = true;
-      script.src = url;
-      return head.appendChild(script);
+      script.onerror = function(event) {
+        event = event || root.window.event;
+        script.onload = script.onreadystatechange = script.onerror = null;
+        return _setImmediate(done);
+      };
+      return head.insertBefore(script, head.lastChild);
     },
     'style': function(url, cb) {
       var style;
@@ -559,7 +579,7 @@
       style.rel = 'stylesheet';
       style.type = 'text/css';
       style.href = url;
-      head.appendChild(style);
+      head.insertBefore(style, head.lastChild);
       return _setImmediate(cb);
     }
   };

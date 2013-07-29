@@ -43,6 +43,7 @@ module.exports = class ToolsController extends Controller
         # Change the title.
         @adjustTitle model.get 'title'
 
+    # Continue from a previous tool.
     cont: ({ slug, extra, guid }) ->
         @_chrome()
 
@@ -75,7 +76,8 @@ module.exports = class ToolsController extends Controller
         # Change the title.
         @adjustTitle model.get 'title'
 
-    old: ({ guid }) ->
+    # Step 1 or 2 of an old/locked tool.
+    old: ({ guid }, route) ->
         # Find the model in question.
         [ model ] = @collection.where 'guid': guid
         unless model
@@ -96,8 +98,11 @@ module.exports = class ToolsController extends Controller
         # Dupe so we set new data on a new model.
         model = @collection.dupe model
 
+        # Results step?
+        step = if route.action is 'results' then 2 else 1
+
         # Render the View.
-        @views.push new Clazz 'model': model
+        @views.push new Clazz 'model': model, 'step': step
 
         # Activate this model.
         Mediator.publish 'history:activate', guid

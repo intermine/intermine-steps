@@ -88,8 +88,7 @@ module.exports = class History extends Collection
         # Further, save this model into a LocalStorage collection.
         @storage.add model.toJSON()
         
-        if redirect?
-            @controller.redirectToRoute 'results', { 'slug': model.get('slug'), 'guid': guid }
+        @controller.redirectToRoute('results', { 'slug': model.get('slug'), 'guid': guid }) if redirect?
 
 
     # Duplicate a model, preserve data about "us" though!

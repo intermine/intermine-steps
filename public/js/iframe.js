@@ -80,7 +80,7 @@
 })();
 
 (function() {
-  var cutoff, document, head, intermine, jobs, load, loading, log, paths, root, _auto, _contains, _each, _get, _keys, _map, _reduce, _setImmediate,
+  var document, head, intermine, jobs, load, loading, log, paths, root, _auto, _contains, _each, _get, _keys, _map, _reduce, _setImmediate,
     __slice = [].slice;
 
   paths = {
@@ -131,21 +131,23 @@
     return;
   }
 
-  intermine.loader = function(path, type, cb) {
-    if (type == null) {
-      type = 'js';
-    }
-    switch (type) {
-      case 'js':
-        return _get.script(path, cb);
-      case 'css':
-        return _get.style(path, cb);
-      default:
-        return cb("Unrecognized type `" + type + "`");
+  intermine.loader = {
+    'timeout': 1e4,
+    'processing': 50,
+    'fn': function(path, type, cb) {
+      if (type == null) {
+        type = 'js';
+      }
+      switch (type) {
+        case 'js':
+          return _get.script(path, cb);
+        case 'css':
+          return _get.style(path, cb);
+        default:
+          return cb("Unrecognized type `" + type + "`");
+      }
     }
   };
-
-  cutoff = 50;
 
   loading = {};
 
@@ -224,14 +226,28 @@
         'message': 'will download'
       });
       obj[key] = function(cb) {
+        var postCall, timeout;
+
         log({
           'job': job,
           'library': key,
           'message': 'downloading'
         });
-        return intermine.loader(path, type, function(err) {
-          var isAvailable, isReady, timeout;
+        timeout = root.window.setTimeout(function() {
+          log({
+            'job': job,
+            'library': key,
+            'message': 'timed out'
+          });
+          return postCall("The library `" + key + "` has timed out");
+        }, intermine.loader.timeout);
+        postCall = function(err) {
+          var isAvailable, isReady;
 
+          if (exited) {
+            return;
+          }
+          clearTimeout(timeout);
           if (err) {
             delete loading[key];
             return exit(err);
@@ -253,7 +269,7 @@
             delete loading[key];
             return cb(null);
           };
-          timeout = root.window.setTimeout(isReady, cutoff);
+          timeout = root.window.setTimeout(isReady, intermine.loader.processing);
           return (isAvailable = function() {
             if (!!(test && typeof test === 'function' && test()) || onWindow(key)) {
               log({
@@ -267,7 +283,8 @@
               return _setImmediate(isAvailable);
             }
           })();
-        });
+        };
+        return intermine.loader.fn(path, type, postCall);
       };
       if (depends && depends instanceof Array) {
         for (_i = 0, _len = depends.length; _i < _len; _i++) {
@@ -619,19 +636,22 @@
       loaded = false;
       script.type = 'text/javascript';
       script.charset = 'utf-8';
-      script.onload = script.onreadystatechange = function() {
-        var state;
-
-        state = this.readyState;
-        if (!loaded && (!state || state === 'complete' || state === 'loaded')) {
+      script.async = true;
+      script.src = url;
+      script.onload = script.onreadystatechange = function(event) {
+        event = event || root.window.event;
+        if (event.type === 'load' || (/loaded|complete/.test(script.readyState) && (!document.documentMode || document.documentMode < 9))) {
           loaded = true;
+          script.onload = script.onreadystatechange = script.onerror = null;
           return _setImmediate(done);
         }
       };
-      script.onerror = done;
-      script.async = true;
-      script.src = url;
-      return head.appendChild(script);
+      script.onerror = function(event) {
+        event = event || root.window.event;
+        script.onload = script.onreadystatechange = script.onerror = null;
+        return _setImmediate(done);
+      };
+      return head.insertBefore(script, head.lastChild);
     },
     'style': function(url, cb) {
       var style;
@@ -640,176 +660,10 @@
       style.rel = 'stylesheet';
       style.type = 'text/css';
       style.href = url;
-      head.appendChild(style);
+      head.insertBefore(style, head.lastChild);
       return _setImmediate(cb);
     }
   };
-
-}).call(this);
-;
-(function() {
-  var AppsClient, root, _base, _base1, _each, _extend, _id, _ref, _ref1, _setImmediate,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  root = this;
-
-  if (typeof process === 'undefined' || !process.nextTick) {
-    if (typeof setImmediate === 'function') {
-      _setImmediate = setImmediate;
-    } else {
-      _setImmediate = function(fn) {
-        return setTimeout(fn, 0);
-      };
-    }
-  } else {
-    if (typeof setImmediate !== 'undefined') {
-      _setImmediate = setImmediate;
-    } else {
-      _setImmediate = process.nextTick;
-    }
-  }
-
-  _each = function(arr, iterator) {
-    var key, value, _results;
-
-    if (arr.forEach) {
-      return arr.forEach(iterator);
-    }
-    _results = [];
-    for (key in arr) {
-      value = arr[key];
-      _results.push(iterator(value, key, arr));
-    }
-    return _results;
-  };
-
-  _extend = function(obj) {
-    _each(Array.prototype.slice.call(arguments, 1), function(source) {
-      var prop, _results;
-
-      if (source) {
-        _results = [];
-        for (prop in source) {
-          _results.push(obj[prop] = source[prop]);
-        }
-        return _results;
-      }
-    });
-    return obj;
-  };
-
-  _id = function() {
-    return 'xxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r;
-
-      r = Math.random() * 16 | 0;
-      return (c === "x" ? r : r & 0x3 | 0x8).toString(16);
-    });
-  };
-
-  root = this;
-
-  if (!document.querySelector) {
-    throw 'An old & unsupported browser detected';
-  }
-
-  AppsClient = (function() {
-    function AppsClient(server) {
-      this.load = __bind(this.load, this);
-      var callback,
-        _this = this;
-
-      this.server = server.replace(/\/+$/, '');
-      callback = 'appcall' + +(new Date);
-      root[callback] = function(config) {
-        _this.config = config;
-      };
-      root.intermine.load([
-        {
-          'path': "" + this.server + "/middleware/apps/a?callback=" + callback,
-          'type': 'js'
-        }
-      ]);
-    }
-
-    AppsClient.prototype.load = function(appId, target, options) {
-      var again, deps, run,
-        _this = this;
-
-      if (options == null) {
-        options = {};
-      }
-      again = function() {
-        return _this.load(appId, target, options);
-      };
-      if (!this.config) {
-        return _setImmediate(again);
-      }
-      run = function(err) {
-        var id;
-
-        if (err) {
-          throw new Error(err);
-        }
-        id = _id();
-        return root.intermine.load([
-          {
-            'path': "" + _this.server + "/middleware/apps/a/" + appId + "?callback=" + id,
-            'type': 'js'
-          }
-        ], function(err) {
-          var app, config, div, instance, module, templates;
-
-          div = document.createElement('div');
-          div.setAttribute('class', "-im-apps-a " + appId);
-          div.setAttribute('id', 'a' + id);
-          document.querySelector(target).appendChild(div);
-          if (!root.intermine.temp) {
-            throw new Error('`intermine.temp` object cache does not exist');
-          }
-          if (!(app = root.intermine.temp.apps[id])) {
-            throw new Error("Unknown app `" + id + "`");
-          }
-          module = app[0], config = app[1], templates = app[2];
-          if (!module.App) {
-            throw new Error('Root module is not exporting App');
-          }
-          config = _extend(config, options);
-          instance = new module.App(config, templates);
-          if (!(instance && typeof instance === 'object')) {
-            throw new Error('App failed to instantiate');
-          }
-          if (!(instance.render && typeof instance.render === 'function')) {
-            throw new Error('App does not implement `render` function');
-          }
-          return instance.render("#a" + id + ".-im-apps-a");
-        });
-      };
-      deps = this.config[appId];
-      if (deps != null) {
-        return root.intermine.load(deps, run);
-      } else {
-        return run();
-      }
-    };
-
-    return AppsClient;
-
-  })();
-
-  if (!root.intermine) {
-    throw new Error('You need to include the InterMine API Loader first!');
-  } else {
-    root.intermine.appsA = root.intermine.appsA || AppsClient;
-  }
-
-  if ((_ref = (_base = root.intermine).temp) == null) {
-    _base.temp = {};
-  }
-
-  if ((_ref1 = (_base1 = root.intermine.temp).apps) == null) {
-    _base1.apps = {};
-  }
 
 }).call(this);
 ;
@@ -1434,10 +1288,12 @@
     };
 })();;
 window.require.register("iframe/Samskipti", function(exports, require, module) {
-  var Samskipti, root, type, _, _fn, _i, _len, _ref,
+  var Samskipti, functions, root, type, _, _fn, _i, _len, _ref,
     __slice = [].slice;
 
   root = this;
+
+  functions = ['apps', 'imtables'];
 
   module.exports = Samskipti = (function() {
 
@@ -1460,7 +1316,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
       self.invoke = {};
       self.listenOn = {};
       self.callbacks = {};
-      _ref = ['apps', 'tables', self.prefix];
+      _ref = functions.concat([self.prefix]);
       _fn = function(fn) {
         self.invoke[fn] = function() {
           var callbacks, defunc, json, opts;
@@ -1609,31 +1465,103 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
   
 });
 window.require.register("iframe/child", function(exports, require, module) {
-  var Samskipti;
+  var Samskipti, bundles, get;
 
   Samskipti = require('iframe/Samskipti');
 
+  bundles = {
+    'apps-a': {
+      'js': {
+        'intermine.apps-a': {
+          path: '/iframe/js/intermine/intermine.apps-a-1.2.0.js'
+        }
+      }
+    },
+    'imtables': {
+      'css': {
+        'whateva1': {
+          path: '/iframe/css/bootstrap-2.0.4.prefixed.css'
+        },
+        'whateva2': {
+          path: '/iframe/css/intermine/imtables-1.3.0.css'
+        }
+      },
+      'js': {
+        '_': {
+          path: '/iframe/js/lodash.underscore-1.2.1.js'
+        },
+        'jQuery': {
+          path: '/iframe/js/jquery-1.9.1.js'
+        },
+        'jQuery.imWidget': {
+          path: '/iframe/js/intermine/imtables-mini-bundle-1.3.0.js',
+          depends: ['intermine.imjs']
+        },
+        'intermine.imjs': {
+          path: '/iframe/js/intermine/im-2.5.1.js',
+          depends: ['jQuery', '_']
+        },
+        'Backbone': {
+          path: '/iframe/js/backbone-1.0.0.js',
+          depends: ['jQuery', '_']
+        }
+      }
+    }
+  };
+
+  get = function(bundle, cb) {
+    return intermine.load(bundles[bundle], cb);
+  };
+
   module.exports = function() {
-    var channel, libs;
-    libs = {};
+    var channel;
     channel = new Samskipti('B', {
       'window': window.parent,
       'origin': '*',
       'scope': 'steps'
     });
     channel.listenOn.apps = function(name, config) {
-      var _ref;
-      if ((_ref = libs.apps) == null) {
-        libs.apps = new intermine.appsA(document.location.href.replace('/iframe.html', ''));
+      var load;
+      load = function() {
+        var apps;
+        apps = new intermine.appsA(document.location.href.replace('/iframe.html', ''));
+        return apps.load(name, 'body', config);
+      };
+      if (intermine.appsA) {
+        return load.call(null);
       }
-      return libs.apps.load(name, 'body', config);
+      return get('apps-a', function(err) {
+        if (err) {
+          throw err;
+        }
+        return load.call(null);
+      });
     };
-    return channel.listenOn.tables = function(config) {
-      var _ref;
-      if ((_ref = config.type) == null) {
-        config.type = "table";
+    return channel.listenOn.imtables = function(config) {
+      var load;
+      load = function() {
+        var _ref;
+        config.service = new intermine.Service({
+          'root': config.mine,
+          'token': config.token,
+          'errorHandler': function(err) {
+            throw err;
+          }
+        });
+        if ((_ref = config.type) == null) {
+          config.type = 'table';
+        }
+        return $('body').imWidget(config);
+      };
+      if (typeof $ !== "undefined" && $ !== null ? $.imWidget : void 0) {
+        return load.call(null);
       }
-      return jQuery('body').imWidget(config);
+      return get('imtables', function(err) {
+        if (err) {
+          throw err;
+        }
+        return load.call(null);
+      });
     };
   };
   

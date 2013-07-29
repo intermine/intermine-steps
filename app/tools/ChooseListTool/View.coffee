@@ -1,15 +1,17 @@
 Mediator = require 'chaplin/core/Mediator'
 ToolView = require 'chaplin/views/Tool'
 
+{ config } = require 'tools/config'
+
 root = @
 
 module.exports = class ChooseListToolView extends ToolView
 
     # Form the query constraining on a ĺist.
     queryForList = ({type, name}) ->
-        'from': type,
-        'select': ['*'],
-        'constraints': [[type, 'IN', name]]
+        'from': type
+        'select': [ '*' ]
+        'constraints': [ [ type, 'IN', name ] ]
 
     getPublisher = (guid) -> (type, id) ->
         Mediator.publish 'context:new', ['have:list', "type:#{type}", "have:one"], guid, id
@@ -20,11 +22,13 @@ module.exports = class ChooseListToolView extends ToolView
         self = @
 
         switch @step
+
+            # Input.
             when 1
                 # Pass the following to the App from the client.
                 opts =
-                    'mine': root.App.service.im.root # which mine to connect to
-                    'token': root.App.service.im.token # token so we can access private lists
+                    'mine': config.root # which mine to connect to
+                    'token': config.token # token so we can access private lists
                     # Status messages and when user submits a list.
                     'cb': (err, working, list) ->
                         # Has error happened?
@@ -35,8 +39,6 @@ module.exports = class ChooseListToolView extends ToolView
                             self.model.set 'data', 'list': list
                             # Update the history, we are set.
                             Mediator.publish 'history:add', self.model
-                            # Go on.
-                            self.nextStep()
 
                 # Do we have a list selected already?
                 opts.provided =
@@ -49,16 +51,23 @@ module.exports = class ChooseListToolView extends ToolView
                 # Make me an app.
                 channel.invoke.apps 'choose-list', opts
 
+            # Output.
             when 2
-                # Show a minimal Results Table.
                 guid = @model.get('guid')
-                $(@el).find('.im-table').imWidget
+
+                # Show a minimal Results Table.
+                opts = _.extend {}, config,
                     'type': 'minimal'
-                    'service': root.App.service.im
-                    'query': (queryForList @model.get('data').list)
+                    'query': queryForList @model.get('data').list
                     'events':
                         # Fire off new context on cell selection.
-                        'imo:click': (getPublisher guid)
+                        'imo:click': getPublisher guid
+
+                # Build me an iframe with a channel.
+                channel = @makeIframe '.app.container'
+
+                # Make me the table.
+                channel.invoke.imtables opts
 
                 # We have a list!
                 Mediator.publish 'context:new', [ 'have:list', 'type:' + type ], guid

@@ -1,5 +1,8 @@
 root = this
 
+# Define functions we can call on the child here.
+functions = [ 'apps', 'imtables' ]
+
 # My name is Skipti... Sam Skipti.
 module.exports = class Samskipti
 
@@ -28,7 +31,7 @@ module.exports = class Samskipti
         self.callbacks = {}
 
         # We know these functions...
-        for fn in [ 'apps', 'tables', self.prefix ] then do (fn) ->
+        for fn in functions.concat [ self.prefix ] then do (fn) ->
             # We can invoke them.
             self.invoke[fn] = (opts...) ->
                 # So we can make sure the other side got all of the callbacks.
@@ -56,6 +59,7 @@ module.exports = class Samskipti
                 # Defunctionalize the params and serialize them (aka my god you stupid zilla people).
                 json = JSON.stringify defunc opts
 
+                # Make the actual call.
                 self.channel.call
                     'method': fn
                     'params': [ json ]

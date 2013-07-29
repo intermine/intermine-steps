@@ -14,19 +14,17 @@ exports.config =
                 
                 # iframe comms.
                 'js/iframe.js': /// ^ (
-                    ( vendor/js/intermine/intermine\.api )    # api loader
-                  | ( vendor/js/intermine/intermine\.apps-a ) # apps/a
-                  | ( vendor/js/jschannel )                   # channel comms
-                  | ( app/iframe )                            # child script etc.
+                    ( vendor/js/intermine.api ) # api loader
+                  | ( vendor/js/jschannel )      # channel comms
+                  | ( app/iframe )               # child script etc.
                 ) ///
+            
             order:
                 before: [
                     'vendor/js/setImmediate-1.0.1.js'
                     'vendor/js/jquery-1.9.1.js'
                     'vendor/js/lodash.underscore-1.2.1.js'
                     'vendor/js/backbone-1.0.0.js'
-                    'vendor/js/rainbow-1.1.8.js'
-                    'vendor/js/im-2.5.1.js'
                 ]
 
         stylesheets:

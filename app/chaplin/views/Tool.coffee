@@ -15,7 +15,7 @@ module.exports = class ToolView extends GenericToolView
 
     container:       'div#widget'
     containerMethod: 'html'
-    autoRender:      true
+    autoRender:      yes
 
     # Accordion template.
     getTemplateFunction: -> template
@@ -46,11 +46,6 @@ module.exports = class ToolView extends GenericToolView
 
         # Set the step.
         @step = @options.step or 1
-
-        # Listen to Mediator requesting different pages.
-        Mediator.subscribe 'tool:step', (@step) =>
-            @render()
-        , @
 
     attach: ->
         super
@@ -105,11 +100,11 @@ module.exports = class ToolView extends GenericToolView
     # Get DOM for current step.
     getDOM: -> $(@el).find('ul.accordion > li.active > div.content')
 
-    # A shortcut for moving to the next step.
-    nextStep: => Mediator.publish 'tool:step', @step += 1
-
     # Make an iframe and return a channel to it.
     makeIframe: (target, cb) ->
+        # Make sure we are clean.
+        $(target).html('')
+
         # Create the iframe.
         iframe = document.createElement 'iframe'
         iframe.name = 'frame'
