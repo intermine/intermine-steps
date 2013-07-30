@@ -2806,6 +2806,13 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
       return this;
     };
 
+    ToolView.prototype.dispose = function() {
+      if (this.intervals && this.intervals instanceof Array) {
+        _.map(this.intervals, clearInterval);
+      }
+      return ToolView.__super__.dispose.apply(this, arguments);
+    };
+
     ToolView.prototype.checkCrumbs = function() {
       var collection, crumb, crumbs, guids, model, models, v, _fn, _i, _j, _len, _len1, _ref,
         _this = this;
@@ -2852,13 +2859,23 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
     };
 
     ToolView.prototype.makeIframe = function(target, cb) {
-      var channel, child, iframe;
+      var channel, child, iframe, _ref;
       $(target).html('');
       iframe = document.createElement('iframe');
       iframe.name = 'frame';
       iframe.src = '/iframe.html';
       $(target)[0].appendChild(iframe);
       child = window.frames['frame'];
+      if ((_ref = this.intervals) == null) {
+        this.intervals = [];
+      }
+      this.intervals.push(setInterval(function() {
+        var body, height;
+        if (body = child.document.body) {
+          height = body.scrollHeight;
+          return iframe.style.height = "" + height + "px";
+        }
+      }, 1e2));
       return channel = new Samskipti('A', {
         'window': child,
         'origin': '*',

@@ -68,6 +68,12 @@ module.exports = class ToolView extends GenericToolView
 
         @
 
+    # Clear any intervals on iframes before anything else.
+    dispose: ->
+        _.map(@intervals, clearInterval) if @intervals and @intervals instanceof Array
+
+        super
+
     # Check for latest breadcrumbs to show.
     checkCrumbs: =>
         collection = root.History
@@ -113,6 +119,14 @@ module.exports = class ToolView extends GenericToolView
 
         # Refer to the iframe's document.
         child = window.frames['frame']
+
+        # Start auto-resizing (interval is cleared in `dispose`).
+        @intervals ?= []
+        @intervals.push setInterval ->
+            if body = child.document.body
+                height = body.scrollHeight
+                iframe.style.height = "#{height}px"
+        , 1e2
 
         # Build a channel with the child.
         channel = new Samskipti 'A',
