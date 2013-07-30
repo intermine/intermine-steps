@@ -3089,7 +3089,7 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
   root = this;
 
   module.exports = ChooseListToolView = (function(_super) {
-    var getPublisher, queryForList;
+    var queryForList;
 
     __extends(ChooseListToolView, _super);
 
@@ -3104,12 +3104,6 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
         'from': type,
         'select': ['*'],
         'constraints': [[type, 'IN', name]]
-      };
-    };
-
-    getPublisher = function(guid) {
-      return function(type, id) {
-        return Mediator.publish('context:new', ['have:list', "type:" + type, "have:one"], guid, id);
       };
     };
 
@@ -3138,7 +3132,11 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
             'selected': (_ref = this.model.get('data')) != null ? _ref.list.name : void 0,
             'hidden': ['temp']
           };
-          channel = this.makeIframe('.app.container');
+          channel = this.makeIframe('.iframe.app.container', function(err) {
+            if (err) {
+              throw err;
+            }
+          });
           channel.invoke.apps('choose-list', opts);
           break;
         case 2:
@@ -3147,12 +3145,18 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
             'type': 'minimal',
             'query': queryForList(this.model.get('data').list),
             'events': {
-              'imo:click': getPublisher(guid)
+              'imo:click': function(type, id) {
+                return Mediator.publish('context:new', ['have:list', "type:" + type, 'have:one'], guid, id);
+              }
             }
           });
-          channel = this.makeIframe('.app.container');
+          channel = this.makeIframe('.iframe.app.container', function(err) {
+            if (err) {
+              throw err;
+            }
+          });
           channel.invoke.imtables(opts);
-          Mediator.publish('context:new', ['have:list', 'type:' + type], guid);
+          Mediator.publish('context:new', ['have:list', "type:" + type], guid);
       }
       return this;
     };
@@ -3203,7 +3207,7 @@ window.require.register("tools/ChooseListTool/step-1", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="app container"></div>');
+        __out.push('<div class="iframe app container"></div>');
       
       }).call(this);
       
@@ -3253,7 +3257,7 @@ window.require.register("tools/ChooseListTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="app container"></div>');
+        __out.push('<div class="iframe app container"></div>');
       
       }).call(this);
       
@@ -3817,7 +3821,7 @@ window.require.register("tools/ResolveIdsTool/Model", function(exports, require,
   
 });
 window.require.register("tools/ResolveIdsTool/View", function(exports, require, module) {
-  var Mediator, ResolveIdsToolView, ToolView, root,
+  var Mediator, ResolveIdsToolView, ToolView, config, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -3825,9 +3829,12 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
 
   ToolView = require('chaplin/views/Tool');
 
+  config = require('tools/config').config;
+
   root = this;
 
   module.exports = ResolveIdsToolView = (function(_super) {
+    var queryForList;
 
     __extends(ResolveIdsToolView, _super);
 
@@ -3835,47 +3842,62 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
       return ResolveIdsToolView.__super__.constructor.apply(this, arguments);
     }
 
+    queryForList = function(_arg) {
+      var input, list, query;
+      input = _arg.input, list = _arg.list, query = _arg.query;
+      return {
+        'from': input.type,
+        'select': ['*'],
+        'constraints': [[input.type, 'IN', list]]
+      };
+    };
+
     ResolveIdsToolView.prototype.attach = function() {
-      var channel, errors, input, opts, query, self, _ref, _ref1,
-        _this = this;
+      var channel, guid, opts, self, _ref;
       ResolveIdsToolView.__super__.attach.apply(this, arguments);
       self = this;
       switch (this.step) {
         case 1:
-          errors = function(err) {
-            return console.log(err);
-          };
           opts = {
-            'mine': root.App.service.im.root,
+            'mine': config.root,
+            'token': config.token,
             'type': 'many',
             'cb': function(err, working, out) {
               if (err) {
-                return errors(err);
+                throw err;
               }
               if (out && out.query) {
                 self.model.set('data', out);
-                Mediator.publish('history:add', self.model);
-                return self.nextStep();
+                return Mediator.publish('history:add', self.model);
               }
             }
           };
           opts.provided = ((_ref = this.model.get('data')) != null ? _ref.input : void 0) || {};
-          channel = this.makeIframe('.app.container', errors);
+          channel = this.makeIframe('.iframe.app.container', function(err) {
+            if (err) {
+              throw err;
+            }
+          });
           channel.invoke.apps('identifier-resolution', opts);
           break;
         case 2:
-          _ref1 = this.model.get('data'), input = _ref1.input, query = _ref1.query;
-          $(this.el).find('.im-table').imWidget({
+          guid = this.model.get('guid');
+          opts = _.extend({}, config, {
             'type': 'minimal',
-            'service': root.App.service.im,
-            'query': query,
+            'query': queryForList(this.model.get('data')),
             'events': {
               'imo:click': function(type, id) {
-                return Mediator.publish('context:new', ['have:list', 'type:' + type, 'have:one'], _this.model.get('guid'), id);
+                return Mediator.publish('context:new', ['have:list', "type:" + type, 'have:one'], guid, id);
               }
             }
           });
-          Mediator.publish('context:new', ['have:list', 'type:' + input.type], this.model.get('guid'));
+          channel = this.makeIframe('.iframe.app.container', function(err) {
+            if (err) {
+              throw err;
+            }
+          });
+          channel.invoke.imtables(opts);
+          Mediator.publish('context:new', ['have:list', "type:" + type], guid);
       }
       return this;
     };
@@ -3926,7 +3948,7 @@ window.require.register("tools/ResolveIdsTool/step-1", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="foundation app container"></div>');
+        __out.push('<div class="iframe app container"></div>');
       
       }).call(this);
       
@@ -3976,7 +3998,7 @@ window.require.register("tools/ResolveIdsTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="bootstrap container">\n    <div class="im-table intermine"></div>\n</div>');
+        __out.push('<div class="iframe app container"></div>');
       
       }).call(this);
       

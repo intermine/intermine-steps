@@ -1,9 +1,17 @@
 Mediator = require 'chaplin/core/Mediator'
 ToolView = require 'chaplin/views/Tool'
 
+{ config } = require 'tools/config'
+
 root = @
 
 module.exports = class ResolveIdsToolView extends ToolView
+
+    # Form the query constraining on a list.
+    queryForList = ({ input, list, query }) ->
+        'from': input.type
+        'select': [ '*' ]
+        'constraints': [ [ input.type, 'IN', list ] ]
 
     attach: ->
         super
@@ -11,56 +19,63 @@ module.exports = class ResolveIdsToolView extends ToolView
         self = @
 
         switch @step
-            when 1
-                # An error handler...
-                errors = (err) -> console.log err
 
+            # Input.
+            when 1
                 # Pass the following to the App from the client.
                 opts =
-                    'mine': root.App.service.im.root # which mine to connect to
+                    'mine': config.root # which mine to connect to
+                    'token': config.token # token so we can access private lists
                     'type': 'many' # one OR many
                     # Status messages and when user receives resolved identifiers.
                     'cb': (err, working, out) ->
                         # Has error happened?
-                        return errors err if err
+                        throw err if err
                         # Have input?
                         if out and out.query
                             # Save the input proper.
                             self.model.set 'data', out
                             # Update the history, we are set.
                             Mediator.publish 'history:add', self.model
-                            # Go on.
-                            self.nextStep()
 
                 # Do we have input already?
                 opts.provided = @model.get('data')?.input or {} # default is rubbish
 
                 # Build me an iframe with a channel.
-                channel = @makeIframe '.app.container', errors
+                channel = @makeIframe '.iframe.app.container', (err) ->
+                    throw err if err
 
                 # Make me an app.
                 channel.invoke.apps 'identifier-resolution', opts
 
-            # We have resolved the identifiers & have a list reference.
+            # Output.
             when 2
-                # Expand on us.
-                { input, query } = @model.get('data')
+                guid = @model.get('guid')
 
                 # Show a minimal Results Table.
-                $(@el).find('.im-table').imWidget
+                opts = _.extend {}, config,
                     'type': 'minimal'
-                    'service': root.App.service.im
-                    'query': query
+                    'query': queryForList @model.get('data')
                     'events':
                         # Fire off new context on cell selection.
-                        'imo:click': (type, id) =>
+                        'imo:click': (type, id) ->
                             Mediator.publish 'context:new', [
                                 'have:list'
-                                'type:' + type
+                                "type:#{type}"
                                 'have:one'
-                            ], @model.get('guid'), id
+                            ], guid, id
+
+                # Build me an iframe with a channel.
+                channel = @makeIframe '.iframe.app.container', (err) ->
+                    throw err if err
+
+                # Make me the table.
+                channel.invoke.imtables opts
 
                 # We have a list!
-                Mediator.publish 'context:new', [ 'have:list', 'type:' + input.type ], @model.get('guid')
+                Mediator.publish 'context:new', [
+                    'have:list'
+                    "type:#{type}"
+                ], guid
 
         @

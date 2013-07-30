@@ -63,7 +63,7 @@ module.exports = ->
                 'root': config.mine
                 'token': config.token
                 'errorHandler': (err) ->
-                    throw err
+                    throw err if err
 
             config.type ?= 'table'
             $('body').imWidget(config)

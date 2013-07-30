@@ -7,14 +7,11 @@ root = @
 
 module.exports = class ChooseListToolView extends ToolView
 
-    # Form the query constraining on a ĺist.
-    queryForList = ({type, name}) ->
+    # Form the query constraining on a list.
+    queryForList = ({ type, name }) ->
         'from': type
         'select': [ '*' ]
         'constraints': [ [ type, 'IN', name ] ]
-
-    getPublisher = (guid) -> (type, id) ->
-        Mediator.publish 'context:new', ['have:list', "type:#{type}", "have:one"], guid, id
 
     attach: ->
         super
@@ -46,7 +43,8 @@ module.exports = class ChooseListToolView extends ToolView
                     'hidden': [ 'temp' ] # need to pass it now for the app to work
 
                 # Build me an iframe with a channel.
-                channel = @makeIframe '.app.container'
+                channel = @makeIframe '.iframe.app.container', (err) ->
+                    throw err if err
 
                 # Make me an app.
                 channel.invoke.apps 'choose-list', opts
@@ -61,15 +59,24 @@ module.exports = class ChooseListToolView extends ToolView
                     'query': queryForList @model.get('data').list
                     'events':
                         # Fire off new context on cell selection.
-                        'imo:click': getPublisher guid
+                        'imo:click': (type, id) ->
+                            Mediator.publish 'context:new', [
+                                'have:list'
+                                "type:#{type}"
+                                'have:one'
+                            ], guid, id
 
                 # Build me an iframe with a channel.
-                channel = @makeIframe '.app.container'
+                channel = @makeIframe '.iframe.app.container', (err) ->
+                    throw err if err
 
                 # Make me the table.
                 channel.invoke.imtables opts
 
                 # We have a list!
-                Mediator.publish 'context:new', [ 'have:list', 'type:' + type ], guid
+                Mediator.publish 'context:new', [
+                    'have:list'
+                    "type:#{type}"
+                ], guid
 
         @

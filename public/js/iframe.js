@@ -1545,7 +1545,9 @@ window.require.register("iframe/child", function(exports, require, module) {
           'root': config.mine,
           'token': config.token,
           'errorHandler': function(err) {
-            throw err;
+            if (err) {
+              throw err;
+            }
           }
         });
         if ((_ref = config.type) == null) {
