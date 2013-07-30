@@ -46,9 +46,9 @@ The following are assets available to be loaded from within a child iframe.
 
 Library | Version | Use
 --- | --- | ---
-`intermine.api` | 0.5.2 | A loader for dependencies
-`intermine.apps-a` | 1.2.0 | Apps/A middleware client (*loaded when needed*)
-`intermine.im` | 2.5.1 | Client side API for InterMine calls (*loaded when needed*)
-`intermine.imtables` | 1.3.0 | InterMine Results Tables coming in a nice bundle (*loaded when needed*)
-`intermine.widgets` | 1.12.5 | List Widgets (*loaded when needed*)
 `lodash.modern` | 1.2.1 | Utility functions and available as CommonJS Module (use `require`)
+`intermine.api` | 0.5.2 | A loader for dependencies
+`intermine.apps-a` | 1.2.0 | Apps/A middleware client (*loaded when needed incl. deps*)
+`intermine.im` | 2.5.1 | Client side API for InterMine calls (*loaded when needed incl. deps*)
+`intermine.imtables` | 1.3.0 | InterMine Results Tables coming in a nice bundle (*loaded when needed incl. deps*)
+`intermine.widgets` | 1.12.7 | List Widgets (*loaded when needed incl. deps*)

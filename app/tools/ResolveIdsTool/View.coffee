@@ -50,12 +50,14 @@ module.exports = class ResolveIdsToolView extends ToolView
 
             # Output.
             when 2
+                # This is a new instance, need to get data from Model only.
                 guid = @model.get('guid')
+                data = @model.get('data')
 
                 # Show a minimal Results Table.
                 opts = _.extend {}, config,
                     'type': 'minimal'
-                    'query': queryForList @model.get('data')
+                    'query': queryForList data
                     'events':
                         # Fire off new context on cell selection.
                         'imo:click': (type, id) ->
@@ -75,7 +77,7 @@ module.exports = class ResolveIdsToolView extends ToolView
                 # We have a list!
                 Mediator.publish 'context:new', [
                     'have:list'
-                    "type:#{type}"
+                    "type:#{data.input.type}"
                 ], guid
 
         @

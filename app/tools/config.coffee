@@ -25,7 +25,7 @@ exports.registry = [
         ]
     }, {
         'slug': 'choose-list-tool'
-        'help': 'Choose an exsting list'
+        'help': 'Choose an existing list'
         'labels': [
             {
                 'label': 'Choose list'

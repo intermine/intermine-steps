@@ -2876,7 +2876,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
 
   root = this;
 
-  functions = ['apps', 'imtables'];
+  functions = ['apps', 'imtables', 'widgets'];
 
   module.exports = Samskipti = (function() {
 
@@ -2967,7 +2967,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
                     arg = arguments[_j];
                     if (arg && !self._.isPlainObject(arg)) {
                       if (arg.toJSON && self._.isFunction(arg.toJSON)) {
-                        args.push(arg.toJSON.call(null));
+                        args.push(arg.toJSON());
                       } else {
                         args.push(JSON.parse(JSON.stringify(arg)));
                       }
@@ -3080,7 +3080,7 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
     };
 
     ChooseListToolView.prototype.attach = function() {
-      var channel, guid, opts, self, _ref;
+      var channel, guid, list, opts, self, _ref;
       ChooseListToolView.__super__.attach.apply(this, arguments);
       self = this;
       switch (this.step) {
@@ -3113,9 +3113,10 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
           break;
         case 2:
           guid = this.model.get('guid');
+          list = this.model.get('data').list;
           opts = _.extend({}, config, {
             'type': 'minimal',
-            'query': queryForList(this.model.get('data').list),
+            'query': queryForList(list),
             'events': {
               'imo:click': function(type, id) {
                 return Mediator.publish('context:new', ['have:list', "type:" + type, 'have:one'], guid, id);
@@ -3128,7 +3129,7 @@ window.require.register("tools/ChooseListTool/View", function(exports, require, 
             }
           });
           channel.invoke.imtables(opts);
-          Mediator.publish('context:new', ['have:list', "type:" + type], guid);
+          Mediator.publish('context:new', ['have:list', "type:" + list.type], guid);
       }
       return this;
     };
@@ -3267,13 +3268,15 @@ window.require.register("tools/ListWidgetTool/Model", function(exports, require,
   
 });
 window.require.register("tools/ListWidgetTool/View", function(exports, require, module) {
-  var ListWidgetToolView, Mediator, ToolView, root,
+  var ListWidgetToolView, Mediator, ToolView, config, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Mediator = require('chaplin/core/Mediator');
 
   ToolView = require('chaplin/views/Tool');
+
+  config = require('tools/config').config;
 
   root = this;
 
@@ -3285,68 +3288,64 @@ window.require.register("tools/ListWidgetTool/View", function(exports, require, 
       return ListWidgetToolView.__super__.constructor.apply(this, arguments);
     }
 
-    ListWidgetToolView.prototype.getTemplateData = function() {
-      var data;
-      data = ListWidgetToolView.__super__.getTemplateData.apply(this, arguments);
+    ListWidgetToolView.prototype.attach = function() {
+      var channel, id, list, opts, save, self, type, widget, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+      ListWidgetToolView.__super__.attach.apply(this, arguments);
+      self = this;
       switch (this.step) {
         case 1:
-          if (this.options.previous) {
-            _.extend(data, {
+          save = function(data) {
+            self.model.set('data', data);
+            return Mediator.publish('history:add', self.model);
+          };
+          if (((_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0) && ((_ref3 = this.options) != null ? _ref3.extra : void 0)) {
+            _ref4 = this.options.extra, type = _ref4[0], id = _ref4[1];
+            return save({
+              'widget': {
+                'type': type,
+                'id': id
+              },
               'list': this.options.previous.data.list
             });
           }
-          if (this.model.get('locked') != null) {
-            _.extend(data, {
-              'list': this.model.get('data').list
-            });
-          }
-      }
-      return data;
-    };
-
-    ListWidgetToolView.prototype.attach = function() {
-      var data, list, type, which, widget, _ref, _ref1, _ref2,
-        _this = this;
-      ListWidgetToolView.__super__.attach.apply(this, arguments);
-      switch (this.step) {
-        case 1:
-          if ((data = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? _ref1.data : void 0 : void 0)) {
-            list = data.list, type = data.type;
-            _ref2 = this.options.extra, which = _ref2[0], widget = _ref2[1];
-            return this.save({
-              'list': list,
-              'objType': type,
-              'widget': {
-                'id': widget,
-                'type': which
+          opts = {
+            'mine': config.root,
+            'token': config.token,
+            'cb': function(err, working, list) {
+              if (err) {
+                throw err;
               }
-            });
-          }
-          this.delegate('click', '#submit', function() {
-            var name;
-            name = $(_this.el).find('input[name="list"]').val();
-            if (name.length === 0) {
-              return console.log({
-                'title': 'Oops &hellip;',
-                'text': 'No list selected.'
-              });
+              if (list) {
+                return save(list);
+              }
             }
-            data = _this.model.get('data');
-            data.list = name;
-            return _this.save(data);
+          };
+          opts.provided = {
+            'selected': (_ref5 = this.model.get('data')) != null ? _ref5.list.name : void 0,
+            'hidden': ['temp']
+          };
+          channel = this.makeIframe('.iframe.app.container', function(err) {
+            if (err) {
+              throw err;
+            }
           });
+          channel.invoke.apps('choose-list', opts);
           break;
         case 2:
-          assert((data = this.model.get('data')), 'Input list not provided');
-          root.App.service.list[data.widget.type](data.widget.id, data.list, '.bootstrap');
+          _ref6 = this.model.get('data'), widget = _ref6.widget, list = _ref6.list;
+          opts = _.extend({}, widget, {
+            'mine': config.mine,
+            'token': config.token,
+            'list': list.name
+          });
+          channel = this.makeIframe('.iframe.app.container', function(err) {
+            if (err) {
+              throw err;
+            }
+          });
+          channel.invoke.widgets(opts);
       }
       return this;
-    };
-
-    ListWidgetToolView.prototype.save = function(obj) {
-      this.model.set('data', obj);
-      Mediator.publish('history:add', this.model);
-      return this.nextStep();
     };
 
     return ListWidgetToolView;
@@ -3395,11 +3394,7 @@ window.require.register("tools/ListWidgetTool/step-1", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="foundation3 container">\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <div class="twelve columns">\n            <label>Type in list name</label>\n            <input type="text" name="list" value="');
-      
-        __out.push(__sanitize(this.list));
-      
-        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Choose a list</span></a>\n        </div>\n    </div>\n</div>');
+        __out.push('<div class="iframe app container"></div>');
       
       }).call(this);
       
@@ -3449,7 +3444,7 @@ window.require.register("tools/ListWidgetTool/step-2", function(exports, require
     (function() {
       (function() {
       
-        __out.push('<div class="bootstrap container">\n    <div class="loading -steps-ui"></div>\n</div>');
+        __out.push('<div class="iframe app container"></div>');
       
       }).call(this);
       
@@ -3519,7 +3514,7 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
     };
 
     ResolveIdsToolView.prototype.attach = function() {
-      var channel, guid, opts, self, _ref;
+      var channel, data, guid, opts, self, _ref;
       ResolveIdsToolView.__super__.attach.apply(this, arguments);
       self = this;
       switch (this.step) {
@@ -3548,9 +3543,10 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
           break;
         case 2:
           guid = this.model.get('guid');
+          data = this.model.get('data');
           opts = _.extend({}, config, {
             'type': 'minimal',
-            'query': queryForList(this.model.get('data')),
+            'query': queryForList(data),
             'events': {
               'imo:click': function(type, id) {
                 return Mediator.publish('context:new', ['have:list', "type:" + type, 'have:one'], guid, id);
@@ -3563,7 +3559,7 @@ window.require.register("tools/ResolveIdsTool/View", function(exports, require, 
             }
           });
           channel.invoke.imtables(opts);
-          Mediator.publish('context:new', ['have:list', "type:" + type], guid);
+          Mediator.publish('context:new', ['have:list', "type:" + data.input.type], guid);
       }
       return this;
     };
@@ -3699,7 +3695,7 @@ window.require.register("tools/config", function(exports, require, module) {
       ]
     }, {
       'slug': 'choose-list-tool',
-      'help': 'Choose an exsting list',
+      'help': 'Choose an existing list',
       'labels': [
         {
           'label': 'Choose list',

@@ -6848,7 +6848,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
 
   root = this;
 
-  functions = ['apps', 'imtables'];
+  functions = ['apps', 'imtables', 'widgets'];
 
   module.exports = Samskipti = (function() {
 
@@ -6939,7 +6939,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
                     arg = arguments[_j];
                     if (arg && !self._.isPlainObject(arg)) {
                       if (arg.toJSON && self._.isFunction(arg.toJSON)) {
-                        args.push(arg.toJSON.call(null));
+                        args.push(arg.toJSON());
                       } else {
                         args.push(JSON.parse(JSON.stringify(arg)));
                       }
@@ -6996,50 +6996,6 @@ window.require.register("iframe/child", function(exports, require, module) {
 
   Samskipti = require('iframe/Samskipti');
 
-  bundles = {
-    'apps-a': {
-      'js': {
-        'intermine.apps-a': {
-          path: '/iframe/js/intermine/intermine.apps-a-1.2.0.js'
-        }
-      }
-    },
-    'imtables': {
-      'css': {
-        'whateva1': {
-          path: '/iframe/css/bootstrap-2.0.4.prefixed.css'
-        },
-        'whateva2': {
-          path: '/iframe/css/intermine/imtables-1.3.0.css'
-        }
-      },
-      'js': {
-        '_': {
-          path: '/iframe/js/lodash.underscore-1.2.1.js'
-        },
-        'jQuery': {
-          path: '/iframe/js/jquery-1.9.1.js'
-        },
-        'jQuery.imWidget': {
-          path: '/iframe/js/intermine/imtables-mini-bundle-1.3.0.js',
-          depends: ['intermine.imjs']
-        },
-        'intermine.imjs': {
-          path: '/iframe/js/intermine/im-2.5.1.js',
-          depends: ['jQuery', '_']
-        },
-        'Backbone': {
-          path: '/iframe/js/backbone-1.0.0.js',
-          depends: ['jQuery', '_']
-        }
-      }
-    }
-  };
-
-  get = function(bundle, cb) {
-    return intermine.load(bundles[bundle], cb);
-  };
-
   module.exports = function() {
     var channel;
     channel = new Samskipti('B', {
@@ -7064,7 +7020,7 @@ window.require.register("iframe/child", function(exports, require, module) {
         return load.call(null);
       });
     };
-    return channel.listenOn.imtables = function(config) {
+    channel.listenOn.imtables = function(config) {
       var load;
       load = function() {
         var _ref;
@@ -7092,6 +7048,110 @@ window.require.register("iframe/child", function(exports, require, module) {
         return load.call(null);
       });
     };
+    return channel.listenOn.widgets = function(config) {
+      var load;
+      load = function() {
+        var widgets;
+        widgets = new intermine.widgets({
+          'root': config.mine + '/service/',
+          'token': config.token,
+          'skipDeps': true
+        });
+        return widgets[config.type](config.id, config.list, 'body', {});
+      };
+      if (intermine.widgets) {
+        return load.call(null);
+      }
+      return get('widgets', function(err) {
+        if (err) {
+          throw err;
+        }
+        return load.call(null);
+      });
+    };
+  };
+
+  bundles = {
+    'apps-a': {
+      'js': {
+        'intermine.apps-a': {
+          path: '/iframe/js/intermine/intermine.apps-a-1.2.0.js'
+        }
+      }
+    },
+    'imtables': {
+      'css': {
+        'whateva1': {
+          path: '/iframe/css/bootstrap-2.0.4.css'
+        },
+        'whateva2': {
+          path: '/iframe/css/intermine/imtables-1.3.0.css'
+        }
+      },
+      'js': {
+        '_': {
+          path: '/iframe/js/lodash.underscore-1.2.1.js'
+        },
+        'jQuery': {
+          path: '/iframe/js/jquery-1.9.1.js'
+        },
+        'jQuery.imWidget': {
+          path: '/iframe/js/intermine/imtables-mini-bundle-1.3.0.js',
+          depends: ['intermine.imjs']
+        },
+        'intermine.imjs': {
+          path: '/iframe/js/intermine/im-2.5.1.js',
+          depends: ['jQuery', '_']
+        },
+        'Backbone': {
+          path: '/iframe/js/backbone-1.0.0.js',
+          depends: ['jQuery', '_']
+        }
+      }
+    },
+    'widgets': {
+      'css': {
+        'whateva1': {
+          path: '/iframe/css/bootstrap-2.0.4.css'
+        }
+      },
+      'js': {
+        'intermine.widgets': {
+          path: '/iframe/js/intermine/intermine.widgets-1.12.7.js'
+        },
+        'setImmediate': {
+          path: '/iframe/js/setImmediate.js'
+        },
+        'async': {
+          path: '/iframe/js/async-0.2.6.js',
+          depends: ['setImmediate']
+        },
+        'jQuery': {
+          path: '/iframe/js/jquery-1.9.1.js'
+        },
+        '_': {
+          path: '/iframe/js/lodash.underscore-1.2.1.js'
+        },
+        'Backbone': {
+          path: '/iframe/js/backbone-1.0.0.js',
+          depends: ['jQuery', '_']
+        },
+        'google': {
+          path: 'https://www.google.com/jsapi'
+        },
+        'intermine.imjs': {
+          path: '/iframe/js/intermine/im-2.5.1.js',
+          depends: ['jQuery', '_']
+        },
+        'FileSaver': {
+          path: '/iframe/js/fileSaver.js'
+        }
+      }
+    }
+  };
+
+  get = function(bundle, cb) {
+    return intermine.load(bundles[bundle], cb);
   };
   
 });

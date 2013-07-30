@@ -1,7 +1,7 @@
 root = this
 
 # Define functions we can call on the child here.
-functions = [ 'apps', 'imtables' ]
+functions = [ 'apps', 'imtables', 'widgets' ]
 
 # My name is Skipti... Sam Skipti.
 module.exports = class Samskipti
@@ -101,7 +101,7 @@ module.exports = class Samskipti
                                     if arg and not self._.isPlainObject arg
                                         # Can we call `toJSON()`?
                                         if arg.toJSON and self._.isFunction(arg.toJSON)
-                                            args.push arg.toJSON.call null
+                                            args.push arg.toJSON()
                                         # Use JSON stringification.
                                         else
                                             args.push JSON.parse JSON.stringify arg

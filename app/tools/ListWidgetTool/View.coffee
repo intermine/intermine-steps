@@ -1,74 +1,77 @@
 Mediator = require 'chaplin/core/Mediator'
 ToolView = require 'chaplin/views/Tool'
 
+{ config } = require 'tools/config'
+
 root = @
 
 module.exports = class ListWidgetToolView extends ToolView
 
-    getTemplateData: ->
-        data = super
-
-        switch @step
-            when 1
-                # From previous step.
-                if @options.previous
-                    _.extend data, 'list': @options.previous.data.list
-                # When looking at a history.
-                if @model.get('locked')?
-                    _.extend data, 'list': @model.get('data').list
-
-        data
-
     attach: ->
         super
 
+        self = @
+
         switch @step
+
+            # Input.
             when 1
-                # Do we already have list input from previous Model?
-                if (data = @options?.previous?.data)
-                    { list, type } = data
-                    [ which, widget ] = @options.extra
-                    
+                save = (data) ->
                     # Save the input proper.
-                    return @save
-                        'list': list
-                        'objType': type
+                    self.model.set 'data', data
+                    # Update the history, we are set.
+                    Mediator.publish 'history:add', self.model
+
+                # Do we already have a previous List we are coming from?
+                # And do we have extra params (in URL) that tell us which widget we want to see?
+                if @options?.previous?.data?.list and @options?.extra
+                    [ type, id ] = @options.extra
+                    # This is the `choose-list` app format.
+                    return save
                         'widget':
-                            'id': widget
-                            'type': which
+                            'type': type
+                            'id': id
+                        'list': @options.previous.data.list
 
-                # Capture submit clicks.
-                @delegate 'click', '#submit', =>
-                    # Get the identifiers.
-                    name = $(@el).find('input[name="list"]').val()
+                # Pass the following to the App from the client.
+                opts =
+                    'mine': config.root # which mine to connect to
+                    'token': config.token # token so we can access private lists
+                    # Status messages and when user submits a list.
+                    'cb': (err, working, list) ->
+                        # Has error happened?
+                        throw err if err
+                        # Have input?
+                        save(list) if list
 
-                    # Do we have any?
-                    if name.length is 0
-                        return console.log
-                            'title': 'Oops &hellip;'
-                            'text': 'No list selected.'
+                # Do we have a list selected already?
+                opts.provided =
+                    'selected': @model.get('data')?.list.name
+                    'hidden': [ 'temp' ] # need to pass it now for the app to work
 
-                    # Replace the list name.
-                    data = @model.get('data')
-                    data.list = name
+                # Build me an iframe with a channel.
+                channel = @makeIframe '.iframe.app.container', (err) ->
+                    throw err if err
 
-                    # Save it then.
-                    @save data
+                # Make me an app.
+                channel.invoke.apps 'choose-list', opts
 
+            # Output.
             when 2
-                assert (data = @model.get('data')), 'Input list not provided'
+                # This is a new instance, need to get data from Model only.
+                { widget, list } = @model.get('data')
 
-                # Finally display.
-                root.App.service.list[data.widget.type] data.widget.id, data.list, '.bootstrap'
+                # To show a list widget I need the type, the widget id and the list name.
+                opts = _.extend {}, widget,
+                    'mine': config.mine # which mine to connect to
+                    'token': config.token # token so we can access private lists
+                    'list': list.name
+
+                # Build me an iframe with a channel.
+                channel = @makeIframe '.iframe.app.container', (err) ->
+                    throw err if err
+
+                # Make me a list widget.
+                channel.invoke.widgets opts
 
         @
-
-    save: (obj) ->
-        # Save the input proper.
-        @model.set 'data', obj
-
-        # Update the history, we are set.
-        Mediator.publish 'history:add', @model
-
-        # Next step.
-        @nextStep()
