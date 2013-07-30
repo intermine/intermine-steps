@@ -17,21 +17,35 @@ module.exports = class ListWidgetToolView extends ToolView
             # Input.
             when 1
                 save = (data) ->
-                    # Save the input proper.
-                    self.model.set 'data', data
-                    # Update the history, we are set.
-                    Mediator.publish 'history:add', self.model
+                    setTimeout -> # do you know why? Because Chaplin :)
+                        # Save the input proper.
+                        self.model.set 'data', data
+                        # Update the history, we are set.
+                        Mediator.publish 'history:add', self.model
+                    , 0
 
                 # Do we already have a previous List we are coming from?
                 # And do we have extra params (in URL) that tell us which widget we want to see?
-                if @options?.previous?.data?.list and @options?.extra
+                if (data = @options?.previous?.data) and @options?.extra
                     [ type, id ] = @options.extra
-                    # This is the `choose-list` app format.
-                    return save
-                        'widget':
-                            'type': type
-                            'id': id
-                        'list': @options.previous.data.list
+                    # TODO: Jeebus standardize!
+                    switch @options.previous.name
+                        when 'ResolveIdsTool'
+                            save
+                                'widget':
+                                    'type': type
+                                    'id': id
+                                'list':
+                                    'name': data.list
+                        
+                        when 'ChooseListTool'                            
+                            save
+                                'widget':
+                                    'type': type
+                                    'id': id
+                                'list': data.list
+
+                        else throw 'We do not know this incoming tool yet, fix it.'
 
                 # Pass the following to the App from the client.
                 opts =
@@ -41,8 +55,8 @@ module.exports = class ListWidgetToolView extends ToolView
                     'cb': (err, working, list) ->
                         # Has error happened?
                         throw err if err
-                        # Have input?
-                        save(list) if list
+                        # Have input? Override our list selection, otherwise keep the widget config.
+                        save _.extend({}, self.model.get('data'), { 'list': list }) if list
 
                 # Do we have a list selected already?
                 opts.provided =

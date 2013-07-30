@@ -71,7 +71,7 @@ module.exports = class ToolsController extends Controller
         model.set 'parent': guid
 
         # Render the View.
-        @views.push new Clazz 'model': model, 'previous': previous.toJSON(), 'extra': extra
+        @views.push new Clazz 'model': model, 'previous': previous.toJSON(), 'extra': extra, 'step': 1
 
         # Change the title.
         @adjustTitle model.get 'title'

@@ -259,7 +259,8 @@ window.require.register("chaplin/controllers/tools", function(exports, require, 
       this.views.push(new Clazz({
         'model': model,
         'previous': previous.toJSON(),
-        'extra': extra
+        'extra': extra,
+        'step': 1
       }));
       return this.adjustTitle(model.get('title'));
     };
@@ -3289,24 +3290,43 @@ window.require.register("tools/ListWidgetTool/View", function(exports, require, 
     }
 
     ListWidgetToolView.prototype.attach = function() {
-      var channel, id, list, opts, save, self, type, widget, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var channel, data, id, list, opts, save, self, type, widget, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
       ListWidgetToolView.__super__.attach.apply(this, arguments);
       self = this;
       switch (this.step) {
         case 1:
           save = function(data) {
-            self.model.set('data', data);
-            return Mediator.publish('history:add', self.model);
+            return setTimeout(function() {
+              self.model.set('data', data);
+              return Mediator.publish('history:add', self.model);
+            }, 0);
           };
-          if (((_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? (_ref2 = _ref1.data) != null ? _ref2.list : void 0 : void 0 : void 0) && ((_ref3 = this.options) != null ? _ref3.extra : void 0)) {
-            _ref4 = this.options.extra, type = _ref4[0], id = _ref4[1];
-            return save({
-              'widget': {
-                'type': type,
-                'id': id
-              },
-              'list': this.options.previous.data.list
-            });
+          if ((data = (_ref = this.options) != null ? (_ref1 = _ref.previous) != null ? _ref1.data : void 0 : void 0) && ((_ref2 = this.options) != null ? _ref2.extra : void 0)) {
+            _ref3 = this.options.extra, type = _ref3[0], id = _ref3[1];
+            switch (this.options.previous.name) {
+              case 'ResolveIdsTool':
+                save({
+                  'widget': {
+                    'type': type,
+                    'id': id
+                  },
+                  'list': {
+                    'name': data.list
+                  }
+                });
+                break;
+              case 'ChooseListTool':
+                save({
+                  'widget': {
+                    'type': type,
+                    'id': id
+                  },
+                  'list': data.list
+                });
+                break;
+              default:
+                throw 'We do not know this incoming tool yet, fix it.';
+            }
           }
           opts = {
             'mine': config.root,
@@ -3316,12 +3336,14 @@ window.require.register("tools/ListWidgetTool/View", function(exports, require, 
                 throw err;
               }
               if (list) {
-                return save(list);
+                return save(_.extend({}, self.model.get('data'), {
+                  'list': list
+                }));
               }
             }
           };
           opts.provided = {
-            'selected': (_ref5 = this.model.get('data')) != null ? _ref5.list.name : void 0,
+            'selected': (_ref4 = this.model.get('data')) != null ? _ref4.list.name : void 0,
             'hidden': ['temp']
           };
           channel = this.makeIframe('.iframe.app.container', function(err) {
@@ -3332,7 +3354,7 @@ window.require.register("tools/ListWidgetTool/View", function(exports, require, 
           channel.invoke.apps('choose-list', opts);
           break;
         case 2:
-          _ref6 = this.model.get('data'), widget = _ref6.widget, list = _ref6.list;
+          _ref5 = this.model.get('data'), widget = _ref5.widget, list = _ref5.list;
           opts = _.extend({}, widget, {
             'mine': config.mine,
             'token': config.token,
