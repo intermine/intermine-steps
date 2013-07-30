@@ -65,7 +65,9 @@ module.exports = ->
                 'errorHandler': (err) ->
                     throw err if err
 
+            # A `table` by default.
             config.type ?= 'table'
+            # Go.
             $('body').imWidget(config)
 
         # Do we need to load bundle?

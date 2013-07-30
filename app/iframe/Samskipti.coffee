@@ -12,11 +12,14 @@ module.exports = class Samskipti
     constructor: (name, opts, cb) ->
         self = @
 
+        # Our own personal sockpuppet.
+        self._ = require 'lodash'
+
         # A new Sam is born!
         self.id = 'Samskipti::' + name
 
         # Error handler? Just throw it.
-        cb = ( (err) -> throw err ) unless _.isFunction cb
+        cb = ( (err) -> throw err ) unless self._.isFunction cb
         @err = (err) -> cb self.id + ' ' + err
 
         # Init the id counter.
@@ -38,7 +41,7 @@ module.exports = class Samskipti
                 callbacks = []
                 # Replace function callbacks.
                 defunc = (obj) ->
-                    if _.isFunction obj
+                    if self._.isFunction obj
                         # This is your new id.
                         callbacks.push id = self.prefix + ++self.idCounter
                         # Save the fn callback.
@@ -47,9 +50,9 @@ module.exports = class Samskipti
                         return id
                     else
                         # Iterate over it.
-                        if _.isArray obj
+                        if self._.isArray obj
                             return obj.map defunc
-                        if _.isObject obj
+                        if self._.isObject obj
                             ( obj[key] = defunc(value) for key, value of obj )
                             return obj
                     
@@ -65,7 +68,7 @@ module.exports = class Samskipti
                     'params': [ json ]
                     'success': (thoseCallbacks) ->
                         # Trouble?
-                        self.err 'Not all callbacks got recognized' unless _.areArraysEqual callbacks, thoseCallbacks
+                        self.err 'Not all callbacks got recognized' unless !self._.difference(callbacks, thoseCallbacks).length
                     # Needs to be defined or things go pear shaped.
                     'error': (type, message) ->
                         console.log arguments
@@ -78,27 +81,41 @@ module.exports = class Samskipti
                 # Do we need to construct any callbacks on our end?
                 makefunc = (obj) ->
                     # Iterate over it.
-                    if _.isArray obj
+                    if self._.isArray obj
                         return obj.map makefunc
-                    if _.isObject obj
+                    if self._.isObject obj
                         ( obj[key] = makefunc(value) for key, value of obj )
                         return obj
 
                     # Maybe a cb?
-                    if _.isString obj
+                    if self._.isString obj
                         if obj.match new RegExp '^' + self.prefix + '\\d+$'
                             # New callback then.
                             callbacks.push obj
                             # When we get called...
                             return ->
+                                # Make sure any args are plain objects.
+                                args = []
+                                for arg in arguments
+                                    # Is it plain already?
+                                    if arg and not self._.isPlainObject arg
+                                        # Can we call `toJSON()`?
+                                        if arg.toJSON and self._.isFunction(arg.toJSON)
+                                            args.push arg.toJSON.call null
+                                        # Use JSON stringification.
+                                        else
+                                            args.push JSON.parse JSON.stringify arg
+                                    else
+                                        args.push arg
+
                                 # ... call the fn over the channel.
-                                self.invoke[self.prefix].apply(null, [ 'call::' + obj, arguments ])
+                                self.invoke[self.prefix].apply(null, [ 'call::' + obj, args ])
 
                     # A proper good value.
                     return obj
 
                 # Can we exec locally?
-                if self.listenOn[fn] and _.isFunction self.listenOn[fn]
+                if self.listenOn[fn] and self._.isFunction self.listenOn[fn]
                     # Functionalize.
                     self.listenOn[fn].apply null, makefunc(JSON.parse(json))
                     # Return back the list of callbacks.
@@ -111,9 +128,9 @@ module.exports = class Samskipti
         # Dogfooding the callbacks.
         @listenOn[self.prefix] = (call, obj) ->
             # We better be a call.
-            if _.isString(call) and matches = call.match new RegExp '^call::(' + self.prefix + '\\d+)$'
+            if self._.isString(call) and matches = call.match new RegExp '^call::(' + self.prefix + '\\d+)$'
                 # Do we know it?
-                if (fn = self.callbacks[matches[1]]) and _.isFunction fn
+                if (fn = self.callbacks[matches[1]]) and self._.isFunction fn
                     # Convert args.
                     args = ( value for key, value of obj )
 
@@ -126,21 +143,3 @@ module.exports = class Samskipti
             
             # Trouble.
             self.err 'Why `call` malformed?'
-
-# Mini Underscore.
-_ = {}
-
-# Returns a sorted list of the names of every method in an object - that
-#  is to say, the name of every function property of the object.
-_.functions = (obj) -> ( key for key of obj when _.isFunction obj[key] )
-
-# Retrieve the values of an object's properties.
-_.values = (obj) -> ( obj[key] for key of obj when Object::hasOwnProperty.call(obj, key) )
-
-# Returns true if object is a `type`.
-for type in [ 'Function', 'Array', 'String' ] then do (type) ->
-    _["is#{type}"] = (obj) -> Object::toString.call(obj) is "[object #{type}]"
-
-_.isObject = (obj) -> obj is Object obj
-
-_.areArraysEqual = (a, b) -> not (a < b or b < a)

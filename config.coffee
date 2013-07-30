@@ -10,20 +10,21 @@ exports.config =
                 ) ///
                 
                 # Vendor libs.
-                'js/vendor.js': /^vendor\/js/
+                'js/vendor.js': /^vendor\/js/ # includes modern lodash (use `require`)
                 
                 # iframe comms.
                 'js/iframe.js': /// ^ (
                     ( vendor/js/intermine.api ) # api loader
                   | ( vendor/js/jschannel )      # channel comms
-                  | ( app/iframe )               # child script etc.
+                  | ( app/iframe )               # child script & Samskipti
+                  | ( vendor/js/lodash.modern )  # can be required by Samskipti (CommonJS build!)
                 ) ///
             
             order:
                 before: [
+                    'vendor/js/lodash.underscore-1.3.1.global.js' # global underscore compatible build
                     'vendor/js/setImmediate-1.0.1.js'
                     'vendor/js/jquery-1.9.1.js'
-                    'vendor/js/lodash.underscore-1.2.1.js'
                     'vendor/js/backbone-1.0.0.js'
                 ]
 

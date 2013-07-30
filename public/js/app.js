@@ -2871,7 +2871,7 @@ window.require.register("chaplin/views/Tool", function(exports, require, module)
   
 });
 window.require.register("iframe/Samskipti", function(exports, require, module) {
-  var Samskipti, functions, root, type, _, _fn, _i, _len, _ref,
+  var Samskipti, functions, root,
     __slice = [].slice;
 
   root = this;
@@ -2885,8 +2885,9 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
     function Samskipti(name, opts, cb) {
       var fn, self, _fn, _i, _len, _ref;
       self = this;
+      self._ = require('lodash');
       self.id = 'Samskipti::' + name;
-      if (!_.isFunction(cb)) {
+      if (!self._.isFunction(cb)) {
         cb = (function(err) {
           throw err;
         });
@@ -2907,15 +2908,15 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
           callbacks = [];
           defunc = function(obj) {
             var id, key, value;
-            if (_.isFunction(obj)) {
+            if (self._.isFunction(obj)) {
               callbacks.push(id = self.prefix + ++self.idCounter);
               self.callbacks[id] = obj;
               return id;
             } else {
-              if (_.isArray(obj)) {
+              if (self._.isArray(obj)) {
                 return obj.map(defunc);
               }
-              if (_.isObject(obj)) {
+              if (self._.isObject(obj)) {
                 for (key in obj) {
                   value = obj[key];
                   obj[key] = defunc(value);
@@ -2930,7 +2931,7 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
             'method': fn,
             'params': [json],
             'success': function(thoseCallbacks) {
-              if (!_.areArraysEqual(callbacks, thoseCallbacks)) {
+              if (!!self._.difference(callbacks, thoseCallbacks).length) {
                 return self.err('Not all callbacks got recognized');
               }
             },
@@ -2946,27 +2947,41 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
           callbacks = [];
           makefunc = function(obj) {
             var key, value;
-            if (_.isArray(obj)) {
+            if (self._.isArray(obj)) {
               return obj.map(makefunc);
             }
-            if (_.isObject(obj)) {
+            if (self._.isObject(obj)) {
               for (key in obj) {
                 value = obj[key];
                 obj[key] = makefunc(value);
               }
               return obj;
             }
-            if (_.isString(obj)) {
+            if (self._.isString(obj)) {
               if (obj.match(new RegExp('^' + self.prefix + '\\d+$'))) {
                 callbacks.push(obj);
                 return function() {
-                  return self.invoke[self.prefix].apply(null, ['call::' + obj, arguments]);
+                  var arg, args, _j, _len1;
+                  args = [];
+                  for (_j = 0, _len1 = arguments.length; _j < _len1; _j++) {
+                    arg = arguments[_j];
+                    if (arg && !self._.isPlainObject(arg)) {
+                      if (arg.toJSON && self._.isFunction(arg.toJSON)) {
+                        args.push(arg.toJSON.call(null));
+                      } else {
+                        args.push(JSON.parse(JSON.stringify(arg)));
+                      }
+                    } else {
+                      args.push(arg);
+                    }
+                  }
+                  return self.invoke[self.prefix].apply(null, ['call::' + obj, args]);
                 };
               }
             }
             return obj;
           };
-          if (self.listenOn[fn] && _.isFunction(self.listenOn[fn])) {
+          if (self.listenOn[fn] && self._.isFunction(self.listenOn[fn])) {
             self.listenOn[fn].apply(null, makefunc(JSON.parse(json)));
             return callbacks;
           }
@@ -2979,8 +2994,8 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
       }
       this.listenOn[self.prefix] = function(call, obj) {
         var args, key, matches, value;
-        if (_.isString(call) && (matches = call.match(new RegExp('^call::(' + self.prefix + '\\d+)$')))) {
-          if ((fn = self.callbacks[matches[1]]) && _.isFunction(fn)) {
+        if (self._.isString(call) && (matches = call.match(new RegExp('^call::(' + self.prefix + '\\d+)$')))) {
+          if ((fn = self.callbacks[matches[1]]) && self._.isFunction(fn)) {
             args = (function() {
               var _results;
               _results = [];
@@ -3002,49 +3017,6 @@ window.require.register("iframe/Samskipti", function(exports, require, module) {
     return Samskipti;
 
   })();
-
-  _ = {};
-
-  _.functions = function(obj) {
-    var key, _results;
-    _results = [];
-    for (key in obj) {
-      if (_.isFunction(obj[key])) {
-        _results.push(key);
-      }
-    }
-    return _results;
-  };
-
-  _.values = function(obj) {
-    var key, _results;
-    _results = [];
-    for (key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        _results.push(obj[key]);
-      }
-    }
-    return _results;
-  };
-
-  _ref = ['Function', 'Array', 'String'];
-  _fn = function(type) {
-    return _["is" + type] = function(obj) {
-      return Object.prototype.toString.call(obj) === ("[object " + type + "]");
-    };
-  };
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    type = _ref[_i];
-    _fn(type);
-  }
-
-  _.isObject = function(obj) {
-    return obj === Object(obj);
-  };
-
-  _.areArraysEqual = function(a, b) {
-    return !(a < b || b < a);
-  };
   
 });
 window.require.register("tools/ChooseListTool/Model", function(exports, require, module) {
@@ -3478,312 +3450,6 @@ window.require.register("tools/ListWidgetTool/step-2", function(exports, require
       (function() {
       
         __out.push('<div class="bootstrap container">\n    <div class="loading -steps-ui"></div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/OntologyGraphTool/Model", function(exports, require, module) {
-  var OntologyGraphTool, Tool,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Tool = require('chaplin/models/Tool');
-
-  module.exports = OntologyGraphTool = (function(_super) {
-
-    __extends(OntologyGraphTool, _super);
-
-    function OntologyGraphTool() {
-      return OntologyGraphTool.__super__.constructor.apply(this, arguments);
-    }
-
-    OntologyGraphTool.prototype.defaults = {
-      'slug': 'ontology-graph-tool',
-      'name': 'OntologyGraphTool',
-      'title': 'Ontology Graph',
-      'description': 'Show an Ontology Graph for a Gene',
-      'type': 'goldentainoi'
-    };
-
-    return OntologyGraphTool;
-
-  })(Tool);
-  
-});
-window.require.register("tools/OntologyGraphTool/View", function(exports, require, module) {
-  var Mediator, OntologyGraphView, ToolView, root,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Mediator = require('chaplin/core/Mediator');
-
-  ToolView = require('chaplin/views/Tool');
-
-  root = this;
-
-  module.exports = OntologyGraphView = (function(_super) {
-
-    __extends(OntologyGraphView, _super);
-
-    function OntologyGraphView() {
-      return OntologyGraphView.__super__.constructor.apply(this, arguments);
-    }
-
-    OntologyGraphView.prototype.getTemplateData = function() {
-      var data, extra;
-      data = OntologyGraphView.__super__.getTemplateData.apply(this, arguments);
-      switch (this.step) {
-        case 1:
-          if ((extra = this.options.extra) && extra instanceof Array && extra.length !== 0) {
-            _.extend(data, {
-              'id': extra[0]
-            });
-          }
-          if (this.model.get('locked') != null) {
-            _.extend(data, this.model.get('data'));
-          }
-      }
-      return data;
-    };
-
-    OntologyGraphView.prototype.attach = function() {
-      var extra,
-        _this = this;
-      OntologyGraphView.__super__.attach.apply(this, arguments);
-      switch (this.step) {
-        case 1:
-          if ((extra = this.options.extra) && extra instanceof Array && extra.length !== 0) {
-            this.id = parseInt(extra[0]);
-            return this.nextStep();
-          }
-          this.delegate('click', '#submit', function() {
-            _this.id = parseInt($(_this.el).find('input[name="id"]').val());
-            return _this.nextStep();
-          });
-          break;
-        case 2:
-          if (_.isNumber(this.id)) {
-            root.App.service.im.query({
-              'model': {
-                'name': 'genomic'
-              },
-              'select': ["Gene.symbol"],
-              'constraints': [
-                {
-                  'path': "Gene.id",
-                  'op': '=',
-                  'value': this.id
-                }
-              ]
-            }, function(q) {
-              return q.rows(function(rows) {
-                var row, symbol;
-                if (rows && rows.length === 1 && (row = rows.pop()) && (symbol = row.pop())) {
-                  return _this.save({
-                    'symbol': symbol
-                  });
-                }
-                return console.log({
-                  'title': 'Oops &hellip;',
-                  'text': 'Gene id not resolved.'
-                });
-              });
-            });
-          } else {
-            this.save({
-              'symbol': this.id
-            });
-          }
-          break;
-        case 3:
-          root.App.service.report.load("ontology-graph", "#ontology", {
-            service: {
-              root: "http://www.flymine.org/query"
-            },
-            interop: [
-              {
-                taxonId: 4932,
-                root: "yeastmine-test.yeastgenome.org/yeastmine-dev",
-                name: "SGD"
-              }, {
-                taxonId: 10090,
-                root: "http://beta.mousemine.org/mousemine",
-                name: "MGI"
-              }, {
-                taxonId: 6239,
-                root: "http://intermine.modencode.org/release-32",
-                name: "modMine"
-              }
-            ],
-            graphState: {
-              query: this.model.get('data').symbol
-            }
-          });
-      }
-      return this;
-    };
-
-    OntologyGraphView.prototype.save = function(obj) {
-      this.model.set('data', obj);
-      Mediator.publish('history:add', this.model);
-      return this.nextStep();
-    };
-
-    return OntologyGraphView;
-
-  })(ToolView);
-  
-});
-window.require.register("tools/OntologyGraphTool/step-1", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="foundation3 container">\n    <div class="row" style="min-width:auto"> <!-- foundation row min-width fix -->\n        <div class="twelve columns">\n            <label>Type in Gene <em>id</em></label>\n            <input type="text" name="id" value="');
-      
-        __out.push(__sanitize(this.id));
-      
-        __out.push('" />\n        </div>\n    </div>\n    <div class="row">\n        <div class="twelve columns">\n            <a id="submit" class="button">Show the Graph</span></a>\n        </div>\n    </div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/OntologyGraphTool/step-2", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="container">\n    <div class="loading -steps-ui"></div>\n</div>');
-      
-      }).call(this);
-      
-    }).call(__obj);
-    __obj.safe = __objSafe, __obj.escape = __escape;
-    return __out.join('');
-  }
-});
-window.require.register("tools/OntologyGraphTool/step-3", function(exports, require, module) {
-  module.exports = function (__obj) {
-    if (!__obj) __obj = {};
-    var __out = [], __capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return __safe(result);
-    }, __sanitize = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else if (typeof value !== 'undefined' && value != null) {
-        return __escape(value);
-      } else {
-        return '';
-      }
-    }, __safe, __objSafe = __obj.safe, __escape = __obj.escape;
-    __safe = __obj.safe = function(value) {
-      if (value && value.ecoSafe) {
-        return value;
-      } else {
-        if (!(typeof value !== 'undefined' && value != null)) value = '';
-        var result = new String(value);
-        result.ecoSafe = true;
-        return result;
-      }
-    };
-    if (!__escape) {
-      __escape = __obj.escape = function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      };
-    }
-    (function() {
-      (function() {
-      
-        __out.push('<div class="foundation3 container">\n    <div id="ontology"></div>\n</div>');
       
       }).call(this);
       

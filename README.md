@@ -35,7 +35,7 @@ Library | Version | Use
 `d3` | 3.0.6 | History view SVG lines rendering, a bit of an overkill
 `jquery` | 1.9.1 | Selector magic
 `jschannel` | - | Establish a channel between iframes using `window.postMessage`
-`lodash` | 1.2.1 | Frequently used utility functions & better than `underscore`
+`lodash.underscore` | 1.3.1 | Utility function that is globally available and compatible with `underscore`
 `modernizr` | 2.6.2 | Detect support for `LocalStorage` & `PushState` APIs
 `moment` | 1.7.2 | Nice formating of time into "ago" form
 `pluralize` | - | Pluralize strings like *types* into their plural form
@@ -46,11 +46,9 @@ The following are assets available to be loaded from within a child iframe.
 
 Library | Version | Use
 --- | --- | ---
-`backbone` | 1.0.0 | Client side MV* framework
 `intermine.api` | 0.5.2 | A loader for dependencies
-`intermine.apps-a` | 1.2.0 | Apps/A middleware client
-`intermine.im` | 2.5.1 | Client side API for InterMine calls (already bundled)
-`intermine.imtables` | 1.3.0 | InterMine Results Tables coming in a nice bundle
-`intermine.widgets` | 1.12.5 | List Widgets
-`jquery` | 1.9.1 | Selector magic
-`lodash` | 1.2.1 | Frequently used utility functions & better than `underscore`
+`intermine.apps-a` | 1.2.0 | Apps/A middleware client (*loaded when needed*)
+`intermine.im` | 2.5.1 | Client side API for InterMine calls (*loaded when needed*)
+`intermine.imtables` | 1.3.0 | InterMine Results Tables coming in a nice bundle (*loaded when needed*)
+`intermine.widgets` | 1.12.5 | List Widgets (*loaded when needed*)
+`lodash.modern` | 1.2.1 | Utility functions and available as CommonJS Module (use `require`)
