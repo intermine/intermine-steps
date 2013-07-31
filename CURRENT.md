@@ -18,9 +18,10 @@ Only appear when someone says that a Gene List has been selected/created. When a
 
 ##Q&A
 
-###Why are apps not loading after a deploy to `ukraine`? Because the Apps/A middleware probably has not come online yet. Give it a moment.
+###Why are apps not loading after a deploy to `ukraine`?
+
+Because the Apps/A middleware probably has not come online yet. Give it a moment.
 
 ###Where are the apps served from?
-
 
 The config points to the git repo `intermine-apps-a`. Any changes to these apps and a subsequent deploy to `ukraine` of this branch will fetch these latest versions.
