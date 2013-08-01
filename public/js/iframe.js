@@ -7117,7 +7117,7 @@ window.require.register("iframe/child", function(exports, require, module) {
       },
       'js': {
         'intermine.widgets': {
-          path: '/iframe/js/intermine/intermine.widgets-1.12.7.js'
+          path: '/iframe/js/intermine/intermine.widgets-1.12.8.js'
         },
         'setImmediate': {
           path: '/iframe/js/setImmediate.js'
