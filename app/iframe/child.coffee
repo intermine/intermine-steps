@@ -108,7 +108,7 @@ bundles =
                 path: '/iframe/css/bootstrap-2.0.4.css'
         'js':
             'intermine.widgets':
-                path: '/iframe/js/intermine/intermine.widgets-1.12.7.js'
+                path: '/iframe/js/intermine/intermine.widgets-1.12.8.js'
             'setImmediate':
                 path: '/iframe/js/setImmediate.js'
             'async':
