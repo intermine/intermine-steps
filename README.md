@@ -51,4 +51,4 @@ Library | Version | Use
 `intermine.apps-a` | 1.2.0 | Apps/A middleware client (*loaded when needed incl. deps*)
 `intermine.im` | 2.5.1 | Client side API for InterMine calls (*loaded when needed incl. deps*)
 `intermine.imtables` | 1.3.0 | InterMine Results Tables coming in a nice bundle (*loaded when needed incl. deps*)
-`intermine.widgets` | 1.12.7 | List Widgets (*loaded when needed incl. deps*)
+`intermine.widgets` | 1.12.8 | List Widgets (*loaded when needed incl. deps*)
