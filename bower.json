@@ -1,0 +1,26 @@
+{
+    "name": "component-400",
+    "version": "0.3.1",
+    "dependencies": {
+        "async": "0.2.5",
+        "chaplin": "0.11.3",
+        "d3": "3.3.9",
+        "jquery": "2.0.3",
+        "lodash": "2.2.1",
+        "modernizr": "2.6.2",
+        "moment": "2.4.0",
+        "pomme.js": null,
+        
+        "im.apps-a": "https://raw.github.com/intermine/CDN/master/js/intermine/apps-a/1.2.0/intermine.apps-a.js",
+        "im.tables.css": "https://raw.github.com/intermine/CDN/master/js/intermine/im-tables/1.5.0/imtables.css",
+        "im.tables.js": "https://raw.github.com/intermine/CDN/master/js/intermine/im-tables/1.5.0/imtables-mini-bundle.js",
+        "im.js": "https://raw.github.com/intermine/CDN/master/js/intermine/imjs/2.8.1/im.js",
+        "im.widgets": "https://raw.github.com/intermine/CDN/master/js/intermine/widgets/1.12.8/intermine.widgets.js",
+        "im.api": "https://raw.github.com/intermine/CDN/master/js/intermine/api-loader/latest/intermine.api.js",
+        
+        "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
+        "setImmediate": "https://raw.github.com/intermine/CDN/master/js/setImmediate/1.0.1/setImmediate.js",
+        "google": "https://www.google.com/jsapi",
+        "fileSaver": "https://raw.github.com/intermine/CDN/master/js/filesaver.js/FileSaver.js"
+    }
+}

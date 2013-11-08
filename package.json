@@ -1,6 +1,6 @@
 {
     "name": "intermine-steps",
-    "version": "0.4.0-alpha",
+    "version": "0.5.0-alpha",
     "author": "Radek <rs676@cam.ac.uk>",
     "private": true,
     "dependencies": {
@@ -9,14 +9,18 @@
         "union": "0.3.7",
         "connect": "2.7.3",
         "send": "0.0.4",
-        "brunch": "1.5.3",
-        "javascript-brunch": "1.5.0",
-        "coffee-script-brunch": "1.5.0",
-        "eco-brunch": "1.5.0",
-        "css-brunch": "1.5.0",
-        "stylus-brunch": "1.5.0",
-        "uglify-js-brunch": "1.5.0",
+
         "apps-a-middleware": "1.2.2"
+    },
+    "devDependencies": {
+        "bower": "~1.2.7",
+        "grunt": "~0.4.1",
+        
+        "grunt-apps-c": "git://github.com/radekstepan/grunt-apps-c.git#master",
+        "grunt-contrib-concat": "~0.3.0",
+        "grunt-contrib-uglify": "~0.2.5",
+        "grunt-contrib-cssmin": "~0.6.2",
+        "grunt-contrib-stylus": "~0.9.0"
     },
     "scripts": {
         "start": "start.js"
