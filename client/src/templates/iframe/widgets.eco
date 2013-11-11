@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-
+    <link rel="stylesheet" href="/iframe/im.widgets.bundle.css" />
     <script src="/iframe/im.widgets.bundle.js"></script>
 </head>
 <body>
@@ -11,10 +11,9 @@
     (function() {
         var channel = new Pomme({ 'scope': 'widgets' });
         channel.on('show', function(config) {
-            var widgets = new intermine.widgets({
+            var widgets = new window['list-widgets']({
                 'root': config.mine + '/service/',
-                'token': config.token,
-                'skipDeps': yes
+                'token': config.token
             });
             widgets[config.type](config.id, config.list, 'body', {});
         });

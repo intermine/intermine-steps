@@ -87,7 +87,7 @@ module.exports = (grunt) ->
             # List Widgets.
             iframe_widgets_js:
                 src: [
-                    'client/vendor/im.widgets/index.js'
+                    # Vendor.
                     'client/vendor/setImmediate/index.js'
                     'client/vendor/async/lib/async.js'
                     'client/vendor/jquery/jquery.js'
@@ -96,7 +96,10 @@ module.exports = (grunt) ->
                     'client/vendor/google/index'
                     'client/vendor/im.js/index.js'
                     'client/vendor/fileSaver/index.js'
+                    # Comms.
                     'client/vendor/pomme.js/build/app.js'
+                    # Widgets.
+                    'client/vendor/im.widgets.js/index.js'
                 ]
                 dest: 'client/build/iframe/im.widgets.bundle.js'
 

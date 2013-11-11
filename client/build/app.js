@@ -1867,7 +1867,7 @@
         }
         (function() {
           (function() {
-            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n\n    <script src="/iframe/im.widgets.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var channel = new Pomme({ \'scope\': \'widgets\' });\n        channel.on(\'show\', function(config) {\n            var widgets = new intermine.widgets({\n                \'root\': config.mine + \'/service/\',\n                \'token\': config.token,\n                \'skipDeps\': yes\n            });\n            widgets[config.type](config.id, config.list, \'body\', {});\n        });\n    })();\n    </script>\n</body>\n</html>');
+            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.widgets.bundle.css" />\n    <script src="/iframe/im.widgets.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var channel = new Pomme({ \'scope\': \'widgets\' });\n        channel.on(\'show\', function(config) {\n            var widgets = new window[\'list-widgets\']({\n                \'root\': config.mine + \'/service/\',\n                \'token\': config.token\n            });\n            widgets[config.type](config.id, config.list, \'body\', {});\n        });\n    })();\n    </script>\n</body>\n</html>');
           
           }).call(this);
           

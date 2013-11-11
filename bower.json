@@ -15,12 +15,12 @@
         "im.tables.css": "https://raw.github.com/intermine/CDN/master/js/intermine/im-tables/1.5.0/imtables.css",
         "im.tables.js": "https://raw.github.com/intermine/CDN/master/js/intermine/im-tables/1.5.0/imtables-mini-bundle.js",
         "im.js": "https://raw.github.com/intermine/CDN/master/js/intermine/imjs/2.8.1/im.js",
-        "im.widgets": "https://raw.github.com/intermine/CDN/master/js/intermine/widgets/1.12.8/intermine.widgets.js",
         "im.api": "https://raw.github.com/intermine/CDN/master/js/intermine/api-loader/latest/intermine.api.js",
+        "im.widgets.js": "https://raw.github.com/intermine/CDN/master/js/intermine/widgets/2.0.0/app.js",
         
         "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
         "setImmediate": "https://raw.github.com/intermine/CDN/master/js/setImmediate/1.0.1/setImmediate.js",
         "google": "https://www.google.com/jsapi",
-        "fileSaver": "https://raw.github.com/intermine/CDN/master/js/filesaver.js/FileSaver.js"
+        "fileSaver": "https://raw.github.com/intermine/CDN/master/js/filesaver.js/FileSaver.js"        
     }
 }
