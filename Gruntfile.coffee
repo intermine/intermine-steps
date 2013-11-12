@@ -60,7 +60,7 @@ module.exports = (grunt) ->
                 src: [
                     'client/vendor/im.api/index.js'
                     'client/vendor/im.apps-a/index.js'
-                    'client/vendor/lodash/dist/lodash.js'
+                    'client/vendor/underscore/underscore.js'
                     'client/vendor/pomme.js/build/app.js'
                 ]
                 dest: 'client/build/iframe/im.apps-a.bundle.js'
@@ -68,10 +68,10 @@ module.exports = (grunt) ->
             # imtables.
             iframe_imtables_js:
                 src: [
-                    'client/vendor/lodash/dist/lodash.js'
+                    'client/vendor/underscore/underscore.js'
                     'client/vendor/jquery/jquery.js'
                     'client/vendor/backbone/backbone.js'
-                    'client/vendor/im.js/index.js'
+                    'client/vendor/imjs/js/im.js'
                     'client/vendor/im.tables.js/index.js'
                     'client/vendor/pomme.js/build/app.js'
                 ]
@@ -91,10 +91,10 @@ module.exports = (grunt) ->
                     'client/vendor/setImmediate/index.js'
                     'client/vendor/async/lib/async.js'
                     'client/vendor/jquery/jquery.js'
-                    'client/vendor/lodash/dist/lodash.js'
+                    'client/vendor/underscore/underscore.js'
                     'client/vendor/backbone/backbone.js'
                     'client/vendor/google/index'
-                    'client/vendor/im.js/index.js'
+                    'client/vendor/imjs/js/im.js'
                     'client/vendor/fileSaver/index.js'
                     # Comms.
                     'client/vendor/pomme.js/build/app.js'

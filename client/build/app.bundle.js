@@ -12838,8 +12838,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     require.register('steps/tools/config.js', function(exports, require, module) {
     
       exports.config = {
-        'mine': 'http://beta.flymine.org/beta',
-        'token': 'X1L4z2y3p3ify3y9s0Eb'
+        'mine': 'http://www.flymine.org/release-38.0',
+        'token': 'n1s3AaY1DcXbj3X740S5qbAMzYU'
       };
       
       exports.registry = [
@@ -38140,13 +38140,11 @@ window.Modernizr = (function( window, document, undefined ) {
     // channel.coffee
     require.register('pomme.js/src/channel.js', function(exports, require, module) {
     
-      var ChanID, Channel, FnID, constants, helpers, iFrame, pickle, router, _ref,
+      var ChanID, Channel, FnID, constants, helpers, iFrame, router, _ref,
         __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
         __slice = [].slice;
       
       iFrame = require('./iframe');
-      
-      pickle = require('./pickle');
       
       helpers = require('./helpers');
       
@@ -38232,7 +38230,7 @@ window.Modernizr = (function( window, document, undefined ) {
             _this = this;
           method = arguments[0], opts = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
           try {
-            pickle.stringify(opts);
+            JSON.stringify(opts);
           } catch (_error) {
             e = _error;
             return this.error('cannot convert circular structure');
@@ -38274,7 +38272,7 @@ window.Modernizr = (function( window, document, undefined ) {
             return this.pending.push(message);
           }
           message[constants.postmessage] = true;
-          return this.window.postMessage(pickle.stringify(message), '*');
+          return this.window.postMessage(JSON.stringify(message), '*');
         };
       
         Channel.prototype.onMessage = function(method, params) {
@@ -38353,7 +38351,7 @@ window.Modernizr = (function( window, document, undefined ) {
           }
           if (!message) {
             try {
-              message = pickle.stringify(err);
+              message = JSON.stringify(err);
             } catch (_error) {
               message = err.toString();
             }
@@ -38409,6 +38407,14 @@ window.Modernizr = (function( window, document, undefined ) {
               default:
                 return obj.window === obj;
             }
+          },
+          'transform': function(obj, cb) {
+            var key, val;
+            for (key in obj) {
+              val = obj[key];
+              cb(obj, val, key);
+            }
+            return obj;
           }
         };
       })());
@@ -38549,35 +38555,14 @@ window.Modernizr = (function( window, document, undefined ) {
     });
 
     
-    // index.js
-    require.register('pomme.js/src/index.js', function(exports, require, module) {
-    
-      module.exports = require('./channel');
-    });
-
-    
-    // pickle.coffee
-    require.register('pomme.js/src/pickle.js', function(exports, require, module) {
-    
-      var root;
-      
-      root = this;
-      
-      module.exports = root.Cryo || root.JSON;
-      
-    });
-
-    
     // router.coffee
     require.register('pomme.js/src/router.js', function(exports, require, module) {
     
-      var ChanID, FnID, Router, constants, pickle, router,
+      var ChanID, FnID, Router, constants, router,
         __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
         __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
       
       constants = require('./constants');
-      
-      pickle = require('./pickle');
       
       Router = (function() {
         function Router() {
@@ -38613,7 +38598,7 @@ window.Modernizr = (function( window, document, undefined ) {
           var data, method, route, scope, _i, _len, _ref, _ref1, _ref2;
           data = null;
           try {
-            data = pickle.parse(event.data);
+            data = JSON.parse(event.data);
           } catch (_error) {}
           if (!(_.isObject(data) && (_ref = constants.postmessage, __indexOf.call(_.keys(data), _ref) >= 0))) {
             return;
@@ -38687,7 +38672,7 @@ window.Modernizr = (function( window, document, undefined ) {
   })();
 
   // Return the main app.
-  var main = require("pomme.js/src/index.js");
+  var main = require("pomme.js/src/channel.js");
 
   // Global on server, window in browser.
   var root = this;
@@ -38745,17 +38730,17 @@ window.Modernizr = (function( window, document, undefined ) {
 
   // Alias our app.
   
-  require.alias("pomme.js/src/index.js", "pomme.js/index.js");
+  require.alias("pomme.js/src/channel.js", "pomme.js/index.js");
   
-  require.alias("pomme.js/src/index.js", "Pomme.js/index.js");
+  require.alias("pomme.js/src/channel.js", "Pomme.js/index.js");
   
-  require.alias("pomme.js/src/index.js", "pommejs/index.js");
+  require.alias("pomme.js/src/channel.js", "pommejs/index.js");
   
-  require.alias("pomme.js/src/index.js", "PommeJS/index.js");
+  require.alias("pomme.js/src/channel.js", "PommeJS/index.js");
   
-  require.alias("pomme.js/src/index.js", "pomme/index.js");
+  require.alias("pomme.js/src/channel.js", "pomme/index.js");
   
-  require.alias("pomme.js/src/index.js", "Pomme/index.js");
+  require.alias("pomme.js/src/channel.js", "Pomme/index.js");
   
 
   // Export internal loader?

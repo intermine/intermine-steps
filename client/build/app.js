@@ -4009,8 +4009,8 @@
     require.register('steps/tools/config.js', function(exports, require, module) {
     
       exports.config = {
-        'mine': 'http://beta.flymine.org/beta',
-        'token': 'X1L4z2y3p3ify3y9s0Eb'
+        'mine': 'http://www.flymine.org/release-38.0',
+        'token': 'n1s3AaY1DcXbj3X740S5qbAMzYU'
       };
       
       exports.registry = [
