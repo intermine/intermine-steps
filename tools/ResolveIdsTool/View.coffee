@@ -62,7 +62,7 @@ module.exports = class ResolveIdsToolView extends ToolView
                     'query': queryForList data
                     'events':
                         # Fire off new context on cell selection.
-                        'imo:click': (type, id) ->
+                        'imo:click': (type, id, obj) ->
                             Mediator.publish 'context:new', [
                                 'have:list'
                                 "type:#{type}"

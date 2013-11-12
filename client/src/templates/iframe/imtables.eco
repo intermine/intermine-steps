@@ -14,10 +14,12 @@
             config.service = new intermine.Service({
                 'root': config.mine,
                 'token': config.token,
+                // Throwing an error here will bubble it up to the parent.
+                // Alternatively, one can trigger an `error` event to the parent.
                 errorHandler: function(err) {
                     throw err;
                 }
-            })
+            });
             config.type = (config.type) ? config.type : 'table';
             $('body').imWidget(config);
         });

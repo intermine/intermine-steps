@@ -72,7 +72,7 @@ module.exports = (grunt) ->
                     'client/vendor/jquery/jquery.js'
                     'client/vendor/backbone/backbone.js'
                     'client/vendor/imjs/js/im.js'
-                    'client/vendor/im.tables.js/index.js'
+                    'client/vendor/im-tables/js/imtables-mini-bundle.js'
                     'client/vendor/pomme.js/build/app.js'
                 ]
                 dest: 'client/build/iframe/im.tables.bundle.js'
@@ -80,7 +80,7 @@ module.exports = (grunt) ->
             iframe_imtables_css:
                 src: [
                     'client/vendor/bootstrap2/index.css'
-                    'client/vendor/im.tables.css/index.css'
+                    'client/vendor/im-tables/css/imtables.css'
                 ]
                 dest: 'client/build/iframe/im.tables.bundle.css'
 

@@ -63,7 +63,7 @@ module.exports = class ChooseListToolView extends ToolView
                     'query': queryForList list
                     'events':
                         # Fire off new context on cell selection.
-                        'imo:click': (type, id) ->
+                        'imo:click': (type, id, obj) ->
                             Mediator.publish 'context:new', [
                                 'have:list'
                                 "type:#{type}"

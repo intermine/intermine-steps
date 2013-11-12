@@ -23130,7 +23130,7 @@ $.widget("ui.sortable", $.ui.mouse, {
  * Copyright 2012, 2013, Alex Kalderimis and InterMine
  * Released under the LGPL license.
  * 
- * Built at Fri Nov 08 2013 17:58:27 GMT+0000 (GMT)
+ * Built at Tue Nov 12 2013 15:26:58 GMT+0000 (GMT)
 */
 
 
@@ -30352,7 +30352,7 @@ $.widget("ui.sortable", $.ui.mouse, {
           } else {
             node = _this.query.getPathInfo(obj.column).getParent();
             field = obj.column.replace(/^.*\./, '');
-            model = obj.id != null ? (_base = _this.itemModels)[_name = obj.id] || (_base[_name] = new intermine.model.IMObject(_this.query, obj, field, base)) : obj["class"] == null ? (type = node.getParent().name, new intermine.model.NullObject({}, {
+            model = obj.id != null ? (_base = _this.itemModels)[_name = obj.id] || (_base[_name] = new intermine.model.IMObject(obj, _this.query, field, base)) : obj["class"] == null ? (type = node.getParent().name, new intermine.model.NullObject({}, {
               query: _this.query,
               field: field,
               type: type
@@ -30379,7 +30379,7 @@ $.widget("ui.sortable", $.ui.mouse, {
               return makeCell(cell);
             } else if ((cell != null ? cell.id : void 0) != null) {
               field = fields[idx];
-              imo = (_base = _this.itemModels)[_name = cell.id] || (_base[_name] = new intermine.model.IMObject(_this.query, cell, field[1], base));
+              imo = (_base = _this.itemModels)[_name = cell.id] || (_base[_name] = new intermine.model.IMObject(cell, _this.query, field[1], base));
               imo.merge(cell, field[1]);
               return new intermine.results.table.Cell({
                 model: imo,
@@ -32092,7 +32092,7 @@ $.widget("ui.sortable", $.ui.mouse, {
         return _ref;
       }
 
-      IMObject.prototype.initialize = function(query, obj, field, base, history) {
+      IMObject.prototype.initialize = function(obj, query, field, base, history) {
         var model,
           _this = this;
 
@@ -32119,10 +32119,10 @@ $.widget("ui.sortable", $.ui.mouse, {
           });
         });
         this.on("change:is:selected", function(self, selected) {
-          return query.trigger("imo:selected", this.get("obj:type"), this.get("id"), selected);
+          return query.trigger("imo:selected", _this.get("obj:type"), _this.get("id"), selected);
         });
         return this.on('click', function() {
-          return query.trigger('imo:click', this.get('obj:type'), this.get('id'), this);
+          return query.trigger('imo:click', _this.get('obj:type'), _this.get('id'), _this.toJSON());
         });
       };
 

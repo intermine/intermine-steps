@@ -12,9 +12,8 @@
         "pomme.js": "0.2.4",
         
         "imjs": "2.9.0",
+        "im-tables": "1.5.2",
         "im.apps-a": "https://raw.github.com/intermine/CDN/master/js/intermine/apps-a/1.2.0/intermine.apps-a.js",
-        "im.tables.css": "https://raw.github.com/intermine/CDN/master/js/intermine/im-tables/1.5.0/imtables.css",
-        "im.tables.js": "https://raw.github.com/intermine/CDN/master/js/intermine/im-tables/1.5.0/imtables-mini-bundle.js",
         "im.api": "https://raw.github.com/intermine/CDN/master/js/intermine/api-loader/latest/intermine.api.js",
         "im.widgets.js": "https://raw.github.com/intermine/CDN/master/js/intermine/widgets/2.0.0/app.js",
         
