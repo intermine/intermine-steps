@@ -40,6 +40,7 @@ module.exports = (grunt) ->
                     'client/vendor/async/lib/async.js'
                     'client/vendor/modernizr/modernizr.js'
                     'client/vendor/moment/moment.js'
+                    'client/vendor/imjs/js/im.js'
                     'client/vendor/pomme.js/build/app.js'
                 ]
                 dest: 'client/build/app.bundle.js'

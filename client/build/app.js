@@ -3824,7 +3824,7 @@
       root = this;
       
       module.exports = ResolveIdsToolView = (function(_super) {
-        var queryForList;
+        var queryForList, queryToList;
       
         __extends(ResolveIdsToolView, _super);
       
@@ -3843,6 +3843,25 @@
           };
         };
       
+        queryToList = function(obj, cb) {
+          var service;
+          service = new intermine.Service({
+            'root': config.mine,
+            'token': config.token,
+            'errorHandler': cb
+          });
+          return service.query(obj, function(q) {
+            return q.saveAsList({
+              'name': +(new Date),
+              'tags': ['app', 'identifier-resolution']
+            }, function(_arg) {
+              var name;
+              name = _arg.name;
+              return cb(null, name);
+            });
+          });
+        };
+      
         ResolveIdsToolView.prototype.attach = function() {
           var channel, data, guid, opts, self, _ref1;
           ResolveIdsToolView.__super__.attach.apply(this, arguments);
@@ -3853,17 +3872,28 @@
                 'mine': config.mine,
                 'token': config.token,
                 'type': 'many',
+                'provided': {
+                  'identifiers': ['CG9151', 'FBgn0000099', 'CG3629', 'TfIIB', 'Mad', 'CG1775', 'CG2262', 'TWIST_DROME', 'tinman', 'runt', 'E2f', 'CG8817', 'FBgn0010433', 'CG9786', 'CG1034', 'ftz', 'FBgn0024250', 'FBgn0001251', 'tll', 'CG1374', 'CG33473', 'ato', 'so', 'CG16738', 'tramtrack', 'CG2328', 'gt'],
+                  'type': 'Gene',
+                  'organism': 'D. melanogaster'
+                },
                 'cb': function(err, working, out) {
                   if (err) {
                     throw err;
                   }
                   if (out && out.query) {
-                    self.model.set('data', out);
-                    return Mediator.publish('history:add', self.model);
+                    return queryToList(out.query, function(err, name) {
+                      if (err) {
+                        throw err;
+                      }
+                      out.list = name;
+                      self.model.set('data', out);
+                      return Mediator.publish('history:add', self.model);
+                    });
                   }
                 }
               };
-              opts.provided = ((_ref1 = this.model.get('data')) != null ? _ref1.input : void 0) || {};
+              opts.provided = ((_ref1 = this.model.get('data')) != null ? _ref1.input : void 0) || opts.provided;
               channel = this.channel({
                 'target': '.iframe.app.container',
                 'scope': 'apps-a'
