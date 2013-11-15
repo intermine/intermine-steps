@@ -198,6 +198,12 @@
     return localRequire;
   };
 
+  // Global on server, window in browser.
+  var root = this;
+
+  // Do we already have require loader?
+  root.require = require = (typeof root.require !== 'undefined') ? root.require : require;
+
   // All our modules will see our own require.
   (function() {
     
@@ -1761,7 +1767,7 @@
         }
         (function() {
           (function() {
-            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n\n    <script src="/iframe/im.apps-a.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var channel = new Pomme({ \'scope\': \'apps-a\' });\n        channel.on(\'load\', function(name, opts) {\n            var apps = new intermine.appsA(document.location.origin);\n            apps.load(name, \'body\', opts);\n        });\n    })();\n    </script>\n</body>\n</html>');
+            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n\n    <script src="/iframe/im.apps-a.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var Pomme = require(\'pomme.js\');\n        var channel = new Pomme({ \'scope\': \'apps-a\' });\n        channel.on(\'load\', function(name, opts) {\n            var apps = new intermine.appsA(document.location.origin);\n            apps.load(name, \'body\', opts);\n        });\n    })();\n    </script>\n</body>\n</html>');
           
           }).call(this);
           
@@ -1814,7 +1820,7 @@
         }
         (function() {
           (function() {
-            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.tables.bundle.css" />\n    <script src="/iframe/im.tables.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var channel = new Pomme({ \'scope\': \'imtables\' });\n        channel.on(\'show\', function(config) {\n            config.service = new intermine.Service({\n                \'root\': config.mine,\n                \'token\': config.token,\n                // Throwing an error here will bubble it up to the parent.\n                // Alternatively, one can trigger an `error` event to the parent.\n                errorHandler: function(err) {\n                    throw err;\n                }\n            });\n            config.type = (config.type) ? config.type : \'table\';\n            $(\'body\').imWidget(config);\n        });\n    })();\n    </script>\n</body>\n</html>');
+            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.tables.bundle.css" />\n    <script src="/iframe/im.tables.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var Pomme = require(\'pomme.js\');\n        var channel = new Pomme({ \'scope\': \'imtables\' });\n        channel.on(\'show\', function(config) {\n            config.service = new intermine.Service({\n                \'root\': config.mine,\n                \'token\': config.token,\n                // Throwing an error here will bubble it up to the parent.\n                // Alternatively, one can trigger an `error` event to the parent.\n                errorHandler: function(err) {\n                    throw err;\n                }\n            });\n            config.type = (config.type) ? config.type : \'table\';\n            $(\'body\').imWidget(config);\n        });\n    })();\n    </script>\n</body>\n</html>');
           
           }).call(this);
           
@@ -1867,7 +1873,7 @@
         }
         (function() {
           (function() {
-            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.widgets.bundle.css" />\n    <script src="/iframe/im.widgets.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var channel = new Pomme({ \'scope\': \'widgets\' });\n        channel.on(\'show\', function(config) {\n            var widgets = new window[\'list-widgets\']({\n                \'root\': config.mine + \'/service/\',\n                \'token\': config.token\n            });\n            widgets[config.type](config.id, config.list, \'body\', {});\n        });\n    })();\n    </script>\n</body>\n</html>');
+            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.widgets.bundle.css" />\n    <script src="/iframe/im.widgets.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var Pomme = require(\'pomme.js\');\n        var channel = new Pomme({ \'scope\': \'widgets\' });\n        channel.on(\'show\', function(config) {\n            var ListWidgets = require(\'list-widgets\'),\n                widgets = new ListWidgets({\n                \'root\': config.mine + \'/service/\',\n                \'token\': config.token\n            });\n            widgets[config.type](config.id, config.list, \'body\', {});\n        });\n    })();\n    </script>\n</body>\n</html>');
           
           }).call(this);
           
@@ -3824,7 +3830,7 @@
       root = this;
       
       module.exports = ResolveIdsToolView = (function(_super) {
-        var queryForList;
+        var queryForList, queryToList;
       
         __extends(ResolveIdsToolView, _super);
       
@@ -3843,6 +3849,25 @@
           };
         };
       
+        queryToList = function(obj, cb) {
+          var service;
+          service = new intermine.Service({
+            'root': config.mine,
+            'token': config.token,
+            'errorHandler': cb
+          });
+          return service.query(obj, function(q) {
+            return q.saveAsList({
+              'name': +(new Date),
+              'tags': ['app', 'identifier-resolution']
+            }, function(_arg) {
+              var name;
+              name = _arg.name;
+              return cb(null, name);
+            });
+          });
+        };
+      
         ResolveIdsToolView.prototype.attach = function() {
           var channel, data, guid, opts, self, _ref1;
           ResolveIdsToolView.__super__.attach.apply(this, arguments);
@@ -3853,17 +3878,28 @@
                 'mine': config.mine,
                 'token': config.token,
                 'type': 'many',
+                'provided': {
+                  'identifiers': ['CG9151', 'FBgn0000099', 'CG3629', 'TfIIB', 'Mad', 'CG1775', 'CG2262', 'TWIST_DROME', 'tinman', 'runt', 'E2f', 'CG8817', 'FBgn0010433', 'CG9786', 'CG1034', 'ftz', 'FBgn0024250', 'FBgn0001251', 'tll', 'CG1374', 'CG33473', 'ato', 'so', 'CG16738', 'tramtrack', 'CG2328', 'gt'],
+                  'type': 'Gene',
+                  'organism': 'D. melanogaster'
+                },
                 'cb': function(err, working, out) {
                   if (err) {
                     throw err;
                   }
                   if (out && out.query) {
-                    self.model.set('data', out);
-                    return Mediator.publish('history:add', self.model);
+                    return queryToList(out.query, function(err, name) {
+                      if (err) {
+                        throw err;
+                      }
+                      out.list = name;
+                      self.model.set('data', out);
+                      return Mediator.publish('history:add', self.model);
+                    });
                   }
                 }
               };
-              opts.provided = ((_ref1 = this.model.get('data')) != null ? _ref1.input : void 0) || {};
+              opts.provided = ((_ref1 = this.model.get('data')) != null ? _ref1.input : void 0) || opts.provided;
               channel = this.channel({
                 'target': '.iframe.app.container',
                 'scope': 'apps-a'
@@ -4137,9 +4173,6 @@
   // Return the main app.
   var main = require("steps/client/src/initialize.js");
 
-  // Global on server, window in browser.
-  var root = this;
-
   // AMD/RequireJS.
   if (typeof define !== 'undefined' && define.amd) {
   
@@ -4165,7 +4198,4 @@
   
   require.alias("steps/client/src/initialize.js", "steps/index.js");
   
-
-  // Export internal loader?
-  root.require = (typeof root.require !== 'undefined') ? root.require : require;
 })();

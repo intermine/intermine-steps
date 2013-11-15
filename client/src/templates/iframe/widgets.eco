@@ -9,9 +9,11 @@
 <body>
     <script>
     (function() {
+        var Pomme = require('pomme.js');
         var channel = new Pomme({ 'scope': 'widgets' });
         channel.on('show', function(config) {
-            var widgets = new window['list-widgets']({
+            var ListWidgets = require('list-widgets'),
+                widgets = new ListWidgets({
                 'root': config.mine + '/service/',
                 'token': config.token
             });
