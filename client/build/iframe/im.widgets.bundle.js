@@ -12897,8 +12897,8 @@ T[x].s=function(){return!1};var ca=!1,Z=[],da=(new Date)[v](),fa=function(){ca||
 google[z][t];0==a[r]("http:")&&(a=a[n](/^http:/,"https:"));$(a+"/stats?"+Z[B]("&")+"&nc="+(new Date)[v]()+"_"+((new Date)[v]()-da));Z.length=0}},$=function(a){var b=new Image,c=$.H++;$.A[c]=b;b.onload=b.onerror=function(){delete $.A[c]};b.src=a;b=null};$.A={};$.H=0;I("google.loader.recordCsiStat",ga);I("google.loader.recordStat",X);I("google.loader.createImageForLogging",$);
 
 }) ();google.loader.rm({"specs":["feeds","spreadsheets","gdata","visualization",{"name":"sharing","baseSpec":{"uri":"http://www.google.com/s2/sharing/js","ssl":null,"key":{"string":"key"},"version":{"string":"v"},"deferred":false,"params":{"language":{"string":"hl"}}}},"search","orkut","ads","elements",{"name":"books","baseSpec":{"uri":"http://books.google.com/books/api.js","ssl":"https://encrypted.google.com/books/api.js","key":{"string":"key"},"version":{"string":"v"},"deferred":true,"params":{"callback":{"string":"callback"},"language":{"string":"hl"}}}},{"name":"friendconnect","baseSpec":{"uri":"http://www.google.com/friendconnect/script/friendconnect.js","ssl":null,"key":{"string":"key"},"version":{"string":"v"},"deferred":false,"params":{}}},"identitytoolkit","ima",{"name":"maps","baseSpec":{"uri":"http://maps.google.com/maps?file\u003dgoogleapi","ssl":"https://maps-api-ssl.google.com/maps?file\u003dgoogleapi","key":{"string":"key"},"version":{"string":"v"},"deferred":true,"params":{"callback":{"regex":"callback\u003d$1\u0026async\u003d2"},"language":{"string":"hl"}}},"customSpecs":[{"uri":"http://maps.googleapis.com/maps/api/js","ssl":"https://maps.googleapis.com/maps/api/js","version":{"string":"v"},"deferred":true,"params":{"callback":{"string":"callback"},"language":{"string":"hl"}},"pattern":"^(3|3..*)$"}]},"payments","wave","annotations_v2","earth","language",{"name":"annotations","baseSpec":{"uri":"http://www.google.com/reviews/scripts/annotations_bootstrap.js","ssl":null,"key":{"string":"key"},"version":{"string":"v"},"deferred":true,"params":{"callback":{"string":"callback"},"language":{"string":"hl"},"country":{"string":"gl"}}}},"picker"]});
-google.loader.rfm({":search":{"versions":{":1":"1",":1.0":"1"},"path":"/api/search/1.0/a075bd7791aa5f99550ea5c9db01a0d5/","js":"default+en.I.js","css":"default+en.css","properties":{":JSHash":"a075bd7791aa5f99550ea5c9db01a0d5",":NoOldNames":false,":Version":"1.0"}},":language":{"versions":{":1":"1",":1.0":"1"},"path":"/api/language/1.0/f66252f80431973fa38526a329b0a47b/","js":"default+en.I.js","properties":{":JSHash":"f66252f80431973fa38526a329b0a47b",":Version":"1.0"}},":feeds":{"versions":{":1":"1",":1.0":"1"},"path":"/api/feeds/1.0/c95430d91553a3f34679e480fd8c0961/","js":"default+en.I.js","css":"default+en.css","properties":{":JSHash":"c95430d91553a3f34679e480fd8c0961",":Version":"1.0"}},":spreadsheets":{"versions":{":0":"1",":0.4":"1"},"path":"/api/spreadsheets/0.4/87ff7219e9f8a8164006cbf28d5e911a/","js":"default.I.js","properties":{":JSHash":"87ff7219e9f8a8164006cbf28d5e911a",":Version":"0.4"}},":ima":{"versions":{":3":"1",":3.0":"1"},"path":"/api/ima/3.0/28a914332232c9a8ac0ae8da68b1006e/","js":"default.I.js","properties":{":JSHash":"28a914332232c9a8ac0ae8da68b1006e",":Version":"3.0"}},":wave":{"versions":{":1":"1",":1.0":"1"},"path":"/api/wave/1.0/3b6f7573ff78da6602dda5e09c9025bf/","js":"default.I.js","properties":{":JSHash":"3b6f7573ff78da6602dda5e09c9025bf",":Version":"1.0"}},":annotations":{"versions":{":1":"1",":1.0":"1"},"path":"/api/annotations/1.0/bacce7b6155a1bbadda3c05d65391b22/","js":"default+en.I.js","properties":{":JSHash":"bacce7b6155a1bbadda3c05d65391b22",":Version":"1.0"}},":earth":{"versions":{":1":"1",":1.0":"1"},"path":"/api/earth/1.0/109c7b2bae7fe6cc34ea875176165d81/","js":"default.I.js","properties":{":JSHash":"109c7b2bae7fe6cc34ea875176165d81",":Version":"1.0"}},":picker":{"versions":{":1":"1",":1.0":"1"},"path":"/api/picker/1.0/1c635e91b9d0c082c660a42091913907/","js":"default.I.js","css":"default.css","properties":{":JSHash":"1c635e91b9d0c082c660a42091913907",":Version":"1.0"}}});
-google.loader.rpl({":scriptaculous":{"versions":{":1.8.3":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.9.0":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.8.2":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.8.1":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"}},"aliases":{":1.8":"1.8.3",":1":"1.9.0",":1.9":"1.9.0"}},":yui":{"versions":{":2.6.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.9.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.7.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.0r4":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.2r1":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.1":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":3.3.0":{"uncompressed":"build/yui/yui.js","compressed":"build/yui/yui-min.js"}},"aliases":{":3":"3.3.0",":2":"2.9.0",":2.7":"2.7.0",":2.8.2":"2.8.2r1",":2.6":"2.6.0",":2.9":"2.9.0",":2.8":"2.8.2r1",":2.8.0":"2.8.0r4",":3.3":"3.3.0"}},":swfobject":{"versions":{":2.1":{"uncompressed":"swfobject_src.js","compressed":"swfobject.js"},":2.2":{"uncompressed":"swfobject_src.js","compressed":"swfobject.js"}},"aliases":{":2":"2.2"}},":webfont":{"versions":{":1.0.28":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.27":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.29":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.12":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.13":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.14":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.15":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.10":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.11":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.2":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.1":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.0":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.6":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.19":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.5":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.18":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.4":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.17":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.3":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.16":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.9":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.21":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.22":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.25":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.26":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.23":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.24":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"}},"aliases":{":1":"1.0.29",":1.0":"1.0.29"}},":ext-core":{"versions":{":3.1.0":{"uncompressed":"ext-core-debug.js","compressed":"ext-core.js"},":3.0.0":{"uncompressed":"ext-core-debug.js","compressed":"ext-core.js"}},"aliases":{":3":"3.1.0",":3.0":"3.0.0",":3.1":"3.1.0"}},":mootools":{"versions":{":1.3.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.1.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.3.0":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.3.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.1.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.3":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.4":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.5":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.0":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"}},"aliases":{":1":"1.1.2",":1.11":"1.1.1",":1.4":"1.4.2",":1.3":"1.3.2",":1.2":"1.2.5",":1.1":"1.1.2"}},":jqueryui":{"versions":{":1.8.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.1":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.15":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.14":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.13":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.12":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.11":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.10":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.17":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.16":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.6.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.9":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.7":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.8":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.5":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.3":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.6":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.1":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.4":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.5.3":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.5.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"}},"aliases":{":1.8":"1.8.17",":1.7":"1.7.3",":1.6":"1.6.0",":1":"1.8.17",":1.5":"1.5.3",":1.8.3":"1.8.4"}},":chrome-frame":{"versions":{":1.0.2":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"},":1.0.1":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"},":1.0.0":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"}},"aliases":{":1":"1.0.2",":1.0":"1.0.2"}},":dojo":{"versions":{":1.3.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.3.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.6.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.1.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.3.2":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.6.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.2.3":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.7.2":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.7.0":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.7.1":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.4.3":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.5.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.5.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.2.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.4.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.4.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"}},"aliases":{":1.7":"1.7.2",":1":"1.6.1",":1.6":"1.6.1",":1.5":"1.5.1",":1.4":"1.4.3",":1.3":"1.3.2",":1.2":"1.2.3",":1.1":"1.1.1"}},":jquery":{"versions":{":1.6.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.4":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.2.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.7.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.7.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.2.6":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.4":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"}},"aliases":{":1.7":"1.7.1",":1.6":"1.6.4",":1":"1.7.1",":1.5":"1.5.2",":1.4":"1.4.4",":1.3":"1.3.2",":1.2":"1.2.6"}},":prototype":{"versions":{":1.7.0.0":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.0.2":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.1.0":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.0.3":{"uncompressed":"prototype.js","compressed":"prototype.js"}},"aliases":{":1.7":"1.7.0.0",":1.6.1":"1.6.1.0",":1":"1.7.0.0",":1.6":"1.6.1.0",":1.7.0":"1.7.0.0",":1.6.0":"1.6.0.3"}}});
+google.loader.rfm({":search":{"versions":{":1":"1",":1.0":"1"},"path":"/api/search/1.0/a075bd7791aa5f99550ea5c9db01a0d5/","js":"default+en.I.js","css":"default+en.css","properties":{":JSHash":"a075bd7791aa5f99550ea5c9db01a0d5",":NoOldNames":false,":Version":"1.0"}},":language":{"versions":{":1":"1",":1.0":"1"},"path":"/api/language/1.0/f66252f80431973fa38526a329b0a47b/","js":"default+en.I.js","properties":{":JSHash":"f66252f80431973fa38526a329b0a47b",":Version":"1.0"}},":feeds":{"versions":{":1":"1",":1.0":"1"},"path":"/api/feeds/1.0/c95430d91553a3f34679e480fd8c0961/","js":"default+en.I.js","css":"default+en.css","properties":{":JSHash":"c95430d91553a3f34679e480fd8c0961",":Version":"1.0"}},":spreadsheets":{"versions":{":0":"1",":0.4":"1"},"path":"/api/spreadsheets/0.4/87ff7219e9f8a8164006cbf28d5e911a/","js":"default.I.js","properties":{":JSHash":"87ff7219e9f8a8164006cbf28d5e911a",":Version":"0.4"}},":ima":{"versions":{":3":"1",":3.0":"1"},"path":"/api/ima/3.0/28a914332232c9a8ac0ae8da68b1006e/","js":"default.I.js","properties":{":JSHash":"28a914332232c9a8ac0ae8da68b1006e",":Version":"3.0"}},":wave":{"versions":{":1":"1",":1.0":"1"},"path":"/api/wave/1.0/3b6f7573ff78da6602dda5e09c9025bf/","js":"default.I.js","properties":{":JSHash":"3b6f7573ff78da6602dda5e09c9025bf",":Version":"1.0"}},":earth":{"versions":{":1":"1",":1.0":"1"},"path":"/api/earth/1.0/109c7b2bae7fe6cc34ea875176165d81/","js":"default.I.js","properties":{":JSHash":"109c7b2bae7fe6cc34ea875176165d81",":Version":"1.0"}},":annotations":{"versions":{":1":"1",":1.0":"1"},"path":"/api/annotations/1.0/bacce7b6155a1bbadda3c05d65391b22/","js":"default+en.I.js","properties":{":JSHash":"bacce7b6155a1bbadda3c05d65391b22",":Version":"1.0"}},":picker":{"versions":{":1":"1",":1.0":"1"},"path":"/api/picker/1.0/1c635e91b9d0c082c660a42091913907/","js":"default.I.js","css":"default.css","properties":{":JSHash":"1c635e91b9d0c082c660a42091913907",":Version":"1.0"}}});
+google.loader.rpl({":scriptaculous":{"versions":{":1.8.3":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.9.0":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.8.2":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"},":1.8.1":{"uncompressed":"scriptaculous.js","compressed":"scriptaculous.js"}},"aliases":{":1.8":"1.8.3",":1":"1.9.0",":1.9":"1.9.0"}},":yui":{"versions":{":2.6.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.9.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.7.0":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.0r4":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.2r1":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":2.8.1":{"uncompressed":"build/yuiloader/yuiloader.js","compressed":"build/yuiloader/yuiloader-min.js"},":3.3.0":{"uncompressed":"build/yui/yui.js","compressed":"build/yui/yui-min.js"}},"aliases":{":3":"3.3.0",":2":"2.9.0",":2.7":"2.7.0",":2.8.2":"2.8.2r1",":2.6":"2.6.0",":2.9":"2.9.0",":2.8":"2.8.2r1",":2.8.0":"2.8.0r4",":3.3":"3.3.0"}},":swfobject":{"versions":{":2.1":{"uncompressed":"swfobject_src.js","compressed":"swfobject.js"},":2.2":{"uncompressed":"swfobject_src.js","compressed":"swfobject.js"}},"aliases":{":2":"2.2"}},":ext-core":{"versions":{":3.1.0":{"uncompressed":"ext-core-debug.js","compressed":"ext-core.js"},":3.0.0":{"uncompressed":"ext-core-debug.js","compressed":"ext-core.js"}},"aliases":{":3":"3.1.0",":3.0":"3.0.0",":3.1":"3.1.0"}},":webfont":{"versions":{":1.0.28":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.27":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.29":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.12":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.13":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.14":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.15":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.10":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.11":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.2":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.1":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.0":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.6":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.19":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.5":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.18":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.4":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.17":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.3":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.16":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.9":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.21":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.22":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.25":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.26":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.23":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"},":1.0.24":{"uncompressed":"webfont_debug.js","compressed":"webfont.js"}},"aliases":{":1":"1.0.29",":1.0":"1.0.29"}},":mootools":{"versions":{":1.3.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.1.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.3.0":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.3.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.1.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.3":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.4":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.2.5":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.0":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.1":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"},":1.4.2":{"uncompressed":"mootools.js","compressed":"mootools-yui-compressed.js"}},"aliases":{":1":"1.1.2",":1.11":"1.1.1",":1.4":"1.4.2",":1.3":"1.3.2",":1.2":"1.2.5",":1.1":"1.1.2"}},":jqueryui":{"versions":{":1.8.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.1":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.15":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.14":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.13":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.12":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.11":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.10":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.17":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.16":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.6.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.9":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.7":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.8":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.5":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.3":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.6":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.0":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.7.1":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.8.4":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.5.3":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"},":1.5.2":{"uncompressed":"jquery-ui.js","compressed":"jquery-ui.min.js"}},"aliases":{":1.8":"1.8.17",":1.7":"1.7.3",":1.6":"1.6.0",":1":"1.8.17",":1.5":"1.5.3",":1.8.3":"1.8.4"}},":chrome-frame":{"versions":{":1.0.2":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"},":1.0.1":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"},":1.0.0":{"uncompressed":"CFInstall.js","compressed":"CFInstall.min.js"}},"aliases":{":1":"1.0.2",":1.0":"1.0.2"}},":dojo":{"versions":{":1.3.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.3.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.6.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.1.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.3.2":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.6.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.2.3":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.7.2":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.7.0":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.7.1":{"uncompressed":"dojo/dojo.js.uncompressed.js","compressed":"dojo/dojo.js"},":1.4.3":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.5.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.5.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.2.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.4.0":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"},":1.4.1":{"uncompressed":"dojo/dojo.xd.js.uncompressed.js","compressed":"dojo/dojo.xd.js"}},"aliases":{":1.7":"1.7.2",":1":"1.6.1",":1.6":"1.6.1",":1.5":"1.5.1",":1.4":"1.4.3",":1.3":"1.3.2",":1.2":"1.2.3",":1.1":"1.1.1"}},":prototype":{"versions":{":1.7.0.0":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.0.2":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.1.0":{"uncompressed":"prototype.js","compressed":"prototype.js"},":1.6.0.3":{"uncompressed":"prototype.js","compressed":"prototype.js"}},"aliases":{":1.7":"1.7.0.0",":1.6.1":"1.6.1.0",":1":"1.7.0.0",":1.6":"1.6.1.0",":1.7.0":"1.7.0.0",":1.6.0":"1.6.0.3"}},":jquery":{"versions":{":1.6.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.4":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.3.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.6.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.2.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.7.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.7.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.2.6":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.3":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.4":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.0":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.5.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.1":{"uncompressed":"jquery.js","compressed":"jquery.min.js"},":1.4.2":{"uncompressed":"jquery.js","compressed":"jquery.min.js"}},"aliases":{":1.7":"1.7.1",":1.6":"1.6.4",":1":"1.7.1",":1.5":"1.5.2",":1.4":"1.4.4",":1.3":"1.3.2",":1.2":"1.2.6"}}});
 }
 
 /**
@@ -14471,8 +14471,9 @@ Thu Jun 14 13:18:14 BST 2012
 }).call(this);
 
 (function() {
-  var CategoryResults, Deferred, IDResolutionJob, IS_NODE, IdResults, fold, funcutils, get, intermine, __root__,
+  var CategoryResults, Deferred, IDResolutionJob, IS_NODE, IdResults, concatMap, fold, funcutils, get, id, intermine, __root__,
     __hasProp = {}.hasOwnProperty,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   IS_NODE = typeof exports !== 'undefined';
@@ -14489,9 +14490,10 @@ Thu Jun 14 13:18:14 BST 2012
     funcutils = intermine.funcutils;
   }
 
-  get = funcutils.get, fold = funcutils.fold;
+  id = funcutils.id, get = funcutils.get, fold = funcutils.fold, concatMap = funcutils.concatMap;
 
   CategoryResults = (function() {
+    var getIssueMatches;
 
     function CategoryResults(results) {
       var k, v;
@@ -14502,16 +14504,34 @@ Thu Jun 14 13:18:14 BST 2012
       }
     }
 
+    getIssueMatches = concatMap(get('matches'));
+
+    CategoryResults.prototype.getMatches = function(k) {
+      var _ref;
+      if (k === 'MATCH') {
+        return this.matches[k];
+      } else {
+        return (_ref = getIssueMatches(this.matches[k])) != null ? _ref : [];
+      }
+    };
+
+    CategoryResults.prototype.getMatchIds = function(k) {
+      if (k != null) {
+        return this.getMatches(k).map(get('id'));
+      } else {
+        return this.allMatchIds();
+      }
+    };
+
     CategoryResults.prototype.goodMatchIds = function() {
-      return this.MATCH.map(get('id'));
+      return this.getMatchIds('MATCH');
     };
 
     CategoryResults.prototype.allMatchIds = function() {
       var combineIds,
         _this = this;
       combineIds = fold(function(res, issueSet) {
-        var _ref, _ref1, _ref2;
-        return res.concat((_ref = (_ref1 = _this[issueSet]) != null ? (_ref2 = _ref1.matches) != null ? _ref2.map(get('id')) : void 0 : void 0) != null ? _ref : []);
+        return res.concat(_this.getMatchIds(issueSet));
       });
       return combineIds(this.goodMatchIds(), ['DUPLICATE', 'WILDCARD', 'TYPE_CONVERTED', 'OTHER']);
     };
@@ -14521,6 +14541,7 @@ Thu Jun 14 13:18:14 BST 2012
   })();
 
   IdResults = (function() {
+    var flatten, getReasons, isGood;
 
     function IdResults(results) {
       var k, v;
@@ -14531,27 +14552,58 @@ Thu Jun 14 13:18:14 BST 2012
       }
     }
 
-    IdResults.prototype.goodMatchIds = function() {
-      var id, _i, _len, _ref, _results;
-      _ref = this.allMatchIds;
+    flatten = concatMap(id);
+
+    getReasons = function(match) {
+      var k, vals;
+      return flatten((function() {
+        var _ref, _results;
+        _ref = match.identifiers;
+        _results = [];
+        for (k in _ref) {
+          vals = _ref[k];
+          _results.push(vals);
+        }
+        return _results;
+      })());
+    };
+
+    isGood = function(match, k) {
+      return !(k != null) || __indexOf.call(getReasons(match), k) >= 0;
+    };
+
+    IdResults.prototype.getMatches = function(k) {
+      var match, _results;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        id = _ref[_i];
-        if (this[id].foo) {
+      for (id in this) {
+        if (!__hasProp.call(this, id)) continue;
+        match = this[id];
+        if (isGood(match, k)) {
+          _results.push(match);
+        }
+      }
+      return _results;
+    };
+
+    IdResults.prototype.getMatchIds = function(k) {
+      var match, _results;
+      _results = [];
+      for (id in this) {
+        if (!__hasProp.call(this, id)) continue;
+        match = this[id];
+        if (isGood(match, k)) {
           _results.push(id);
         }
       }
       return _results;
     };
 
+    IdResults.prototype.goodMatchIds = function() {
+      return this.getMatchIds('MATCH');
+    };
+
     IdResults.prototype.allMatchIds = function() {
-      var k, _results;
-      _results = [];
-      for (k in this) {
-        if (!__hasProp.call(this, k)) continue;
-        _results.push(k);
-      }
-      return _results;
+      return this.getMatchIds();
     };
 
     return IdResults;
@@ -14633,6 +14685,10 @@ Thu Jun 14 13:18:14 BST 2012
   };
 
   intermine.IDResolutionJob = IDResolutionJob;
+
+  intermine.CategoryResults = CategoryResults;
+
+  intermine.IdResults = IdResults;
 
 }).call(this);
 
@@ -17389,818 +17445,11 @@ var saveAs = saveAs
     return localRequire;
   };
 
-  // All our modules will see our own require.
-  (function() {
-    
-    
-    // channel.coffee
-    require.register('pomme.js/src/channel.js', function(exports, require, module) {
-    
-      var ChanID, Channel, FnID, constants, helpers, iFrame, router, _ref,
-        __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-        __slice = [].slice;
-      
-      iFrame = require('./iframe');
-      
-      helpers = require('./helpers');
-      
-      _ref = require('./router'), ChanID = _ref.ChanID, FnID = _ref.FnID, router = _ref.router;
-      
-      constants = require('./constants');
-      
-      Channel = (function() {
-        Channel.prototype.ready = false;
-      
-        Channel.prototype.scope = 'testScope';
-      
-        function Channel(opts) {
-          this.onMessage = __bind(this.onMessage, this);
-          this.onReady = __bind(this.onReady, this);
-          var scope, target, template,
-            _this = this;
-          if (opts == null) {
-            opts = {};
-          }
-          target = opts.target, scope = opts.scope, template = opts.template;
-          this.id = new ChanID().id;
-          if (scope) {
-            this.scope = scope;
-          }
-          if (!_.isString(this.scope)) {
-            throw 'only strings accepted for a scope';
-          }
-          switch (false) {
-            case !_.isWindow(target):
-              this.window = target;
-              break;
-            case !target:
-              this.window = (this.iframe = new iFrame({
-                id: this.id,
-                target: target,
-                scope: this.scope,
-                template: template
-              })).el;
-              break;
-            default:
-              this.window = window.parent;
-              this.child = true;
-          }
-          if (window === this.window) {
-            throw 'child and parent windows cannot be one and the same';
-          }
-          this.handlers = {};
-          this.pending = [];
-          router.register(this.window, this.scope, this.onMessage);
-          this.on(constants.ready, this.onReady);
-          this.on('eval', function(code) {
-            return eval.call(_this, code);
-          });
-          helpers.nextTick(function() {
-            return _this.postMessage({
-              'method': _this.scopeMethod(constants.ready),
-              'params': ['ping']
-            }, true);
-          });
-        }
-      
-        Channel.prototype.onReady = function(type) {
-          var _results;
-          if (this.ready) {
-            return this.error('received ready message while in ready state');
-          }
-          this.id += [':B', ':A'][+type === 'ping'];
-          this.unbind(constants.ready);
-          this.ready = true;
-          if (type === 'ping') {
-            this.trigger(constants.ready, 'pong');
-          }
-          _results = [];
-          while (this.pending.length) {
-            _results.push(this.postMessage(this.pending.pop()));
-          }
-          return _results;
-        };
-      
-        Channel.prototype.trigger = function() {
-          var defunc, e, method, opts, params,
-            _this = this;
-          method = arguments[0], opts = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-          try {
-            JSON.stringify(opts);
-          } catch (_error) {
-            e = _error;
-            return this.error('cannot convert circular structure');
-          }
-          params = (defunc = function(obj) {
-            var id;
-            if (_.isFunction(obj)) {
-              id = new FnID().id;
-              _this.on(id, obj);
-              return id;
-            } else {
-              switch (false) {
-                case !_.isArray(obj):
-                  return _.collect(obj, defunc);
-                case !_.isObject(obj):
-                  return _.transform(obj, function(result, val, key) {
-                    return result[key] = defunc(val);
-                  });
-                default:
-                  return obj;
-              }
-            }
-          })(opts);
-          this.postMessage({
-            'method': this.scopeMethod(method),
-            params: params
-          });
-          return this;
-        };
-      
-        Channel.prototype.postMessage = function(message, force) {
-          if (force == null) {
-            force = false;
-          }
-          if (this.disposed) {
-            return;
-          }
-          if (!force && !this.ready) {
-            return this.pending.push(message);
-          }
-          message[constants.postmessage] = true;
-          return this.window.postMessage(JSON.stringify(message), '*');
-        };
-      
-        Channel.prototype.onMessage = function(method, params) {
-          var err, handler, makefunc,
-            _this = this;
-          params = (makefunc = function(obj) {
-            switch (false) {
-              case !_.isArray(obj):
-                return _.collect(obj, makefunc);
-              case !_.isObject(obj):
-                return _.transform(obj, function(result, val, key) {
-                  return result[key] = makefunc(val);
-                });
-              case !(_.isString(obj) && obj.match(constants["function"])):
-                return function() {
-                  return _this.trigger.apply(_this, [obj].concat(_.toArray(arguments)));
-                };
-              default:
-                return obj;
-            }
-          })(params);
-          if (!_.isFunction(handler = this.handlers[method])) {
-            return;
-          }
-          if (!_.isArray(params)) {
-            params = [params];
-          }
-          try {
-            return handler.apply(null, params);
-          } catch (_error) {
-            err = _error;
-            return this.error(err);
-          }
-        };
-      
-        Channel.prototype.scopeMethod = function(method) {
-          return [this.scope, method].join('::');
-        };
-      
-        Channel.prototype.on = function(method, cb) {
-          if (this.disposed) {
-            return;
-          }
-          if (!method || !_.isString(method)) {
-            return this.error('`method` must be string');
-          }
-          if (!cb || !_.isFunction(cb)) {
-            return this.error('callback missing');
-          }
-          if (this.handlers[method]) {
-            return this.error("`" + method + "` is already bound");
-          }
-          this.handlers[method] = cb;
-          return this;
-        };
-      
-        Channel.prototype.unbind = function(method) {
-          if (!(method in this.handlers)) {
-            return this.error("`" + method + "` is not bound");
-          }
-          return delete this.handlers[method];
-        };
-      
-        Channel.prototype.error = function(err) {
-          var message, _base;
-          message = null;
-          switch (false) {
-            case !_.isString(err):
-              message = err;
-              break;
-            case !_.isArray(err):
-              message = err[1];
-              break;
-            case !(_.isObject(err) && _.isString(err.message)):
-              message = err.message;
-          }
-          if (!message) {
-            try {
-              message = JSON.stringify(err);
-            } catch (_error) {
-              message = err.toString();
-            }
-          }
-          if (this.child) {
-            if (_.isFunction(this.handlers.error)) {
-              return this.handlers.error(message);
-            } else {
-              return this.trigger('error', message);
-            }
-          } else {
-            if ((_base = this.handlers).error == null) {
-              _base.error = function(err) {};
-            }
-            return this.handlers.error(message);
-          }
-        };
-      
-        Channel.prototype.dispose = function() {
-          var key, val, _ref1, _ref2;
-          if (this.disposed) {
-            return;
-          }
-          this.disposed = true;
-          if ((_ref1 = this.iframe) != null) {
-            _ref1.dispose();
-          }
-          _ref2 = this.handlers;
-          for (key in _ref2) {
-            val = _ref2[key];
-            if (key !== 'error') {
-              this.unbind(key);
-            }
-          }
-          if (typeof Object.freeze === "function") {
-            Object.freeze(this.handlers);
-          }
-          return typeof Object.freeze === "function" ? Object.freeze(this) : void 0;
-        };
-      
-        return Channel;
-      
-      })();
-      
-      module.exports = Channel;
-      
-      _.mixin((function() {
-        return {
-          'isWindow': function(obj) {
-            switch (false) {
-              case !!_.isObject(obj):
-                return false;
-              default:
-                return obj.window === obj;
-            }
-          },
-          'transform': function(obj, cb) {
-            var key, val;
-            for (key in obj) {
-              val = obj[key];
-              cb(obj, val, key);
-            }
-            return obj;
-          }
-        };
-      })());
-      
-    });
-
-    
-    // constants.coffee
-    require.register('pomme.js/src/constants.js', function(exports, require, module) {
-    
-      module.exports = {
-        'postmessage': '__pomme__',
-        'function': '__function::',
-        'iframe': '__pomme::',
-        'ready': '__ready'
-      };
-      
-    });
-
-    
-    // helpers.coffee
-    require.register('pomme.js/src/helpers.js', function(exports, require, module) {
-    
-      var root;
-      
-      root = window;
-      
-      module.exports = {
-        'nextTick': (function() {
-          var fns, tick;
-          switch (false) {
-            case !('setImmediate' in root && _.isFunction(root.setImmediate)):
-              return function(f) {
-                return setImmediate(f);
-              };
-            case !(typeof root === 'undefined' || 'ActiveXObject' in root || !'postMessage' in root):
-              return function(f) {
-                return setTimeout(f);
-              };
-            default:
-              fns = [];
-              tick = function() {
-                return root.postMessage('tick', '*');
-              };
-              root.addEventListener('message', function() {
-                var err, fn, _results;
-                _results = [];
-                while (fns.length) {
-                  fn = fns.shift();
-                  try {
-                    _results.push(fn());
-                  } catch (_error) {
-                    err = _error;
-                    tick();
-                    throw err;
-                  }
-                }
-                return _results;
-              }, true);
-              return function(fn) {
-                if (!fns.length) {
-                  tick();
-                }
-                return fns.push(fn);
-              };
-          }
-        })()
-      };
-      
-    });
-
-    
-    // iframe.coffee
-    require.register('pomme.js/src/iframe.js', function(exports, require, module) {
-    
-      var constants, iFrame;
-      
-      constants = require('./constants');
-      
-      iFrame = (function() {
-        function iFrame(_arg) {
-          var html, id, name, scope, target, template;
-          id = _arg.id, target = _arg.target, scope = _arg.scope, template = _arg.template;
-          try {
-            document.querySelector(target);
-          } catch (_error) {
-            return this.error('target selector not found');
-          }
-          name = constants.iframe + id || +(new Date);
-          this.node = document.createElement('iframe');
-          this.node.name = name;
-          document.querySelector(target).appendChild(this.node);
-          if (!_.isFunction(template)) {
-            return this.error('template is not a function');
-          }
-          if (!_.isString(html = template({
-            scope: scope
-          }))) {
-            return this.error('template did not return a string');
-          }
-          this.node.contentWindow.document.open();
-          this.node.contentWindow.document.write(html);
-          this.node.contentWindow.document.close();
-          this.el = window.frames[name];
-        }
-      
-        iFrame.prototype.error = function(message) {
-          this.dispose();
-          throw message;
-        };
-      
-        iFrame.prototype.dispose = function() {
-          if (this.disposed) {
-            return;
-          }
-          this.disposed = true;
-          if (this.node) {
-            switch (false) {
-              case !_.isFunction(this.node.remove):
-                this.node.remove();
-                break;
-              case !_.isFunction(this.node.removeNode):
-                this.node.removeNode(true);
-                break;
-              case !this.node.parentNode:
-                this.node.parentNode.removeChild(this.node);
-            }
-          }
-          return typeof Object.freeze === "function" ? Object.freeze(this) : void 0;
-        };
-      
-        return iFrame;
-      
-      })();
-      
-      module.exports = iFrame;
-      
-    });
-
-    
-    // router.coffee
-    require.register('pomme.js/src/router.js', function(exports, require, module) {
-    
-      var ChanID, FnID, Router, constants, router,
-        __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-        __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-      
-      constants = require('./constants');
-      
-      Router = (function() {
-        function Router() {
-          this.route = __bind(this.route, this);
-        }
-      
-        Router.prototype.table = {};
-      
-        Router.prototype.transactions = {};
-      
-        Router.prototype.register = function(win, scope, handler) {
-          var route, _base, _i, _len, _ref;
-          if (scope == null) {
-            scope = '';
-          }
-          if ((_base = this.table)[scope] == null) {
-            _base[scope] = [];
-          }
-          _ref = this.table[scope];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            route = _ref[_i];
-            if (route.win === win) {
-              throw "a channel is already bound to the same window under `" + scope + "`";
-            }
-          }
-          return this.table[scope].push({
-            win: win,
-            handler: handler
-          });
-        };
-      
-        Router.prototype.route = function(event) {
-          var data, method, route, scope, _i, _len, _ref, _ref1, _ref2;
-          data = null;
-          try {
-            data = JSON.parse(event.data);
-          } catch (_error) {}
-          if (!(_.isObject(data) && (_ref = constants.postmessage, __indexOf.call(_.keys(data), _ref) >= 0))) {
-            return;
-          }
-          scope = null;
-          method = null;
-          if (_.isString(data.method)) {
-            _ref1 = data.method.match(/^([^:]+)::(.+)$/).slice(1, 3), scope = _ref1[0], method = _ref1[1];
-            if (!(scope && method)) {
-              method = data.method;
-            }
-          }
-          if (method && (this.table[scope] != null)) {
-            _ref2 = this.table[scope];
-            for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-              route = _ref2[_i];
-              if (route.win === event.source) {
-                return route.handler(method, data.params);
-              }
-            }
-          }
-        };
-      
-        return Router;
-      
-      })();
-      
-      ChanID = (function() {
-        ChanID.prototype._id = 0;
-      
-        function ChanID() {
-          this.id = ChanID.prototype._id++;
-        }
-      
-        return ChanID;
-      
-      })();
-      
-      FnID = (function() {
-        FnID.prototype._id = 0;
-      
-        function FnID() {
-          this.id = constants["function"] + FnID.prototype._id++;
-        }
-      
-        return FnID;
-      
-      })();
-      
-      if (!('postMessage' in window)) {
-        throw 'cannot run in this browser, no postMessage';
-      }
-      
-      router = new Router();
-      
-      switch (false) {
-        case !('addEventListener' in window):
-          window.addEventListener('message', router.route, false);
-          break;
-        case !('attachEvent' in window):
-          window.attachEvent('onmessage', router.route);
-      }
-      
-      module.exports = {
-        ChanID: ChanID,
-        FnID: FnID,
-        router: router
-      };
-      
-    });
-  })();
-
-  // Return the main app.
-  var main = require("pomme.js/src/channel.js");
-
   // Global on server, window in browser.
   var root = this;
 
-  // AMD/RequireJS.
-  if (typeof define !== 'undefined' && define.amd) {
-  
-    define("pomme.js", [ /* load deps ahead of time */ ], function () {
-      return main;
-    });
-  
-    define("Pomme.js", [ /* load deps ahead of time */ ], function () {
-      return main;
-    });
-  
-    define("pommejs", [ /* load deps ahead of time */ ], function () {
-      return main;
-    });
-  
-    define("PommeJS", [ /* load deps ahead of time */ ], function () {
-      return main;
-    });
-  
-    define("pomme", [ /* load deps ahead of time */ ], function () {
-      return main;
-    });
-  
-    define("Pomme", [ /* load deps ahead of time */ ], function () {
-      return main;
-    });
-  
-  }
-
-  // CommonJS.
-  else if (typeof module !== 'undefined' && module.exports) {
-    module.exports = main;
-  }
-
-  // Globally exported.
-  else {
-  
-    root["pomme.js"] = main;
-  
-    root["Pomme.js"] = main;
-  
-    root["pommejs"] = main;
-  
-    root["PommeJS"] = main;
-  
-    root["pomme"] = main;
-  
-    root["Pomme"] = main;
-  
-  }
-
-  // Alias our app.
-  
-  require.alias("pomme.js/src/channel.js", "pomme.js/index.js");
-  
-  require.alias("pomme.js/src/channel.js", "Pomme.js/index.js");
-  
-  require.alias("pomme.js/src/channel.js", "pommejs/index.js");
-  
-  require.alias("pomme.js/src/channel.js", "PommeJS/index.js");
-  
-  require.alias("pomme.js/src/channel.js", "pomme/index.js");
-  
-  require.alias("pomme.js/src/channel.js", "Pomme/index.js");
-  
-
-  // Export internal loader?
-  root.require = (typeof root.require !== 'undefined') ? root.require : require;
-})();
-(function() {
-  /**
-   * Require the given path.
-   *
-   * @param {String} path
-   * @return {Object} exports
-   * @api public
-   */
-  function require(path, parent, orig) {
-    var resolved = require.resolve(path);
-
-    // lookup failed
-    if (null == resolved) {
-      orig = orig || path;
-      parent = parent || 'root';
-      var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
-      err.path = orig;
-      err.parent = parent;
-      err.require = true;
-      throw err;
-    }
-
-    var module = require.modules[resolved];
-
-    // perform real require()
-    // by invoking the module's
-    // registered function
-    if (!module._resolving && !module.exports) {
-      var mod = {};
-      mod.exports = {};
-      mod.client = mod.component = true;
-      module._resolving = true;
-      module.call(this, mod.exports, require.relative(resolved), mod);
-      delete module._resolving;
-      module.exports = mod.exports;
-    }
-
-    return module.exports;
-  }
-
-  /**
-   * Registered modules.
-   */
-
-  require.modules = {};
-
-  /**
-   * Registered aliases.
-   */
-
-  require.aliases = {};
-
-  /**
-   * Resolve `path`.
-   *
-   * Lookup:
-   *
-   *   - PATH/index.js
-   *   - PATH.js
-   *   - PATH
-   *
-   * @param {String} path
-   * @return {String} path or null
-   * @api private
-   */
-
-  require.resolve = function(path) {
-    if (path.charAt(0) === '/') path = path.slice(1);
-
-    var paths = [
-      path,
-      path + '.js',
-      path + '.json',
-      path + '/index.js',
-      path + '/index.json'
-    ];
-
-    for (var i = 0; i < paths.length; i++) {
-      var path = paths[i];
-      if (require.modules.hasOwnProperty(path)) return path;
-      if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
-    }
-  };
-
-  /**
-   * Normalize `path` relative to the current path.
-   *
-   * @param {String} curr
-   * @param {String} path
-   * @return {String}
-   * @api private
-   */
-
-  require.normalize = function(curr, path) {
-    var segs = [];
-
-    if ('.' != path.charAt(0)) return path;
-
-    curr = curr.split('/');
-    path = path.split('/');
-
-    for (var i = 0; i < path.length; ++i) {
-      if ('..' == path[i]) {
-        curr.pop();
-      } else if ('.' != path[i] && '' != path[i]) {
-        segs.push(path[i]);
-      }
-    }
-
-    return curr.concat(segs).join('/');
-  };
-
-  /**
-   * Register module at `path` with callback `definition`.
-   *
-   * @param {String} path
-   * @param {Function} definition
-   * @api private
-   */
-
-  require.register = function(path, definition) {
-    require.modules[path] = definition;
-  };
-
-  /**
-   * Alias a module definition.
-   *
-   * @param {String} from
-   * @param {String} to
-   * @api private
-   */
-
-  require.alias = function(from, to) {
-    if (!require.modules.hasOwnProperty(from)) {
-      throw new Error('Failed to alias "' + from + '", it does not exist');
-    }
-    require.aliases[to] = from;
-  };
-
-  /**
-   * Return a require function relative to the `parent` path.
-   *
-   * @param {String} parent
-   * @return {Function}
-   * @api private
-   */
-
-  require.relative = function(parent) {
-    var p = require.normalize(parent, '..');
-
-    /**
-     * lastIndexOf helper.
-     */
-
-    function lastIndexOf(arr, obj) {
-      var i = arr.length;
-      while (i--) {
-        if (arr[i] === obj) return i;
-      }
-      return -1;
-    }
-
-    /**
-     * The relative require() itself.
-     */
-
-    function localRequire(path) {
-      var resolved = localRequire.resolve(path);
-      return require(resolved, parent, path);
-    }
-
-    /**
-     * Resolve relative to the parent.
-     */
-
-    localRequire.resolve = function(path) {
-      var c = path.charAt(0);
-      if ('/' == c) return path.slice(1);
-      if ('.' == c) return require.normalize(p, path);
-
-      // resolve deps by returning
-      // the dep in the nearest "deps"
-      // directory
-      var segs = parent.split('/');
-      var i = lastIndexOf(segs, 'deps') + 1;
-      if (!i) i = 0;
-      path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
-      return path;
-    };
-
-    /**
-     * Check if module is defined at `path`.
-     */
-    localRequire.exists = function(path) {
-      return require.modules.hasOwnProperty(localRequire.resolve(path));
-    };
-
-    return localRequire;
-  };
+  // Do we already have require loader?
+  root.require = require = (typeof root.require !== 'undefined') ? root.require : require;
 
   // All our modules will see our own require.
   (function() {
@@ -22472,9 +21721,6 @@ var saveAs = saveAs
   // Return the main app.
   var main = require("list-widgets/src/widgets.js");
 
-  // Global on server, window in browser.
-  var root = this;
-
   // AMD/RequireJS.
   if (typeof define !== 'undefined' && define.amd) {
   
@@ -22500,7 +21746,817 @@ var saveAs = saveAs
   
   require.alias("list-widgets/src/widgets.js", "list-widgets/index.js");
   
+})();
+(function() {
+  /**
+   * Require the given path.
+   *
+   * @param {String} path
+   * @return {Object} exports
+   * @api public
+   */
+  function require(path, parent, orig) {
+    var resolved = require.resolve(path);
 
-  // Export internal loader?
-  root.require = (typeof root.require !== 'undefined') ? root.require : require;
+    // lookup failed
+    if (null == resolved) {
+      orig = orig || path;
+      parent = parent || 'root';
+      var err = new Error('Failed to require "' + orig + '" from "' + parent + '"');
+      err.path = orig;
+      err.parent = parent;
+      err.require = true;
+      throw err;
+    }
+
+    var module = require.modules[resolved];
+
+    // perform real require()
+    // by invoking the module's
+    // registered function
+    if (!module._resolving && !module.exports) {
+      var mod = {};
+      mod.exports = {};
+      mod.client = mod.component = true;
+      module._resolving = true;
+      module.call(this, mod.exports, require.relative(resolved), mod);
+      delete module._resolving;
+      module.exports = mod.exports;
+    }
+
+    return module.exports;
+  }
+
+  /**
+   * Registered modules.
+   */
+
+  require.modules = {};
+
+  /**
+   * Registered aliases.
+   */
+
+  require.aliases = {};
+
+  /**
+   * Resolve `path`.
+   *
+   * Lookup:
+   *
+   *   - PATH/index.js
+   *   - PATH.js
+   *   - PATH
+   *
+   * @param {String} path
+   * @return {String} path or null
+   * @api private
+   */
+
+  require.resolve = function(path) {
+    if (path.charAt(0) === '/') path = path.slice(1);
+
+    var paths = [
+      path,
+      path + '.js',
+      path + '.json',
+      path + '/index.js',
+      path + '/index.json'
+    ];
+
+    for (var i = 0; i < paths.length; i++) {
+      var path = paths[i];
+      if (require.modules.hasOwnProperty(path)) return path;
+      if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
+    }
+  };
+
+  /**
+   * Normalize `path` relative to the current path.
+   *
+   * @param {String} curr
+   * @param {String} path
+   * @return {String}
+   * @api private
+   */
+
+  require.normalize = function(curr, path) {
+    var segs = [];
+
+    if ('.' != path.charAt(0)) return path;
+
+    curr = curr.split('/');
+    path = path.split('/');
+
+    for (var i = 0; i < path.length; ++i) {
+      if ('..' == path[i]) {
+        curr.pop();
+      } else if ('.' != path[i] && '' != path[i]) {
+        segs.push(path[i]);
+      }
+    }
+
+    return curr.concat(segs).join('/');
+  };
+
+  /**
+   * Register module at `path` with callback `definition`.
+   *
+   * @param {String} path
+   * @param {Function} definition
+   * @api private
+   */
+
+  require.register = function(path, definition) {
+    require.modules[path] = definition;
+  };
+
+  /**
+   * Alias a module definition.
+   *
+   * @param {String} from
+   * @param {String} to
+   * @api private
+   */
+
+  require.alias = function(from, to) {
+    if (!require.modules.hasOwnProperty(from)) {
+      throw new Error('Failed to alias "' + from + '", it does not exist');
+    }
+    require.aliases[to] = from;
+  };
+
+  /**
+   * Return a require function relative to the `parent` path.
+   *
+   * @param {String} parent
+   * @return {Function}
+   * @api private
+   */
+
+  require.relative = function(parent) {
+    var p = require.normalize(parent, '..');
+
+    /**
+     * lastIndexOf helper.
+     */
+
+    function lastIndexOf(arr, obj) {
+      var i = arr.length;
+      while (i--) {
+        if (arr[i] === obj) return i;
+      }
+      return -1;
+    }
+
+    /**
+     * The relative require() itself.
+     */
+
+    function localRequire(path) {
+      var resolved = localRequire.resolve(path);
+      return require(resolved, parent, path);
+    }
+
+    /**
+     * Resolve relative to the parent.
+     */
+
+    localRequire.resolve = function(path) {
+      var c = path.charAt(0);
+      if ('/' == c) return path.slice(1);
+      if ('.' == c) return require.normalize(p, path);
+
+      // resolve deps by returning
+      // the dep in the nearest "deps"
+      // directory
+      var segs = parent.split('/');
+      var i = lastIndexOf(segs, 'deps') + 1;
+      if (!i) i = 0;
+      path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
+      return path;
+    };
+
+    /**
+     * Check if module is defined at `path`.
+     */
+    localRequire.exists = function(path) {
+      return require.modules.hasOwnProperty(localRequire.resolve(path));
+    };
+
+    return localRequire;
+  };
+
+  // Global on server, window in browser.
+  var root = this;
+
+  // Do we already have require loader?
+  root.require = require = (typeof root.require !== 'undefined') ? root.require : require;
+
+  // All our modules will see our own require.
+  (function() {
+    
+    
+    // channel.coffee
+    require.register('pomme.js/src/channel.js', function(exports, require, module) {
+    
+      var ChanID, Channel, FnID, constants, helpers, iFrame, router, _ref,
+        __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+        __slice = [].slice;
+      
+      iFrame = require('./iframe');
+      
+      helpers = require('./helpers');
+      
+      _ref = require('./router'), ChanID = _ref.ChanID, FnID = _ref.FnID, router = _ref.router;
+      
+      constants = require('./constants');
+      
+      Channel = (function() {
+        Channel.prototype.ready = false;
+      
+        Channel.prototype.scope = 'testScope';
+      
+        function Channel(opts) {
+          this.onMessage = __bind(this.onMessage, this);
+          this.onReady = __bind(this.onReady, this);
+          var scope, target, template,
+            _this = this;
+          if (opts == null) {
+            opts = {};
+          }
+          target = opts.target, scope = opts.scope, template = opts.template;
+          this.id = new ChanID().id;
+          if (scope) {
+            this.scope = scope;
+          }
+          if (!_.isString(this.scope)) {
+            throw 'only strings accepted for a scope';
+          }
+          switch (false) {
+            case !_.isWindow(target):
+              this.window = target;
+              break;
+            case !target:
+              this.window = (this.iframe = new iFrame({
+                id: this.id,
+                target: target,
+                scope: this.scope,
+                template: template
+              })).el;
+              break;
+            default:
+              this.window = window.parent;
+              this.child = true;
+          }
+          if (window === this.window) {
+            throw 'child and parent windows cannot be one and the same';
+          }
+          this.handlers = {};
+          this.pending = [];
+          router.register(this.window, this.scope, this.onMessage);
+          this.on(constants.ready, this.onReady);
+          this.on('eval', function(code) {
+            return eval.call(_this, code);
+          });
+          helpers.nextTick(function() {
+            return _this.postMessage({
+              'method': _this.scopeMethod(constants.ready),
+              'params': ['ping']
+            }, true);
+          });
+        }
+      
+        Channel.prototype.onReady = function(type) {
+          var _results;
+          if (this.ready) {
+            return this.error('received ready message while in ready state');
+          }
+          this.id += [':B', ':A'][+type === 'ping'];
+          this.unbind(constants.ready);
+          this.ready = true;
+          if (type === 'ping') {
+            this.trigger(constants.ready, 'pong');
+          }
+          _results = [];
+          while (this.pending.length) {
+            _results.push(this.postMessage(this.pending.pop()));
+          }
+          return _results;
+        };
+      
+        Channel.prototype.trigger = function() {
+          var defunc, e, method, opts, params,
+            _this = this;
+          method = arguments[0], opts = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+          try {
+            JSON.stringify(opts);
+          } catch (_error) {
+            e = _error;
+            return this.error('cannot convert circular structure');
+          }
+          params = (defunc = function(obj) {
+            var id;
+            if (_.isFunction(obj)) {
+              id = new FnID().id;
+              _this.on(id, obj);
+              return id;
+            } else {
+              switch (false) {
+                case !_.isArray(obj):
+                  return _.collect(obj, defunc);
+                case !_.isObject(obj):
+                  return _.transform(obj, function(result, val, key) {
+                    return result[key] = defunc(val);
+                  });
+                default:
+                  return obj;
+              }
+            }
+          })(opts);
+          this.postMessage({
+            'method': this.scopeMethod(method),
+            params: params
+          });
+          return this;
+        };
+      
+        Channel.prototype.postMessage = function(message, force) {
+          if (force == null) {
+            force = false;
+          }
+          if (this.disposed) {
+            return;
+          }
+          if (!force && !this.ready) {
+            return this.pending.push(message);
+          }
+          message[constants.postmessage] = true;
+          return this.window.postMessage(JSON.stringify(message), '*');
+        };
+      
+        Channel.prototype.onMessage = function(method, params) {
+          var err, handler, makefunc,
+            _this = this;
+          params = (makefunc = function(obj) {
+            switch (false) {
+              case !_.isArray(obj):
+                return _.collect(obj, makefunc);
+              case !_.isObject(obj):
+                return _.transform(obj, function(result, val, key) {
+                  return result[key] = makefunc(val);
+                });
+              case !(_.isString(obj) && obj.match(constants["function"])):
+                return function() {
+                  return _this.trigger.apply(_this, [obj].concat(_.toArray(arguments)));
+                };
+              default:
+                return obj;
+            }
+          })(params);
+          if (!_.isFunction(handler = this.handlers[method])) {
+            return;
+          }
+          if (!_.isArray(params)) {
+            params = [params];
+          }
+          try {
+            return handler.apply(null, params);
+          } catch (_error) {
+            err = _error;
+            return this.error(err);
+          }
+        };
+      
+        Channel.prototype.scopeMethod = function(method) {
+          return [this.scope, method].join('::');
+        };
+      
+        Channel.prototype.on = function(method, cb) {
+          if (this.disposed) {
+            return;
+          }
+          if (!method || !_.isString(method)) {
+            return this.error('`method` must be string');
+          }
+          if (!cb || !_.isFunction(cb)) {
+            return this.error('callback missing');
+          }
+          if (this.handlers[method]) {
+            return this.error("`" + method + "` is already bound");
+          }
+          this.handlers[method] = cb;
+          return this;
+        };
+      
+        Channel.prototype.unbind = function(method) {
+          if (!(method in this.handlers)) {
+            return this.error("`" + method + "` is not bound");
+          }
+          return delete this.handlers[method];
+        };
+      
+        Channel.prototype.error = function(err) {
+          var message, _base;
+          message = null;
+          switch (false) {
+            case !_.isString(err):
+              message = err;
+              break;
+            case !_.isArray(err):
+              message = err[1];
+              break;
+            case !(_.isObject(err) && _.isString(err.message)):
+              message = err.message;
+          }
+          if (!message) {
+            try {
+              message = JSON.stringify(err);
+            } catch (_error) {
+              message = err.toString();
+            }
+          }
+          if (this.child) {
+            if (_.isFunction(this.handlers.error)) {
+              return this.handlers.error(message);
+            } else {
+              return this.trigger('error', message);
+            }
+          } else {
+            if ((_base = this.handlers).error == null) {
+              _base.error = function(err) {};
+            }
+            return this.handlers.error(message);
+          }
+        };
+      
+        Channel.prototype.dispose = function() {
+          var key, val, _ref1, _ref2;
+          if (this.disposed) {
+            return;
+          }
+          this.disposed = true;
+          if ((_ref1 = this.iframe) != null) {
+            _ref1.dispose();
+          }
+          _ref2 = this.handlers;
+          for (key in _ref2) {
+            val = _ref2[key];
+            if (key !== 'error') {
+              this.unbind(key);
+            }
+          }
+          if (typeof Object.freeze === "function") {
+            Object.freeze(this.handlers);
+          }
+          return typeof Object.freeze === "function" ? Object.freeze(this) : void 0;
+        };
+      
+        return Channel;
+      
+      })();
+      
+      module.exports = Channel;
+      
+      _.mixin((function() {
+        return {
+          'isWindow': function(obj) {
+            switch (false) {
+              case !!_.isObject(obj):
+                return false;
+              default:
+                return obj.window === obj;
+            }
+          },
+          'transform': function(obj, cb) {
+            var key, val;
+            for (key in obj) {
+              val = obj[key];
+              cb(obj, val, key);
+            }
+            return obj;
+          }
+        };
+      })());
+      
+    });
+
+    
+    // constants.coffee
+    require.register('pomme.js/src/constants.js', function(exports, require, module) {
+    
+      module.exports = {
+        'postmessage': '__pomme__',
+        'function': '__function::',
+        'iframe': '__pomme::',
+        'ready': '__ready'
+      };
+      
+    });
+
+    
+    // helpers.coffee
+    require.register('pomme.js/src/helpers.js', function(exports, require, module) {
+    
+      var root;
+      
+      root = window;
+      
+      module.exports = {
+        'nextTick': (function() {
+          var fns, tick;
+          switch (false) {
+            case !('setImmediate' in root && _.isFunction(root.setImmediate)):
+              return function(f) {
+                return setImmediate(f);
+              };
+            case !(typeof root === 'undefined' || 'ActiveXObject' in root || !'postMessage' in root):
+              return function(f) {
+                return setTimeout(f);
+              };
+            default:
+              fns = [];
+              tick = function() {
+                return root.postMessage('tick', '*');
+              };
+              root.addEventListener('message', function() {
+                var err, fn, _results;
+                _results = [];
+                while (fns.length) {
+                  fn = fns.shift();
+                  try {
+                    _results.push(fn());
+                  } catch (_error) {
+                    err = _error;
+                    tick();
+                    throw err;
+                  }
+                }
+                return _results;
+              }, true);
+              return function(fn) {
+                if (!fns.length) {
+                  tick();
+                }
+                return fns.push(fn);
+              };
+          }
+        })()
+      };
+      
+    });
+
+    
+    // iframe.coffee
+    require.register('pomme.js/src/iframe.js', function(exports, require, module) {
+    
+      var constants, iFrame;
+      
+      constants = require('./constants');
+      
+      iFrame = (function() {
+        function iFrame(_arg) {
+          var html, id, name, scope, target, template;
+          id = _arg.id, target = _arg.target, scope = _arg.scope, template = _arg.template;
+          try {
+            document.querySelector(target);
+          } catch (_error) {
+            return this.error('target selector not found');
+          }
+          name = constants.iframe + id || +(new Date);
+          this.node = document.createElement('iframe');
+          this.node.name = name;
+          document.querySelector(target).appendChild(this.node);
+          if (!_.isFunction(template)) {
+            return this.error('template is not a function');
+          }
+          if (!_.isString(html = template({
+            scope: scope
+          }))) {
+            return this.error('template did not return a string');
+          }
+          this.node.contentWindow.document.open();
+          this.node.contentWindow.document.write(html);
+          this.node.contentWindow.document.close();
+          this.el = window.frames[name];
+        }
+      
+        iFrame.prototype.error = function(message) {
+          this.dispose();
+          throw message;
+        };
+      
+        iFrame.prototype.dispose = function() {
+          if (this.disposed) {
+            return;
+          }
+          this.disposed = true;
+          if (this.node) {
+            switch (false) {
+              case !_.isFunction(this.node.remove):
+                this.node.remove();
+                break;
+              case !_.isFunction(this.node.removeNode):
+                this.node.removeNode(true);
+                break;
+              case !this.node.parentNode:
+                this.node.parentNode.removeChild(this.node);
+            }
+          }
+          return typeof Object.freeze === "function" ? Object.freeze(this) : void 0;
+        };
+      
+        return iFrame;
+      
+      })();
+      
+      module.exports = iFrame;
+      
+    });
+
+    
+    // router.coffee
+    require.register('pomme.js/src/router.js', function(exports, require, module) {
+    
+      var ChanID, FnID, Router, constants, router,
+        __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+        __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+      
+      constants = require('./constants');
+      
+      Router = (function() {
+        function Router() {
+          this.route = __bind(this.route, this);
+        }
+      
+        Router.prototype.table = {};
+      
+        Router.prototype.transactions = {};
+      
+        Router.prototype.register = function(win, scope, handler) {
+          var route, _base, _i, _len, _ref;
+          if (scope == null) {
+            scope = '';
+          }
+          if ((_base = this.table)[scope] == null) {
+            _base[scope] = [];
+          }
+          _ref = this.table[scope];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            route = _ref[_i];
+            if (route.win === win) {
+              throw "a channel is already bound to the same window under `" + scope + "`";
+            }
+          }
+          return this.table[scope].push({
+            win: win,
+            handler: handler
+          });
+        };
+      
+        Router.prototype.route = function(event) {
+          var data, method, route, scope, _i, _len, _ref, _ref1, _ref2;
+          data = null;
+          try {
+            data = JSON.parse(event.data);
+          } catch (_error) {}
+          if (!(_.isObject(data) && (_ref = constants.postmessage, __indexOf.call(_.keys(data), _ref) >= 0))) {
+            return;
+          }
+          scope = null;
+          method = null;
+          if (_.isString(data.method)) {
+            _ref1 = data.method.match(/^([^:]+)::(.+)$/).slice(1, 3), scope = _ref1[0], method = _ref1[1];
+            if (!(scope && method)) {
+              method = data.method;
+            }
+          }
+          if (method && (this.table[scope] != null)) {
+            _ref2 = this.table[scope];
+            for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+              route = _ref2[_i];
+              if (route.win === event.source) {
+                return route.handler(method, data.params);
+              }
+            }
+          }
+        };
+      
+        return Router;
+      
+      })();
+      
+      ChanID = (function() {
+        ChanID.prototype._id = 0;
+      
+        function ChanID() {
+          this.id = ChanID.prototype._id++;
+        }
+      
+        return ChanID;
+      
+      })();
+      
+      FnID = (function() {
+        FnID.prototype._id = 0;
+      
+        function FnID() {
+          this.id = constants["function"] + FnID.prototype._id++;
+        }
+      
+        return FnID;
+      
+      })();
+      
+      if (!('postMessage' in window)) {
+        throw 'cannot run in this browser, no postMessage';
+      }
+      
+      router = new Router();
+      
+      switch (false) {
+        case !('addEventListener' in window):
+          window.addEventListener('message', router.route, false);
+          break;
+        case !('attachEvent' in window):
+          window.attachEvent('onmessage', router.route);
+      }
+      
+      module.exports = {
+        ChanID: ChanID,
+        FnID: FnID,
+        router: router
+      };
+      
+    });
+  })();
+
+  // Return the main app.
+  var main = require("pomme.js/src/channel.js");
+
+  // AMD/RequireJS.
+  if (typeof define !== 'undefined' && define.amd) {
+  
+    define("pomme.js", [ /* load deps ahead of time */ ], function () {
+      return main;
+    });
+  
+    define("Pomme.js", [ /* load deps ahead of time */ ], function () {
+      return main;
+    });
+  
+    define("pommejs", [ /* load deps ahead of time */ ], function () {
+      return main;
+    });
+  
+    define("PommeJS", [ /* load deps ahead of time */ ], function () {
+      return main;
+    });
+  
+    define("pomme", [ /* load deps ahead of time */ ], function () {
+      return main;
+    });
+  
+    define("Pomme", [ /* load deps ahead of time */ ], function () {
+      return main;
+    });
+  
+  }
+
+  // CommonJS.
+  else if (typeof module !== 'undefined' && module.exports) {
+    module.exports = main;
+  }
+
+  // Globally exported.
+  else {
+  
+    root["pomme.js"] = main;
+  
+    root["Pomme.js"] = main;
+  
+    root["pommejs"] = main;
+  
+    root["PommeJS"] = main;
+  
+    root["pomme"] = main;
+  
+    root["Pomme"] = main;
+  
+  }
+
+  // Alias our app.
+  
+  require.alias("pomme.js/src/channel.js", "pomme.js/index.js");
+  
+  require.alias("pomme.js/src/channel.js", "Pomme.js/index.js");
+  
+  require.alias("pomme.js/src/channel.js", "pommejs/index.js");
+  
+  require.alias("pomme.js/src/channel.js", "PommeJS/index.js");
+  
+  require.alias("pomme.js/src/channel.js", "pomme/index.js");
+  
+  require.alias("pomme.js/src/channel.js", "Pomme/index.js");
+  
 })();

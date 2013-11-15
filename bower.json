@@ -1,6 +1,6 @@
 {
-    "name": "component-400",
-    "version": "0.3.1",
+    "name": "intermine-steps",
+    "version": "0.5.0-alpha",
     "dependencies": {
         "async": "0.2.5",
         "chaplin": "0.11.3",
@@ -9,17 +9,17 @@
         "lodash": "2.2.1",
         "modernizr": "2.6.2",
         "moment": "2.4.0",
-        "pomme.js": "0.2.4",
+        "pomme.js": "0.2.5",
         
-        "imjs": "2.9.0",
+        "imjs": "2.9.1",
         "im-tables": "1.5.2",
-        "im.apps-a": "https://raw.github.com/intermine/CDN/master/js/intermine/apps-a/1.2.0/intermine.apps-a.js",
-        "im.api": "https://raw.github.com/intermine/CDN/master/js/intermine/api-loader/latest/intermine.api.js",
-        "im.widgets.js": "https://raw.github.com/intermine/CDN/master/js/intermine/widgets/2.0.0/app.js",
+        "im.apps-a": "http://cdn.intermine.org/js/intermine/apps-a/1.2.0/intermine.apps-a.js",
+        "im.api": "http://cdn.intermine.org/js/intermine/api-loader/latest/intermine.api.js",
+        "im.widgets.js": "http://cdn.intermine.org/js/intermine/widgets/2.0.1/app.js",
         
-        "bootstrap2": "https://raw.github.com/intermine/CDN/master/css/bootstrap/2.0.4/css/bootstrap.css",
-        "setImmediate": "https://raw.github.com/intermine/CDN/master/js/setImmediate/1.0.1/setImmediate.js",
+        "bootstrap2": "http://cdn.intermine.org/css/bootstrap/2.0.4/css/bootstrap.css",
+        "setImmediate": "http://cdn.intermine.org/js/setImmediate/1.0.1/setImmediate.js",
         "google": "https://www.google.com/jsapi",
-        "fileSaver": "https://raw.github.com/intermine/CDN/master/js/filesaver.js/FileSaver.js"        
+        "fileSaver": "http://cdn.intermine.org/js/filesaver.js/FileSaver.js"        
     }
 }

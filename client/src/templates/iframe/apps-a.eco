@@ -9,6 +9,7 @@
 <body>
     <script>
     (function() {
+        var Pomme = require('pomme.js');
         var channel = new Pomme({ 'scope': 'apps-a' });
         channel.on('load', function(name, opts) {
             var apps = new intermine.appsA(document.location.origin);

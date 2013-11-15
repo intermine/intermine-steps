@@ -9027,6 +9027,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     return localRequire;
   };
 
+  // Global on server, window in browser.
+  var root = this;
+
+  // Do we already have require loader?
+  root.require = require = (typeof root.require !== 'undefined') ? root.require : require;
+
   // All our modules will see our own require.
   (function() {
     
@@ -10590,7 +10596,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         (function() {
           (function() {
-            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n\n    <script src="/iframe/im.apps-a.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var channel = new Pomme({ \'scope\': \'apps-a\' });\n        channel.on(\'load\', function(name, opts) {\n            var apps = new intermine.appsA(document.location.origin);\n            apps.load(name, \'body\', opts);\n        });\n    })();\n    </script>\n</body>\n</html>');
+            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n\n    <script src="/iframe/im.apps-a.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var Pomme = require(\'pomme.js\');\n        var channel = new Pomme({ \'scope\': \'apps-a\' });\n        channel.on(\'load\', function(name, opts) {\n            var apps = new intermine.appsA(document.location.origin);\n            apps.load(name, \'body\', opts);\n        });\n    })();\n    </script>\n</body>\n</html>');
           
           }).call(this);
           
@@ -10643,7 +10649,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         (function() {
           (function() {
-            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.tables.bundle.css" />\n    <script src="/iframe/im.tables.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var channel = new Pomme({ \'scope\': \'imtables\' });\n        channel.on(\'show\', function(config) {\n            config.service = new intermine.Service({\n                \'root\': config.mine,\n                \'token\': config.token,\n                // Throwing an error here will bubble it up to the parent.\n                // Alternatively, one can trigger an `error` event to the parent.\n                errorHandler: function(err) {\n                    throw err;\n                }\n            });\n            config.type = (config.type) ? config.type : \'table\';\n            $(\'body\').imWidget(config);\n        });\n    })();\n    </script>\n</body>\n</html>');
+            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.tables.bundle.css" />\n    <script src="/iframe/im.tables.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var Pomme = require(\'pomme.js\');\n        var channel = new Pomme({ \'scope\': \'imtables\' });\n        channel.on(\'show\', function(config) {\n            config.service = new intermine.Service({\n                \'root\': config.mine,\n                \'token\': config.token,\n                // Throwing an error here will bubble it up to the parent.\n                // Alternatively, one can trigger an `error` event to the parent.\n                errorHandler: function(err) {\n                    throw err;\n                }\n            });\n            config.type = (config.type) ? config.type : \'table\';\n            $(\'body\').imWidget(config);\n        });\n    })();\n    </script>\n</body>\n</html>');
           
           }).call(this);
           
@@ -10696,7 +10702,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         (function() {
           (function() {
-            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.widgets.bundle.css" />\n    <script src="/iframe/im.widgets.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var channel = new Pomme({ \'scope\': \'widgets\' });\n        channel.on(\'show\', function(config) {\n            var widgets = new window[\'list-widgets\']({\n                \'root\': config.mine + \'/service/\',\n                \'token\': config.token\n            });\n            widgets[config.type](config.id, config.list, \'body\', {});\n        });\n    })();\n    </script>\n</body>\n</html>');
+            __out.push('<!doctype html>\n<html>\n<head>\n    <meta charset="utf-8" />\n    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">\n    <link rel="stylesheet" href="/iframe/im.widgets.bundle.css" />\n    <script src="/iframe/im.widgets.bundle.js"></script>\n</head>\n<body>\n    <script>\n    (function() {\n        var Pomme = require(\'pomme.js\');\n        var channel = new Pomme({ \'scope\': \'widgets\' });\n        channel.on(\'show\', function(config) {\n            var ListWidgets = require(\'list-widgets\'),\n                widgets = new ListWidgets({\n                \'root\': config.mine + \'/service/\',\n                \'token\': config.token\n            });\n            widgets[config.type](config.id, config.list, \'body\', {});\n        });\n    })();\n    </script>\n</body>\n</html>');
           
           }).call(this);
           
@@ -12996,9 +13002,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   // Return the main app.
   var main = require("steps/client/src/initialize.js");
 
-  // Global on server, window in browser.
-  var root = this;
-
   // AMD/RequireJS.
   if (typeof define !== 'undefined' && define.amd) {
   
@@ -13024,9 +13027,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   
   require.alias("steps/client/src/initialize.js", "steps/index.js");
   
-
-  // Export internal loader?
-  root.require = (typeof root.require !== 'undefined') ? root.require : require;
 })();;/**
  * @license
  * Lo-Dash 2.2.1 (Custom Build) <http://lodash.com/>
@@ -39533,8 +39533,9 @@ Thu Jun 14 13:18:14 BST 2012
 }).call(this);
 
 (function() {
-  var CategoryResults, Deferred, IDResolutionJob, IS_NODE, IdResults, fold, funcutils, get, intermine, __root__,
+  var CategoryResults, Deferred, IDResolutionJob, IS_NODE, IdResults, concatMap, fold, funcutils, get, id, intermine, __root__,
     __hasProp = {}.hasOwnProperty,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   IS_NODE = typeof exports !== 'undefined';
@@ -39551,9 +39552,10 @@ Thu Jun 14 13:18:14 BST 2012
     funcutils = intermine.funcutils;
   }
 
-  get = funcutils.get, fold = funcutils.fold;
+  id = funcutils.id, get = funcutils.get, fold = funcutils.fold, concatMap = funcutils.concatMap;
 
   CategoryResults = (function() {
+    var getIssueMatches;
 
     function CategoryResults(results) {
       var k, v;
@@ -39564,16 +39566,34 @@ Thu Jun 14 13:18:14 BST 2012
       }
     }
 
+    getIssueMatches = concatMap(get('matches'));
+
+    CategoryResults.prototype.getMatches = function(k) {
+      var _ref;
+      if (k === 'MATCH') {
+        return this.matches[k];
+      } else {
+        return (_ref = getIssueMatches(this.matches[k])) != null ? _ref : [];
+      }
+    };
+
+    CategoryResults.prototype.getMatchIds = function(k) {
+      if (k != null) {
+        return this.getMatches(k).map(get('id'));
+      } else {
+        return this.allMatchIds();
+      }
+    };
+
     CategoryResults.prototype.goodMatchIds = function() {
-      return this.MATCH.map(get('id'));
+      return this.getMatchIds('MATCH');
     };
 
     CategoryResults.prototype.allMatchIds = function() {
       var combineIds,
         _this = this;
       combineIds = fold(function(res, issueSet) {
-        var _ref, _ref1, _ref2;
-        return res.concat((_ref = (_ref1 = _this[issueSet]) != null ? (_ref2 = _ref1.matches) != null ? _ref2.map(get('id')) : void 0 : void 0) != null ? _ref : []);
+        return res.concat(_this.getMatchIds(issueSet));
       });
       return combineIds(this.goodMatchIds(), ['DUPLICATE', 'WILDCARD', 'TYPE_CONVERTED', 'OTHER']);
     };
@@ -39583,6 +39603,7 @@ Thu Jun 14 13:18:14 BST 2012
   })();
 
   IdResults = (function() {
+    var flatten, getReasons, isGood;
 
     function IdResults(results) {
       var k, v;
@@ -39593,27 +39614,58 @@ Thu Jun 14 13:18:14 BST 2012
       }
     }
 
-    IdResults.prototype.goodMatchIds = function() {
-      var id, _i, _len, _ref, _results;
-      _ref = this.allMatchIds;
+    flatten = concatMap(id);
+
+    getReasons = function(match) {
+      var k, vals;
+      return flatten((function() {
+        var _ref, _results;
+        _ref = match.identifiers;
+        _results = [];
+        for (k in _ref) {
+          vals = _ref[k];
+          _results.push(vals);
+        }
+        return _results;
+      })());
+    };
+
+    isGood = function(match, k) {
+      return !(k != null) || __indexOf.call(getReasons(match), k) >= 0;
+    };
+
+    IdResults.prototype.getMatches = function(k) {
+      var match, _results;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        id = _ref[_i];
-        if (this[id].foo) {
+      for (id in this) {
+        if (!__hasProp.call(this, id)) continue;
+        match = this[id];
+        if (isGood(match, k)) {
+          _results.push(match);
+        }
+      }
+      return _results;
+    };
+
+    IdResults.prototype.getMatchIds = function(k) {
+      var match, _results;
+      _results = [];
+      for (id in this) {
+        if (!__hasProp.call(this, id)) continue;
+        match = this[id];
+        if (isGood(match, k)) {
           _results.push(id);
         }
       }
       return _results;
     };
 
+    IdResults.prototype.goodMatchIds = function() {
+      return this.getMatchIds('MATCH');
+    };
+
     IdResults.prototype.allMatchIds = function() {
-      var k, _results;
-      _results = [];
-      for (k in this) {
-        if (!__hasProp.call(this, k)) continue;
-        _results.push(k);
-      }
-      return _results;
+      return this.getMatchIds();
     };
 
     return IdResults;
@@ -39695,6 +39747,10 @@ Thu Jun 14 13:18:14 BST 2012
   };
 
   intermine.IDResolutionJob = IDResolutionJob;
+
+  intermine.CategoryResults = CategoryResults;
+
+  intermine.IdResults = IdResults;
 
 }).call(this);
 
@@ -42234,6 +42290,12 @@ Thu Jun 14 13:18:14 BST 2012
     return localRequire;
   };
 
+  // Global on server, window in browser.
+  var root = this;
+
+  // Do we already have require loader?
+  root.require = require = (typeof root.require !== 'undefined') ? root.require : require;
+
   // All our modules will see our own require.
   (function() {
     
@@ -42775,9 +42837,6 @@ Thu Jun 14 13:18:14 BST 2012
   // Return the main app.
   var main = require("pomme.js/src/channel.js");
 
-  // Global on server, window in browser.
-  var root = this;
-
   // AMD/RequireJS.
   if (typeof define !== 'undefined' && define.amd) {
   
@@ -42843,7 +42902,4 @@ Thu Jun 14 13:18:14 BST 2012
   
   require.alias("pomme.js/src/channel.js", "Pomme/index.js");
   
-
-  // Export internal loader?
-  root.require = (typeof root.require !== 'undefined') ? root.require : require;
 })();

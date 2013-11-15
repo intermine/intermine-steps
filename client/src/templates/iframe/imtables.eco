@@ -9,6 +9,7 @@
 <body>
     <script>
     (function() {
+        var Pomme = require('pomme.js');
         var channel = new Pomme({ 'scope': 'imtables' });
         channel.on('show', function(config) {
             config.service = new intermine.Service({

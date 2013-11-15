@@ -62,6 +62,7 @@ module.exports = (grunt) ->
                     'client/vendor/im.api/index.js'
                     'client/vendor/im.apps-a/index.js'
                     'client/vendor/underscore/underscore.js'
+                    
                     'client/vendor/pomme.js/build/app.js'
                 ]
                 dest: 'client/build/iframe/im.apps-a.bundle.js'
@@ -74,6 +75,7 @@ module.exports = (grunt) ->
                     'client/vendor/backbone/backbone.js'
                     'client/vendor/imjs/js/im.js'
                     'client/vendor/im-tables/js/imtables-mini-bundle.js'
+                    
                     'client/vendor/pomme.js/build/app.js'
                 ]
                 dest: 'client/build/iframe/im.tables.bundle.js'
@@ -88,7 +90,6 @@ module.exports = (grunt) ->
             # List Widgets.
             iframe_widgets_js:
                 src: [
-                    # Vendor.
                     'client/vendor/setImmediate/index.js'
                     'client/vendor/async/lib/async.js'
                     'client/vendor/jquery/jquery.js'
@@ -97,10 +98,9 @@ module.exports = (grunt) ->
                     'client/vendor/google/index'
                     'client/vendor/imjs/js/im.js'
                     'client/vendor/fileSaver/index.js'
-                    # Comms.
-                    'client/vendor/pomme.js/build/app.js'
-                    # Widgets.
                     'client/vendor/im.widgets.js/index.js'
+                    
+                    'client/vendor/pomme.js/build/app.js'
                 ]
                 dest: 'client/build/iframe/im.widgets.bundle.js'
 
