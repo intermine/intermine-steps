@@ -27,8 +27,8 @@ sudo n stable
 The app fetches a bunch of tools and their vendor dependencies, do so by using [Bower](http://bower.io/):
 
 ```bash
-$ sudo npm install -g bower
-$ bower install
+sudo npm install -g bower
+bower install
 ```
 
 It fetches libraries defined in the `bower.json` file.
@@ -38,8 +38,8 @@ It fetches libraries defined in the `bower.json` file.
 Another tool we are using is [Grunt](http://gruntjs.com/) that builds Steps and munges the different tools and its deps into single builds. To [install Grunt](http://gruntjs.com/getting-started) and make a build:
 
 ```bash
-$sudo npm install -g grunt-cli
-$ grunt
+sudo npm install -g grunt-cli
+grunt
 ```
 
 The build steps are defined in the file `Gruntfile.coffee`.
@@ -47,7 +47,7 @@ The build steps are defined in the file `Gruntfile.coffee`.
 When you are developing, it is recommended that you watch the default Grunt task like so:
 
 ```bash
-$ watch --color grunt
+watch --color grunt
 ```
 ###Steps###
 
@@ -61,7 +61,7 @@ and install the app dependencies:
 
 ```bash
 cd my-steps-directory
-$ npm install
+npm install
 ```
 
 
@@ -83,11 +83,6 @@ If you nedd to install the module `flatiron`
 
 ```
 sudo npm install flatiron -g
-```
-
-In your checkout directory run
-```
-npm install
 ```
 
 
@@ -117,6 +112,9 @@ For example:
     'extra': [ 'chart', 'flyfish' ]
 }
 ```
+
+with
+
 
 <table>
 <tr><th>
