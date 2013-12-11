@@ -24,7 +24,7 @@ $ sudo n stable
 
 Alternatively, install `node.js` [from sources](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager#debian-lmde).
 
-####Bower
+####Bower (optional)
 
 You can skip this step if you just want to start an instance of Steps without making changes to it.
 
@@ -37,7 +37,7 @@ $ bower install
 
 It fetches libraries defined in the `bower.json` file. So, whenever you make changes to this file, you need to re-run the `bower install` command and the `grunt` command which we will discuss next.
 
-####Grunt
+####Grunt (optional)
 
 You can skip this step if you just want to start an instance of Steps without making changes to it.
 
