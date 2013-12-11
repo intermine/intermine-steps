@@ -10,6 +10,17 @@ InterMine 2.0 Prototype preserving history of Steps
 
 Make sure you have [node.js](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager) installed which installs its package manager, [npm](https://npmjs.org/), too.
 
+`node.js` version v0.6.19, currently supported on Ubuntu is too old for `nps` to work.
+
+You can upgrade to the last release using npm itself (see [this page] (http://davidwalsh.name/upgrade-nodejs)
+
+```
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n stable
+```
+
+
 Clone this repository and install the app dependencies:
 
 ```bash
@@ -32,7 +43,7 @@ It fetches libraries defined in the `bower.json` file.
 Another tool we are using is [Grunt](http://gruntjs.com/) that builds Steps and munges the different tools and its deps into single builds. To [install Grunt](http://gruntjs.com/getting-started) and make a build:
 
 ```bash
-$Â npm install -g grunt-cli
+$sudo npm install -g grunt-cli
 $ grunt
 ```
 
@@ -58,13 +69,33 @@ If you need to get CoffeeScript `coffee` command, do the following step:
 $ sudo npm install coffee-script -g
 ```
 
+If you nedd to install the module `flatiron`
+
+```
+sudo npm install flatiron -g
+```
+
+In your checkout directory run
+```
+npm install
+```
+
+
 ##Configuration
 
-The default tools configuration can be observed in `tools/config.coffee`.
+The default tools configuration is in `tools/config.coffee`.
 
-At the top of the file you can see the mine we are using as a backend followed by a registry of tool labels that will show up in various scenarios.
+To change the application to point to your InterMine of interest, please edit line #4 of the file
 
-For example the following config:
+```
+     'mine': 'http://www.flymine.org/'
+```
+
+#### Registry of tools labels ####
+
+You will also find a registry of tool labels that will show up in various scenarios.
+
+For example:
 
 ```coffeescript
 {
@@ -76,6 +107,36 @@ For example the following config:
     'extra': [ 'chart', 'flyfish' ]
 }
 ```
+
+<table>
+<tr><th>
+label
+<td>
+This is the label that will show up in a menu. All the text from this label is searchable.
+</tr>
+<tr><th>weight
+<td>
+Will determine the order in which labels will show. Higher number means higher position. Labels below `10` do not initially show in a menu and one needs to click a button to expand the menu and show these.
+</tr>
+<tr><th>context
+<td>
+This label will show up when all of the context rules are met. The rules are just messages triggered by currently running tools.
+
+<tr><th>place
+<td>
+In which menu is this label to appear?
+</tr>
+<tr><th>category
+<td>
+An array allowing you to create a nested structure where your label will appear.
+</tr>
+<tr><th>extra
+<td>
+Parameters passed to a tool to differentiate between variants of it.
+</tr></table>
+
+
+
 
 #####label
 
