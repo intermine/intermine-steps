@@ -14,9 +14,9 @@ Make sure you have [node.js](https://github.com/joyent/node/wiki/Installing-Node
 
 `node.js` version v0.6.19, currently supported on Ubuntu, is too old for `npm` to work. You have two options:
 
-You can upgrade to the last release using npm itself (see [this page]) (http://davidwalsh.name/upgrade-nodejs)
+You can upgrade to the last release using npm itself (see [this page](http://davidwalsh.name/upgrade-nodejs))
 
-```
+```bash
 $ sudo npm cache clean -f
 $ sudo npm install -g n
 $ sudo n stable
@@ -53,7 +53,7 @@ The build steps are defined in the file `Gruntfile.coffee`. Whever you make chan
 When you are developing, it is recommended that you watch the default Grunt task like so:
 
 ```bash
-watch --color grunt
+$ watch --color grunt
 ```
 ###Steps###
 
@@ -66,8 +66,8 @@ git clone git@github.com:intermine/intermine-steps.git my-steps-directory
 and install the app dependencies:
 
 ```bash
-cd my-steps-directory
-npm install
+$ cd my-steps-directory
+$ npm install
 ```
 
 
@@ -78,31 +78,33 @@ Now we can startup Steps on a custom port and visit it in the browser.
 From your <em>steps</em> directory
 
 ```bash
-PORT=4444 coffee server/server.coffee
+$ PORT=4444 coffee server/server.coffee
 ```
 
 If you need to get CoffeeScript `coffee` command, do the following step:
 
 ```bash
-sudo npm install coffee-script -g
+$ sudo npm install coffee-script -g
 ```
 
-If you nedd to install the module `flatiron`
+If you need to install the module `flatiron`
 
-```
-sudo npm install flatiron -g
+```bash
+$ sudo npm install flatiron -g
 ```
 
 
 ##Configuration
 
 The default tools configuration is in `tools/config.coffee`.
+<!--
 
 To change the application to point to your InterMine of interest, please edit line #4 of the file
 
 ```
      'mine': 'http://www.flymine.org/'
 ```
+-->
 
 #### Registry of tools labels ####
 
@@ -132,11 +134,14 @@ This is the label that will show up in a menu. All the text from this label is s
 </tr>
 <tr><th>weight
 <td>
-Will determine the order in which labels will show. Higher number means higher position. Labels below `10` do not initially show in a menu and one needs to click a button to expand the menu and show these.
+Will determine the order in which labels will show. Higher number means higher position.
+Labels below <em>10</em> do not initially show in a menuand one needs to click a button
+to expand the menu and show these.
 </tr>
 <tr><th>context
 <td>
-This label will show up when all of the context rules are met. The rules are just messages triggered by currently running tools.
+This label will show up when all of the context rules are met.
+The rules are just messages triggered by currently running tools.
 
 <tr><th>place
 <td>
