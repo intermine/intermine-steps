@@ -67,16 +67,18 @@ npm install
 
 ##Startup
 
-Now we can startup Steps on a custom port and visit it in the browser:
+Now we can startup Steps on a custom port and visit it in the browser.
+
+From your <em>steps</em> directory
 
 ```bash
-$ PORT=4444 coffee server/server.coffee
+PORT=4444 coffee server/server.coffee
 ```
 
 If you need to get CoffeeScript `coffee` command, do the following step:
 
 ```bash
-$ sudo npm install coffee-script -g
+sudo npm install coffee-script -g
 ```
 
 If you nedd to install the module `flatiron`
