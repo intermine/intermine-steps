@@ -12,37 +12,43 @@ InterMine 2.0 Prototype preserving history of Steps
 
 Make sure you have [node.js](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager) installed which installs its package manager, [npm](https://npmjs.org/), too.
 
-`node.js` version v0.6.19, currently supported on Ubuntu, is too old for `npm` to work.
+`node.js` version v0.6.19, currently supported on Ubuntu, is too old for `npm` to work. You have two options:
 
 You can upgrade to the last release using npm itself (see [this page]) (http://davidwalsh.name/upgrade-nodejs)
 
 ```
-sudo npm cache clean -f
-sudo npm install -g n
-sudo n stable
+$ sudo npm cache clean -f
+$ sudo npm install -g n
+$ sudo n stable
 ```
 
+Alternatively, install `node.js` [from sources](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager#debian-lmde).
+
 ####Bower
+
+You can skip this step if you just want to start an instance of Steps without making changes to it.
 
 The app fetches a bunch of tools and their vendor dependencies, do so by using [Bower](http://bower.io/):
 
 ```bash
-sudo npm install -g bower
-bower install
+$ sudo npm install -g bower
+$ bower install
 ```
 
-It fetches libraries defined in the `bower.json` file.
+It fetches libraries defined in the `bower.json` file. So, whenever you make changes to this file, you need to re-run the `bower install` command and the `grunt` command which we will discuss next.
 
 ####Grunt
+
+You can skip this step if you just want to start an instance of Steps without making changes to it.
 
 Another tool we are using is [Grunt](http://gruntjs.com/) that builds Steps and munges the different tools and its deps into single builds. To [install Grunt](http://gruntjs.com/getting-started) and make a build:
 
 ```bash
-sudo npm install -g grunt-cli
-grunt
+$ sudo npm install -g grunt-cli
+$ grunt
 ```
 
-The build steps are defined in the file `Gruntfile.coffee`.
+The build steps are defined in the file `Gruntfile.coffee`. Whever you make changes to this file, or whenever you make changes to the `/src` or `/tools` directory, you need to run a new build using the `grunt` command.
 
 When you are developing, it is recommended that you watch the default Grunt task like so:
 
