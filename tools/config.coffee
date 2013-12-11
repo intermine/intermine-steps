@@ -1,7 +1,7 @@
 # Core configuration.
 exports.config =
     # Root URL for all mine requests (for now we only work with 1 mine).
-    'mine': 'http://www.flymine.org/'
+    'mine': 'http://www.flymine.org/query/'
     # A token so we can be creating lists in the background (throwaway account).
     'token': 'n1s3AaY1DcXbj3X740S5qbAMzYU'
 
