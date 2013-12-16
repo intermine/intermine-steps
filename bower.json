@@ -15,7 +15,7 @@
         "im-tables": "1.5.2",
         "im.apps-a": "http://cdn.intermine.org/js/intermine/apps-a/1.2.0/intermine.apps-a.js",
         "im.api": "http://cdn.intermine.org/js/intermine/api-loader/latest/intermine.api.js",
-        "im.widgets.js": "http://cdn.intermine.org/js/intermine/widgets/2.0.1/app.js",
+        "im.widgets.js": "http://cdn.intermine.org/js/intermine/widgets/2.0.0/app.js",
         
         "bootstrap2": "http://cdn.intermine.org/css/bootstrap/2.0.4/css/bootstrap.css",
         "setImmediate": "http://cdn.intermine.org/js/setImmediate/1.0.1/setImmediate.js",
