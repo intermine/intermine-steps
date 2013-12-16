@@ -12874,7 +12874,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     require.register('steps/tools/config.js', function(exports, require, module) {
     
       exports.config = {
-        'mine': 'http://www.flymine.org/release-38.0',
+        'mine': 'http://www.flymine.org/query/',
         'token': 'n1s3AaY1DcXbj3X740S5qbAMzYU'
       };
       
