@@ -36,9 +36,11 @@ First you need to specify where to get your app from, including its vendor depen
 Edit the `bower.json` file adding your app name and version (if published on Bower), or you can just point it to an http address:
 
 ```json
-"dependencies": {
-    "published-on-bower": "version",
-    "not-published-on-bower": "http://some.js"
+{
+    "dependencies": {
+        "published-on-bower": "version",
+        "not-published-on-bower": "http://some.js"
+    }
 }
 ```
 
