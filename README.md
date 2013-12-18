@@ -151,7 +151,7 @@ with
         <td>An array allowing you to create a nested structure where your label will appear.</td>
     </tr>
     <tr>
-        <th>extra<th>
+        <th>extra</th>
         <td>Parameters passed to a tool to differentiate between variants of it.</td>
     </tr>
 </table>
