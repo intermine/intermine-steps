@@ -339,3 +339,65 @@ channel.trigger 'show', config
 ```
 
 Inside the function we are bootstrapping the library passing it config which we passed above.
+
+##What can I expect with Steps?
+
+###Apps/A
+
+When you start the Steps service, it takes about another minute or so for some apps to get fetched from GitHub and to be ready. They are:
+
+1. `identifier-resolution`: the form you see on list upload
+1. `choose-list`: the table showing your lists
+
+###Modern browsers
+
+If your browser does not have support for some `HTML5` features, it will show an error message when you try to visit Steps.
+
+###User interface
+
+No mine-specific stylesheets are being loaded and most apps are in their raw form, usually styled with [Bootstrap](http://getbootstrap.com/) or [Foundation](http://foundation.zurb.com/) only.
+
+Some parts of the UI, like the homepage, shows example components that do nothing.
+
+###History view
+
+Is currently switched off. It shows the trail of history and allows you to visit tools you used in the past.
+
+You can switch it back on by editing the following property in `client/src/core/Layout.coffee`:
+
+```coffeescript
+showHistory: yes
+```
+
+###Help tooltips
+
+We are working on a framework that will let us show help for tools and apps in a consistent way. Currently, you can only see the help text by opening your `Console` and seeing the messages there. Help is configured in `tools/config.coffee` and is on a per-tool basis.
+
+
+###Loading spinners
+
+We are working on a framework that will let us show loading state for tools and apps in a consistent way. Currently, there is nothing implemented.
+
+###Breadcrumbs
+
+They show which tools you went though in the past. This does not mean visited, but means you executed their action. You can reset them (for yourself) by clicking on the "Reset Database" link on the homepage.
+
+###Accounts
+
+What accounts? When you run tools, they are only saved in your browser. But, if you create a list, for example, you are using the token specified in `tools/config.coffee`.
+
+###Multiple tabs
+
+You can open your work session in multiple tabs on the same browser. All your actions should be synced across all of them. These actions are only saved on the browser you are currently using, so if you use Chrome and then open Steps in Firefox, you won't see your changes from Chrome.
+
+###iframes
+
+All of our apps are being loaded within `iframes` so sandbox them. If we did not do that, all the CSS rules would start overwriting each other and this would result in a ghastly experience. What is worse is that the different JavaScript libraries would start clashing and one tool would *know out* the whole Steps.
+
+We are providing a nifty library called [Pomme.js](https://github.com/radekstepan/pomme.js) which makes comms between frames *usable*.
+
+###I click and nothing happens
+
+A lot of tools are not linked together. All the linkage can be seen in `tools/config.coffee`. Each tool can publish a new *context* which makes new tool labels appear. For some actions, this linking is not provided. A good example are List Widgets that are an end point from which you cannot go anywhere.
+
+Currently, you can either select an existing list or upload a new one and see List Widgets for them.
