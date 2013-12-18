@@ -2,6 +2,8 @@
 
 InterMine 2.0 Prototype preserving history of Steps
 
+**[Questions & Answers](client/q-n-a.md)**
+
 ![image](https://raw.github.com/intermine/intermine-steps/master/example.png)
 
 ##Install

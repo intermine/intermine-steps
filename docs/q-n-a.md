@@ -401,3 +401,45 @@ We are providing a nifty library called [Pomme.js](https://github.com/radekstepa
 A lot of tools are not linked together. All the linkage can be seen in `tools/config.coffee`. Each tool can publish a new *context* which makes new tool labels appear. For some actions, this linking is not provided. A good example are List Widgets that are an end point from which you cannot go anywhere.
 
 Currently, you can either select an existing list or upload a new one and see List Widgets for them.
+
+##I want Steps to match my mine theme
+
+Create a file called `client/src/theme.css` with your custom mine colors.
+
+Edit `Gruntfile.coffee` editing the following section like so:
+
+```coffeescript
+    # Merge client side app with its dependencies.
+    styles:
+        src: [
+            # App style.
+            'client/build/app.css'
+            # Custom theme.
+            'client/src/theme.css'
+        ]
+        dest: 'client/build/app.bundle.css'
+```
+
+Run the `Grunt` build and refresh Steps.
+
+We are currently working on a consistent user interface framework. Until then, the only way to theme Steps is to inspect the different DOM elements in `Console` and override their styles.
+
+If you need to theme your apps and you are using iframes, you need to edit the `Gruntfile.coffee` in much the same way, adding your theme file into the section that produces a CSS package for your app. Refer above on how to plugin your own tool.
+
+##How is Steps currently configured?
+
+There are 3 tools (below) configured. All 3 use an `<iframe/>` for rendering stuff. This allows us to use a different mix of libraries.
+
+###Tools
+
+####Choose a List
+
+Appears on the homepage and in the title bar. Chooses a List. The Output is a **Results Table**.
+
+####Upload a List/Resolve Identifiers
+
+Appears on the homepage and in the title bar. Creates a List behind the scenes. This List has a name of the current timestamp and has extra tags to distinguish it from a "normal" Lists. The Output is a **Results Table**.
+
+####List Widgets
+
+Only appear when someone says that a Gene List has been selected/created. When a Tool says so, we skip straight to Output which shows **List Widgets**. If we click on Input step we see an app much like on *Choose a List* Tool.
