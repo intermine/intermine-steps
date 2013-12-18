@@ -63,7 +63,7 @@ Edit the `Gruntfile.coffee` file in the `concat` section:
             dest: 'client/build/myapp.js'
 ```
 
-Run the built task now:
+Run the build task now:
 
 ```bash
 $ grunt
