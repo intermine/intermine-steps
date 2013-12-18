@@ -59,10 +59,10 @@ Currently, all apps and their dependencies need to be packaged up into a single 
 Edit the `Gruntfile.coffee` file in the `concat` section:
 
 ```coffeescript
-    concat:
-        my_app:
-            src: [ 'some.js', 'another.js' ]
-            dest: 'client/build/myapp.js'
+concat:
+    my_app:
+        src: [ 'some.js', 'another.js' ]
+        dest: 'client/build/myapp.js'
 ```
 
 Run the build task now:
@@ -103,7 +103,7 @@ Now [PascalCase](http://c2.com/cgi/wiki?PascalCase) the `slug` and create a fold
 
 A model represents the *data* of a tool.
 
-```coffescript
+```coffeescript
 Tool = require '/steps/client/src/models/Tool'
 
 module.exports = class MyTool extends Tool
