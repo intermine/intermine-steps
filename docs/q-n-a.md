@@ -446,6 +446,8 @@ Appears on the homepage and in the title bar. Chooses a List. The Output is a **
 
 Appears on the homepage and in the title bar. Creates a List behind the scenes. This List has a name of the current timestamp and has extra tags to distinguish it from a "normal" Lists. The Output is a **Results Table**.
 
+Please note that at this stage, if nothing change in the page the application is either still querying the database or no match has been found.
+
 ####List Widgets
 
 Only appear when someone says that a Gene List has been selected/created. When a Tool says so, we skip straight to Output which shows **List Widgets**. If we click on Input step we see an app much like on *Choose a List* Tool.
