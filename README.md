@@ -125,34 +125,33 @@ For example:
 
 with
 
-
 <table>
-<tr><th>
-label
-<td>
-This is the label that will show up in a menu. All the text from this label is searchable.
-</tr>
-<tr><th>weight
-<td>
-Will determine the order in which labels will show. Higher number means higher position.
-Labels below <em>10</em> do not initially show in a menuand one needs to click a button
-to expand the menu and show these.
-</tr>
-<tr><th>context
-<td>
-This label will show up when all of the context rules are met.
-The rules are just messages triggered by currently running tools.
-
-<tr><th>place
-<td>
-In which menu is this label to appear?
-</tr>
-<tr><th>category
-<td>
-An array allowing you to create a nested structure where your label will appear.
-</tr>
-<tr><th>extra
-<td>
-Parameters passed to a tool to differentiate between variants of it.
-</tr></table>
-
+    <tr>
+        <th>label</th>
+        <td>This is the label that will show up in a menu. All the text from this label is
+        searchable.</td>
+    </tr>
+    <tr>
+        <th>weight</th>
+        <td>Will determine the order in which labels will show. Higher number means higher
+        position. Labels below <em>10</em> do not initially show in a menuand one needs to
+        click a button to expand the menu and show these.</td>
+    </tr>
+    <tr>
+        <th>context</th>
+        <td>This label will show up when all of the context rules are met. The rules are just
+        messages triggered by currently running tools.</td>
+    </tr>
+    <tr>
+        <th>place</th>
+        <td>In which menu is this label to appear?</td>
+    </tr>
+    <tr>
+        <th>category</th>
+        <td>An array allowing you to create a nested structure where your label will appear.</td>
+    </tr>
+    <tr>
+        <th>extra<th>
+        <td>Parameters passed to a tool to differentiate between variants of it.</td>
+    </tr>
+</table>
