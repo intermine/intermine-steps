@@ -420,15 +420,15 @@ Create a file called `client/src/theme.css` with your custom mine colors.
 Edit `Gruntfile.coffee` editing the following section like so:
 
 ```coffeescript
-    # Merge client side app with its dependencies.
-    styles:
-        src: [
-            # App style.
-            'client/build/app.css'
-            # Custom theme.
-            'client/src/theme.css'
-        ]
-        dest: 'client/build/app.bundle.css'
+# Merge client side app with its dependencies.
+styles:
+    src: [
+        # App style.
+        'client/build/app.css'
+        # Custom theme.
+        'client/src/theme.css'
+    ]
+    dest: 'client/build/app.bundle.css'
 ```
 
 Run the `Grunt` build and refresh Steps.
