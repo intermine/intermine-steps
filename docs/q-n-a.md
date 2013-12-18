@@ -17,10 +17,11 @@ Currently these point to FlyMine and use a throwaway account token.
 Now **rebuild** the client source files and refresh your browser.
 
 If you need to get create a token for your mine:
-# login to you mine account
-# go to *MyMine*
-# go to the *Account details* page
-# generate a new API Access Key (or use any existing one if present)
+
+1. Login to you mine account
+1. Go to *MyMine*
+1. Go to the *Account details* page
+1. Generate a new API Access Key (or use any existing one if present)
 
 Please note that this token will be **publicly visible** in your built files.
 
