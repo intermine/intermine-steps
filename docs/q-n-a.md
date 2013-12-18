@@ -16,6 +16,12 @@ Currently these point to FlyMine and use a throwaway account token.
 
 Now **rebuild** the client source files and refresh your browser.
 
+If you need to get create a token for your mine:
+* login
+* go to mymine
+* go to the <em>Account details</em> page
+* generate a new API Access Key (or use any existing one if present)
+
 #How would I get some tools for my mine?
 
 Let us assume you have a JavaScript file somewhere that you'd like to load as a Tool in Steps.
