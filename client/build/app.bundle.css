@@ -134,7 +134,7 @@ section#middle.-steps-ui .box.-steps-ui div.tools h4.size-9{font-size:-11px;marg
 section#middle.-steps-ui .box.-steps-ui .noactions{margin:-15px 15px 15px 15px}
 section#middle.-steps-ui .box.-steps-ui .content{-webkit-border-radius:0 0 2px 2px;border-radius:0 0 2px 2px}
 section#middle.-steps-ui .nobox.-steps-ui h2{font-size:20px;margin-top:0}
-section#middle.-steps-ui aside.-steps-ui{position:absolute;top:0;width:250px;background:#f5f6f9;-webkit-border-radius:2px;border-radius:2px;top:20px;border:1px solid #bccad5;-webkit-box-shadow:-3px 3px 3px rgba(0,0,0,0.05);box-shadow:-3px 3px 3px rgba(0,0,0,0.05);}
+section#middle.-steps-ui aside.-steps-ui{position:fixed;top:0;width:250px;background:#f5f6f9;-webkit-border-radius:2px;border-radius:2px;top:70px;border:1px solid #bccad5;-webkit-box-shadow:-3px 3px 3px rgba(0,0,0,0.05);box-shadow:-3px 3px 3px rgba(0,0,0,0.05);}
 section#middle.-steps-ui aside.-steps-ui .content{padding:10px 15px;-webkit-border-radius:0 0 2px 2px;border-radius:0 0 2px 2px}
 section#middle.-steps-ui aside.-steps-ui#right{right:20px}
 section#middle.-steps-ui aside.-steps-ui#history{left:20px;z-index:2;-webkit-transition:width 0.25s ease-in-out;-moz-transition:width 0.25s ease-in-out;-o-transition:width 0.25s ease-in-out;-ms-transition:width 0.25s ease-in-out;transition:width 0.25s ease-in-out;}
