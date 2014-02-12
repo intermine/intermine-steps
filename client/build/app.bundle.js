@@ -9605,7 +9605,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           return _ref;
         }
       
-        Layout.prototype.showHistory = false;
+        Layout.prototype.showHistory = true;
       
         return Layout;
       
@@ -10195,7 +10195,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         (function() {
           (function() {
-            __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="row">\n            <div class="third column">\n                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a></p>\n            </div>\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second column">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="-steps-ui">\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right" class="-steps-ui"></aside>\n    </section>\n</div>\n\n<!-- tools used in the history -->\n<div id="history" class="-steps-ui"></div>');
+            __out.push('<div id="wrapper">\n    <!-- header, account etc. -->\n    <header id="top">\n        <div class="row">\n            <div class="third column">\n                <p>Monsieur Tout-le-Monde <span>&#8226;</span> <a>Logout</a></p>\n            </div>\n            <div class="first column">\n                <a href="/"><h1>InterMine Steps <span>&alpha;</span></h1></a>\n            </div>\n            <div class="second column">\n                <input id="search" type="text" placeholder="e.g. list upload, PPARG" />\n                <div id="always-on"></div>\n            </div>\n        </div>\n    </header>\n\n    <section id="middle" class="-steps-ui">\n        <!-- tools used in the history -->\n        <aside id="history" class="-steps-ui"></aside>\n        <!-- the tool -->\n        <div id="widget"></div>\n        <!-- from here -->\n        <aside id="right" class="-steps-ui"></aside>\n    </section>\n</div>');
           
           }).call(this);
           
@@ -10543,7 +10543,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         (function() {
           (function() {
-            __out.push('<div class="head">\n    <a class="serialize button -steps-ui">Serialize</a>\n    <a class="hide secondary button -steps-ui" style="margin-right:10px">Hide</a>\n    <a href="/app/reset" class="button secondary -steps-ui" style="margin-right:10px">Clear</a>\n    <h1><span class="entypo flowbranch -steps-ui"></span> History</h1>\n    <p class="message">Steps you have taken will be populated here as you work with this app.</p>\n</div>\n\n<div id="tools">\n    <svg class="canvas"></svg>\n    <table class="grid"></table>\n</div>');
+            __out.push('<table class="tabs -steps-ui">\n    <tr>\n        <td class="active"><div><h3>History</h3></div></td>\n    </tr>\n</table>\n<div class="content">\n    <div id="tools">\n        <svg class="canvas"></svg>\n        <table class="grid"></table>\n    </div>\n</div>');
           
           }).call(this);
           
@@ -11352,7 +11352,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           HistoryView.__super__.attach.apply(this, arguments);
           this.tools = $(this.el).find('#tools');
           (height = function() {
-            return _this.tools.css('height', ($(window).height() * .33) - 85);
+            return _this.tools.css('height', $(window).height() * .50);
           })();
           $(window).resize(height);
           this.checkCollection();

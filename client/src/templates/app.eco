@@ -16,12 +16,11 @@
     </header>
 
     <section id="middle" class="-steps-ui">
+        <!-- tools used in the history -->
+        <aside id="history" class="-steps-ui"></aside>
         <!-- the tool -->
         <div id="widget"></div>
         <!-- from here -->
         <aside id="right" class="-steps-ui"></aside>
     </section>
 </div>
-
-<!-- tools used in the history -->
-<div id="history" class="-steps-ui"></div>

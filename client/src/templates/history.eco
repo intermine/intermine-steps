@@ -1,12 +1,11 @@
-<div class="head">
-    <a class="serialize button -steps-ui">Serialize</a>
-    <a class="hide secondary button -steps-ui" style="margin-right:10px">Hide</a>
-    <a href="/app/reset" class="button secondary -steps-ui" style="margin-right:10px">Clear</a>
-    <h1><span class="entypo flowbranch -steps-ui"></span> History</h1>
-    <p class="message">Steps you have taken will be populated here as you work with this app.</p>
-</div>
-
-<div id="tools">
-    <svg class="canvas"></svg>
-    <table class="grid"></table>
+<table class="tabs -steps-ui">
+    <tr>
+        <td class="active"><div><h3>History</h3></div></td>
+    </tr>
+</table>
+<div class="content">
+    <div id="tools">
+        <svg class="canvas"></svg>
+        <table class="grid"></table>
+    </div>
 </div>
